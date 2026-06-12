@@ -122,7 +122,7 @@ const GAME = {
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
         waterGlint: { x: 210, y: 106 },
-        gateDoor: { x: 424, y: 76, w: 50, h: 76 }
+        gateDoor: { x: 422, y: 77, w: 49, h: 84 }
       },
       hotspots: [
         {
@@ -173,20 +173,53 @@ const GAME = {
           riddle: {
             setFlag: 'riddleSolved',
             reward: 'vest',
-            title: { nl: 'Het Raadsel van de Ziener', en: 'The Seer’s Riddle' },
-            question: {
-              nl: '“Het bibberende hondje, zeg je? Los mijn raadsel op... Ik val zonder te springen, ik dans zonder benen, en in de herfst ben ik koning. Wat ben ik?”',
-              en: '“The shivering puppy, you say? Solve my riddle... I fall without jumping, I dance without legs, and in autumn I am king. What am I?”'
+            title: { nl: 'De Proef van de Ziener', en: 'The Seer’s Trial' },
+            intro: {
+              nl: '“Het bibberende hondje, zeg je? Drie raadsels stel ik je. Eén fout, en we beginnen opnieuw...”',
+              en: '“The shivering puppy, you say? Three riddles I shall pose. One mistake, and we start anew...”'
             },
-            answers: [
-              { t: { nl: 'Een blad', en: 'A leaf' }, ok: true },
-              { t: { nl: 'De regen', en: 'The rain' }, ok: false },
-              { t: { nl: 'De wind', en: 'The wind' }, ok: false }
+            questions: [
+              {
+                q: {
+                  nl: 'Raadsel 1: “Ik val zonder te springen, ik dans zonder benen, en in de herfst ben ik koning. Wat ben ik?”',
+                  en: 'Riddle 1: “I fall without jumping, I dance without legs, and in autumn I am king. What am I?”'
+                },
+                answers: [
+                  { t: { nl: 'Een blad', en: 'A leaf' }, ok: true },
+                  { t: { nl: 'De regen', en: 'The rain' }, ok: false },
+                  { t: { nl: 'De schaduw', en: 'The shadow' }, ok: false }
+                ]
+              },
+              {
+                q: {
+                  nl: 'Raadsel 2: “Ik heb geen mond en toch fluister ik door de bomen. Ik heb geen handen en toch strooi ik de bladeren. Wie ben ik?”',
+                  en: 'Riddle 2: “I have no mouth, yet I whisper through the trees. I have no hands, yet I scatter the leaves. Who am I?”'
+                },
+                answers: [
+                  { t: { nl: 'De wind', en: 'The wind' }, ok: true },
+                  { t: { nl: 'Een geest', en: 'A ghost' }, ok: false },
+                  { t: { nl: 'De rivier', en: 'The river' }, ok: false }
+                ]
+              },
+              {
+                q: {
+                  nl: 'Raadsel 3: “Hoe meer je van mij wegneemt, hoe groter ik word. Wat ben ik?”',
+                  en: 'Riddle 3: “The more you take away from me, the bigger I become. What am I?”'
+                },
+                answers: [
+                  { t: { nl: 'Een gat', en: 'A hole' }, ok: true },
+                  { t: { nl: 'De honger', en: 'Hunger' }, ok: false },
+                  { t: { nl: 'De stilte', en: 'The silence' }, ok: false }
+                ]
+              }
             ],
-            wrongText: { nl: '“Nee... luister nog eens naar het bos.”', en: '“No... listen to the woods once more.”' },
+            wrongText: {
+              nl: '“Nee. Eén fout is genoeg — de proef begint opnieuw. Luister beter...”',
+              en: '“No. One mistake is enough — the trial begins anew. Listen more closely...”'
+            },
             solvedText: {
-              nl: '“Wijs geantwoord.” De ziener haalt een klein rood vestje uit zijn gewaad. “Voor de kleine bibberaar tussen de stenen.”',
-              en: '“Wisely answered.” The seer draws a small red vest from his robe. “For the little shiverer among the stones.”'
+              nl: '“Drie van drie. Wijs geantwoord.” De ziener haalt een klein rood vestje uit zijn gewaad. “Voor de kleine bibberaar bij de kist.”',
+              en: '“Three of three. Wisely answered.” The seer draws a small red vest from his robe. “For the little shiverer by the chest.”'
             }
           },
           look: {
@@ -270,7 +303,7 @@ const GAME = {
         { item: 'vialEmpty', hotspot: 'chest', x: 393, y: 128, requiresFlag: 'runesSolved' }
       ],
       npcs: [
-        { id: 'dog', sprite: 'dog', x: 232, y: 208, facesLeft: true, wanderRequiresFlag: 'dogWarm',
+        { id: 'dog', sprite: 'dog', x: 393, y: 207, facesLeft: true, wanderRequiresFlag: 'dogWarm',
           wander: { x: 150, y: 180, w: 190, h: 55, speed: 48, pauseMin: 1500, pauseMax: 4500 } }
       ],
       puzzles: {
@@ -279,8 +312,8 @@ const GAME = {
           setFlag: 'runesSolved',
           requiresFlag: 'dogWarm',
           blockedText: {
-            nl: 'De runen blijven dof. Het rillende hondje jankt zachtjes tussen de stenen — misschien moet je het eerst helpen.',
-            en: 'The runes stay dull. The shivering puppy whimpers among the stones — perhaps you should help it first.'
+            nl: 'De runen blijven dof. Verderop zit een rillend hondje pal voor de stenen kist — misschien moet je het eerst helpen.',
+            en: 'The runes stay dull. Nearby, a shivering puppy sits right in front of the stone chest — perhaps you should help it first.'
           },
           stepText: { nl: 'De runensteen gloeit warm op...', en: 'The rune stone glows warmly...' },
           resetText: { nl: 'De stenen doven met een zucht. Die volgorde klopt niet.', en: 'The stones dim with a sigh. That order isn’t right.' },
@@ -360,12 +393,23 @@ const GAME = {
           id: 'chest',
           name: { nl: 'Stenen Kist', en: 'Stone Chest' },
           rect: { x: 350, y: 90, w: 88, h: 82 },
-          walkTo: { x: 393, y: 192 },
-          requiresFlag: 'runesSolved',
-          blockedText: {
-            nl: 'De kist zit muurvast verzegeld. De runenstenen ernaast zoemen verwachtingsvol.',
-            en: 'The chest is sealed tight. The rune stones beside it hum expectantly.'
-          },
+          walkTo: { x: 360, y: 198 },
+          blockedBy: [
+            {
+              flag: 'dogWarm',
+              text: {
+                nl: 'Het bibberende hondje zit pal voor de kist en vertikt het om opzij te gaan. Help het arme dier eerst warm te worden.',
+                en: 'The shivering puppy sits right in front of the chest and refuses to budge. Help the poor thing get warm first.'
+              }
+            },
+            {
+              flag: 'runesSolved',
+              text: {
+                nl: 'De kist zit muurvast verzegeld. De runenstenen ernaast zoemen verwachtingsvol.',
+                en: 'The chest is sealed tight. The rune stones beside it hum expectantly.'
+              }
+            }
+          ],
           gives: {
             item: 'vialEmpty',
             giveText: {
@@ -502,8 +546,8 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Terug naar de Binnenplaats', en: 'Back to the Courtyard' },
-          rect: { x: 24, y: 80, w: 76, h: 126 },
-          walkTo: { x: 95, y: 216 },
+          rect: { x: 24, y: 80, w: 84, h: 152 },
+          walkTo: { x: 92, y: 212 },
           arrow: { x: 62, y: 160, dir: 'left' },
           exit: {
             to: 'courtyard',

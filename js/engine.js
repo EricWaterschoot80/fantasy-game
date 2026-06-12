@@ -80,6 +80,7 @@
       minotaur: 'assets/art/minotaur.png',
       minotaurAsleep: 'assets/art/minotaur-asleep.png',
       dog: 'assets/art/dog.png',
+      dogCold: 'assets/art/dog-cold.png',
       dogVest: 'assets/art/dog-vest.png',
       chestOpen: 'assets/art/chest-open.png',
       gateDoor: 'assets/art/gate-door.png'
@@ -526,6 +527,9 @@
     }
 
     /* Partikels */
+    /* Uitgangen triggeren door ernaartoe te lopen (eerst even weg zijn) */
+    checkExitProximity(scene);
+
     for (const Lf of leaves) {
       Lf.y += Lf.speed * dt;
       Lf.phase += Lf.swayFreq * dt;
@@ -560,6 +564,26 @@
       s.x += s.vx * dt; s.y += s.vy * dt;
       s.vx *= 0.96; s.vy *= 0.96;
       if (s.life <= 0) sparks.splice(i, 1);
+    }
+  }
+
+  /* Per scene: een uitgang is pas "gewapend" zodra je er even vandaan
+     bent — anders stuiter je direct terug na het binnenkomen. */
+  let exitArm = {};
+  function checkExitProximity(scene) {
+    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden) return;
+    for (const hs of scene.hotspots) {
+      if (!hs.exit || !hs.walkTo) continue;
+      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
+      const d = Math.hypot(player.x - hs.walkTo.x, player.y - hs.walkTo.y);
+      if (!exitArm[hs.id]) {
+        if (d > 30) exitArm[hs.id] = true;
+      } else if (d < 13) {
+        player.target = null;
+        player.pending = null;
+        travelTo(hs.exit.to, hs.exit.travelText);
+        return;
+      }
     }
   }
 
@@ -909,7 +933,9 @@
       drawSprite(fctx, SEER_FRAMES[f], (rt.x - SEER_W * S / 2) | 0, (rt.y - SEER_H * S) | 0, false, S);
     } else if (npc.sprite === 'dog') {
       const warm = state.flags.dogWarm;
-      const img = warm && ready(art.sprites.dogVest) ? art.sprites.dogVest : art.sprites.dog;
+      const img = warm
+        ? (ready(art.sprites.dogVest) ? art.sprites.dogVest : art.sprites.dog)
+        : (ready(art.sprites.dogCold) ? art.sprites.dogCold : art.sprites.dog);
       if (!ready(img)) return;
       /* sprite kijkt van zichzelf naar links → flip omdraaien */
       const fl = npc.facesLeft ? !rt.flip : rt.flip;
@@ -1281,33 +1307,47 @@
   const elRiddleAns   = document.getElementById('riddle-answers');
   const elRiddleClose = document.getElementById('riddle-close');
 
+  /* Meertraps-proef: alle raadsels goed; één fout = opnieuw beginnen. */
   function openRiddle(hs) {
     const r = hs.riddle;
     elRiddleTitle.textContent = L(r.title);
-    elRiddleQ.textContent = L(r.question);
+    if (r.intro) say(r.intro, hsSpeaker(hs));
+    showRiddleQuestion(hs, 0);
+    elRiddle.hidden = false;
+    sfx('tap');
+  }
+
+  function showRiddleQuestion(hs, idx) {
+    const r = hs.riddle;
+    const item = r.questions[idx];
+    elRiddleQ.textContent = L(item.q);
     elRiddleAns.innerHTML = '';
-    const shuffled = r.answers.slice().sort(() => Math.random() - 0.5);
+    const shuffled = item.answers.slice().sort(() => Math.random() - 0.5);
     for (const ans of shuffled) {
       const btn = document.createElement('button');
       btn.className = 'gold-btn riddle-ans';
       btn.textContent = L(ans.t);
       btn.addEventListener('click', () => {
         if (ans.ok) {
-          state.flags[r.setFlag] = true;
-          elRiddle.hidden = true;
-          if (r.reward) { addItem(r.reward); sfx('pickup'); }
-          say(r.solvedText, hsSpeaker(hs));
-          updateQuest();
+          if (idx + 1 < r.questions.length) {
+            sfx('pickup');
+            showRiddleQuestion(hs, idx + 1);
+          } else {
+            state.flags[r.setFlag] = true;
+            elRiddle.hidden = true;
+            if (r.reward) { addItem(r.reward); sfx('pickup'); }
+            say(r.solvedText, hsSpeaker(hs));
+            updateQuest();
+          }
         } else {
           sfx('error');
           elRiddleQ.textContent = L(r.wrongText);
-          setTimeout(() => { elRiddleQ.textContent = L(r.question); }, 1400);
+          elRiddleAns.innerHTML = '';
+          setTimeout(() => showRiddleQuestion(hs, 0), 1500);
         }
       });
       elRiddleAns.appendChild(btn);
     }
-    elRiddle.hidden = false;
-    sfx('tap');
   }
   elRiddleClose.addEventListener('click', () => { elRiddle.hidden = true; });
 
@@ -1383,6 +1423,15 @@
         say(hs.gives.emptyText || lookText(hs));
         return;
       }
+      if (hs.blockedBy) {
+        for (const b of hs.blockedBy) {
+          if (!state.flags[b.flag]) {
+            sfx('error');
+            say(b.text);
+            return;
+          }
+        }
+      }
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) {
         sfx('error');
         say(hs.blockedText || GAME.strings.noEffect);
@@ -1444,6 +1493,7 @@
       player.x = spawn.x; player.y = spawn.y;
       player.target = null; player.pending = null;
       player.flip = spawn.x >= SCENE_W / 2;
+      exitArm = {};
       initNpcs();
       initFireflies((scene.fx && scene.fx.fireflies) || 0);
       embers.length = 0;
@@ -1540,6 +1590,7 @@
     player.x = s.x; player.y = s.y;
     player.target = null; player.pending = null;
     player.dir = 'down'; player.flip = false; player.phase = 0;
+    exitArm = {};
     initNpcs();
     initFireflies(0);
     embers.length = 0;
