@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Claude Code sessie-configuratie
+.claude/
+
+# Grote bronbestanden (inspiratie-screenshots en onbewerkte AI-output)
+IMG_*.PNG
+assets/raw/
+assets/scenes/

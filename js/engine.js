@@ -1,0 +1,1497 @@
+/* ============================================================
+   engine.js — pixel-adventure engine van "De Amulet van Emberfall"
+   Verhaal in data.js (GAME, tweetalig); graphics: AI-art in
+   assets/art/ met procedurele pixel-fallback (sprites/scenes.js).
+
+   Systemen: lopen + botsing (walkable/obstacles), voorgrond-
+   occlusie (overlays), zwervende NPC's, volgorde-puzzels,
+   doodsmechaniek, generatieve muziek + sfx, NL/EN, partikels.
+   ============================================================ */
+
+(() => {
+  'use strict';
+
+  /* ---------- DOM ---------- */
+  const canvas      = document.getElementById('game');
+  const ctx         = canvas.getContext('2d');
+  const elLabel     = document.getElementById('hotspot-label');
+  const elQuest     = document.getElementById('quest');
+  const elHintBtn   = document.getElementById('hintBtn');
+  const elSoundBtn  = document.getElementById('soundBtn');
+  const elLangBtn   = document.getElementById('langBtn');
+  const elMsg       = document.getElementById('msg');
+  const elMsgText   = document.getElementById('msgText');
+  const elMsgMore   = document.getElementById('msgMore');
+  const elBubble    = document.getElementById('bubble');
+  const elBubbleTxt = document.getElementById('bubbleText');
+  const elToast     = document.getElementById('toast');
+  const elInvbar    = document.getElementById('invbar');
+  const elTitle     = document.getElementById('title-screen');
+  const elWin       = document.getElementById('win-screen');
+  const elWinText   = document.getElementById('winText');
+  const elDeath     = document.getElementById('death-screen');
+  const elDeathText = document.getElementById('deathText');
+  const elStartBtn  = document.getElementById('startBtn');
+  const elReplayBtn = document.getElementById('replayBtn');
+  const elRetryBtn  = document.getElementById('retryBtn');
+
+  const MIN_SLOTS = 5;
+  const WALK_SPEED = 95;
+  const ARRIVE_DIST = 4;
+
+  /* ---------- Taal ---------- */
+  let lang = 'nl';
+  try { lang = localStorage.getItem('emberfall_lang') || 'nl'; } catch (e) { /* prima */ }
+  const L = (v) => v == null ? '' : (typeof v === 'string' ? v : (v[lang] || v.nl || ''));
+
+  function applyLang() {
+    document.documentElement.lang = lang;
+    elLangBtn.textContent = lang === 'nl' ? 'EN' : 'NL';
+    document.getElementById('title-h1').innerHTML =
+      GAME.titleLines[lang].map(s => `<span>${s}</span>`).join('<br>');
+    document.getElementById('title-sub').textContent = L(GAME.ui.subtitle);
+    document.getElementById('title-intro').textContent = L(GAME.ui.intro);
+    elStartBtn.textContent = L(GAME.ui.startBtn);
+    document.getElementById('win-h1').textContent = L(GAME.ui.winTitle);
+    elWinText.textContent = L(GAME.winText);
+    elReplayBtn.textContent = L(GAME.ui.replayBtn);
+    document.getElementById('death-h1').textContent = L(GAME.ui.deathTitle);
+    elDeathText.textContent = L(GAME.ui.deathText);
+    elRetryBtn.textContent = L(GAME.ui.retryBtn);
+    document.getElementById('rotate-h1').textContent = L(GAME.ui.rotateTitle);
+    document.getElementById('rotate-text').textContent = L(GAME.ui.rotateText);
+    elMsgMore.textContent = L(GAME.ui.tapContinue);
+    updateQuest(true);
+    renderInventory();
+  }
+
+  /* ---------- AI-art assets ---------- */
+  const ART = {
+    scenes: {
+      courtyard: 'assets/art/scene-courtyard.png',
+      temple: 'assets/art/scene-temple.png',
+      grove: 'assets/art/scene-grove.png'
+    },
+    sprites: {
+      hero: 'assets/art/hero.png',
+      heroWalk: 'assets/art/hero-walk.png',
+      heroWave: 'assets/art/hero-wave.png',
+      seer: 'assets/art/seer.png',
+      minotaur: 'assets/art/minotaur.png',
+      minotaurAsleep: 'assets/art/minotaur-asleep.png',
+      dog: 'assets/art/dog.png',
+      chestOpen: 'assets/art/chest-open.png'
+    }
+  };
+  const art = { scenes: {}, sprites: {}, items: {}, overlays: {} };
+  function overlayImg(src) {
+    if (!art.overlays[src]) {
+      const img = new Image();
+      img.src = src;
+      art.overlays[src] = img;
+    }
+    return art.overlays[src];
+  }
+  for (const [id, src] of Object.entries(ART.scenes)) {
+    const img = new Image();
+    img.onload = () => { if (id === state.currentScene) paintBackground(); };
+    img.src = src;
+    art.scenes[id] = img;
+  }
+  for (const [id, src] of Object.entries(ART.sprites)) {
+    const img = new Image();
+    img.src = src;
+    art.sprites[id] = img;
+  }
+  for (const [id, item] of Object.entries(GAME.items)) {
+    if (item.img) {
+      const img = new Image();
+      img.src = item.img;
+      art.items[id] = img;
+    }
+  }
+  const ready = (img) => img && img.complete && img.naturalWidth > 0;
+
+  /* ---------- State ---------- */
+  function newState() {
+    return { currentScene: GAME.startScene, inventory: [], flags: {}, selectedItem: null };
+  }
+  let state = newState();
+
+  const start0 = GAME.scenes[GAME.startScene].playerStart;
+  const player = {
+    x: start0.x, y: start0.y,
+    target: null, pending: null,
+    dir: 'down', flip: false,
+    phase: 0, stepAcc: 0
+  };
+
+  /* Runtime-posities van NPC's (zwerven / patrouilleren) */
+  let npcRt = {};
+  function initNpcs() {
+    npcRt = {};
+    for (const npc of GAME.scenes[state.currentScene].npcs) {
+      npcRt[npc.id] = {
+        x: npc.x, y: npc.y, baseX: npc.x, baseY: npc.y,
+        target: null, phase: 0, pauseUntil: 0, flip: false
+      };
+    }
+  }
+
+  let started    = false;
+  let msgQueue   = [];
+  let pendingWin = false;
+  let hintUntil  = 0;
+  let labelTimer = null;
+  let lastPopItem = null;
+  let marker = null;
+  let soundOn = true;
+
+  const fade = { mode: null, t0: 0, dur: 280 };
+  const dust = [];
+  const embers = [];
+  let fireflies = [];
+
+  /* ---------- Geluid: synth-sfx + mysterieuze ambient ---------- */
+  let actx = null;
+  function ac() {
+    if (!actx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) actx = new AC();
+    }
+    if (actx && actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+  function tone(freq, dur, { type = 'sine', vol = 0.12, delay = 0, slide = 0, dest = null } = {}) {
+    const a = ac(); if (!a) return;
+    const t0 = a.currentTime + delay;
+    const o = a.createOscillator();
+    const g = a.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t0);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t0 + dur);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
+    o.connect(g).connect(dest || a.destination);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+  function sfx(name) {
+    if (!soundOn) return;
+    try {
+      switch (name) {
+        case 'tap':     tone(900, 0.05, { vol: 0.05 }); break;
+        case 'step':    tone(190, 0.045, { type: 'triangle', vol: 0.03 }); break;
+        case 'pickup':  tone(660, 0.12, { vol: 0.1 }); tone(990, 0.2, { delay: 0.09, vol: 0.1 }); break;
+        case 'combine': tone(420, 0.25, { type: 'triangle', slide: -240, vol: 0.11 });
+                        tone(640, 0.18, { delay: 0.18, vol: 0.08 }); break;
+        case 'use':     tone(330, 0.12, { type: 'triangle', vol: 0.09 }); break;
+        case 'error':   tone(140, 0.18, { type: 'square', vol: 0.05 }); break;
+        case 'travel':  tone(280, 0.4, { type: 'triangle', slide: -160, vol: 0.07 }); break;
+        case 'sleep':   tone(120, 0.5, { type: 'sine', slide: -50, vol: 0.1 });
+                        tone(90, 0.6, { delay: 0.4, slide: -30, vol: 0.09 }); break;
+        case 'growl':   tone(95, 0.35, { type: 'sawtooth', slide: -25, vol: 0.06 }); break;
+        case 'bark':    tone(620, 0.07, { type: 'square', vol: 0.05 });
+                        tone(540, 0.09, { delay: 0.12, type: 'square', vol: 0.05 }); break;
+        case 'gate':    tone(70, 0.8, { type: 'sawtooth', slide: 30, vol: 0.07 });
+                        tone(140, 0.5, { delay: 0.5, type: 'triangle', slide: -40, vol: 0.06 }); break;
+        case 'death':   tone(220, 0.5, { type: 'sawtooth', slide: -150, vol: 0.09 });
+                        tone(60, 0.7, { delay: 0.3, type: 'sine', slide: -20, vol: 0.12 }); break;
+        case 'win':     [523, 659, 784, 1047].forEach((f, i) =>
+                          tone(f, 0.34, { delay: i * 0.13, vol: 0.11 })); break;
+      }
+    } catch (e) { /* audio mag nooit het spel breken */ }
+  }
+
+  /* Generatieve ambient: lage drone + trage mineurakkoorden + sprankels */
+  const music = { started: false, master: null, timer: null };
+  const MUSIC_CHORDS = [
+    [110, 130.8, 164.8],   // Am
+    [87.3, 110, 130.8],    // F
+    [82.4, 98, 123.5],     // Em
+    [73.4, 87.3, 110]      // Dm
+  ];
+  let chordIdx = 0;
+  function playChord() {
+    const a = actx; if (!a || !soundOn) return;
+    const t0 = a.currentTime + 0.05;
+    const ch = MUSIC_CHORDS[chordIdx++ % MUSIC_CHORDS.length];
+    for (const f of ch) {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = 'triangle';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(0.018, t0 + 2.8);
+      g.gain.linearRampToValueAtTime(0.0001, t0 + 7.8);
+      o.connect(g).connect(music.master);
+      o.start(t0); o.stop(t0 + 8);
+    }
+    // sprankel: een verre, echoënde pentatonische noot
+    if (Math.random() < 0.85) {
+      const PENT = [523.25, 587.33, 659.25, 783.99, 880];
+      const n = PENT[(Math.random() * PENT.length) | 0];
+      const dt = 1 + Math.random() * 4;
+      tone(n, 1.2, { delay: dt, vol: 0.014, dest: music.master });
+      tone(n, 1.0, { delay: dt + 0.32, vol: 0.006, dest: music.master });
+    }
+  }
+  function startMusic() {
+    const a = ac(); if (!a || music.started) return;
+    music.started = true;
+    music.master = a.createGain();
+    music.master.gain.value = soundOn ? 1 : 0;
+    music.master.connect(a.destination);
+    // constante donkere drone, licht ontstemd
+    for (const f of [55, 55.35, 82.5]) {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.value = 0.011;
+      o.connect(g).connect(music.master);
+      o.start();
+    }
+    playChord();
+    music.timer = setInterval(playChord, 8000);
+  }
+
+  elSoundBtn.addEventListener('click', () => {
+    soundOn = !soundOn;
+    const icon = document.getElementById('soundIcon');
+    if (icon) icon.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png';
+    if (music.master) music.master.gain.value = soundOn ? 1 : 0;
+    if (soundOn) sfx('tap');
+  });
+
+  elLangBtn.addEventListener('click', () => {
+    lang = lang === 'nl' ? 'en' : 'nl';
+    try { localStorage.setItem('emberfall_lang', lang); } catch (e) { /* prima */ }
+    applyLang();
+  });
+
+  /* ---------- Low-res buffers ---------- */
+  const bgCanvas = document.createElement('canvas');
+  bgCanvas.width = SCENE_W; bgCanvas.height = SCENE_H;
+  const bgCtx = bgCanvas.getContext('2d');
+
+  const frameCanvas = document.createElement('canvas');
+  frameCanvas.width = SCENE_W; frameCanvas.height = SCENE_H;
+  const fctx = frameCanvas.getContext('2d');
+  fctx.imageSmoothingEnabled = false;
+
+  function paintBackground() {
+    bgCtx.clearRect(0, 0, SCENE_W, SCENE_H);
+    const img = art.scenes[state.currentScene];
+    if (ready(img)) {
+      bgCtx.imageSmoothingEnabled = false;
+      bgCtx.drawImage(img, 0, 0, SCENE_W, SCENE_H);
+    } else {
+      SCENE_PAINTERS[state.currentScene](bgCtx, state.currentScene);
+    }
+  }
+
+  const view = { scale: 1, ox: 0, oy: 0 };
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width  = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', () => { resize(); initLeaves(); });
+
+  /* ---------- Sfeer-partikels ---------- */
+  const LEAF_COLS = ['#a8432a', '#c75b35', '#c9a24b', '#e8862a'];
+  const leaves = [];
+  function initLeaves() {
+    leaves.length = 0;
+    for (let i = 0; i < 16; i++) {
+      leaves.push({
+        x: Math.random() * SCENE_W, y: Math.random() * SCENE_H,
+        speed: 8 + Math.random() * 13,
+        swayAmp: 6 + Math.random() * 14,
+        swayFreq: 0.3 + Math.random() * 0.7,
+        phase: Math.random() * Math.PI * 2,
+        size: Math.random() < 0.6 ? 1 : 2,
+        col: LEAF_COLS[(Math.random() * LEAF_COLS.length) | 0]
+      });
+    }
+  }
+  function initFireflies(n) {
+    fireflies = [];
+    for (let i = 0; i < n; i++) {
+      fireflies.push({
+        x: 100 + Math.random() * (SCENE_W - 200),
+        y: 80 + Math.random() * 180,
+        ax: Math.random() * Math.PI * 2,
+        ay: Math.random() * Math.PI * 2,
+        sp: 0.2 + Math.random() * 0.5,
+        ph: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  /* ---------- Botsing: walkable min obstacles ---------- */
+  function inWalkable(x, y) {
+    const scene = GAME.scenes[state.currentScene];
+    const inside = scene.walkable.some(r =>
+      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+    if (!inside) return false;
+    if (scene.obstacles && scene.obstacles.some(r =>
+      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)) return false;
+    return true;
+  }
+  function clampToWalkable(x, y) {
+    if (inWalkable(x, y)) return { x, y };
+    const rects = GAME.scenes[state.currentScene].walkable;
+    let best = null, bestD = Infinity;
+    for (const r of rects) {
+      const cx = Math.max(r.x + 2, Math.min(r.x + r.w - 2, x));
+      const cy = Math.max(r.y + 2, Math.min(r.y + r.h - 2, y));
+      const d = (cx - x) ** 2 + (cy - y) ** 2;
+      if (d < bestD) { bestD = d; best = { x: cx, y: cy }; }
+    }
+    return best || { x, y };
+  }
+
+  /* ---------- Dynamische hotspots (volgen een NPC) ---------- */
+  function hsRect(hs) {
+    if (hs.followNpc && npcRt[hs.followNpc]) {
+      const rt = npcRt[hs.followNpc];
+      return { x: rt.x - hs.rect.w / 2, y: rt.y - hs.rect.h, w: hs.rect.w, h: hs.rect.h };
+    }
+    return hs.rect;
+  }
+  function hsWalkTo(hs) {
+    if (hs.followNpc && npcRt[hs.followNpc]) {
+      const rt = npcRt[hs.followNpc];
+      return clampToWalkable(rt.x, rt.y + 38);
+    }
+    return hs.walkTo;
+  }
+  function hsSpeaker(hs) {
+    if (!hs.speaker) return null;
+    if (hs.followNpc && npcRt[hs.followNpc]) {
+      const r = hsRect(hs);
+      return { x: r.x + r.w / 2, y: r.y - 2 };
+    }
+    return hs.speaker === true
+      ? { x: hs.rect.x + hs.rect.w / 2, y: hs.rect.y }
+      : hs.speaker;
+  }
+
+  /* ---------- Game-lus ---------- */
+  let lastT = performance.now();
+  function loop() {
+    const now = performance.now();
+    const dt = Math.min((now - lastT) / 1000, 0.12);
+    lastT = now;
+    update(dt, now);
+    draw(now);
+  }
+
+  /* ---------- Toetsenbord (WASD / pijltjes, fysieke key-codes) ---------- */
+  const keys = new Set();
+  window.addEventListener('keydown', (e) => {
+    if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'].includes(e.code)) {
+      keys.add(e.code);
+      e.preventDefault();
+      ac();
+    }
+  });
+  window.addEventListener('keyup', (e) => keys.delete(e.code));
+  window.addEventListener('blur', () => keys.clear());
+
+  function keyVector() {
+    let vx = 0, vy = 0;
+    if (keys.has('KeyA') || keys.has('ArrowLeft')) vx -= 1;
+    if (keys.has('KeyD') || keys.has('ArrowRight')) vx += 1;
+    if (keys.has('KeyW') || keys.has('ArrowUp')) vy -= 1;
+    if (keys.has('KeyS') || keys.has('ArrowDown')) vy += 1;
+    return { vx, vy };
+  }
+
+  function movePlayer(dx, dy, dist, dt) {
+    const step = Math.min(WALK_SPEED * dt, dist);
+    let nx = player.x + (dx / dist) * step;
+    let ny = player.y + (dy / dist) * step;
+    if (!inWalkable(nx, ny)) {
+      if (inWalkable(nx, player.y)) ny = player.y;
+      else if (inWalkable(player.x, ny)) nx = player.x;
+      else return false;
+    }
+    player.x = nx; player.y = ny;
+    player.phase += step * 0.14;
+    if (Math.abs(dx) > 2) player.flip = dx < 0;
+    player.dir = Math.abs(dx) > Math.abs(dy)
+      ? (dx > 0 ? 'right' : 'left')
+      : (dy > 0 ? 'down' : 'up');
+    player.stepAcc += step;
+    if (player.stepAcc > 13) {
+      player.stepAcc = 0;
+      dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
+      sfx('step');
+    }
+    return true;
+  }
+
+  function update(dt, now) {
+    const scene = GAME.scenes[state.currentScene];
+
+    /* Toetsenbord heeft voorrang op tik-doelen */
+    player.kbMoving = false;
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && !msgOpen()) {
+      const { vx, vy } = keyVector();
+      if (vx || vy) {
+        player.target = null;
+        player.pending = null;
+        player.kbMoving = true;
+        const len = Math.hypot(vx, vy);
+        movePlayer(vx * 50, vy * 50, len * 50, dt);
+      }
+    }
+
+    /* Speler */
+    if (player.target) {
+      const dx = player.target.x - player.x;
+      const dy = player.target.y - player.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist <= ARRIVE_DIST) {
+        player.x = player.target.x;
+        player.y = player.target.y;
+        arrive();
+      } else {
+        const step = Math.min(WALK_SPEED * dt, dist);
+        let nx = player.x + (dx / dist) * step;
+        let ny = player.y + (dy / dist) * step;
+        if (!inWalkable(nx, ny)) {
+          if (inWalkable(nx, player.y)) ny = player.y;
+          else if (inWalkable(player.x, ny)) nx = player.x;
+          else { player.target = null; arrive(); return; }
+        }
+        player.x = nx; player.y = ny;
+        player.phase += step * 0.14;
+        if (Math.abs(dx) > 2) player.flip = dx < 0;
+        player.dir = Math.abs(dx) > Math.abs(dy)
+          ? (dx > 0 ? 'right' : 'left')
+          : (dy > 0 ? 'down' : 'up');
+        player.stepAcc += step;
+        if (player.stepAcc > 13) {
+          player.stepAcc = 0;
+          dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
+          sfx('step');
+        }
+      }
+    }
+
+    /* NPC's: zwerven en patrouilleren */
+    for (const npc of scene.npcs) {
+      const rt = npcRt[npc.id];
+      if (!rt) continue;
+      if (npc.wander) {
+        if (rt.target) {
+          const dx = rt.target.x - rt.x, dy = rt.target.y - rt.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 2) {
+            rt.target = null;
+            rt.phase = 0;
+            rt.pauseUntil = now + npc.wander.pauseMin +
+              Math.random() * (npc.wander.pauseMax - npc.wander.pauseMin);
+          } else {
+            const step = Math.min(npc.wander.speed * dt, dist);
+            rt.x += (dx / dist) * step;
+            rt.y += (dy / dist) * step;
+            rt.phase += step * 0.18;
+            if (Math.abs(dx) > 1) rt.flip = dx < 0;
+          }
+        } else if (now > rt.pauseUntil) {
+          const w = npc.wander;
+          const tx = w.x + Math.random() * w.w;
+          const ty = w.y + Math.random() * w.h;
+          if (inWalkable(tx, ty)) rt.target = { x: tx, y: ty };
+          else rt.pauseUntil = now + 800;
+        }
+      }
+      if (npc.patrol && npc.id === 'minotaur' && !state.flags.minotaurAsleep) {
+        const ph = now / npc.patrol.period * Math.PI * 2;
+        rt.x = rt.baseX + Math.sin(ph) * npc.patrol.amp;
+        rt.flip = Math.cos(ph) < 0;
+      }
+    }
+
+    /* Partikels */
+    for (const Lf of leaves) {
+      Lf.y += Lf.speed * dt;
+      Lf.phase += Lf.swayFreq * dt;
+      if (Lf.y > SCENE_H + 4) { Lf.y = -4; Lf.x = Math.random() * SCENE_W; }
+    }
+    for (let i = dust.length - 1; i >= 0; i--) {
+      dust[i].life -= dt;
+      dust[i].y -= 6 * dt;
+      if (dust[i].life <= 0) dust.splice(i, 1);
+    }
+    const fxd = scene.fx || {};
+    if (fxd.embers && Math.random() < 0.25) {
+      const src = fxd.embers[(Math.random() * fxd.embers.length) | 0];
+      embers.push({ x: src.x + Math.random() * 8 - 4, y: src.y, life: 1.4, ph: Math.random() * 6 });
+    }
+    for (let i = embers.length - 1; i >= 0; i--) {
+      const e = embers[i];
+      e.life -= dt;
+      e.y -= 16 * dt;
+      e.ph += dt * 4;
+      if (e.life <= 0) embers.splice(i, 1);
+    }
+    for (const f of fireflies) {
+      f.ax += f.sp * dt; f.ay += f.sp * 0.8 * dt;
+      f.x += Math.sin(f.ax) * 12 * dt;
+      f.y += Math.cos(f.ay) * 8 * dt;
+      f.ph += dt * 2.5;
+    }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i];
+      s.life -= dt;
+      s.x += s.vx * dt; s.y += s.vy * dt;
+      s.vx *= 0.96; s.vy *= 0.96;
+      if (s.life <= 0) sparks.splice(i, 1);
+    }
+  }
+
+  function arrive() {
+    player.target = null;
+    player.phase = 0;
+    const hs = player.pending;
+    player.pending = null;
+    if (hs) {
+      const wt = hsWalkTo(hs);
+      const near = Math.hypot(player.x - wt.x, player.y - wt.y) < 48;
+      if (near) interactNow(hs);
+    }
+  }
+
+  /* ---------- Tekenen ---------- */
+  function draw(now) {
+    fctx.clearRect(0, 0, SCENE_W, SCENE_H);
+    fctx.drawImage(bgCanvas, 0, 0);
+
+    const scene = GAME.scenes[state.currentScene];
+    const usingArt = ready(art.scenes[state.currentScene]);
+    if (usingArt) paintFx(scene, now);
+    paintPuzzleGlow(scene, now);
+    drawWorldItems(scene, now);
+
+    if (marker && now < marker.until) {
+      const blink = ((now / 120) | 0) % 2 === 0;
+      fctx.fillStyle = blink ? '#e7cf86' : '#c9a24b';
+      fctx.fillRect(marker.x - 3, marker.y, 7, 1);
+      fctx.fillRect(marker.x, marker.y - 3, 1, 7);
+    }
+
+    for (const d of dust) {
+      fctx.fillStyle = `rgba(216,185,138,${(d.life / 0.45) * 0.6})`;
+      fctx.fillRect(d.x | 0, d.y | 0, 2, 2);
+    }
+
+    /* Entiteiten + voorgrond-overlays op diepte gesorteerd */
+    const ents = [];
+    for (const npc of scene.npcs) {
+      const rt = npcRt[npc.id] || npc;
+      ents.push({ y: rt.y, draw: () => drawNpc(npc, now) });
+    }
+    ents.push({ y: player.y, draw: () => drawPlayer(now) });
+    if (scene.overlays) {
+      for (const o of scene.overlays) {
+        ents.push({ y: o.base, draw: () => {
+          const img = o.img && overlayImg(o.img);
+          if (img && ready(img)) fctx.drawImage(img, o.x, o.y);
+          else fctx.drawImage(bgCanvas, o.x, o.y, o.w, o.h, o.x, o.y, o.w, o.h);
+        } });
+      }
+    }
+    ents.sort((a, b) => a.y - b.y);
+    for (const e of ents) e.draw();
+
+    /* gloeiende partikels bovenop */
+    for (const e of embers) {
+      const a = Math.max(0, e.life / 1.4);
+      fctx.fillStyle = `rgba(255,${170 + ((Math.sin(e.ph) * 40) | 0)},60,${a * 0.8})`;
+      fctx.fillRect((e.x + Math.sin(e.ph) * 2) | 0, e.y | 0, 1, 1);
+    }
+    for (const f of fireflies) {
+      const a = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(f.ph));
+      fctx.fillStyle = `rgba(255,233,160,${a})`;
+      fctx.fillRect(f.x | 0, f.y | 0, 2, 2);
+    }
+    for (const s of sparks) {
+      fctx.fillStyle = `rgba(231,207,134,${Math.max(0, Math.min(1, s.life))})`;
+      fctx.fillRect(s.x | 0, s.y | 0, 2, 2);
+    }
+    for (const Lf of leaves) {
+      const lx = Lf.x + Math.sin(Lf.phase * Math.PI * 2) * Lf.swayAmp;
+      fctx.fillStyle = Lf.col;
+      fctx.fillRect(lx | 0, Lf.y | 0, Lf.size, Lf.size);
+    }
+
+    const fa = fadeAlpha(now);
+    if (fa > 0) {
+      fctx.fillStyle = `rgba(16,11,7,${fa})`;
+      fctx.fillRect(0, 0, SCENE_W, SCENE_H);
+    }
+
+    const w = window.innerWidth, h = window.innerHeight;
+    ctx.fillStyle = '#1a1410';
+    ctx.fillRect(0, 0, w, h);
+    const scale = Math.min(w / SCENE_W, h / SCENE_H);
+    view.scale = scale;
+    view.ox = (w - SCENE_W * scale) / 2;
+    view.oy = (h - SCENE_H * scale) / 2;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(frameCanvas, view.ox, view.oy, SCENE_W * scale, SCENE_H * scale);
+
+    drawHints(now, scale);
+  }
+
+  /* Sfeer-effecten bovenop de AI-art */
+  function paintFx(scene, now) {
+    const fx = scene.fx || {};
+    if (fx.flames) {
+      for (const f of fx.flames) {
+        const flicker = 0.18 + 0.1 * Math.sin(now / 90 + f.x);
+        const g = fctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, f.r || 14);
+        g.addColorStop(0, `rgba(255,190,80,${flicker})`);
+        g.addColorStop(1, 'rgba(255,140,40,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(f.x - (f.r || 14), f.y - (f.r || 14), (f.r || 14) * 2, (f.r || 14) * 2);
+      }
+    }
+    if (fx.emblemGlow) {
+      const e = fx.emblemGlow;
+      const pulse = 0.12 + 0.1 * Math.sin(now / 420);
+      const g = fctx.createRadialGradient(e.x, e.y, 2, e.x, e.y, e.r || 18);
+      g.addColorStop(0, `rgba(231,207,134,${pulse})`);
+      g.addColorStop(1, 'rgba(231,207,134,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(e.x - (e.r || 18), e.y - (e.r || 18), (e.r || 18) * 2, (e.r || 18) * 2);
+    }
+    if (fx.bowlEmpty && state.flags.minotaurAsleep) {
+      const b = fx.bowlEmpty;
+      fctx.save();
+      fctx.globalAlpha = 0.85;
+      fctx.fillStyle = '#5e564a';
+      fctx.beginPath();
+      fctx.ellipse(b.x, b.y, b.rx, b.ry, 0, 0, Math.PI * 2);
+      fctx.fill();
+      fctx.restore();
+    }
+    if (fx.waterGlint && !(fx.waterGlintNeedsWater && state.flags.minotaurAsleep)) {
+      if ((now / 800) % 2.6 < 0.4) {
+        const wgl = fx.waterGlint;
+        fctx.fillStyle = '#cdeef8';
+        fctx.fillRect(wgl.x + (((now / 800) | 0) % 3) * 5, wgl.y, 2, 1);
+      }
+    }
+    /* Dichte stenen poortdeur tot de embleem-puzzel is opgelost */
+    if (fx.gateDoor && !state.flags.gateOpen) {
+      const d = fx.gateDoor;
+      fctx.fillStyle = '#9a8266';
+      fctx.fillRect(d.x, d.y, d.w, d.h);
+      fctx.fillStyle = '#7c6850';
+      for (let yy = d.y + 6; yy < d.y + d.h; yy += 9) fctx.fillRect(d.x, yy, d.w, 1);
+      fctx.fillRect(d.x + (d.w >> 1), d.y, 1, d.h);
+      fctx.fillStyle = '#6a5840';
+      fctx.fillRect(d.x, d.y, d.w, 2);
+      fctx.fillRect(d.x, d.y, 2, d.h);
+      fctx.fillRect(d.x + d.w - 2, d.y, 2, d.h);
+      /* klein gouden slot-embleem */
+      const pulse = 0.5 + 0.3 * Math.sin(now / 400);
+      fctx.fillStyle = `rgba(201,162,75,${pulse})`;
+      fctx.fillRect(d.x + (d.w >> 1) - 4, d.y + (d.h >> 1) - 4, 8, 8);
+      fctx.fillStyle = '#1f1410';
+      fctx.fillRect(d.x + (d.w >> 1) - 1, d.y + (d.h >> 1) - 1, 2, 4);
+    }
+    /* Open kist zodra de runenpuzzel is opgelost */
+    if (fx.chestOpen && state.flags.runesSolved) {
+      const img = art.sprites.chestOpen;
+      if (ready(img)) {
+        const w = img.naturalWidth, h = img.naturalHeight;
+        fctx.drawImage(img, Math.round(fx.chestOpen.x - w / 2), Math.round(fx.chestOpen.y - h), w, h);
+        const glow = 0.12 + 0.08 * Math.sin(now / 300);
+        const g = fctx.createRadialGradient(fx.chestOpen.x, fx.chestOpen.y - h / 2, 2,
+          fx.chestOpen.x, fx.chestOpen.y - h / 2, 26);
+        g.addColorStop(0, `rgba(255,220,130,${glow})`);
+        g.addColorStop(1, 'rgba(255,220,130,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(fx.chestOpen.x - 26, fx.chestOpen.y - h / 2 - 26, 52, 52);
+      }
+    }
+    if (fx.amulet && !state.flags.taken_temple_shrine) {
+      const a = fx.amulet;
+      const glow = 0.3 + 0.18 * Math.sin(now / 350);
+      const g = fctx.createRadialGradient(a.x + 8, a.y + 8, 1, a.x + 8, a.y + 8, 17);
+      g.addColorStop(0, `rgba(231,207,134,${glow})`);
+      g.addColorStop(1, 'rgba(231,207,134,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(a.x - 9, a.y - 9, 34, 34);
+      const img = art.items.amulet;
+      if (ready(img)) {
+        const hgt = 17, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+        fctx.drawImage(img, a.x, a.y, wd, hgt);
+      } else {
+        drawSprite(fctx, AMULET_SPRITE, a.x, a.y, false, 2);
+      }
+      const sp = ((now / 260) | 0) % 4;
+      const spark = [[-4, -2], [16, 0], [14, 14], [-4, 12]][sp];
+      fctx.fillStyle = '#ffffff';
+      fctx.fillRect(a.x + spark[0], a.y + spark[1], 2, 2);
+    }
+  }
+
+  function paintPuzzleGlow(scene, now) {
+    if (!scene.puzzles) return;
+    for (const hs of scene.hotspots) {
+      if (!hs.puzzleKey) continue;
+      const pz = scene.puzzles[hs.puzzleKey.puzzle];
+      const prog = state.flags['puzzle_' + hs.puzzleKey.puzzle] || 0;
+      const idx = pz.sequence.indexOf(hs.puzzleKey.key);
+      const lit = state.flags[pz.setFlag] || idx < prog;
+      if (!lit) continue;
+      const r = hs.rect;
+      const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+      const pulse = 0.42 + 0.18 * Math.sin(now / 300 + idx);
+      const g = fctx.createRadialGradient(cx, cy, 3, cx, cy, 30);
+      g.addColorStop(0, `rgba(255,226,150,${pulse})`);
+      g.addColorStop(1, 'rgba(255,226,150,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(cx - 30, cy - 30, 60, 60);
+    }
+  }
+
+  /* Items die je subtiel ziet liggen tot je ze pakt */
+  function drawWorldItems(scene, now) {
+    if (!scene.worldItems) return;
+    for (const wi of scene.worldItems) {
+      if (state.flags['taken_' + state.currentScene + '_' + wi.hotspot]) continue;
+      if (wi.requiresFlag && !state.flags[wi.requiresFlag]) continue;
+      const img = art.items[wi.item];
+      if (!ready(img)) continue;
+      const hgt = 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+      const bob = Math.round(Math.sin(now / 650 + wi.x) * 1.5);
+      const glow = 0.14 + 0.08 * Math.sin(now / 500 + wi.x);
+      const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, 13);
+      g.addColorStop(0, `rgba(231,207,134,${glow})`);
+      g.addColorStop(1, 'rgba(231,207,134,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(wi.x - 13, wi.y - 13, 26, 26);
+      fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
+    }
+  }
+
+  const SPRITE_SCALE = 2;
+
+  function shadow(x, y, w) {
+    fctx.fillStyle = 'rgba(30,16,8,0.32)';
+    fctx.beginPath();
+    fctx.ellipse(Math.round(x), Math.round(y) + 1, w / 2, 2.6, 0, 0, Math.PI * 2);
+    fctx.fill();
+  }
+
+  /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
+  function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0 } = {}) {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const px = Math.round(x), py = Math.round(y + bob);
+    shadow(x, y, w * 0.8);
+    fctx.save();
+    fctx.imageSmoothingEnabled = false;
+    fctx.translate(px, py);
+    if (rot) fctx.rotate(rot);
+    if (flip) fctx.scale(-1, 1);
+    fctx.drawImage(img, Math.round(-w / 2), Math.round(-h * squashY), w, Math.round(h * squashY));
+    fctx.restore();
+  }
+
+  /* Idle-gebaren: af en toe doet een figuur iets grappigs. */
+  const gesture = { hero: { next: 4000, until: 0 }, seer: { next: 7000, until: 0 }, minotaur: { next: 9000, until: 0 } };
+  function gestureState(id, now, durMs, minGap, maxGap) {
+    const g = gesture[id];
+    if (now > g.next && now > g.until) {
+      g.until = now + durMs;
+      g.next = now + durMs + minGap + Math.random() * (maxGap - minGap);
+    }
+    return now < g.until ? (g.until - now) / durMs : 0;
+  }
+
+  function drawPlayer(now) {
+    const hero = art.sprites.hero;
+    const walking = !!player.target || player.kbMoving;
+    if (ready(hero)) {
+      if (walking) {
+        /* echte 2-frame loopcyclus: wissel tussen sta- en stap-sprite */
+        const walkImg = art.sprites.heroWalk;
+        const stride = Math.sin(player.phase * 0.55);
+        const useWalk = stride > 0 && ready(walkImg);
+        const img = useWalk ? walkImg : hero;
+        const hop = -Math.round(Math.abs(stride) * 2.5);
+        const lean = stride * 0.05;
+        drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: hop, rot: lean });
+        return;
+      }
+      /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
+      const g = gestureState('hero', now, 1300, 5000, 9000);
+      const wave = art.sprites.heroWave;
+      if (g > 0 && ready(wave)) {
+        const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2);
+        drawArtSprite(wave, player.x, player.y, { flip: player.flip, bob: bounce });
+        return;
+      }
+      const breathe = Math.round(Math.sin(now / 800));
+      drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
+      return;
+    }
+    const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
+    const grid = playerFrame(player.dir, walking ? stride : 0);
+    drawSprite(fctx, grid, (player.x - PLAYER_W * SPRITE_SCALE / 2) | 0,
+      (player.y - PLAYER_H * SPRITE_SCALE) | 0, player.dir === 'left', SPRITE_SCALE);
+  }
+
+  function drawNpc(npc, now) {
+    const S = SPRITE_SCALE;
+    const rt = npcRt[npc.id] || { x: npc.x, y: npc.y, flip: false, target: null, phase: 0 };
+    if (npc.sprite === 'seer') {
+      const img = art.sprites.seer;
+      if (ready(img)) {
+        if (rt.target) {
+          /* zwevend schuifelen tijdens het zwerven */
+          const hop = -Math.round(Math.abs(Math.sin(rt.phase * 0.7)) * 2);
+          drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: hop });
+        } else {
+          const g = gestureState('seer', now, 900, 6000, 11000);
+          const nod = g > 0 ? Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 2)) * 3) : 0;
+          const float_ = Math.round(Math.sin(now / 900) * 1.4);
+          drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: float_ + nod });
+        }
+        return;
+      }
+      const f = ((now / 800) | 0) % 2;
+      drawSprite(fctx, SEER_FRAMES[f], (rt.x - SEER_W * S / 2) | 0, (rt.y - SEER_H * S) | 0, false, S);
+    } else if (npc.sprite === 'dog') {
+      const img = art.sprites.dog;
+      if (!ready(img)) return;
+      if (rt.target) {
+        /* dribbelen */
+        const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.1)) * 2);
+        drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: hop });
+      } else {
+        /* kwispelen: vrolijk wiebelen */
+        const wag = Math.sin(now / 160) * 0.06;
+        drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, rot: wag });
+      }
+    } else if (npc.sprite === 'minotaur') {
+      if (state.flags.minotaurAsleep) {
+        const img = art.sprites.minotaurAsleep;
+        if (ready(img)) {
+          drawArtSprite(img, rt.x, rt.y, { bob: Math.round(Math.sin(now / 800)) });
+        } else {
+          drawSprite(fctx, MINO_ASLEEP, (rt.x - MINO_SLEEP_W * S / 2) | 0,
+            (rt.y - MINO_SLEEP_H * S) | 0, false, S);
+        }
+        /* Zzz stijgt op bij zijn kop */
+        const zi = ((now / 700) | 0) % 3;
+        for (let z = 0; z <= zi; z++) {
+          drawSprite(fctx, Z_GLYPH, Math.round(rt.x + 26 + z * 9),
+            Math.round(rt.y - 86 - z * 12), false, z === zi ? 1 : 2);
+        }
+      } else {
+        const img = art.sprites.minotaur;
+        if (ready(img)) {
+          /* hij staat stil — alleen zware ademhaling */
+          const breathe = Math.round(Math.sin(now / 620) * 1.4);
+          drawArtSprite(img, rt.x, rt.y, { bob: breathe });
+          return;
+        }
+        const f = ((now / 600) | 0) % 2;
+        drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
+      }
+    }
+  }
+
+  function drawHints(now, scale) {
+    if (now > hintUntil) return;
+    const remain = (hintUntil - now) / 1800;
+    const pulse = 0.5 + 0.5 * Math.sin(now / 130);
+    const alpha = Math.min(1, remain * 2) * (0.55 + 0.35 * pulse);
+    for (const hs of GAME.scenes[state.currentScene].hotspots) {
+      const r = hsRect(hs);
+      const x = view.ox + r.x * scale, y = view.oy + r.y * scale;
+      ctx.save();
+      ctx.strokeStyle = `rgba(231,207,134,${alpha})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 5]);
+      ctx.strokeRect(x + 2, y + 2, r.w * scale - 4, r.h * scale - 4);
+      ctx.fillStyle = `rgba(201,162,75,${alpha * 0.12})`;
+      ctx.fillRect(x + 2, y + 2, r.w * scale - 4, r.h * scale - 4);
+      ctx.restore();
+    }
+  }
+
+  function fadeAlpha(now) {
+    if (!fade.mode) return 0;
+    const p = Math.min(1, (now - fade.t0) / fade.dur);
+    if (fade.mode === 'out') return p;
+    if (p >= 1) { fade.mode = null; return 0; }
+    return 1 - p;
+  }
+
+  /* ---------- Doel-banner ---------- */
+  function questKey() {
+    const inv = state.inventory, f = state.flags;
+    const has = (i) => inv.includes(i);
+    if (f.taken_temple_shrine) return null;
+    if (f.minotaurAsleep) return 'q_amulet';
+    if (has('potion') && !f.gateOpen) return 'q_gate';
+    if (has('potion')) return 'q_pour';
+    if (has('vialWater') && has('berries')) return 'q_combine';
+    if (has('vialWater')) return 'q_berries';
+    if (has('vialEmpty')) return 'q_fill';
+    if (f.runesSolved) return 'q_chest';
+    if (f.visited_grove) return 'q_runes';
+    if (has('berries')) return 'q_water';
+    return 'q_explore';
+  }
+  function updateQuest(force) {
+    const key = started ? questKey() : null;
+    if (!key) { elQuest.hidden = true; return; }
+    const t = L(GAME.ui[key]);
+    if (elQuest.textContent !== t || force) {
+      elQuest.textContent = t;
+      elQuest.style.opacity = '0';
+      setTimeout(() => { elQuest.style.opacity = '1'; }, 30);
+    }
+    elQuest.hidden = false;
+  }
+
+  /* ---------- Narratie: paneel + tekstballonnen ---------- */
+  function say(text, anchor) {
+    if (!text) return;
+    msgQueue.push({ text, anchor: anchor || null });
+    if (!msgOpen()) showNextMsg();
+  }
+  function msgOpen() { return !elMsg.hidden || !elBubble.hidden; }
+
+  function showNextMsg() {
+    elMsg.hidden = true;
+    elBubble.hidden = true;
+    if (msgQueue.length === 0) {
+      if (pendingWin) { pendingWin = false; showWin(); }
+      return;
+    }
+    const m = msgQueue.shift();
+    if (m.anchor && view.scale) {
+      elBubbleTxt.textContent = L(m.text);
+      const bx = view.ox + m.anchor.x * view.scale;
+      const by = view.oy + m.anchor.y * view.scale;
+      elBubble.style.left = Math.max(window.innerWidth * 0.15,
+        Math.min(window.innerWidth * 0.85, bx)) + 'px';
+      elBubble.style.top = Math.max(56, by - 6) + 'px';
+      elBubble.hidden = false;
+    } else {
+      elMsgText.textContent = L(m.text);
+      elMsg.hidden = false;
+      elMsg.style.animation = 'none';
+      void elMsg.offsetWidth;
+      elMsg.style.animation = '';
+    }
+  }
+
+  elMsg.addEventListener('click', showNextMsg);
+  elBubble.addEventListener('click', showNextMsg);
+
+  /* ---------- Hotspot-label ---------- */
+  function showLabel(text, sticky) {
+    if (labelTimer) { clearTimeout(labelTimer); labelTimer = null; }
+    if (!text) { elLabel.hidden = true; return; }
+    elLabel.textContent = text;
+    elLabel.hidden = false;
+    if (!sticky) labelTimer = setTimeout(() => { elLabel.hidden = true; }, 1800);
+  }
+
+  /* ---------- Toast ---------- */
+  function showToast(text) {
+    elToast.textContent = text;
+    elToast.hidden = false;
+    elToast.style.animation = 'none';
+    void elToast.offsetWidth;
+    elToast.style.animation = '';
+    setTimeout(() => { elToast.hidden = true; }, 1650);
+  }
+
+  /* ---------- Inventaris ---------- */
+  function renderInventory() {
+    elInvbar.innerHTML = '';
+    const slots = Math.max(MIN_SLOTS, state.inventory.length);
+    for (let i = 0; i < slots; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'inv-slot';
+      const itemId = state.inventory[i];
+      if (itemId) {
+        const item = GAME.items[itemId];
+        slot.classList.add('filled');
+        if (item.img) {
+          const im = document.createElement('img');
+          im.src = item.img;
+          im.alt = L(item.name);
+          im.draggable = false;
+          im.onerror = () => { im.remove(); slot.textContent = item.icon; };
+          slot.appendChild(im);
+        } else {
+          slot.textContent = item.icon;
+        }
+        slot.title = L(item.name);
+        slot.dataset.item = itemId;
+        if (itemId === state.selectedItem) slot.classList.add('selected');
+        if (itemId === lastPopItem) slot.classList.add('pop');
+        slot.addEventListener('click', () => onInventoryTap(itemId));
+      }
+      elInvbar.appendChild(slot);
+    }
+    lastPopItem = null;
+  }
+
+  function onInventoryTap(itemId) {
+    if (msgOpen()) { showNextMsg(); return; }
+    const sel = state.selectedItem;
+    if (sel === itemId) {
+      state.selectedItem = null;
+      sfx('tap');
+    } else if (sel) {
+      tryCombine(sel, itemId);
+    } else {
+      state.selectedItem = itemId;
+      sfx('tap');
+      showLabel(L(GAME.items[itemId].name) + ' ' + L(GAME.ui.selected));
+    }
+    renderInventory();
+  }
+
+  function tryCombine(a, b) {
+    const recipe = GAME.recipes.find(r =>
+      (r.a === a && r.b === b) || (r.a === b && r.b === a));
+    state.selectedItem = null;
+    if (!recipe) { sfx('error'); say(GAME.strings.noCombine); return; }
+    removeItem(recipe.a);
+    removeItem(recipe.b);
+    addItem(recipe.result);
+    sfx('combine');
+    say(recipe.text);
+  }
+
+  function addItem(itemId) {
+    if (!state.inventory.includes(itemId)) {
+      state.inventory.push(itemId);
+      lastPopItem = itemId;
+      showToast('+ ' + L(GAME.items[itemId].name));
+    }
+    renderInventory();
+    updateQuest();
+  }
+
+  function removeItem(itemId) {
+    const i = state.inventory.indexOf(itemId);
+    if (i >= 0) state.inventory.splice(i, 1);
+    if (state.selectedItem === itemId) state.selectedItem = null;
+    renderInventory();
+    updateQuest();
+  }
+
+  /* ---------- Hotspot-interactie ---------- */
+  function lookText(hs) {
+    const t = typeof hs.look === 'function' ? hs.look(state) : hs.look;
+    return t || GAME.strings.nothingThere;
+  }
+
+  function takenFlag(hs) { return 'taken_' + state.currentScene + '_' + hs.id; }
+
+  function puzzleTap(hs) {
+    const scene = GAME.scenes[state.currentScene];
+    const pz = scene.puzzles && scene.puzzles[hs.puzzleKey.puzzle];
+    if (!pz) { say(lookText(hs)); return; }
+    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs)); return; }
+    const progKey = 'puzzle_' + hs.puzzleKey.puzzle;
+    const prog = state.flags[progKey] || 0;
+    if (hs.puzzleKey.key === pz.sequence[prog]) {
+      state.flags[progKey] = prog + 1;
+      if (prog + 1 >= pz.sequence.length) {
+        state.flags[pz.setFlag] = true;
+        sfx('combine');
+        say(pz.solvedText);
+        if (pz.burst) burstAt(pz.burst.x, pz.burst.y);
+        updateQuest();
+      } else {
+        sfx('pickup');
+        say(pz.stepText);
+      }
+    } else {
+      state.flags[progKey] = 0;
+      sfx('error');
+      say(pz.resetText);
+    }
+  }
+
+  /* ---------- Schuifpuzzel-popup (gouden embleem) ---------- */
+  const elPuzzle   = document.getElementById('puzzle-screen');
+  const elPuzGrid  = document.getElementById('puzzle-grid');
+  const elPuzTitle = document.getElementById('puzzle-title');
+  const elPuzClose = document.getElementById('puzzle-close');
+  let slide = null;   // { hs, n, tiles[], empty }
+
+  function openSlidePuzzle(hs) {
+    const cfg = hs.slidePuzzle;
+    const n = cfg.size || 3;
+    /* husselen vanaf opgelost met geldige zetten → altijd oplosbaar */
+    const tiles = Array.from({ length: n * n }, (_, i) => i);
+    let empty = n * n - 1;
+    let prev = -1;
+    for (let i = 0; i < 60; i++) {
+      const opts = [];
+      const ex = empty % n, ey = (empty / n) | 0;
+      if (ex > 0) opts.push(empty - 1);
+      if (ex < n - 1) opts.push(empty + 1);
+      if (ey > 0) opts.push(empty - n);
+      if (ey < n - 1) opts.push(empty + n);
+      const pick = opts.filter(o => o !== prev)[(Math.random() * (opts.length - (opts.includes(prev) ? 1 : 0))) | 0] || opts[0];
+      tiles[empty] = tiles[pick];
+      tiles[pick] = n * n - 1;
+      prev = empty;
+      empty = pick;
+    }
+    slide = { hs, n, tiles, empty };
+    elPuzTitle.textContent = L(cfg.title);
+    renderSlide();
+    elPuzzle.hidden = false;
+    sfx('tap');
+  }
+
+  function renderSlide() {
+    const { hs, n, tiles } = slide;
+    const cfg = hs.slidePuzzle;
+    const px = 240 / n;
+    elPuzGrid.innerHTML = '';
+    tiles.forEach((tile, pos) => {
+      if (tile === n * n - 1) return;            // leeg vak
+      const d = document.createElement('div');
+      d.className = 'puz-tile';
+      d.style.width = d.style.height = px + 'px';
+      d.style.left = (pos % n) * px + 'px';
+      d.style.top = ((pos / n) | 0) * px + 'px';
+      d.style.backgroundImage = `url(${cfg.img})`;
+      d.style.backgroundSize = '240px 240px';
+      d.style.backgroundPosition = `-${(tile % n) * px}px -${((tile / n) | 0) * px}px`;
+      d.addEventListener('click', () => slideTile(pos));
+      elPuzGrid.appendChild(d);
+    });
+  }
+
+  function slideTile(pos) {
+    const s = slide; if (!s) return;
+    const n = s.n;
+    const dx = Math.abs((pos % n) - (s.empty % n));
+    const dy = Math.abs(((pos / n) | 0) - ((s.empty / n) | 0));
+    if (dx + dy !== 1) return;                   // niet naast het lege vak
+    s.tiles[s.empty] = s.tiles[pos];
+    s.tiles[pos] = n * n - 1;
+    s.empty = pos;
+    sfx('tap');
+    renderSlide();
+    if (s.tiles.every((t, i) => t === i)) {
+      const cfg = s.hs.slidePuzzle;
+      state.flags[cfg.setFlag] = true;
+      sfx('gate');
+      setTimeout(() => {
+        elPuzzle.hidden = true;
+        slide = null;
+        say(cfg.solvedText);
+        updateQuest();
+        burstAt(cfg.burst ? cfg.burst.x : 450, cfg.burst ? cfg.burst.y : 110);
+      }, 450);
+    }
+  }
+
+  elPuzClose.addEventListener('click', () => { elPuzzle.hidden = true; slide = null; });
+
+  /* ---------- Vonken-burst (kist/poort die opengaat) ---------- */
+  const sparks = [];
+  function burstAt(x, y) {
+    for (let i = 0; i < 26; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = 18 + Math.random() * 42;
+      sparks.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 12, life: 0.8 + Math.random() * 0.5 });
+    }
+  }
+
+  function interactNow(hs) {
+    const sel = state.selectedItem;
+
+    if (sel) {
+      state.selectedItem = null;
+      renderInventory();
+      const action = hs.use && hs.use[sel];
+      if (action) runAction(action, hsSpeaker(hs));
+      else { sfx('error'); say(GAME.strings.noEffect); }
+      return;
+    }
+
+    if (hs.puzzleKey) {
+      puzzleTap(hs);
+      return;
+    }
+    if (hs.slidePuzzle) {
+      if (state.flags[hs.slidePuzzle.setFlag]) say(lookText(hs), hsSpeaker(hs));
+      else openSlidePuzzle(hs);
+      return;
+    }
+    if (hs.exit) {
+      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) {
+        sfx('error');
+        say(hs.blockedText || GAME.strings.noEffect);
+        return;
+      }
+      travelTo(hs.exit.to, hs.exit.travelText);
+      return;
+    }
+    if (hs.sendNpcTo && npcRt[hs.sendNpcTo.npc]) {
+      const rt = npcRt[hs.sendNpcTo.npc];
+      rt.target = { x: hs.sendNpcTo.x, y: hs.sendNpcTo.y };
+      rt.pauseUntil = performance.now() + 6000;
+      sfx('bark');
+      say(lookText(hs), hsSpeaker(hs));
+      return;
+    }
+
+    /* gevaarlijk wezen blijven porren = einde verhaal */
+    if (hs.danger && !state.flags.minotaurAsleep) {
+      const pokes = (state.flags['pokes_' + hs.id] || 0) + 1;
+      state.flags['pokes_' + hs.id] = pokes;
+      if (pokes >= 4) { die(); return; }
+      if (pokes >= 2 && hs.angerTexts) {
+        sfx('growl');
+        say(hs.angerTexts[Math.min(pokes - 2, hs.angerTexts.length - 1)], hsSpeaker(hs));
+        return;
+      }
+      /* eerste keer: gewone beschrijving */
+    }
+
+    if (hs.gives) {
+      if (state.flags[takenFlag(hs)]) {
+        say(hs.gives.emptyText || lookText(hs));
+        return;
+      }
+      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) {
+        sfx('error');
+        say(hs.blockedText || GAME.strings.noEffect);
+        return;
+      }
+      state.flags[takenFlag(hs)] = true;
+      addItem(hs.gives.item);
+      sfx('pickup');
+      say(hs.gives.giveText);
+      if (hs.gives.win) { pendingWin = true; sfx('win'); }
+      return;
+    }
+    say(lookText(hs), hsSpeaker(hs));
+  }
+
+  function runAction(a, anchor) {
+    if (a.consume) removeItem(a.consume);
+    if (a.give) addItem(a.give);
+    if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
+    if (a.setFlag === 'minotaurAsleep') sfx('sleep');
+    else if (a.give) sfx('pickup');
+    else if (a.consume) sfx('use');
+    if (a.text) say(a.text, anchor);
+  }
+
+  /* ---------- Dood & herkansing ---------- */
+  function die() {
+    sfx('death');
+    msgQueue = [];
+    pendingWin = false;
+    elMsg.hidden = true;
+    elBubble.hidden = true;
+    elDeath.hidden = false;
+  }
+
+  elRetryBtn.addEventListener('click', () => {
+    elDeath.hidden = true;
+    state.flags.pokes_minotaur = 0;
+    const scene = GAME.scenes[state.currentScene];
+    player.x = scene.playerStart.x;
+    player.y = scene.playerStart.y;
+    player.target = null; player.pending = null;
+    fade.mode = 'in';
+    fade.t0 = performance.now();
+    sfx('tap');
+  });
+
+  function travelTo(sceneId, travelText) {
+    if (travelText) say(travelText);
+    sfx('travel');
+    fade.mode = 'out';
+    fade.t0 = performance.now();
+    setTimeout(() => {
+      const fromScene = state.currentScene;
+      state.currentScene = sceneId;
+      state.selectedItem = null;
+      const scene = GAME.scenes[sceneId];
+      const spawn = (scene.spawnFrom && scene.spawnFrom[fromScene]) || scene.playerStart;
+      player.x = spawn.x; player.y = spawn.y;
+      player.target = null; player.pending = null;
+      player.flip = spawn.x >= SCENE_W / 2;
+      initNpcs();
+      initFireflies((scene.fx && scene.fx.fireflies) || 0);
+      embers.length = 0;
+      paintBackground();
+      renderInventory();
+      fade.mode = 'in';
+      fade.t0 = performance.now();
+      const visited = 'visited_' + sceneId;
+      if (!state.flags[visited]) {
+        state.flags[visited] = true;
+        say(scene.entryText);
+      }
+      updateQuest();
+    }, fade.dur);
+  }
+
+  /* ---------- Lopen & tikken ---------- */
+  function walkThenInteract(hs) {
+    showLabel(L(hs.name));
+    const wt = hsWalkTo(hs);
+    const dist = Math.hypot(player.x - wt.x, player.y - wt.y);
+    if (dist <= ARRIVE_DIST + 2) { interactNow(hs); return; }
+    player.pending = hs;
+    player.target = { x: wt.x, y: wt.y };
+  }
+
+  function hotspotAt(sx, sy) {
+    const scene = GAME.scenes[state.currentScene];
+    let best = null, bestArea = Infinity;
+    for (const hs of scene.hotspots) {
+      const r = hsRect(hs);
+      if (sx >= r.x && sx <= r.x + r.w && sy >= r.y && sy <= r.y + r.h) {
+        const area = r.w * r.h;
+        if (area < bestArea) { best = hs; bestArea = area; }
+      }
+    }
+    return best;
+  }
+
+  function screenToScene(px_, py_) {
+    return { x: (px_ - view.ox) / view.scale, y: (py_ - view.oy) / view.scale };
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    ac();
+    if (!started || fade.mode === 'out' || !elDeath.hidden) return;
+    if (msgOpen()) { showNextMsg(); return; }
+    const p = screenToScene(e.clientX, e.clientY);
+    if (p.x < 0 || p.x > SCENE_W || p.y < 0 || p.y > SCENE_H) return;
+
+    const hs = hotspotAt(p.x, p.y);
+    if (hs) {
+      const wt = hsWalkTo(hs);
+      marker = { x: wt.x, y: wt.y, until: performance.now() + 700 };
+      walkThenInteract(hs);
+    } else {
+      const dest = clampToWalkable(p.x, p.y);
+      marker = { x: dest.x, y: dest.y, until: performance.now() + 700 };
+      player.pending = null;
+      player.target = dest;
+    }
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    if (!started || e.pointerType === 'touch') return;
+    const p = screenToScene(e.clientX, e.clientY);
+    const hs = hotspotAt(p.x, p.y);
+    canvas.style.cursor = hs ? 'pointer' : 'default';
+    if (hs) showLabel(L(hs.name), true);
+    else if (!labelTimer) elLabel.hidden = true;
+  });
+
+  elHintBtn.addEventListener('click', () => {
+    sfx('tap');
+    hintUntil = performance.now() + 1800;
+  });
+
+  /* ---------- Winst & herstart ---------- */
+  function showWin() {
+    elWinText.textContent = L(GAME.winText);
+    elWin.hidden = false;
+    elQuest.hidden = true;
+  }
+
+  function resetGame() {
+    state = newState();
+    msgQueue = [];
+    pendingWin = false;
+    elMsg.hidden = true;
+    elBubble.hidden = true;
+    elWin.hidden = true;
+    elDeath.hidden = true;
+    const s = GAME.scenes[state.currentScene].playerStart;
+    player.x = s.x; player.y = s.y;
+    player.target = null; player.pending = null;
+    player.dir = 'down'; player.flip = false; player.phase = 0;
+    initNpcs();
+    initFireflies(0);
+    embers.length = 0;
+    paintBackground();
+    renderInventory();
+    updateQuest();
+    fade.mode = 'in';
+    fade.t0 = performance.now();
+    state.flags['visited_' + state.currentScene] = true;
+    say(GAME.scenes[state.currentScene].entryText);
+  }
+
+  elStartBtn.addEventListener('click', () => {
+    ac();
+    startMusic();
+    sfx('tap');
+    elTitle.hidden = true;
+    started = true;
+    state.flags['visited_' + state.currentScene] = true;
+    updateQuest();
+    say(GAME.scenes[state.currentScene].entryText);
+  });
+
+  elReplayBtn.addEventListener('click', resetGame);
+
+  /* ---------- Test-API ---------- */
+  window.__game = {
+    getState: () => state,
+    getPlayer: () => ({ x: player.x, y: player.y, walking: !!player.target }),
+    getNpc: (id) => npcRt[id] ? { x: npcRt[id].x, y: npcRt[id].y } : null,
+    start: () => { if (!started) elStartBtn.click(); },
+    tap: (hotspotId) => {
+      const scene = GAME.scenes[state.currentScene];
+      const hs = scene.hotspots.find(h => h.id === hotspotId);
+      if (!hs) throw new Error('Onbekende hotspot: ' + hotspotId);
+      interactNow(hs);
+    },
+    walkTo: (x, y) => { player.pending = null; player.target = clampToWalkable(x, y); },
+    select: (itemId) => onInventoryTap(itemId),
+    dismissAll: () => { let n = 0; while (msgOpen() && n++ < 50) showNextMsg(); },
+    isWinShown: () => !elWin.hidden,
+    isDeathShown: () => !elDeath.hidden,
+    setLang: (l) => { lang = l; applyLang(); },
+    questKey,
+    reset: resetGame
+  };
+
+  /* ---------- Start ---------- */
+  resize();
+  initLeaves();
+  initNpcs();
+  paintBackground();
+  renderInventory();
+  applyLang();
+  setInterval(loop, 1000 / 30);
+})();
