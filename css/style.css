@@ -279,7 +279,21 @@ html, body {
   display: flex;
   gap: 8px;
   justify-content: center;
-  padding: 8px;
+  align-items: center;
+  padding: 8px 18px;
+  width: fit-content;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Ornamentele eindkapjes op de toolbar */
+#invbar::before,
+#invbar::after {
+  content: '◆';
+  color: var(--gold);
+  font-size: 11px;
+  text-shadow: 0 1px 0 #1f1410;
+  flex: 0 0 auto;
 }
 
 #invbar {
@@ -547,6 +561,27 @@ html, body {
   font-size: 16px;
   font-family: var(--font-pixel);
   z-index: 2;
+}
+
+/* Raadsel-popup */
+.riddle-q {
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--parchment);
+  margin-bottom: 16px;
+  min-height: 66px;
+}
+
+#riddle-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gold-btn.riddle-ans {
+  font-size: 15px;
+  padding: 9px 18px;
 }
 
 [hidden] { display: none !important; }

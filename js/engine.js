@@ -80,7 +80,9 @@
       minotaur: 'assets/art/minotaur.png',
       minotaurAsleep: 'assets/art/minotaur-asleep.png',
       dog: 'assets/art/dog.png',
-      chestOpen: 'assets/art/chest-open.png'
+      dogVest: 'assets/art/dog-vest.png',
+      chestOpen: 'assets/art/chest-open.png',
+      gateDoor: 'assets/art/gate-door.png'
     }
   };
   const art = { scenes: {}, sprites: {}, items: {}, overlays: {} };
@@ -438,7 +440,7 @@
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
-    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && !msgOpen()) {
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && !msgOpen()) {
       const { vx, vy } = keyVector();
       if (vx || vy) {
         player.target = null;
@@ -467,6 +469,12 @@
           else if (inWalkable(player.x, ny)) nx = player.x;
           else { player.target = null; arrive(); return; }
         }
+        /* klem tegen een obstakel: stop in plaats van eeuwig doorlopen */
+        if (Math.abs(nx - player.x) < 0.05 && Math.abs(ny - player.y) < 0.05) {
+          player.target = null;
+          arrive();
+          return;
+        }
         player.x = nx; player.y = ny;
         player.phase += step * 0.14;
         if (Math.abs(dx) > 2) player.flip = dx < 0;
@@ -486,7 +494,7 @@
     for (const npc of scene.npcs) {
       const rt = npcRt[npc.id];
       if (!rt) continue;
-      if (npc.wander) {
+      if (npc.wander && !(npc.wanderRequiresFlag && !state.flags[npc.wanderRequiresFlag])) {
         if (rt.target) {
           const dx = rt.target.x - rt.x, dy = rt.target.y - rt.y;
           const dist = Math.hypot(dx, dy);
@@ -609,6 +617,29 @@
     ents.sort((a, b) => a.y - b.y);
     for (const e of ents) e.draw();
 
+    /* Doorzichtige pulserende pijlen bij uitgangen — bovenop alles */
+    for (const hs of scene.hotspots) {
+      if (!hs.exit || !hs.arrow) continue;
+      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
+      const a = hs.arrow;
+      const pulse = 0.34 + 0.2 * Math.sin(now / 350);
+      const f = Math.sin(now / 350) * 2;
+      fctx.save();
+      fctx.translate(a.x, a.y + (a.dir === 'up' ? f : a.dir === 'down' ? -f : 0));
+      if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
+      else if (a.dir === 'right') { fctx.rotate(Math.PI / 2); fctx.translate(f, 0); }
+      else if (a.dir === 'down') fctx.rotate(Math.PI);
+      fctx.fillStyle = `rgba(231,207,134,${pulse})`;
+      fctx.strokeStyle = `rgba(31,20,16,${pulse + 0.25})`;
+      fctx.lineWidth = 1.5;
+      fctx.beginPath();
+      fctx.moveTo(0, -10); fctx.lineTo(9, 1); fctx.lineTo(4, 1); fctx.lineTo(4, 9);
+      fctx.lineTo(-4, 9); fctx.lineTo(-4, 1); fctx.lineTo(-9, 1);
+      fctx.closePath();
+      fctx.fill(); fctx.stroke();
+      fctx.restore();
+    }
+
     /* gloeiende partikels bovenop */
     for (const e of embers) {
       const a = Math.max(0, e.life / 1.4);
@@ -691,21 +722,26 @@
     /* Dichte stenen poortdeur tot de embleem-puzzel is opgelost */
     if (fx.gateDoor && !state.flags.gateOpen) {
       const d = fx.gateDoor;
-      fctx.fillStyle = '#9a8266';
-      fctx.fillRect(d.x, d.y, d.w, d.h);
-      fctx.fillStyle = '#7c6850';
-      for (let yy = d.y + 6; yy < d.y + d.h; yy += 9) fctx.fillRect(d.x, yy, d.w, 1);
-      fctx.fillRect(d.x + (d.w >> 1), d.y, 1, d.h);
-      fctx.fillStyle = '#6a5840';
-      fctx.fillRect(d.x, d.y, d.w, 2);
-      fctx.fillRect(d.x, d.y, 2, d.h);
-      fctx.fillRect(d.x + d.w - 2, d.y, 2, d.h);
-      /* klein gouden slot-embleem */
-      const pulse = 0.5 + 0.3 * Math.sin(now / 400);
-      fctx.fillStyle = `rgba(201,162,75,${pulse})`;
-      fctx.fillRect(d.x + (d.w >> 1) - 4, d.y + (d.h >> 1) - 4, 8, 8);
-      fctx.fillStyle = '#1f1410';
-      fctx.fillRect(d.x + (d.w >> 1) - 1, d.y + (d.h >> 1) - 1, 2, 4);
+      const doorImg = art.sprites.gateDoor;
+      if (ready(doorImg)) {
+        fctx.imageSmoothingEnabled = false;
+        fctx.drawImage(doorImg, d.x, d.y, d.w, d.h);
+        const pulse = 0.18 + 0.12 * Math.sin(now / 400);
+        const g = fctx.createRadialGradient(d.x + d.w / 2, d.y + d.h / 2, 2,
+          d.x + d.w / 2, d.y + d.h / 2, 16);
+        g.addColorStop(0, `rgba(231,207,134,${pulse})`);
+        g.addColorStop(1, 'rgba(231,207,134,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(d.x + d.w / 2 - 16, d.y + d.h / 2 - 16, 32, 32);
+      } else {
+        fctx.fillStyle = '#9a8266';
+        fctx.fillRect(d.x, d.y, d.w, d.h);
+        fctx.fillStyle = '#7c6850';
+        for (let yy = d.y + 6; yy < d.y + d.h; yy += 9) fctx.fillRect(d.x, yy, d.w, 1);
+        const pulse = 0.5 + 0.3 * Math.sin(now / 400);
+        fctx.fillStyle = `rgba(201,162,75,${pulse})`;
+        fctx.fillRect(d.x + (d.w >> 1) - 4, d.y + (d.h >> 1) - 4, 8, 8);
+      }
     }
     /* Open kist zodra de runenpuzzel is opgelost */
     if (fx.chestOpen && state.flags.runesSolved) {
@@ -872,16 +908,32 @@
       const f = ((now / 800) | 0) % 2;
       drawSprite(fctx, SEER_FRAMES[f], (rt.x - SEER_W * S / 2) | 0, (rt.y - SEER_H * S) | 0, false, S);
     } else if (npc.sprite === 'dog') {
-      const img = art.sprites.dog;
+      const warm = state.flags.dogWarm;
+      const img = warm && ready(art.sprites.dogVest) ? art.sprites.dogVest : art.sprites.dog;
       if (!ready(img)) return;
-      if (rt.target) {
+      /* sprite kijkt van zichzelf naar links → flip omdraaien */
+      const fl = npc.facesLeft ? !rt.flip : rt.flip;
+      if (!warm) {
+        /* koud: zit stil te bibberen */
+        const shiver = Math.round(Math.sin(now / 45)) * 1;
+        fctx.save();
+        fctx.translate(shiver, 0);
+        drawArtSprite(img, rt.x, rt.y, { flip: fl });
+        fctx.restore();
+        /* bibber-streepjes */
+        if (((now / 400) | 0) % 2 === 0) {
+          fctx.fillStyle = 'rgba(180,210,255,0.7)';
+          fctx.fillRect(rt.x + 14, rt.y - 32, 2, 1);
+          fctx.fillRect(rt.x + 18, rt.y - 28, 2, 1);
+        }
+      } else if (rt.target) {
         /* dribbelen */
         const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.1)) * 2);
-        drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: hop });
+        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: hop });
       } else {
         /* kwispelen: vrolijk wiebelen */
         const wag = Math.sin(now / 160) * 0.06;
-        drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, rot: wag });
+        drawArtSprite(img, rt.x, rt.y, { flip: fl, rot: wag });
       }
     } else if (npc.sprite === 'minotaur') {
       if (state.flags.minotaurAsleep) {
@@ -951,6 +1003,8 @@
     if (has('vialWater')) return 'q_berries';
     if (has('vialEmpty')) return 'q_fill';
     if (f.runesSolved) return 'q_chest';
+    if (f.visited_grove && !f.dogWarm && has('vest')) return 'q_vest';
+    if (f.visited_grove && !f.dogWarm) return 'q_riddle';
     if (f.visited_grove) return 'q_runes';
     if (has('berries')) return 'q_water';
     return 'q_explore';
@@ -1113,6 +1167,11 @@
     const pz = scene.puzzles && scene.puzzles[hs.puzzleKey.puzzle];
     if (!pz) { say(lookText(hs)); return; }
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs)); return; }
+    if (pz.requiresFlag && !state.flags[pz.requiresFlag]) {
+      sfx('error');
+      say(pz.blockedText || GAME.strings.noEffect);
+      return;
+    }
     const progKey = 'puzzle_' + hs.puzzleKey.puzzle;
     const prog = state.flags[progKey] || 0;
     if (hs.puzzleKey.key === pz.sequence[prog]) {
@@ -1215,6 +1274,43 @@
 
   elPuzClose.addEventListener('click', () => { elPuzzle.hidden = true; slide = null; });
 
+  /* ---------- Raadsel-popup (de ziener) ---------- */
+  const elRiddle      = document.getElementById('riddle-screen');
+  const elRiddleTitle = document.getElementById('riddle-title');
+  const elRiddleQ     = document.getElementById('riddle-question');
+  const elRiddleAns   = document.getElementById('riddle-answers');
+  const elRiddleClose = document.getElementById('riddle-close');
+
+  function openRiddle(hs) {
+    const r = hs.riddle;
+    elRiddleTitle.textContent = L(r.title);
+    elRiddleQ.textContent = L(r.question);
+    elRiddleAns.innerHTML = '';
+    const shuffled = r.answers.slice().sort(() => Math.random() - 0.5);
+    for (const ans of shuffled) {
+      const btn = document.createElement('button');
+      btn.className = 'gold-btn riddle-ans';
+      btn.textContent = L(ans.t);
+      btn.addEventListener('click', () => {
+        if (ans.ok) {
+          state.flags[r.setFlag] = true;
+          elRiddle.hidden = true;
+          if (r.reward) { addItem(r.reward); sfx('pickup'); }
+          say(r.solvedText, hsSpeaker(hs));
+          updateQuest();
+        } else {
+          sfx('error');
+          elRiddleQ.textContent = L(r.wrongText);
+          setTimeout(() => { elRiddleQ.textContent = L(r.question); }, 1400);
+        }
+      });
+      elRiddleAns.appendChild(btn);
+    }
+    elRiddle.hidden = false;
+    sfx('tap');
+  }
+  elRiddleClose.addEventListener('click', () => { elRiddle.hidden = true; });
+
   /* ---------- Vonken-burst (kist/poort die opengaat) ---------- */
   const sparks = [];
   function burstAt(x, y) {
@@ -1255,12 +1351,17 @@
       travelTo(hs.exit.to, hs.exit.travelText);
       return;
     }
-    if (hs.sendNpcTo && npcRt[hs.sendNpcTo.npc]) {
+    if (hs.sendNpcTo && npcRt[hs.sendNpcTo.npc] &&
+        (!hs.sendRequiresFlag || state.flags[hs.sendRequiresFlag])) {
       const rt = npcRt[hs.sendNpcTo.npc];
       rt.target = { x: hs.sendNpcTo.x, y: hs.sendNpcTo.y };
       rt.pauseUntil = performance.now() + 6000;
       sfx('bark');
       say(lookText(hs), hsSpeaker(hs));
+      return;
+    }
+    if (hs.riddle && state.flags.visited_grove && !state.flags[hs.riddle.setFlag]) {
+      openRiddle(hs);
       return;
     }
 

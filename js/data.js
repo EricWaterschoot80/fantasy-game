@@ -60,6 +60,8 @@ const GAME = {
     q_combine:   { nl: 'Combineer de bessen met het water in je tas', en: 'Combine the berries with the water in your bag' },
     q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal', en: 'Pour the sleeping draught into the stone bowl' },
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
+    q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
+    q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
     q_amulet:    { nl: 'Pak de amulet van het altaar', en: 'Take the amulet from the altar' }
   },
 
@@ -68,7 +70,8 @@ const GAME = {
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
     potion:    { name: { nl: 'Slaapdrank', en: 'Sleeping Draught' }, icon: '🧪', img: 'assets/art/item-potion.png' },
-    amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' }
+    amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' },
+    vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' }
   },
 
   recipes: [
@@ -93,14 +96,17 @@ const GAME = {
       playerStart: { x: 300, y: 260 },
       spawnFrom: {
         temple: { x: 452, y: 182 },
-        grove: { x: 48, y: 202 }
+        grove: { x: 121, y: 194 }
       },
       walkable: [
         { x: 10, y: 168, w: 530, h: 50 },
         { x: 125, y: 218, w: 255, h: 88 }
       ],
       obstacles: [
-        { x: 160, y: 84, w: 110, h: 84 }    // altaartrog
+        { x: 160, y: 84, w: 110, h: 84 },   // altaartrog
+        { x: 0, y: 0, w: 112, h: 232 },     // schuine muur linksboven
+        { x: 0, y: 232, w: 58, h: 42 },     // muurvoet linksonder
+        { x: 136, y: 120, w: 30, h: 130 }   // klimop-pilaar naast de doorgang
       ],
       overlays: [
         { img: 'assets/art/ov-courtyard-bushes.png', x: 0, y: 196, w: 128, h: 124, base: 330 },
@@ -164,6 +170,25 @@ const GAME = {
           rect: { x: 260, y: 146, w: 50, h: 62 },
           followNpc: 'seer',
           speaker: true,
+          riddle: {
+            setFlag: 'riddleSolved',
+            reward: 'vest',
+            title: { nl: 'Het Raadsel van de Ziener', en: 'The Seer’s Riddle' },
+            question: {
+              nl: '“Het bibberende hondje, zeg je? Los mijn raadsel op... Ik val zonder te springen, ik dans zonder benen, en in de herfst ben ik koning. Wat ben ik?”',
+              en: '“The shivering puppy, you say? Solve my riddle... I fall without jumping, I dance without legs, and in autumn I am king. What am I?”'
+            },
+            answers: [
+              { t: { nl: 'Een blad', en: 'A leaf' }, ok: true },
+              { t: { nl: 'De regen', en: 'The rain' }, ok: false },
+              { t: { nl: 'De wind', en: 'The wind' }, ok: false }
+            ],
+            wrongText: { nl: '“Nee... luister nog eens naar het bos.”', en: '“No... listen to the woods once more.”' },
+            solvedText: {
+              nl: '“Wijs geantwoord.” De ziener haalt een klein rood vestje uit zijn gewaad. “Voor de kleine bibberaar tussen de stenen.”',
+              en: '“Wisely answered.” The seer draws a small red vest from his robe. “For the little shiverer among the stones.”'
+            }
+          },
           look: {
             nl: 'De gehulde ziener fluistert: “Voorbij de poort waakt de minotaur. Geen zwaard velt hem — enkel slaap. Hij drinkt uit de stenen schaal in de tempel wanneer niemand kijkt.”',
             en: 'The hooded seer whispers: “Beyond the gate the minotaur keeps watch. No sword can fell him — only sleep. He drinks from the stone bowl in the temple when no one is looking.”'
@@ -192,19 +217,21 @@ const GAME = {
         },
         {
           id: 'toGrove',
-          name: { nl: 'Westpad naar het Bos', en: 'West Path to the Grove' },
-          rect: { x: 0, y: 140, w: 34, h: 100 },
-          walkTo: { x: 44, y: 200 },
+          name: { nl: 'Doorgang naar het Bos', en: 'Passage to the Grove' },
+          rect: { x: 98, y: 100, w: 46, h: 95 },
+          walkTo: { x: 121, y: 190 },
+          arrow: { x: 121, y: 116, dir: 'up' },
           exit: {
             to: 'grove',
-            travelText: { nl: 'Je glipt langs de muur het herfstbos in...', en: 'You slip past the wall into the autumn grove...' }
+            travelText: { nl: 'Je glipt door de doorgang het herfstbos in...', en: 'You slip through the passage into the autumn grove...' }
           }
         },
         {
           id: 'toTemple',
           name: { nl: 'Poort naar de Tempel', en: 'Gate to the Temple' },
-          rect: { x: 420, y: 50, w: 66, h: 104 },
+          rect: { x: 416, y: 46, w: 74, h: 112 },
           walkTo: { x: 452, y: 174 },
+          arrow: { x: 452, y: 130, dir: 'up' },
           requiresFlag: 'gateOpen',
           blockedText: {
             nl: 'De stenen poortdeur zit muurvast. Het gouden embleem ernaast gloeit veelbetekenend...',
@@ -243,13 +270,18 @@ const GAME = {
         { item: 'vialEmpty', hotspot: 'chest', x: 393, y: 128, requiresFlag: 'runesSolved' }
       ],
       npcs: [
-        { id: 'dog', sprite: 'dog', x: 250, y: 230,
+        { id: 'dog', sprite: 'dog', x: 232, y: 208, facesLeft: true, wanderRequiresFlag: 'dogWarm',
           wander: { x: 150, y: 180, w: 190, h: 55, speed: 48, pauseMin: 1500, pauseMax: 4500 } }
       ],
       puzzles: {
         runes: {
           sequence: ['leaf', 'sun', 'moon'],
           setFlag: 'runesSolved',
+          requiresFlag: 'dogWarm',
+          blockedText: {
+            nl: 'De runen blijven dof. Het rillende hondje jankt zachtjes tussen de stenen — misschien moet je het eerst helpen.',
+            en: 'The runes stay dull. The shivering puppy whimpers among the stones — perhaps you should help it first.'
+          },
           stepText: { nl: 'De runensteen gloeit warm op...', en: 'The rune stone glows warmly...' },
           resetText: { nl: 'De stenen doven met een zucht. Die volgorde klopt niet.', en: 'The stones dim with a sigh. That order isn’t right.' },
           solvedText: { nl: 'De derde steen vlamt op — naast je springt het deksel van de stenen kist open!', en: 'The third stone flares — beside you, the lid of the stone chest springs open!' },
@@ -264,14 +296,30 @@ const GAME = {
       hotspots: [
         {
           id: 'dog',
-          name: { nl: 'Vrolijk Hondje', en: 'Cheerful Puppy' },
+          name: { nl: 'Hondje', en: 'Puppy' },
           rect: { x: 230, y: 190, w: 40, h: 40 },
           followNpc: 'dog',
           speaker: true,
           sendNpcTo: { npc: 'dog', x: 162, y: 182 },
-          look: {
-            nl: 'Woef woef! Het hondje kwispelt wild, rent naar de steen met het Blad en blaft er enthousiast naar. Zou het iets willen vertellen?',
-            en: 'Woof woof! The puppy wags wildly, runs to the Leaf stone and barks at it eagerly. Is it trying to tell you something?'
+          sendRequiresFlag: 'dogWarm',
+          look: (state) => state.flags.dogWarm
+            ? {
+                nl: 'Woef woef! Het hondje kwispelt wild in zijn rode vestje, rent naar de steen met het Blad en blaft er enthousiast naar. Zou het iets willen vertellen?',
+                en: 'Woof woof! The puppy wags wildly in its red vest, runs to the Leaf stone and barks at it eagerly. Is it trying to tell you something?'
+              }
+            : {
+                nl: 'Het hondje zit te rillen tussen de runenstenen en jankt zachtjes. Het heeft het ijskoud... Wie zou het warm kunnen krijgen?',
+                en: 'The puppy sits shivering among the rune stones, whimpering softly. It’s freezing cold... Who could warm it up?'
+              },
+          use: {
+            vest: {
+              consume: 'vest',
+              setFlag: 'dogWarm',
+              text: {
+                nl: 'Je trekt het hondje voorzichtig het rode vestje aan. Het springt blij op, geeft je een lik over je hand en kwispelt als een dolle — het is weer warm!',
+                en: 'You gently slip the red vest onto the puppy. It leaps up happily, licks your hand and wags like mad — warm at last!'
+              }
+            }
           }
         },
         {
@@ -330,8 +378,9 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Pad naar de Binnenplaats', en: 'Path to the Courtyard' },
-          rect: { x: 505, y: 88, w: 63, h: 142 },
+          rect: { x: 500, y: 80, w: 68, h: 155 },
           walkTo: { x: 522, y: 198 },
+          arrow: { x: 532, y: 175, dir: 'right' },
           exit: {
             to: 'courtyard',
             travelText: { nl: 'Je volgt het pad terug naar de binnenplaats.', en: 'You follow the path back to the courtyard.' }
@@ -453,8 +502,9 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Terug naar de Binnenplaats', en: 'Back to the Courtyard' },
-          rect: { x: 28, y: 86, w: 68, h: 116 },
+          rect: { x: 24, y: 80, w: 76, h: 126 },
           walkTo: { x: 95, y: 216 },
+          arrow: { x: 62, y: 160, dir: 'left' },
           exit: {
             to: 'courtyard',
             travelText: { nl: 'Je keert terug naar de binnenplaats.', en: 'You return to the courtyard.' }
