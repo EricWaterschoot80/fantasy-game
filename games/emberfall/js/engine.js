@@ -2038,7 +2038,7 @@
     }
 
     /* gevaarlijk wezen blijven porren = einde verhaal */
-    if (hs.danger && !state.flags.minotaurAsleep) {
+    if (hs.danger && !state.flags[hs.dangerUntil || 'minotaurAsleep']) {
       const pokes = (state.flags['pokes_' + hs.id] || 0) + 1;
       state.flags['pokes_' + hs.id] = pokes;
       if (pokes >= 4) { die(); return; }
@@ -2110,7 +2110,7 @@
 
   elRetryBtn.addEventListener('click', () => {
     elDeath.hidden = true;
-    state.flags.pokes_minotaur = 0;
+    Object.keys(state.flags).forEach((k) => { if (k.indexOf('pokes_') === 0) state.flags[k] = 0; });
     const scene = GAME.scenes[state.currentScene];
     player.x = scene.playerStart.x;
     player.y = scene.playerStart.y;

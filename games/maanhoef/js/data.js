@@ -179,12 +179,12 @@ const GAME = {
       name: { nl: 'Het Wilgenbos', en: 'The Willow Forest' },
       bg: 'assets/art/scene-grove.png',
       entryText: {
-        nl: 'Een nevelige open plek tussen de wilgen. Op een omgevallen stam ligt een grote slang te sissen; daarachter glanst een oude kist.',
-        en: 'A misty clearing among the willows. A great snake hisses on a fallen log; behind it gleams an old chest.'
+        nl: 'Een open plek met een ruisende waterval. In de boom kronkelt een grote slang die dreigend naar je sist. Links, bij een stenen boog, gaapt een donkere holte.',
+        en: 'A clearing with a rushing waterfall. A great snake coils in the tree, hissing at you in warning. To the left, by a stone arch, yawns a dark hollow.'
       },
-      playerStart: { x: 498, y: 252 },
-      spawnFrom: { farm: { x: 498, y: 252 } },
-      walkable: [ { x: 40, y: 210, w: 492, h: 90 } ],
+      playerStart: { x: 498, y: 258 },
+      spawnFrom: { farm: { x: 498, y: 258 } },
+      walkable: [ { x: 60, y: 212, w: 450, h: 88 } ],
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -192,9 +192,15 @@ const GAME = {
         {
           id: 'snake',
           name: { nl: 'Sissende Slang', en: 'Hissing Snake' },
-          rect: { x: 226, y: 84, w: 134, h: 102 },
-          walkTo: { x: 300, y: 254 },
+          rect: { x: 268, y: 90, w: 156, h: 106 },
+          walkTo: { x: 300, y: 264 },
           speaker: true,
+          danger: true,
+          dangerUntil: 'snakeCharmed',
+          angerTexts: [
+            { nl: 'De slang schiet sissend omhoog en ontbloot haar giftanden. Je durft geen stap dichterbij te zetten.', en: 'The snake rears up hissing, baring her fangs. You don’t dare take a step closer.' },
+            { nl: 'Met een venijnige uithaal hapt ze naar je. Nog één keer tergen en het loopt slecht af...', en: 'She lashes out viciously, snapping at you. Provoke her once more and it ends badly...' }
+          ],
           look: (state) => state.flags.snakeCharmed
             ? { nl: 'De slang wiegt loom heen en weer, betoverd door het wijsje. De weg naar de kist is vrij.', en: 'The snake sways lazily, charmed by the tune. The way to the chest is clear.' }
             : { nl: 'Een grote groene slang kronkelt over de stam en sist dreigend. Zo kom je er niet langs... had je maar iets om haar te bedaren.',
@@ -211,16 +217,16 @@ const GAME = {
         },
         {
           id: 'chest',
-          name: { nl: 'Oude Kist', en: 'Old Chest' },
-          rect: { x: 26, y: 92, w: 104, h: 98 },
-          walkTo: { x: 120, y: 250 },
+          name: { nl: 'Donkere Holte', en: 'Dark Hollow' },
+          rect: { x: 68, y: 76, w: 124, h: 100 },
+          walkTo: { x: 134, y: 262 },
           blockedBy: [
-            { flag: 'snakeCharmed', text: { nl: 'De sissende slang laat je niet bij de kist. Bedaar haar eerst.', en: 'The hissing snake won’t let you near the chest. Calm her first.' } }
+            { flag: 'snakeCharmed', text: { nl: 'De sissende slang verspert de weg naar de holte. Je durft er niet langs — bedaar haar eerst.', en: 'The hissing snake blocks the way to the hollow. You don’t dare pass — calm her first.' } }
           ],
           gives: {
             item: 'bone',
-            giveText: { nl: 'In de oude kist ligt een groot, Sappig Bot — precies waar een hongerig hondje van droomt.', en: 'Inside the old chest lies a big, Juicy Bone — exactly what a hungry dog dreams of.' },
-            emptyText: { nl: 'De kist is leeg.', en: 'The chest is empty.' }
+            giveText: { nl: 'Diep in de donkere holte, tussen de kristallen, vind je een groot, Sappig Bot — precies waar een hongerig hondje van droomt.', en: 'Deep in the dark hollow, among the crystals, you find a big, Juicy Bone — exactly what a hungry dog dreams of.' },
+            emptyText: { nl: 'De holte is verder leeg.', en: 'The hollow is otherwise empty.' }
           }
         },
         {
@@ -242,9 +248,9 @@ const GAME = {
         nl: 'De oude stal in het avondrood. Achter de vergrendelde paddockpoort staat Maanhoef, die je hoopvol aankijkt.',
         en: 'The old stable in the evening glow. Behind the bolted paddock gate stands Moonhoof, looking at you with hope.'
       },
-      playerStart: { x: 120, y: 258 },
-      spawnFrom: { farm: { x: 100, y: 258 } },
-      walkable: [ { x: 40, y: 212, w: 440, h: 90 } ],
+      playerStart: { x: 130, y: 262 },
+      spawnFrom: { farm: { x: 110, y: 262 } },
+      walkable: [ { x: 78, y: 206, w: 404, h: 96 } ],
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -252,18 +258,18 @@ const GAME = {
         {
           id: 'horse',
           name: { nl: 'Maanhoef', en: 'Moonhoof' },
-          rect: { x: 358, y: 84, w: 124, h: 86 },
-          walkTo: { x: 360, y: 264 },
+          rect: { x: 314, y: 62, w: 124, h: 90 },
+          walkTo: { x: 332, y: 266 },
           look: {
-            nl: 'Maanhoef, melkwit met een zilveren manen, drukt zijn neus tegen de spijlen. “Bijna, vriend,” fluister je. “Nog even.”',
-            en: 'Moonhoof, milk-white with a silver mane, presses his nose to the bars. “Almost, friend,” you whisper. “Just a little longer.”'
+            nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, drukt zijn neus over de stalrand. “Bijna, vriend,” fluister je. “Nog heel even.”',
+            en: 'Moonhoof, a warm chestnut horse with a pale blaze, leans his nose over the stall rail. “Almost, friend,” you whisper. “Just a little longer.”'
           }
         },
         {
           id: 'gate',
           name: { nl: 'Vergrendelde Poort', en: 'Bolted Gate' },
-          rect: { x: 316, y: 166, w: 134, h: 92 },
-          walkTo: { x: 342, y: 268 },
+          rect: { x: 296, y: 148, w: 156, h: 82 },
+          walkTo: { x: 324, y: 270 },
           look: (state) => ({ nl: 'Een zware houten paddockpoort met een ijzeren slot. Maanhoef wacht erachter.', en: 'A heavy wooden paddock gate with an iron lock. Moonhoof waits beyond.' }),
           use: {
             key: {
@@ -279,9 +285,9 @@ const GAME = {
         {
           id: 'toFarm',
           name: { nl: 'Pad naar het Erf', en: 'Path to the Farmyard' },
-          rect: { x: 0, y: 188, w: 52, h: 114 },
-          walkTo: { x: 82, y: 266 },
-          arrow: { x: 26, y: 214, dir: 'left' },
+          rect: { x: 0, y: 172, w: 56, h: 130 },
+          walkTo: { x: 86, y: 270 },
+          arrow: { x: 28, y: 206, dir: 'left' },
           exit: { to: 'farm', travelText: { nl: 'Je keert terug naar het boerenerf.', en: 'You head back to the farmyard.' } }
         }
       ]
