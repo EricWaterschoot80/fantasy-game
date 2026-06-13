@@ -62,6 +62,7 @@ const GAME = {
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
+    q_powder:    { nl: 'Strooi het magische poeder op het mossige tablet', en: 'Sprinkle the magic powder on the mossy tablet' },
     q_amulet:    { nl: 'Pak de amulet van het altaar', en: 'Take the amulet from the altar' }
   },
 
@@ -71,7 +72,8 @@ const GAME = {
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
     potion:    { name: { nl: 'Slaapdrank', en: 'Sleeping Draught' }, icon: '🧪', img: 'assets/art/item-potion.png' },
     amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' },
-    vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' }
+    vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' },
+    powder:    { name: { nl: 'Magisch Poeder', en: 'Magic Powder' }, icon: '✨', img: 'assets/art/item-powder.png' }
   },
 
   recipes: [
@@ -121,7 +123,7 @@ const GAME = {
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
         waterGlint: { x: 210, y: 106 },
-        gateDoor: { x: 418, y: 70, w: 56, h: 94 }
+        gateDoor: { x: 417, y: 66, w: 55, h: 99 }
       },
       hotspots: [
         {
@@ -229,8 +231,8 @@ const GAME = {
         {
           id: 'bushes',
           name: { nl: 'Rode Struiken', en: 'Red Bushes' },
-          rect: { x: 0, y: 170, w: 118, h: 150 },
-          walkTo: { x: 172, y: 246 },
+          rect: { x: 0, y: 170, w: 176, h: 150 },
+          walkTo: { x: 178, y: 244 },
           gives: {
             item: 'berries',
             giveText: { nl: 'Tussen de rode struiken pluk je een handvol Rode Bessen.', en: 'Among the red bushes you pick a handful of Red Berries.' },
@@ -309,10 +311,11 @@ const GAME = {
         runes: {
           sequence: ['leaf', 'sun', 'moon'],
           setFlag: 'runesSolved',
-          requiresFlag: 'dogWarm',
+          requiresFlag: 'runesRevealed',
+          revealFlag: 'runesRevealed',
           blockedText: {
-            nl: 'De runen blijven dof. Verderop zit een rillend hondje pal voor de stenen kist — misschien moet je het eerst helpen.',
-            en: 'The runes stay dull. Nearby, a shivering puppy sits right in front of the stone chest — perhaps you should help it first.'
+            nl: 'De runen blijven dof; je kent de juiste volgorde nog niet. Het mossige tablet hiernaast lijkt een aanwijzing te verbergen.',
+            en: 'The runes stay dull; you don’t know the right order yet. The mossy tablet nearby seems to hide a clue.'
           },
           stepText: { nl: 'De runensteen gloeit warm op...', en: 'The rune stone glows warmly...' },
           resetText: { nl: 'De stenen doven met een zucht. Die volgorde klopt niet.', en: 'The stones dim with a sigh. That order isn’t right.' },
@@ -347,9 +350,10 @@ const GAME = {
             vest: {
               consume: 'vest',
               setFlag: 'dogWarm',
+              give: 'powder',
               text: {
-                nl: 'Je trekt het hondje voorzichtig het rode vestje aan. Het springt blij op, geeft je een lik over je hand en kwispelt als een dolle — het is weer warm!',
-                en: 'You gently slip the red vest onto the puppy. It leaps up happily, licks your hand and wags like mad — warm at last!'
+                nl: 'Je trekt het hondje het rode vestje aan. Dolblij springt het op, en uit zijn vacht dwarrelt een buideltje Magisch Poeder in je hand — misschien onthult het wat verborgen is.',
+                en: 'You slip the red vest onto the puppy. Overjoyed, it leaps up, and from its fur a pouch of Magic Powder tumbles into your hand — perhaps it reveals what is hidden.'
               }
             }
           }
@@ -359,9 +363,20 @@ const GAME = {
           name: { nl: 'Mossig Kleitablet', en: 'Mossy Stone Tablet' },
           rect: { x: 68, y: 220, w: 112, h: 86 },
           walkTo: { x: 196, y: 242 },
-          look: {
-            nl: 'Onder het mos staan uitgesleten letters: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.”',
-            en: 'Beneath the moss, worn letters read: “First falls the Leaf, then sinks the Sun, then rises the Moon.”'
+          look: (state) => state.flags.runesRevealed
+            ? { nl: 'De onthulde inscriptie gloeit zacht: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.”',
+                en: 'The revealed inscription glows softly: “First falls the Leaf, then sinks the Sun, then rises the Moon.”' }
+            : { nl: 'Een kleitablet, volledig overwoekerd met mos en aanslag. De inscriptie is onleesbaar... was er maar iets om het te onthullen.',
+                en: 'A stone tablet, completely overgrown with moss and grime. The inscription is unreadable... if only there were something to reveal it.' },
+          use: {
+            powder: {
+              consume: 'powder',
+              setFlag: 'runesRevealed',
+              text: {
+                nl: 'Je blaast het Magische Poeder over het tablet. Het mos licht goudgeel op en verdampt — de inscriptie verschijnt: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.” In de verte gloeien de drie runenstenen zacht op.',
+                en: 'You blow the Magic Powder over the tablet. The moss flares gold and evaporates — the inscription appears: “First falls the Leaf, then sinks the Sun, then rises the Moon.” In the distance the three rune stones glow softly.'
+              }
+            }
           }
         },
         {

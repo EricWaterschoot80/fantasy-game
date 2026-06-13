@@ -1,6 +1,6 @@
 /* Service worker — cache-first zodat het spel offline speelt. */
 
-const CACHE = 'emberfall-v10';
+const CACHE = 'emberfall-v11';
 
 const PRECACHE = [
   './',
@@ -32,6 +32,7 @@ const PRECACHE = [
   './assets/art/chest-open.png',
   './assets/art/gate-door.png',
   './assets/art/item-vest.png',
+  './assets/art/item-powder.png',
   './assets/art/emblem-puzzle.png',
   './assets/art/ov-courtyard-bushes.png',
   './assets/art/ov-courtyard-rubble.png',

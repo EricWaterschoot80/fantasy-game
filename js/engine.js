@@ -859,7 +859,8 @@
       const pz = scene.puzzles[hs.puzzleKey.puzzle];
       const prog = state.flags['puzzle_' + hs.puzzleKey.puzzle] || 0;
       const idx = pz.sequence.indexOf(hs.puzzleKey.key);
-      const lit = state.flags[pz.setFlag] || idx < prog;
+      const revealed = pz.revealFlag && state.flags[pz.revealFlag];
+      const lit = state.flags[pz.setFlag] || idx < prog || revealed;
       if (!lit) continue;
       const r = hs.rect;
       const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
@@ -1077,6 +1078,8 @@
     if (has('vialWater')) return 'q_berries';
     if (has('vialEmpty')) return 'q_fill';
     if (f.runesSolved) return 'q_chest';
+    if (f.runesRevealed) return 'q_runes';
+    if (has('powder')) return 'q_powder';
     if (f.visited_grove && !f.dogWarm && has('vest')) return 'q_vest';
     if (f.visited_grove && !f.dogWarm) return 'q_riddle';
     if (f.visited_grove) return 'q_runes';
@@ -1183,7 +1186,7 @@
   }
 
   function onInventoryTap(itemId) {
-    if (msgOpen()) { showNextMsg(); return; }
+    if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
     const sel = state.selectedItem;
     if (sel === itemId) {
       state.selectedItem = null;
