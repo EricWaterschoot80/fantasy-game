@@ -138,9 +138,11 @@ const GAME = {
   title:      { nl, en },
   titleLines: { nl: [...], en: [...] },   // titel over 2 regels voor het titelscherm
   startScene: 'courtyard',
+  sprites:    { hero: 'assets/art/hero.png', … },  // sprite-register (NPC's verwijzen hiernaar)
   winText:    { nl, en },                 // slottekst op de win-overlay
   strings:    { noEffect, noCombine, nothingThere },  // generieke fallback-teksten
   ui:         { … },                      // ALLE knop-/label-/quest-teksten (zie §7)
+  questRules: [ … ],                      // data-driven questhints (zie §7)
   items:      { … },                      // inventaris-items
   recipes:    [ … ],                      // combinaties in de tas
   scenes:     { … }                       // de werelden
@@ -170,6 +172,8 @@ Volgorde van `a`/`b` maakt niet uit. Beide ingrediënten worden verbruikt, `resu
 ```js
 courtyard: {
   name:       { nl, en },
+  bg:         'assets/art/scene-courtyard.png',       // achtergrond (568×320); valt terug op de painter
+  bgVariants: [{ img, flag?, notFlag? }],             // wissel-achtergrond; eerste passende variant wint
   entryText:  { nl, en },                  // sfeertekst bij binnenkomst
   playerStart:{ x, y },
   spawnFrom:  { temple: { x, y }, grove: { x, y } },  // waar je verschijnt per herkomst-scene
@@ -271,8 +275,20 @@ Elke speler-zichtbare tekst is een object `{ nl: '…', en: '…' }`. De engine 
 (identifiers, flags, item-id's, sprite-namen) zijn **altijd Engels en eentalig**.
 
 Alle UI-, knop- en **quest-teksten** staan gebundeld in `GAME.ui` (o.a. `startBtn`, `winTitle`,
-`replayBtn`, `tapContinue`, en `q_*`-questregels die de speler subtiel sturen). De engine toont
-de juiste questregel via een `questKey()`-functie die naar de huidige flags/inventory kijkt.
+`replayBtn`, `tapContinue`, en `q_*`-questregels die de speler subtiel sturen).
+
+De **questhint** is data-driven via `GAME.questRules` — een geordende lijst; de eerste regel
+waarvan alle voorwaarden kloppen wint, `quest: null` verbergt de hint:
+
+```js
+questRules: [
+  { when: { flag: 'minotaurAsleep' },             quest: 'q_amulet' },
+  { when: { has: ['vialWater', 'berries'] },       quest: 'q_combine' },
+  { when: { has: 'potion', notFlag: 'gateOpen' },  quest: 'q_gate' },
+  { when: {},                                      quest: 'q_explore' }  // fallback
+]
+```
+`when` ondersteunt `flag` / `notFlag` / `has` / `notHas`, elk een string of array (flags = AND).
 
 **Schrijfstijl:** kort, beeldend, in de tweede persoon ("Je schept helder regenwater…").
 Inscripties en NPC-citaten tussen "…". Geen moderne taal, geen uitleggerige tutorials —
@@ -342,30 +358,79 @@ Geen framework, geen serverconfig.
 
 ---
 
-## 12. Een nieuw avontuur starten — checklist
+## 12. Wat is data-driven, en wat zijn de engine-uitbreidpunten
 
-1. Kopieer de generieke bestanden ongewijzigd: `engine.js`, `sprites.js`, `scenes.js`,
-   `css/style.css`, `sw.js`, `index.html`.
-2. Schrijf een nieuwe `data.js`: titel, items, recepten, 3 scenes met een sluitende puzzelketen.
-   Werk in scene-pixels (568×320). Test de route in §6.5-stijl op papier vóór je bouwt.
-3. Teken/genereer de art: `scene-*.png` (568×320), item-iconen, sprites, app-iconen.
-4. Pas `manifest.webmanifest` + SW-cachenaam + README aan met de nieuwe spelnaam.
-5. Loop de acceptatiechecklist (§11) na. Verifieer de winroute geautomatiseerd via de
-   `window.__game`-test-API (de engine exposeert state/acties voor scripted verificatie).
-6. Deploy als eigen route onder RetroAdventureWorld.com.
+**Data-only (alleen `data.js` + art):** scenes, loopgebieden, hotspots & al hun gedrag, items,
+recepten, de drie puzzeltypes, scene-achtergronden (`scene.bg`) en wissel-achtergronden
+(`scene.bgVariants`), het sprite-register (`GAME.sprites`), tweetaligheid, en de questhints
+(`GAME.questRules`). Een nieuw avontuur bouw je in de regel zónder de engine aan te raken.
+
+**Engine-uitbreidpunten (zelden nodig, maar eerlijk benoemd):**
+- **NPC-gedrag** is gekoppeld aan de spritenaam: `dog` (volgt de speler na redding), `seer`
+  (gebaart op zijn plek), `minotaur` (bewaakt; slaapt bij de `…Asleep`-flag). Voor een nieuw spel:
+  hergebruik die namen voor vergelijkbaar gedrag, laat `npcs` leeg, of voeg een nieuw gedragstype
+  generiek toe in `engine.js`.
+- **Geluid** (`sfx`) gebruikt een vaste set gesynthetiseerde tonen; extra tonen voeg je toe in de
+  engine.
+- Een **compleet nieuw interactietype** = generieke engine-code + een nieuw datablok, nooit
+  hardgecodeerd verhaal.
 
 ---
 
-## 13. RetroAdventureWorld.com — de bundel
+## 13. Een nieuw avontuur starten — checklist
 
-De site wordt een **portaal** met een raster van avonturen, elk een losse PWA in deze stijl,
-delend:
-- dezelfde engine-bestanden (één bron, makkelijk gezamenlijk patchen),
-- het navy+goud UI-frame en pixel-art-look,
-- het interactiemodel, de drie puzzeltypes en de tweetaligheid,
-- installeerbaar als app, offline speelbaar.
+1. **Kopieer de starterkit** (`/_starter`): generieke engine + een meteen-speelbare stub-`data.js`
+   die zónder art draait (fallback-scene + emoji-iconen).
+2. Schrijf je eigen `data.js`: titel, items, recepten, scenes met een sluitende puzzelketen,
+   `questRules`. Werk in scene-pixels (568×320). Test de route op papier vóór je bouwt.
+3. Teken/genereer de art: `scene-*.png` (568×320), item-iconen, sprites, app-iconen; koppel via
+   `scene.bg`, `GAME.sprites`, `item.img`.
+4. Pas `manifest.webmanifest` + SW-cachenaam + README aan met de nieuwe spelnaam.
+5. Loop de acceptatiechecklist (§11) na. Verifieer de winroute geautomatiseerd via de
+   `window.__game`-test-API: `start()`, `tap(hotspotId)`, `select(itemId)`, `dismissAll()`,
+   `isWinShown()`, `questKey()`.
+6. Plaats het als eigen route onder RetroAdventureWorld.com (zie §14).
 
-Elk spel verschilt in `data.js` + art + accentkleur + sfeer. Zo bouw je een groeiende
-collectie korte, charmante retro-avonturen die als één familie aanvoelen.
+---
 
+## 14. RetroAdventureWorld.com — de site-opzet
+
+Eén **portaal** met een raster van avonturen, elk een losse PWA in deze stijl. Aanbevolen opzet:
+één repo, één domein, subpaden per spel.
+
+```
+/                         portaal-landingspagina (raster van spel-kaarten)
+/shared/                  (optioneel) gedeelde engine, zie hieronder
+/games/
+  emberfall/
+    index.html            verwijst naar engine + eigen js/data.js
+    js/data.js            uniek per spel
+    assets/…              eigen art + iconen
+    manifest.webmanifest  start_url + scope = /games/emberfall/
+    sw.js                 cachenaam per spel (emberfall-vN)
+  <volgend-spel>/
+```
+
+**Drie keuzes die je maakt:**
+
+1. **Eén domein met subpaden** (`retroadventureworld.com/games/emberfall/`) — het simpelst:
+   één Vercel-/Pages-project, één deploy. Elk spel is een zelfstandige statische PWA in zijn
+   eigen map. Omdat `manifest` + `sw.js` per map staan, is **elk spel apart installeerbaar** op
+   het beginscherm met een eigen icoon en eigen offline-cache.
+   *(Subdomeinen per spel kan ook, maar geeft meer DNS-/deploygedoe — niet nodig voor een collectie.)*
+
+2. **Gedeelde engine vs. kopie-per-spel** — de kerntrade-off:
+   - *Kopie-per-spel* (wat de starterkit doet): elk spel heeft zijn eigen `engine.js`. Volledige
+     isolatie, geen risico dat een wijziging een ouder spel breekt — maar bugfixes moet je per
+     spel herhalen. **Begin hiermee.**
+   - *Gedeelde, geversioneerde engine* (`/shared/v1/engine.js`, `/shared/v2/…`): elk spel pint
+     zich op een versie. Eén plek om te patchen binnen een versie, zonder oudere spellen te breken.
+     **Stap hierop over zodra je 3+ spellen hebt** en ze samen wilt onderhouden.
+
+3. **Portaalpagina** op `/`: een pixel-art raster van spel-kaarten (coverart + titel + "Speel"),
+   in hetzelfde navy+goud thema, linkend naar elke `/games/<slug>/`. Statische HTML, geen framework.
+
+**Deploy:** één Vercel-project met de repo-root, of GitHub Pages. `cleanUrls: true`.
+
+Elk spel verschilt in `data.js` + art + accentkleur + sfeer; samen voelen ze als één familie.
 **Eerste titel:** *De Amulet van Emberfall* (eeuwige herfst, minotaur, runenbos).

@@ -19,6 +19,21 @@ const GAME = {
   },
   startScene: 'courtyard',
 
+  /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
+  sprites: {
+    hero:           'assets/art/hero.png',
+    heroWalk:       'assets/art/hero-walk.png',
+    heroWave:       'assets/art/hero-wave.png',
+    seer:           'assets/art/seer.png',
+    minotaur:       'assets/art/minotaur.png',
+    minotaurAsleep: 'assets/art/minotaur-asleep.png',
+    dog:            'assets/art/dog.png',
+    dogCold:        'assets/art/dog-cold.png',
+    dogVest:        'assets/art/dog-vest.png',
+    chestOpen:      'assets/art/chest-open.png',
+    gateDoor:       'assets/art/gate-door.png'
+  },
+
   winText: {
     nl: 'Met de Amulet van Emberfall veilig om je hals breekt warm gouden licht ' +
         'door het wolkendek. De eeuwige herfst laat haar greep los — het rijk ' +
@@ -67,6 +82,26 @@ const GAME = {
     q_amulet:    { nl: 'Pak de amulet van het altaar', en: 'Take the amulet from the altar' }
   },
 
+  /* Questhint-regels — eerste match wint; quest:null verbergt de hint.
+     De engine leest dit generiek (zie condMet/questKey). */
+  questRules: [
+    { when: { flag: 'taken_temple_shrine' },                        quest: null },
+    { when: { flag: 'minotaurAsleep' },                             quest: 'q_amulet' },
+    { when: { has: 'potion', notFlag: 'gateOpen' },                 quest: 'q_gate' },
+    { when: { has: 'potion' },                                      quest: 'q_pour' },
+    { when: { has: ['vialWater', 'berries'] },                      quest: 'q_combine' },
+    { when: { has: 'vialWater' },                                   quest: 'q_berries' },
+    { when: { has: 'vialEmpty' },                                   quest: 'q_fill' },
+    { when: { flag: 'runesSolved' },                                quest: 'q_chest' },
+    { when: { flag: 'runesRevealed' },                              quest: 'q_runes' },
+    { when: { has: 'powder' },                                      quest: 'q_powder' },
+    { when: { flag: 'visited_grove', notFlag: 'dogWarm', has: 'vest' }, quest: 'q_vest' },
+    { when: { flag: 'visited_grove', notFlag: 'dogWarm' },          quest: 'q_riddle' },
+    { when: { flag: 'visited_grove' },                              quest: 'q_runes' },
+    { when: { has: 'berries' },                                     quest: 'q_water' },
+    { when: {},                                                     quest: 'q_explore' }
+  ],
+
   items: {
     berries:   { name: { nl: 'Rode Bessen', en: 'Red Berries' },     icon: '🍒', img: 'assets/art/item-berries.png' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
@@ -92,6 +127,10 @@ const GAME = {
     /* ---------- Scene 1: De Verlaten Binnenplaats ---------- */
     courtyard: {
       name: { nl: 'De Verlaten Binnenplaats', en: 'The Forsaken Courtyard' },
+      bg: 'assets/art/scene-courtyard.png',
+      bgVariants: [
+        { img: 'assets/art/scene-courtyard-closed.png', notFlag: 'gateOpen' }
+      ],
       entryText: {
         nl: 'Een binnenplaats van zandsteen, overwoekerd door rode herfststruiken.',
         en: 'A sandstone courtyard, overgrown with red autumn bushes.'
@@ -282,6 +321,10 @@ const GAME = {
     /* ---------- Scene 2: Het Runenbos (puzzel) ---------- */
     grove: {
       name: { nl: 'Het Runenbos', en: 'The Rune Grove' },
+      bg: 'assets/art/scene-grove.png',
+      bgVariants: [
+        { img: 'assets/art/scene-grove-lit.png', flag: 'runesRevealed' }
+      ],
       entryText: {
         nl: 'Een verborgen open plek. Drie runenstenen zoemen zacht tussen de herfstbomen.',
         en: 'A hidden clearing. Three rune stones hum softly among the autumn trees.'
@@ -448,6 +491,7 @@ const GAME = {
     /* ---------- Scene 3: De Tempel van de Minotaur ---------- */
     temple: {
       name: { nl: 'De Tempel van de Minotaur', en: 'The Minotaur’s Temple' },
+      bg: 'assets/art/scene-temple.png',
       entryText: {
         nl: 'Verweerde zuilen torenen boven je uit. Iets groots beweegt in de schaduw.',
         en: 'Weathered columns tower above you. Something large stirs in the shadows.'

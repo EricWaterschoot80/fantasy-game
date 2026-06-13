@@ -69,27 +69,36 @@
     renderInventory();
   }
 
-  /* ---------- Art assets (data-driven) ----------
-     Scene-achtergrond: scene.bg (PNG 568×320) — valt terug op de fallback-
-       painter in scenes.js als het bestand ontbreekt.
-     Wissel-achtergronden: scene.bgVariants:[{img, flag?, notFlag?}] — de eerste
-       variant waarvan de flag-conditie klopt wint (bv. open vs. dichte poort).
-     Sprites: GAME.sprites = { key: 'pad.png' }; een NPC verwijst via zijn
-       sprite-naam naar zo'n key. */
-  const ART = { scenes: {}, sprites: GAME.sprites || {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
-    if (sc.bg) ART.scenes[id] = sc.bg;
-  }
-  const art = { scenes: {}, sprites: {}, items: {}, overlays: {}, variants: {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
-    (sc.bgVariants || []).forEach((v) => {
-      if (!v.img || art.variants[v.img]) return;
-      const im = new Image();
-      im.onload = () => { if (id === state.currentScene) paintBackground(); };
-      im.src = v.img;
-      art.variants[v.img] = im;
-    });
-  }
+  /* ---------- AI-art assets ---------- */
+  const ART = {
+    scenes: {
+      courtyard: 'assets/art/scene-courtyard.png',
+      temple: 'assets/art/scene-temple.png',
+      grove: 'assets/art/scene-grove.png'
+    },
+    sprites: {
+      hero: 'assets/art/hero.png',
+      heroWalk: 'assets/art/hero-walk.png',
+      heroWave: 'assets/art/hero-wave.png',
+      seer: 'assets/art/seer.png',
+      minotaur: 'assets/art/minotaur.png',
+      minotaurAsleep: 'assets/art/minotaur-asleep.png',
+      dog: 'assets/art/dog.png',
+      dogCold: 'assets/art/dog-cold.png',
+      dogVest: 'assets/art/dog-vest.png',
+      chestOpen: 'assets/art/chest-open.png',
+      gateDoor: 'assets/art/gate-door.png'
+    }
+  };
+  const art = { scenes: {}, sprites: {}, items: {}, overlays: {} };
+  /* dichte-deur-variant van de binnenplaats (open variant = scene-courtyard.png) */
+  art.courtyardClosed = new Image();
+  art.courtyardClosed.onload = () => { if (state.currentScene === 'courtyard') paintBackground(); };
+  art.courtyardClosed.src = 'assets/art/scene-courtyard-closed.png';
+  /* verlichte-runen-variant van het bos (doffe variant = scene-grove.png) */
+  art.groveLit = new Image();
+  art.groveLit.onload = () => { if (state.currentScene === 'grove') paintBackground(); };
+  art.groveLit.src = 'assets/art/scene-grove-lit.png';
   function overlayImg(src) {
     if (!art.overlays[src]) {
       const img = new Image();
@@ -289,14 +298,13 @@
   function paintBackground() {
     bgCtx.clearRect(0, 0, SCENE_W, SCENE_H);
     let img = art.scenes[state.currentScene];
-    /* wissel-achtergrond: eerste variant waarvan de flag-conditie klopt */
-    const sc = GAME.scenes[state.currentScene];
-    if (sc && sc.bgVariants) {
-      for (const v of sc.bgVariants) {
-        const okFlag = !v.flag || state.flags[v.flag];
-        const okNot  = !v.notFlag || !state.flags[v.notFlag];
-        if (okFlag && okNot && ready(art.variants[v.img])) { img = art.variants[v.img]; break; }
-      }
+    /* binnenplaats: dichte-deur-achtergrond tot de poort open is */
+    if (state.currentScene === 'courtyard' && !state.flags.gateOpen && ready(art.courtyardClosed)) {
+      img = art.courtyardClosed;
+    }
+    /* bos: verlichte runen zodra het poeder op het tablet is gestrooid */
+    if (state.currentScene === 'grove' && state.flags.runesRevealed && ready(art.groveLit)) {
+      img = art.groveLit;
     }
     if (ready(img)) {
       bgCtx.imageSmoothingEnabled = false;
