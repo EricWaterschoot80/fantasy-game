@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=18">
+  <link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -99,6 +99,16 @@
     </div>
   </div>
 
+  <div id="rune-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card">
+      <button id="rune-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="rune-title">De Runenstenen</h2>
+      <p id="rune-hint" class="riddle-q"></p>
+      <div id="rune-btns" class="rune-btn-row"></div>
+      <p id="rune-status" class="rune-status"></p>
+    </div>
+  </div>
+
   <div id="rotate-hint" class="overlay">
     <div class="overlay-card panel">
       <div class="ornament">📱↻</div>
@@ -107,10 +117,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=18"></script>
-  <script src="js/scenes.js?v=18"></script>
-  <script src="js/data.js?v=18"></script>
-  <script src="js/engine.js?v=18"></script>
+  <script src="js/sprites.js?v=19"></script>
+  <script src="js/scenes.js?v=19"></script>
+  <script src="js/data.js?v=19"></script>
+  <script src="js/engine.js?v=19"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

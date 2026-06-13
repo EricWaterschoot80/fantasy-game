@@ -123,7 +123,7 @@ const GAME = {
       ],
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
-        fountain: { sx: 223, sy: 117, wx: 226, wy: 138 }
+        fountain: { sx: 227, sy: 117, wx: 230, wy: 138 }
       },
       hotspots: [
         {

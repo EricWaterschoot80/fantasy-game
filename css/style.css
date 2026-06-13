@@ -639,6 +639,42 @@ html, body {
   padding: 9px 18px;
 }
 
+/* Runenstenen-popup (mobiel volgorde-puzzel) */
+.rune-btn-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 10px;
+}
+.rune-stone-btn {
+  flex: 1;
+  background: linear-gradient(180deg, #241a12, #140f0a);
+  border: 2px solid var(--gold);
+  color: var(--gold-light);
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  line-height: 1.45;
+  padding: 12px 4px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.15);
+  transition: background .12s, transform .1s;
+}
+.rune-stone-btn.lit {
+  background: rgba(231,207,134,.18);
+  border-color: var(--gold-light);
+  box-shadow: 0 0 0 2px #1f1410, 0 0 10px 2px rgba(231,207,134,.35);
+  pointer-events: none;
+}
+.rune-stone-btn:active { transform: scale(.92); }
+.rune-status {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--sand);
+  min-height: 18px;
+  text-align: center;
+}
+
 [hidden] { display: none !important; }
 
 /* Draai-hint: het spel speelt liggend */

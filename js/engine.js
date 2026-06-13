@@ -511,7 +511,7 @@
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
-    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden) {
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden) {
       const { vx, vy } = keyVector();
       if (vx || vy) {
         if (msgOpen()) showNextMsg();    // tekst weg én meteen lopen
@@ -692,7 +692,7 @@
      bent — anders stuiter je direct terug na het binnenkomen. */
   let exitArm = {};
   function checkExitProximity(scene) {
-    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden) return;
+    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden) return;
     for (const hs of scene.hotspots) {
       if (!hs.exit || !hs.walkTo) continue;
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
@@ -880,11 +880,11 @@
     if (fx.fountain) {
       const f = fx.fountain;
       /* vallende waterstraal uit de tap */
-      for (let i = 0; i < 6; i++) {
-        const t = ((now / 42) + i * 4) % 24;
-        const al = 0.55 - t / 48;
+      for (let i = 0; i < 5; i++) {
+        const t = ((now / 42) + i * 4) % 22;
+        const al = 0.45 - t / 52;
         fctx.fillStyle = `rgba(186,228,242,${al})`;
-        fctx.fillRect(Math.round(f.sx + Math.sin(t / 3) * 0.6), Math.round(f.sy + t), 1, 2);
+        fctx.fillRect(Math.round(f.sx + Math.sin(t / 3) * 0.4), Math.round(f.sy + t), 1, 1);
       }
       /* opspattend bij het water */
       if (((now / 120) | 0) % 2 === 0) {
@@ -1555,6 +1555,79 @@
   }
   elRiddleClose.addEventListener('click', () => { elRiddle.hidden = true; });
 
+  /* ---------- Runenstenen-popup (mobiel: klik volgorde in popup) ---------- */
+  const elRune       = document.getElementById('rune-screen');
+  const elRuneTitle  = document.getElementById('rune-title');
+  const elRuneHint   = document.getElementById('rune-hint');
+  const elRuneBtns   = document.getElementById('rune-btns');
+  const elRuneStatus = document.getElementById('rune-status');
+  const elRuneClose  = document.getElementById('rune-close');
+
+  const RUNE_DEFS = [
+    { key: 'leaf', nl: '🍃\nBlad',  en: '🍃\nLeaf'  },
+    { key: 'sun',  nl: '☀\nZon',   en: '☀\nSun'    },
+    { key: 'moon', nl: '🌙\nMaan',  en: '🌙\nMoon'  }
+  ];
+
+  function openRunePopup() {
+    const scene = GAME.scenes[state.currentScene];
+    const pz = scene.puzzles && scene.puzzles.runes;
+    if (!pz) return;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || GAME.strings.nothingThere); return; }
+    if (!state.flags[pz.requiresFlag]) { sfx('error'); say(pz.blockedText); return; }
+    elRuneTitle.textContent = lang === 'nl' ? 'De Runenstenen' : 'The Rune Stones';
+    elRuneHint.textContent  = lang === 'nl' ? 'Tik de stenen in de juiste volgorde aan' : 'Tap the stones in the right order';
+    renderRunePopup();
+    elRune.hidden = false;
+    sfx('tap');
+  }
+
+  function renderRunePopup() {
+    const pz = GAME.scenes[state.currentScene].puzzles.runes;
+    const prog = state.flags['puzzle_runes'] || 0;
+    elRuneBtns.innerHTML = '';
+    RUNE_DEFS.forEach(({ key, nl, en }) => {
+      const idx = pz.sequence.indexOf(key);
+      const lit = idx < prog;
+      const btn = document.createElement('button');
+      btn.className = 'rune-stone-btn' + (lit ? ' lit' : '');
+      btn.innerHTML = (lang === 'nl' ? nl : en).replace('\n', '<br>');
+      if (!lit) btn.addEventListener('click', () => runePopupTap(key));
+      elRuneBtns.appendChild(btn);
+    });
+    elRuneStatus.textContent = '';
+  }
+
+  function runePopupTap(key) {
+    const pz = GAME.scenes[state.currentScene].puzzles.runes;
+    const progKey = 'puzzle_runes';
+    const prog = state.flags[progKey] || 0;
+    const STONE_POS = { leaf: { x: 176, y: 130 }, sun: { x: 243, y: 125 }, moon: { x: 315, y: 125 } };
+    if (key === pz.sequence[prog]) {
+      state.flags[progKey] = prog + 1;
+      sfx('pickup');
+      const sp = STONE_POS[key] || { x: 250, y: 130 };
+      burstAt(sp.x, sp.y, { n: 16, col: '255,232,150', spMin: 12, spRange: 26, up: 18, life: 0.7 });
+      if (prog + 1 >= pz.sequence.length) {
+        state.flags[pz.setFlag] = true;
+        sfx('combine');
+        burstAt(412, 128);
+        setTimeout(() => { elRune.hidden = true; say(pz.solvedText); updateQuest(); }, 450);
+      } else {
+        renderRunePopup();
+        const rem = pz.sequence.length - (prog + 1);
+        elRuneStatus.textContent = lang === 'nl' ? `Goed! Nog ${rem}...` : `Good! ${rem} more...`;
+      }
+    } else {
+      state.flags[progKey] = 0;
+      sfx('error');
+      elRuneStatus.textContent = L(pz.resetText);
+      setTimeout(renderRunePopup, 1100);
+    }
+  }
+
+  elRuneClose.addEventListener('click', () => { elRune.hidden = true; });
+
   /* ---------- Vonken-burst (kist/poort die opengaat) ---------- */
   const sparks = [];
   function burstAt(x, y, opts) {
@@ -1587,8 +1660,29 @@
     }
   }
 
+  let lastPet = 0;
+  function petDog() {
+    const now = performance.now();
+    if (now - lastPet < 2000) return;
+    lastPet = now;
+    sfx('bark');
+    lickAt(follower.x, follower.y - 18);
+    const msgs = [
+      { nl: 'Woef! Het hondje springt blij op en likt je hand!', en: 'Woof! The puppy jumps up happily and licks your hand!' },
+      { nl: 'Het hondje draait van blijdschap rond in kringetjes!', en: 'The puppy spins in circles with delight!' },
+      { nl: 'Woef woef! De kleine staart gaat als een windmolen.', en: 'Woof woof! The little tail wags like a windmill.' }
+    ];
+    say(msgs[(Math.random() * msgs.length) | 0], null, 'assets/art/face-dog.png');
+  }
+
   function interactNow(hs) {
     const sel = state.selectedItem;
+
+    /* Aaien: hondje met vest dat je volgt */
+    if (!sel && hs.followNpc === 'dog' && follower.active && !follower.scared) {
+      petDog();
+      return;
+    }
 
     if (sel) {
       state.selectedItem = null;
@@ -1783,6 +1877,23 @@
     if (p.x < 0 || p.x > SCENE_W || p.y < 0 || p.y > SCENE_H) return;
 
     const hs = hotspotAt(p.x, p.y);
+
+    /* Mobiel: runenstenen openen meteen een popup (geen lopen vereist) */
+    if (hs && hs.puzzleKey && window.matchMedia('(pointer: coarse)').matches) {
+      openRunePopup();
+      return;
+    }
+
+    /* Aaien: klik op het volgende hondje in scenes zonder dog-hotspot */
+    if (!hs && follower.active && !follower.scared) {
+      const fw = 24, fh = 42;
+      if (p.x >= follower.x - fw && p.x <= follower.x + fw &&
+          p.y >= follower.y - fh && p.y <= follower.y + 6) {
+        petDog();
+        return;
+      }
+    }
+
     if (hs) {
       const wt = hsWalkTo(hs);
       marker = { x: wt.x, y: wt.y, until: performance.now() + 700 };
