@@ -1420,13 +1420,13 @@
   }
 
   /* ---------- Schuifpuzzel-popup (gouden embleem) ---------- */
-  const elPuzzle      = document.getElementById('puzzle-screen');
-  const elPuzGrid     = document.getElementById('puzzle-grid');
-  const elPuzTitle    = document.getElementById('puzzle-title');
-  const elPuzClose    = document.getElementById('puzzle-close');
-  const elPuzPreview  = document.getElementById('puzzle-preview');
-  const elPuzHintBtn  = document.getElementById('puzzle-hint-btn');
-  let slide = null;   // { hs, n, tiles[], empty }
+  const elPuzzle     = document.getElementById('puzzle-screen');
+  const elPuzGrid    = document.getElementById('puzzle-grid');
+  const elPuzTitle   = document.getElementById('puzzle-title');
+  const elPuzClose   = document.getElementById('puzzle-close');
+  const elPuzHintBtn = document.getElementById('puzzle-hint-btn');
+  let slide = null;      // { hs, n, tiles[], empty }
+  let hintLevel = 0;     // 0 = geen, 1 = voorbeeld getoond, 2 = schuiftip getoond
 
   function openSlidePuzzle(hs) {
     const cfg = hs.slidePuzzle;
@@ -1449,8 +1449,9 @@
       empty = pick;
     }
     slide = { hs, n, tiles, empty };
+    hintLevel = 0;
     elPuzTitle.textContent = L(cfg.title);
-    if (elPuzPreview) { elPuzPreview.src = cfg.img; }
+    if (elPuzHintBtn) elPuzHintBtn.textContent = '💡 Hint';
     renderSlide();
     elPuzzle.hidden = false;
     sfx('tap');
@@ -1471,6 +1472,7 @@
       d.style.backgroundImage = `url(${cfg.img})`;
       d.style.backgroundSize = '240px 240px';
       d.style.backgroundPosition = `-${(tile % n) * px}px -${((tile / n) | 0) * px}px`;
+      d.dataset.pos = pos;
       /* touchend met preventDefault zodat Safari niet de 300ms click-delay heeft */
       d.addEventListener('touchend', (e) => { e.preventDefault(); slideTile(pos); }, { passive: false });
       d.addEventListener('click', () => slideTile(pos));
@@ -1513,10 +1515,8 @@
     if (e.target === elPuzzle) closePuzzle();
   });
 
-  /* Hint: flash het opgeloste beeld 1,5 seconde over het rooster */
-  function showPuzzleHint() {
-    if (!slide) return;
-    sfx('tap');
+  /* Hint niveau 1: flash het opgeloste beeld */
+  function flashPreview() {
     const cfg = slide.hs.slidePuzzle;
     const flash = document.createElement('div');
     flash.style.cssText =
@@ -1525,9 +1525,104 @@
       'image-rendering:pixelated;opacity:0;transition:opacity .2s;pointer-events:none;' +
       'box-shadow:inset 0 0 0 3px rgba(231,207,134,.7)';
     elPuzGrid.appendChild(flash);
-    requestAnimationFrame(() => { flash.style.opacity = '0.92'; });
-    setTimeout(() => { flash.style.opacity = '0'; }, 1600);
-    setTimeout(() => { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 2000);
+    requestAnimationFrame(() => { flash.style.opacity = '0.93'; });
+    setTimeout(() => { flash.style.opacity = '0'; }, 1700);
+    setTimeout(() => { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 2100);
+  }
+
+  /* IDA* solver — geeft de optimale eerste positie om aan te tikken terug */
+  function findBestMove(tiles, n) {
+    const blank = n * n - 1;
+    const t0 = performance.now();
+
+    function h(state) {
+      let s = 0;
+      for (let i = 0; i < state.length; i++) {
+        if (state[i] === blank) continue;
+        s += Math.abs((state[i] % n) - (i % n)) + Math.abs(((state[i] / n) | 0) - ((i / n) | 0));
+      }
+      return s;
+    }
+
+    const work = tiles.slice();
+    let bound = h(work);
+    let answer = -1;
+
+    function dfs(blankPos, g, limit, prevBlank) {
+      if (performance.now() - t0 > 45) return 9999; // timeout
+      const f = g + h(work);
+      if (f > limit) return f;
+      if (f === g) return 0; // opgelost (h=0)
+      const bx = blankPos % n, by = (blankPos / n) | 0;
+      const ns = [];
+      if (bx > 0) ns.push(blankPos - 1);
+      if (bx < n - 1) ns.push(blankPos + 1);
+      if (by > 0) ns.push(blankPos - n);
+      if (by < n - 1) ns.push(blankPos + n);
+      let min = Infinity;
+      for (const next of ns) {
+        if (next === prevBlank) continue;
+        work[blankPos] = work[next]; work[next] = blank;
+        const t = dfs(next, g + 1, limit, blankPos);
+        work[next] = work[blankPos]; work[blankPos] = blank; // altijd ongedaan
+        if (t === 0) { if (g === 0) answer = next; return 0; }
+        if (t >= 9999) return 9999;
+        if (t < min) min = t;
+      }
+      return min;
+    }
+
+    for (let iter = 0; iter < 50 && bound < 100; iter++) {
+      answer = -1;
+      for (let j = 0; j < tiles.length; j++) work[j] = tiles[j]; // herstel
+      const result = dfs(tiles.indexOf(blank), 0, bound, -1);
+      if (result === 0) return answer;
+      if (result >= 9999) break;
+      bound = result;
+    }
+
+    // Greedy fallback: kies de aangrenzende tegel die de Manhattan-afstand het meest verkleint
+    const blankPos = tiles.indexOf(blank);
+    const bx = blankPos % n, by = (blankPos / n) | 0;
+    const adj = [];
+    if (bx > 0) adj.push(blankPos - 1);
+    if (bx < n - 1) adj.push(blankPos + 1);
+    if (by > 0) adj.push(blankPos - n);
+    if (by < n - 1) adj.push(blankPos + n);
+    let best = adj[0], bestH = Infinity;
+    for (const a of adj) {
+      const tmp = tiles[a]; tiles[blankPos] = tmp; tiles[a] = blank;
+      const hh = h(tiles);
+      tiles[a] = tmp; tiles[blankPos] = blank;
+      if (hh < bestH) { bestH = hh; best = a; }
+    }
+    return best;
+  }
+
+  /* Hint niveau 2: hoe je het beste kan schuiven */
+  function showMoveHint() {
+    const pos = findBestMove(slide.tiles.slice(), slide.n);
+    if (pos < 0) return;
+    // verwijder eventuele oude suggest-highlight
+    elPuzGrid.querySelectorAll('.puz-tile.suggest').forEach(el => el.classList.remove('suggest'));
+    const tile = elPuzGrid.querySelector('[data-pos="' + pos + '"]');
+    if (!tile) return;
+    tile.classList.add('suggest');
+    setTimeout(() => tile.classList.remove('suggest'), 2200);
+  }
+
+  function showPuzzleHint() {
+    if (!slide) return;
+    sfx('tap');
+    hintLevel = (hintLevel % 2) + 1;
+    if (hintLevel === 1) {
+      flashPreview();
+      if (elPuzHintBtn) elPuzHintBtn.textContent = lang === 'nl' ? '▶ Schuiftip' : '▶ Move tip';
+    } else {
+      showMoveHint();
+      if (elPuzHintBtn) elPuzHintBtn.textContent = '💡 Hint';
+      hintLevel = 0;
+    }
   }
 
   if (elPuzHintBtn) elPuzHintBtn.addEventListener('click', showPuzzleHint);
