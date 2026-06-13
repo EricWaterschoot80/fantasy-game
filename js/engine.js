@@ -451,6 +451,7 @@
     lastT = now;
     update(dt, now);
     draw(now);
+    if (elMaze && !elMaze.hidden) drawMaze(now);
   }
 
   /* ---------- Toetsenbord (WASD / pijltjes, fysieke key-codes) ---------- */
@@ -503,7 +504,7 @@
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
-    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden) {
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden && elMaze.hidden) {
       const { vx, vy } = keyVector();
       if (vx || vy) {
         if (msgOpen()) showNextMsg();    // tekst weg én meteen lopen
@@ -685,7 +686,7 @@
      bent — anders stuiter je direct terug na het binnenkomen. */
   let exitArm = {};
   function checkExitProximity(scene) {
-    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden) return;
+    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden) return;
     for (const hs of scene.hotspots) {
       if (!hs.exit || !hs.walkTo) continue;
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
@@ -829,15 +830,25 @@
       if (dk.peekAround !== false) hole(player.x, player.y - 12, dk.peekR || 48);
       (dk.glimmers || []).forEach(gm => hole(gm.x, gm.y, gm.r || 16));
       fctx.restore();
-      /* warme gloed bij de glimmers zodat ze als doel opvallen */
+      /* gekleurde gloed bij de glimmers (warm vuur of koud maanlicht) */
       (dk.glimmers || []).forEach(gm => {
-        const r = gm.r || 16, pulse = 0.32 + 0.12 * Math.sin(now / 240 + gm.x);
+        const r = gm.r || 16, col = gm.col || '255,150,60';
+        const pulse = (gm.base || 0.3) + 0.12 * Math.sin(now / (gm.speed || 240) + gm.x);
         const g = fctx.createRadialGradient(gm.x, gm.y, 1, gm.x, gm.y, r);
-        g.addColorStop(0, `rgba(255,150,60,${pulse})`);
-        g.addColorStop(1, 'rgba(255,150,60,0)');
+        g.addColorStop(0, `rgba(${col},${pulse})`);
+        g.addColorStop(1, `rgba(${col},0)`);
         fctx.fillStyle = g;
         fctx.fillRect(gm.x - r, gm.y - r, r * 2, r * 2);
       });
+      /* zwevende stofdeeltjes voor sfeer (binnen het kijkveld) */
+      const motes = dk.motes || 0;
+      for (let i = 0; i < motes; i++) {
+        const bx = player.x + Math.sin(now / 1400 + i * 1.7) * (dk.peekR || 48) * 0.7;
+        const by = (player.y - 12) + Math.cos(now / 1700 + i * 2.3) * (dk.peekR || 48) * 0.55;
+        const a = 0.10 + 0.10 * Math.sin(now / 500 + i * 3);
+        fctx.fillStyle = `rgba(225,210,170,${Math.max(0, a)})`;
+        fctx.fillRect(bx | 0, by | 0, 1, 1);
+      }
       /* gloeiende ogen in het donker */
       (dk.eyes || []).forEach(e => {
         const fl = 0.55 + 0.45 * Math.sin(now / 170 + e.x);
@@ -1754,6 +1765,109 @@
 
   elRuneClose.addEventListener('click', () => { elRune.hidden = true; });
 
+  /* ---------- Doolhof-puzzel (de ward bij het altaar) ----------
+     Een willekeurig (altijd oplosbaar) doolhof; stuur de figuur met de
+     richtingsknoppen/pijltjes naar de gloeiende amulet om de ward te lichten. */
+  const elMaze       = document.getElementById('maze-screen');
+  const elMazeTitle  = document.getElementById('maze-title');
+  const elMazeCanvas = document.getElementById('maze-canvas');
+  const elMazeClose  = document.getElementById('maze-close');
+  const mctx = elMazeCanvas ? elMazeCanvas.getContext('2d') : null;
+  let maze = null;   // { hs, g, n, cur:[r,c], exit:[r,c], cell }
+
+  function genMazeGrid(cells) {
+    const n = cells * 2 + 1;
+    const g = Array.from({ length: n }, () => Array(n).fill(1)); // 1 = muur
+    (function carve(r, c) {
+      g[r][c] = 0;
+      const dirs = [[0, 2], [0, -2], [2, 0], [-2, 0]].sort(() => Math.random() - 0.5);
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (nr > 0 && nr < n - 1 && nc > 0 && nc < n - 1 && g[nr][nc] === 1) {
+          g[r + dr / 2][c + dc / 2] = 0;
+          carve(nr, nc);
+        }
+      }
+    })(1, 1);
+    return { g, n };
+  }
+
+  function openMaze(hs) {
+    if (!mctx) return;
+    const cfg = hs.maze;
+    const { g, n } = genMazeGrid(cfg.cells || 5);
+    const cell = Math.floor(264 / n);
+    elMazeCanvas.width = elMazeCanvas.height = cell * n;
+    maze = { hs, g, n, cur: [1, 1], exit: [n - 2, n - 2], cell };
+    elMazeTitle.textContent = L(cfg.title);
+    elMaze.hidden = false;
+    drawMaze(performance.now());
+    sfx('tap');
+  }
+
+  function drawMaze(now) {
+    if (!maze || !mctx) return;
+    now = now || performance.now();
+    const { g, n, cur, exit, cell } = maze;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+      const x = c * cell, y = r * cell;
+      if (g[r][c] === 1) {
+        mctx.fillStyle = '#2a2030'; mctx.fillRect(x, y, cell, cell);
+        mctx.fillStyle = '#3b2f48'; mctx.fillRect(x, y, cell, 2);
+        mctx.fillStyle = '#170f20'; mctx.fillRect(x, y + cell - 2, cell, 2);
+      } else {
+        mctx.fillStyle = '#d8b98a'; mctx.fillRect(x, y, cell, cell);
+        mctx.fillStyle = 'rgba(120,90,55,0.22)'; mctx.fillRect(x, y, cell, 1);
+      }
+    }
+    /* uitgang: gloeiende amulet */
+    const ex = exit[1] * cell + cell / 2, ey = exit[0] * cell + cell / 2;
+    const glow = 0.4 + 0.28 * Math.sin(now / 300);
+    const gg = mctx.createRadialGradient(ex, ey, 1, ex, ey, cell);
+    gg.addColorStop(0, `rgba(231,207,134,${glow})`); gg.addColorStop(1, 'rgba(231,207,134,0)');
+    mctx.fillStyle = gg; mctx.fillRect(ex - cell, ey - cell, cell * 2, cell * 2);
+    mctx.fillStyle = '#e7cf86'; mctx.fillRect(Math.round(ex - 3), Math.round(ey - 4), 6, 8);
+    mctx.fillStyle = '#a8432a'; mctx.fillRect(Math.round(ex - 2), Math.round(ey - 1), 4, 4);
+    /* speler-token (gehulde figuur) */
+    const px = cur[1] * cell + cell / 2, py = cur[0] * cell + cell / 2;
+    mctx.fillStyle = '#3a2a5a'; mctx.fillRect(Math.round(px - 4), Math.round(py - 5), 8, 10);
+    mctx.fillStyle = '#e7cf86'; mctx.fillRect(Math.round(px - 3), Math.round(py - 6), 6, 3);
+  }
+
+  function mazeMove(dr, dc) {
+    if (!maze) return;
+    const nr = maze.cur[0] + dr, nc = maze.cur[1] + dc;
+    if (nr < 0 || nr >= maze.n || nc < 0 || nc >= maze.n) return;
+    if (maze.g[nr][nc] === 1) { sfx('error'); return; }
+    maze.cur = [nr, nc];
+    sfx('step');
+    drawMaze(performance.now());
+    if (nr === maze.exit[0] && nc === maze.exit[1]) {
+      const cfg = maze.hs.maze;
+      state.flags[cfg.setFlag] = true;
+      sfx('combine');
+      setTimeout(() => { elMaze.hidden = true; maze = null; say(cfg.solvedText); updateQuest(); }, 350);
+    }
+  }
+
+  function closeMaze() { elMaze.hidden = true; maze = null; }
+  if (elMazeClose) elMazeClose.addEventListener('click', closeMaze);
+  if (elMaze) elMaze.addEventListener('pointerdown', (e) => { if (e.target === elMaze) closeMaze(); });
+
+  const MAZE_DIRS = { 'maze-up': [-1, 0], 'maze-down': [1, 0], 'maze-left': [0, -1], 'maze-right': [0, 1] };
+  for (const id in MAZE_DIRS) {
+    const b = document.getElementById(id);
+    if (!b) continue;
+    const d = MAZE_DIRS[id];
+    b.addEventListener('touchend', (e) => { e.preventDefault(); mazeMove(d[0], d[1]); }, { passive: false });
+    b.addEventListener('click', () => mazeMove(d[0], d[1]));
+  }
+  window.addEventListener('keydown', (e) => {
+    if (!elMaze || elMaze.hidden) return;
+    const m = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+    if (m) { e.preventDefault(); mazeMove(m[0], m[1]); }
+  });
+
   /* ---------- Vonken-burst (kist/poort die opengaat) ---------- */
   const sparks = [];
   function burstAt(x, y, opts) {
@@ -1814,8 +1928,18 @@
       state.selectedItem = null;
       renderInventory();
       const action = hs.use && hs.use[sel];
-      if (action) runAction(action, hsSpeaker(hs), hsFace(hs));
-      else { sfx('error'); say(GAME.strings.noEffect); }
+      if (action) {
+        if (action.needItem && !state.inventory.includes(action.needItem)) {
+          sfx('error');
+          say(action.needText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
+        } else {
+          runAction(action, hsSpeaker(hs), hsFace(hs));
+        }
+      } else {
+        sfx('error');
+        const it = GAME.items[sel];
+        say((it && it.noUseText) || GAME.strings.noEffect);
+      }
       return;
     }
 
@@ -1849,6 +1973,11 @@
     if (hs.riddle && !state.flags[hs.riddle.setFlag] &&
         (!hs.riddle.requiresFlag || state.flags[hs.riddle.requiresFlag])) {
       openRiddle(hs);
+      return;
+    }
+    if (hs.maze && !state.flags[hs.maze.setFlag] &&
+        (!hs.maze.requiresFlag || state.flags[hs.maze.requiresFlag])) {
+      openMaze(hs);
       return;
     }
 
@@ -1895,7 +2024,7 @@
   }
 
   function runAction(a, anchor, face) {
-    if (a.consume) removeItem(a.consume);
+    if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
     if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
     if (a.setFlag === 'runesRevealed') { paintBackground(); burstAt(170, 100, { n: 10, col: '255,232,150', up: 14 }); }
@@ -2114,6 +2243,8 @@
     isDeathShown: () => !elDeath.hidden,
     setLang: (l) => { lang = l; applyLang(); },
     questKey,
+    getMaze: () => maze && { g: maze.g.map(r => r.slice()), n: maze.n, cur: maze.cur.slice(), exit: maze.exit.slice() },
+    mazeMove: (dr, dc) => mazeMove(dr, dc),
     reset: resetGame
   };
 

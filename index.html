@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=22">
+  <link rel="stylesheet" href="css/style.css?v=23">
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -111,6 +111,24 @@
     </div>
   </div>
 
+  <div id="maze-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card" id="maze-card">
+      <button id="maze-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="maze-title">Het Doolhof van de Ward</h2>
+      <div class="maze-body">
+        <canvas id="maze-canvas" width="264" height="264"></canvas>
+        <div id="maze-dpad">
+          <button id="maze-up" class="gold-btn maze-btn" aria-label="Omhoog">▲</button>
+          <div class="maze-mid">
+            <button id="maze-left" class="gold-btn maze-btn" aria-label="Links">◀</button>
+            <button id="maze-right" class="gold-btn maze-btn" aria-label="Rechts">▶</button>
+          </div>
+          <button id="maze-down" class="gold-btn maze-btn" aria-label="Omlaag">▼</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="rotate-hint" class="overlay">
     <div class="overlay-card panel">
       <div class="ornament">📱↻</div>
@@ -119,10 +137,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=22"></script>
-  <script src="js/scenes.js?v=22"></script>
-  <script src="js/data.js?v=22"></script>
-  <script src="js/engine.js?v=22"></script>
+  <script src="js/sprites.js?v=23"></script>
+  <script src="js/scenes.js?v=23"></script>
+  <script src="js/data.js?v=23"></script>
+  <script src="js/engine.js?v=23"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

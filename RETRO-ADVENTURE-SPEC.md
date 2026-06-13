@@ -153,10 +153,13 @@ const GAME = {
 
 ```js
 items: {
-  berries: { name: { nl, en }, icon: '🍒', img: 'assets/art/item-berries.png' }
+  berries: { name: { nl, en }, icon: '🍒', img: 'assets/art/item-berries.png' },
+  flint:   { name: { nl, en }, icon: '🪨', noUseText: { nl, en } }  // bericht als je 'm verkeerd gebruikt
 }
 ```
 `icon` (emoji) is de fallback; `img` is de pixel-sprite. Identifiers altijd Engels, teksten NL+EN.
+`noUseText` (optioneel): wat het personage zegt als je dit item gebruikt op een hotspot zónder
+passende reactie — bv. "Hier heb ik geen vuur nodig." (anders de generieke `strings.noEffect`).
 
 ### 5.3 Recepten (combineren)
 
@@ -203,7 +206,7 @@ Elke hotspot heeft `id`, `name {nl,en}`, `rect {x,y,w,h}` (aanklikgebied) en mee
 |---|---|
 | `look` | toont beschrijvende tekst. Mag een **functie** zijn: `(state) => state.flags.x ? {…} : {…}` voor toestand-afhankelijke tekst |
 | `gives` | `{ item, giveText, emptyText, win? }` — geeft eenmalig een item; `win:true` wint het spel |
-| `use` | `{ itemId: { consume?, give?, setFlag?, text } }` — reactie als de speler een geselecteerd item hierop gebruikt |
+| `use` | `{ itemId: { consume?, give?, setFlag?, text, needItem?, needText? } }` — reactie op een geselecteerd item. `consume` mag een array zijn (meerdere items tegelijk verbruiken). `needItem`/`needText`: vereist dat de speler óók dat tweede item bij zich heeft, anders toont `needText` (bv. "vuursteen + hout"-puzzel). |
 | `exit` | `{ to, travelText }` — reist naar een andere scene |
 | `requiresFlag` / `blockedText` | hotspot werkt pas als de flag gezet is; anders `blockedText` |
 | `blockedBy` | `[{ flag, text }]` — meerdere voorwaarden, in volgorde gecheckt |
@@ -212,7 +215,7 @@ Elke hotspot heeft `id`, `name {nl,en}`, `rect {x,y,w,h}` (aanklikgebied) en mee
 | `followNpc` | koppelt de hotspot aan een bewegende NPC (volgt `npcRt`-positie) |
 | `danger` / `angerTexts` | NPC waarschuwt bij naderen; te dichtbij → `die()` |
 
-**Puzzel-velden** (zie §6 voor de drie puzzeltypes):
+**Puzzel-velden** (zie §6 voor de puzzeltypes):
 `slidePuzzle`, `riddle`, `puzzleKey` (verwijst naar een `puzzles`-blok in de scene).
 
 ### 5.6 Flags & winst
@@ -235,14 +238,15 @@ De engine kan deze effecten tekenen; activeer ze via het `fx`-blok van een scene
 - `fireflies: 8` — zwevende glimwormen (bos-sfeer)
 - `emblemGlow`, `amulet`, `waterGlint`, `zzz` (snurk-z'jes), `chestOpen`, `bowlEmpty` — puntgloei,
   glinstering en object-specifieke animaties
-- `darkness: { until, peekR, eyes:[{x,y}], glimmers:[{x,y,r}], peekAround }` — dekt de hele scene
-  tot de `until`-flag gezet is. Laat alleen een zacht kijkveld rond de speler (`peekR`),
-  gloeiende ogen (`eyes`) en warme glimmers (`glimmers`, bv. smeulende kolen) zien. Zet
-  `peekAround:false` om het kijkveld rond de speler uit te schakelen. De 👁-knop toont nog steeds
-  de hotspots, dus de scene blijft oplosbaar.
+- `darkness: { until, peekR, eyes:[{x,y}], glimmers:[{x,y,r,col,base,speed}], motes, peekAround }` —
+  dekt de hele scene tot de `until`-flag gezet is. Laat alleen een zacht kijkveld rond de speler
+  (`peekR`), gloeiende ogen (`eyes`), gekleurde glimmers (`glimmers` — `col` als `'r,g,b'`, bv. warm
+  vuur of koud maanlicht; `base`/`speed` regelen helderheid en flikkertempo) en zwevende stofdeeltjes
+  (`motes`, aantal) zien. `peekAround:false` schakelt het kijkveld rond de speler uit. De 👁-knop
+  toont nog steeds de hotspots, dus de scene blijft oplosbaar.
 - Wereldwijd: **dwarrelende herfstbladeren** over elk scherm; **scene-fades** bij reizen.
 
-### 6.2 De drie herbruikbare puzzeltypes
+### 6.2 De herbruikbare puzzeltypes
 
 **A. Schuifpuzzel** (`hotspot.slidePuzzle`)
 ```js
@@ -272,8 +276,17 @@ Tik objecten in de juiste volgorde. Op mobiel opent één tik een **popup met kn
 pixel-precieze tik op kleine stenen nodig). De juiste volgorde wordt elders in de wereld onthuld
 (een tablet, een hint-NPC).
 
-> Een nieuw avontuur kan deze drie types vrij hergebruiken en hercombineren. Een vierde type
-> toevoegen = generieke engine-code + een nieuw datablok, nooit hardcoded verhaal.
+**D. Doolhof** (`hotspot.maze`)
+```js
+maze: { setFlag, requiresFlag, cells: 5, title: {nl,en}, img?, solvedText: {nl,en} }
+```
+Een willekeurig, **altijd oplosbaar** doolhof (recursive-backtracker, `cells`×`cells` gangen).
+Loods de figuur met de richtingsknoppen (of pijltjestoetsen) naar de gloeiende uitgang; aankomst
+zet `setFlag`. Mobiel-vriendelijk (D-pad, schaalt mee met de schermhoogte). `img` is optioneel
+decoratief. Geschikt als climax-puzzel vóór een beloning (bv. de ward bij het altaar).
+
+> Een nieuw avontuur kan deze types vrij hergebruiken en hercombineren. Een nieuw type toevoegen
+> = generieke engine-code + een nieuw datablok, nooit hardcoded verhaal.
 
 ---
 
@@ -370,7 +383,7 @@ Geen framework, geen serverconfig.
 ## 12. Wat is data-driven, en wat zijn de engine-uitbreidpunten
 
 **Data-only (alleen `data.js` + art):** scenes, loopgebieden, hotspots & al hun gedrag, items,
-recepten, de drie puzzeltypes, scene-achtergronden (`scene.bg`) en wissel-achtergronden
+recepten, de puzzeltypes, scene-achtergronden (`scene.bg`) en wissel-achtergronden
 (`scene.bgVariants`), het sprite-register (`GAME.sprites`), tweetaligheid, en de questhints
 (`GAME.questRules`). Een nieuw avontuur bouw je in de regel zónder de engine aan te raken.
 

@@ -626,6 +626,40 @@ html, body {
   text-align: left;
 }
 
+/* ---------- Doolhof-puzzel ---------- */
+/* Liggend mobiel: doolhof links, D-pad rechts, schaalt mee met schermhoogte. */
+.maze-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+#maze-canvas {
+  display: block;
+  width: min(264px, 60vh);
+  height: min(264px, 60vh);
+  image-rendering: pixelated;
+  background: #14100b;
+  box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410, inset 0 0 18px rgba(0,0,0,.8);
+  touch-action: none;
+}
+#maze-dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.maze-mid { display: flex; gap: 50px; }
+.maze-btn {
+  width: 50px;
+  height: 42px;
+  font-size: 18px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 #puzzle-grid {
   position: relative;
   width: 240px;

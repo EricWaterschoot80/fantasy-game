@@ -75,9 +75,9 @@ const GAME = {
     q_berries:   { nl: 'Pluk rode bessen tussen de struiken', en: 'Pick red berries from the bushes' },
     q_combine:   { nl: 'Combineer de bessen met het water in je tas', en: 'Combine the berries with the water in your bag' },
     q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal', en: 'Pour the sleeping draught into the stone bowl' },
-    q_torch:     { nl: 'Het is aardedonker — zoek een fakkel om de tempel te verlichten', en: 'It’s pitch dark — find a torch to light the temple' },
-    q_lightTorch:{ nl: 'Steek de fakkel aan bij de gloeiende kolen', en: 'Light the torch at the glowing coals' },
-    q_ward:      { nl: 'Een laatste ward beschermt de amulet — los het raadsel op', en: 'A final ward protects the amulet — solve its riddle' },
+    q_torch:     { nl: 'Het is aardedonker — verzamel een vuursteen (binnenplaats) en droog hout (bos)', en: 'It’s pitch dark — gather a flint (courtyard) and dry wood (grove)' },
+    q_lightTorch:{ nl: 'Steek de fakkel aan met de vuursteen en het hout', en: 'Light the torch with the flint and the wood' },
+    q_ward:      { nl: 'Een laatste ward beschermt de amulet — los het doolhof op', en: 'A final ward protects the amulet — solve the labyrinth' },
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
@@ -91,7 +91,7 @@ const GAME = {
     { when: { flag: 'taken_temple_shrine' },                        quest: null },
     { when: { flag: 'minotaurAsleep', notFlag: 'wardLifted' },      quest: 'q_ward' },
     { when: { flag: 'minotaurAsleep' },                             quest: 'q_amulet' },
-    { when: { flag: 'visited_temple', notFlag: 'torchLit', has: 'torch' }, quest: 'q_lightTorch' },
+    { when: { flag: 'visited_temple', notFlag: 'torchLit', has: ['flint', 'wood'] }, quest: 'q_lightTorch' },
     { when: { flag: 'visited_temple', notFlag: 'torchLit' },        quest: 'q_torch' },
     { when: { has: 'potion', notFlag: 'gateOpen' },                 quest: 'q_gate' },
     { when: { has: 'potion' },                                      quest: 'q_pour' },
@@ -116,7 +116,10 @@ const GAME = {
     amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' },
     vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' },
     powder:    { name: { nl: 'Magisch Poeder', en: 'Magic Powder' }, icon: '✨', img: 'assets/art/item-powder.png' },
-    torch:     { name: { nl: 'Onaangestoken Fakkel', en: 'Unlit Torch' }, icon: '🔥' }
+    flint:     { name: { nl: 'Vuursteen', en: 'Flint' }, icon: '🪨', img: 'assets/art/item-flint.png',
+                 noUseText: { nl: 'Hier heb ik geen vuur nodig.', en: 'I don’t need fire here.' } },
+    wood:      { name: { nl: 'Stuk Hout', en: 'Piece of Wood' }, icon: '🪵', img: 'assets/art/item-wood.png',
+                 noUseText: { nl: 'Hier heb ik geen vuur nodig.', en: 'I don’t need fire here.' } }
   },
 
   recipes: [
@@ -291,9 +294,16 @@ const GAME = {
           name: { nl: 'Brokstukken', en: 'Rubble' },
           rect: { x: 384, y: 208, w: 184, h: 112 },
           walkTo: { x: 370, y: 252 },
-          look: {
-            nl: 'Verbrokkeld muurwerk. Tussen het puin ligt een gebroken wegwijzer: “De Bron van de Orde — via het westpad.”',
-            en: 'Crumbled masonry. Among the rubble lies a broken signpost: “The Well of the Order — by the west path.”'
+          gives: {
+            item: 'flint',
+            giveText: {
+              nl: 'Tussen de stenen vind je een scherpe Vuursteen — daar maak je vonken mee. Een gebroken wegwijzer wijst: “De Bron van de Orde — via het westpad.”',
+              en: 'Among the stones you find a sharp Flint — good for striking sparks. A broken signpost points: “The Well of the Order — by the west path.”'
+            },
+            emptyText: {
+              nl: 'Alleen nog puin en de gebroken wegwijzer: “De Bron van de Orde — via het westpad.”',
+              en: 'Only rubble now, and the broken signpost: “The Well of the Order — by the west path.”'
+            }
           }
         },
         {
@@ -429,6 +439,20 @@ const GAME = {
           }
         },
         {
+          id: 'branch',
+          name: { nl: 'Afgebroken Tak', en: 'Fallen Branch' },
+          rect: { x: 214, y: 234, w: 84, h: 54 },
+          walkTo: { x: 256, y: 260 },
+          gives: {
+            item: 'wood',
+            giveText: {
+              nl: 'Tussen de herfstbladeren raap je een stevig, droog Stuk Hout op — uitstekend brandhout voor een fakkel.',
+              en: 'Among the autumn leaves you pick up a sturdy, dry Piece of Wood — excellent fuel for a torch.'
+            },
+            emptyText: { nl: 'Verder geen bruikbaar hout meer hier.', en: 'No more usable wood here.' }
+          }
+        },
+        {
           id: 'runeLeaf',
           name: { nl: 'Runensteen: Blad', en: 'Rune Stone: Leaf' },
           rect: { x: 148, y: 52, w: 56, h: 98 },
@@ -527,9 +551,11 @@ const GAME = {
            van de minotaur zijn dan zichtbaar. */
         darkness: {
           until: 'torchLit',
-          peekR: 52,
+          peekR: 54,
+          motes: 16,
           eyes: [ { x: 255, y: 185 }, { x: 270, y: 185 } ],
-          glimmers: [ { x: 176, y: 172, r: 18 } ]
+          /* koud maanlicht dat zwak op de onaangestoken fakkel valt */
+          glimmers: [ { x: 136, y: 142, r: 26, col: '150,180,225', base: 0.16, speed: 900 } ]
         },
         flames: [
           { x: 307, y: 148, r: 14 },
@@ -557,35 +583,33 @@ const GAME = {
           }
         },
         {
-          id: 'sconce',
-          name: { nl: 'Muurhouder', en: 'Wall Sconce' },
-          rect: { x: 112, y: 104, w: 44, h: 72 },
-          walkTo: { x: 132, y: 212 },
-          gives: {
-            item: 'torch',
-            giveText: {
-              nl: 'Je grijpt een onaangestoken fakkel uit de muurhouder. Maar je hebt nog vuur nodig...',
-              en: 'You take an unlit torch from the wall sconce. But you still need a flame...'
-            },
-            emptyText: { nl: 'De houder is leeg.', en: 'The sconce is empty.' }
-          }
-        },
-        {
-          id: 'coals',
-          name: { nl: 'Gloeiende Kolen', en: 'Glowing Coals' },
-          rect: { x: 150, y: 146, w: 54, h: 58 },
-          walkTo: { x: 177, y: 214 },
+          id: 'torch',
+          name: { nl: 'Onaangestoken Fakkel', en: 'Unlit Torch' },
+          rect: { x: 110, y: 102, w: 50, h: 80 },
+          walkTo: { x: 134, y: 214 },
           look: (state) => state.flags.torchLit
-            ? { nl: 'De laatste kolen smeulen na in de kuil.', en: 'The last coals smoulder in the pit.' }
-            : { nl: 'Een kuil met smeulende kolen — net genoeg gloed om iets aan te steken.',
-                en: 'A pit of smouldering coals — just enough glow to light something.' },
+            ? { nl: 'De fakkel brandt warm en houdt de duisternis op afstand.', en: 'The torch burns warm, holding the darkness at bay.' }
+            : { nl: 'Een onaangestoken fakkel in een muurhouder. Met een vuursteen én droog hout zou je hem kunnen ontsteken.',
+                en: 'An unlit torch in a wall bracket. With a flint and dry wood you could set it alight.' },
           use: {
-            torch: {
-              consume: 'torch',
+            flint: {
+              needItem: 'wood',
+              needText: { nl: 'Je slaat vonken met de vuursteen, maar zonder droog hout vat niets vlam.', en: 'You strike sparks with the flint, but without dry wood nothing catches.' },
+              consume: ['flint', 'wood'],
               setFlag: 'torchLit',
               text: {
-                nl: 'Je houdt de fakkel in de kolen tot hij vlam vat en ontsteekt de tempelvuren. Warm licht verdrijft de duisternis — en daar staat de minotaur.',
-                en: 'You hold the torch to the coals until it catches, then light the temple fires. Warm light drives back the dark — and there stands the minotaur.'
+                nl: 'In het pikdonker sla je met de vuursteen vonken op het droge hout — de fakkel vlamt op en warm licht vult de tempel. En daar, in het midden, doemt de minotaur op.',
+                en: 'In the pitch dark you strike sparks off the flint onto the dry wood — the torch flares to life and warm light fills the temple. And there, in the middle, looms the minotaur.'
+              }
+            },
+            wood: {
+              needItem: 'flint',
+              needText: { nl: 'Je hebt droog hout, maar geen vonk om het te ontsteken. Een vuursteen zou helpen.', en: 'You have dry wood, but no spark to light it. A flint would help.' },
+              consume: ['flint', 'wood'],
+              setFlag: 'torchLit',
+              text: {
+                nl: 'In het pikdonker sla je met de vuursteen vonken op het droge hout — de fakkel vlamt op en warm licht vult de tempel. En daar, in het midden, doemt de minotaur op.',
+                en: 'In the pitch dark you strike sparks off the flint onto the dry wood — the torch flares to life and warm light fills the temple. And there, in the middle, looms the minotaur.'
               }
             }
           }
@@ -639,45 +663,15 @@ const GAME = {
           walkTo: { x: 438, y: 224 },
           requiresFlag: 'minotaurAsleep',
           blockedText: { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' },
-          riddle: {
+          maze: {
             setFlag: 'wardLifted',
             requiresFlag: 'minotaurAsleep',
-            title: { nl: 'De Laatste Ward', en: 'The Final Ward' },
-            intro: {
-              nl: 'Een spectrale stem rijst uit het altaar: “Eén ward bewaak ik nog. Antwoord juist, of de amulet blijft buiten je bereik.”',
-              en: 'A spectral voice rises from the altar: “One ward I still keep. Answer truly, or the amulet stays beyond your reach.”'
-            },
-            questions: [
-              {
-                q: {
-                  nl: '“Ik kleur de bladeren rood en goud, ik laat ze vallen, en in mij heerst Emberfall. Welk seizoen ben ik?”',
-                  en: '“I paint the leaves red and gold, I make them fall, and in me Emberfall reigns. Which season am I?”'
-                },
-                answers: [
-                  { t: { nl: 'De herfst', en: 'Autumn' }, ok: true },
-                  { t: { nl: 'De lente', en: 'Spring' }, ok: false },
-                  { t: { nl: 'De winter', en: 'Winter' }, ok: false }
-                ]
-              },
-              {
-                q: {
-                  nl: '“Je trok geen zwaard, en toch versloeg je het beest. Wat was je ware wapen?”',
-                  en: '“You drew no sword, yet you bested the beast. What was your true weapon?”'
-                },
-                answers: [
-                  { t: { nl: 'List', en: 'Cunning' }, ok: true },
-                  { t: { nl: 'Rauwe kracht', en: 'Raw strength' }, ok: false },
-                  { t: { nl: 'Vuur', en: 'Fire' }, ok: false }
-                ]
-              }
-            ],
-            wrongText: {
-              nl: '“Onjuist.” De ward laait fel op — de proef begint opnieuw.',
-              en: '“Incorrect.” The ward flares bright — the trial begins anew.'
-            },
+            cells: 5,
+            title: { nl: 'Het Doolhof van de Ward', en: 'The Ward Labyrinth' },
+            img: 'assets/art/maze-ward.png',
             solvedText: {
-              nl: 'De ward dooft met een diepe zucht. De amulet ligt nu vrij op het altaar — voor het grijpen.',
-              en: 'The ward fades with a deep sigh. The amulet now lies free upon the altar — yours to take.'
+              nl: 'Je bereikt het hart van het doolhof; de ward dooft met een diepe zucht. De amulet ligt nu vrij op het altaar — voor het grijpen.',
+              en: 'You reach the heart of the labyrinth; the ward fades with a deep sigh. The amulet now lies free upon the altar — yours to take.'
             }
           },
           gives: {
