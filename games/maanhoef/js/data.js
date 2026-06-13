@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '5',
+  assetVer: '6',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -106,18 +106,19 @@ const GAME = {
         nl: 'Een open boerenerf in het ochtendlicht, met paden die alle kanten op slingeren. Een schichtig hondje dribbelt door het gras en een wijze uil houdt de wacht.',
         en: 'An open farmyard in the morning light, with paths winding off in every direction. A skittish dog trots through the grass and a wise owl keeps watch.'
       },
-      playerStart: { x: 284, y: 256 },
+      playerStart: { x: 300, y: 276 },
       spawnFrom: {
-        grove: { x: 70, y: 256 },
-        stable: { x: 498, y: 256 }
+        grove: { x: 70, y: 262 },
+        stable: { x: 498, y: 262 }
       },
       walkPoly: [ [28, 232], [540, 232], [540, 300], [28, 300] ],
-      obstacles: [ { x: 244, y: 234, w: 50, h: 30 } ],
+      obstacles: [],
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'dog', sprite: 'pup', x: 188, y: 272,
-          wander: { x: 120, y: 256, w: 180, h: 34, speed: 26, pauseMin: 1800, pauseMax: 5200 } },
+        { id: 'dog', sprite: 'pup', x: 168, y: 274,
+          wander: { x: 90, y: 256, w: 210, h: 34, speed: 24, pauseMin: 1800, pauseMax: 5200 },
+          fleeFrom: 'player', fleeRadius: 76, fleeSpeed: 84, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
         { id: 'owl', sprite: 'owl', x: 511, y: 112 }
       ],
       hotspots: [
@@ -193,8 +194,8 @@ const GAME = {
         {
           id: 'well',
           name: { nl: 'Oude Put', en: 'Old Well' },
-          rect: { x: 236, y: 206, w: 62, h: 58 },
-          walkTo: { x: 262, y: 292 },
+          rect: { x: 336, y: 190, w: 62, h: 74 },
+          walkTo: { x: 362, y: 294 },
           look: {
             nl: 'Je tuurt in de oude put — helemaal droog, geen druppel water te bekennen. En de emmer die eraan hangt is kapot; hier kun je geen water halen.',
             en: 'You peer into the old well — bone dry, not a drop of water in sight. And the bucket on it is broken; you can’t draw any water here.'

@@ -569,7 +569,27 @@
     for (const npc of (scene.npcs || [])) {
       const rt = npcRt[npc.id];
       if (!rt) continue;
-      if (npc.wander && !(npc.wanderRequiresFlag && !state.flags[npc.wanderRequiresFlag])) {
+      let fleeing = false;
+      if (npc.fleeFrom === 'player' && !state.flags[npc.fleeUntilFlag] &&
+          !(npc.fleeUnlessHas && state.inventory.includes(npc.fleeUnlessHas))) {
+        const dxp = rt.x - player.x, dyp = rt.y - player.y;
+        const d = Math.hypot(dxp, dyp);
+        if (d < (npc.fleeRadius || 70)) {
+          fleeing = true;
+          const sp = (npc.fleeSpeed || 78) * dt;
+          let nx = rt.x + (dxp / (d || 1)) * sp;
+          let ny = rt.y + (dyp / (d || 1)) * sp * 0.45;
+          const w = npc.wander;
+          if (w) { nx = Math.max(w.x, Math.min(w.x + w.w, nx)); ny = Math.max(w.y, Math.min(w.y + w.h, ny)); }
+          if (inWalkable(nx, ny)) {
+            if (Math.abs(nx - rt.x) > 0.3) rt.flip = (nx - rt.x) < 0;
+            rt.x = nx; rt.y = ny; rt.phase += sp * 0.2;
+          }
+          rt.target = null;
+          rt.pauseUntil = now + 400;
+        }
+      }
+      if (!fleeing && npc.wander && !(npc.wanderRequiresFlag && !state.flags[npc.wanderRequiresFlag])) {
         if (rt.target) {
           const dx = rt.target.x - rt.x, dy = rt.target.y - rt.y;
           const dist = Math.hypot(dx, dy);
