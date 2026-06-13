@@ -235,6 +235,11 @@ De engine kan deze effecten tekenen; activeer ze via het `fx`-blok van een scene
 - `fireflies: 8` — zwevende glimwormen (bos-sfeer)
 - `emblemGlow`, `amulet`, `waterGlint`, `zzz` (snurk-z'jes), `chestOpen`, `bowlEmpty` — puntgloei,
   glinstering en object-specifieke animaties
+- `darkness: { until, peekR, eyes:[{x,y}], glimmers:[{x,y,r}], peekAround }` — dekt de hele scene
+  tot de `until`-flag gezet is. Laat alleen een zacht kijkveld rond de speler (`peekR`),
+  gloeiende ogen (`eyes`) en warme glimmers (`glimmers`, bv. smeulende kolen) zien. Zet
+  `peekAround:false` om het kijkveld rond de speler uit te schakelen. De 👁-knop toont nog steeds
+  de hotspots, dus de scene blijft oplosbaar.
 - Wereldwijd: **dwarrelende herfstbladeren** over elk scherm; **scene-fades** bij reizen.
 
 ### 6.2 De drie herbruikbare puzzeltypes
@@ -244,14 +249,18 @@ De engine kan deze effecten tekenen; activeer ze via het `fx`-blok van een scene
 slidePuzzle: { img, size: 3, setFlag, title: {nl,en}, solvedText: {nl,en}, burst: {x,y} }
 ```
 Klassieke n×n tegelpuzzel met één gat. Mobiel-Safari-proof (`touchend` + `preventDefault`).
-**Twee-niveau hint:** 1× tik = opgeloste afbeelding flitst even; 2× tik = IDA*-solver markeert de
-optimale tegel. Buiten de overlay tikken sluit hem; kruisje altijd zichtbaar.
+**Twee-niveau hint:** 1× tik = opgeloste afbeelding flitst even; 2× tik = **strategie-tip** —
+legt de laag-voor-laag-methode uit (bovenste rij + linkerkolom eerst, naar de hoek rechtsonder
+werken, de laatste 2×2 als geheel), markeert het eerstvolgende doelvak en laat de tegel die daar
+hoort pulseren. Buiten de overlay tikken sluit hem; kruisje altijd zichtbaar.
 
 **B. Raadsel-dialoog** (`hotspot.riddle`)
 ```js
-riddle: { setFlag, reward, title, intro, questions: [{ q, answers: [{t, ok}] }], wrongText, solvedText }
+riddle: { setFlag, requiresFlag, reward, title, intro, questions: [{ q, answers: [{t, ok}] }], wrongText, solvedText }
 ```
-Meerkeuze-raadsels op rij; één fout = opnieuw. Beloont met een item of flag.
+Meerkeuze-raadsels op rij; één fout = opnieuw. Beloont optioneel met een item (`reward`) en/of
+zet `setFlag`. `requiresFlag` (optioneel) bepaalt wanneer het raadsel opengaat — bv. pas ná een
+andere gebeurtenis; zonder `requiresFlag` is het altijd beschikbaar.
 
 **C. Volgorde-puzzel / runenstenen** (`scene.puzzles` + `hotspot.puzzleKey`)
 ```js

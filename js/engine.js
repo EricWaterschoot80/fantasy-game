@@ -653,7 +653,8 @@
       if (dust[i].life <= 0) dust.splice(i, 1);
     }
     const fxd = scene.fx || {};
-    if (fxd.embers && Math.random() < 0.25) {
+    const darkU = !!(fxd.darkness && !state.flags[fxd.darkness.until]);
+    if (fxd.embers && !darkU && Math.random() < 0.25) {
       const src = fxd.embers[(Math.random() * fxd.embers.length) | 0];
       embers.push({ x: src.x + Math.random() * 8 - 4, y: src.y, life: 1.4, ph: Math.random() * 6 });
     }
@@ -718,6 +719,8 @@
     fctx.drawImage(bgCanvas, 0, 0);
 
     const scene = GAME.scenes[state.currentScene];
+    const _fx = scene.fx || {};
+    const dark = !!(_fx.darkness && !state.flags[_fx.darkness.until]);
     const usingArt = ready(art.scenes[state.currentScene]);
     if (usingArt) paintFx(scene, now);
     paintPuzzleGlow(scene, now);
@@ -807,6 +810,47 @@
       fctx.fillRect(lx | 0, Lf.y | 0, Lf.size, Lf.size);
     }
 
+    /* Duisternis: dekt de hele scene tot de licht-flag gezet is; laat alleen
+       een zacht kijkveld rond de speler, gloeiende ogen en glimmers (bv. kolen) zien. */
+    if (dark) {
+      const dk = _fx.darkness;
+      fctx.save();
+      fctx.fillStyle = 'rgba(5,4,12,0.94)';
+      fctx.fillRect(0, 0, SCENE_W, SCENE_H);
+      fctx.globalCompositeOperation = 'destination-out';
+      const hole = (x, y, r) => {
+        const g = fctx.createRadialGradient(x, y, 2, x, y, r);
+        g.addColorStop(0, 'rgba(0,0,0,0.96)');
+        g.addColorStop(0.6, 'rgba(0,0,0,0.5)');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(x - r, y - r, r * 2, r * 2);
+      };
+      if (dk.peekAround !== false) hole(player.x, player.y - 12, dk.peekR || 48);
+      (dk.glimmers || []).forEach(gm => hole(gm.x, gm.y, gm.r || 16));
+      fctx.restore();
+      /* warme gloed bij de glimmers zodat ze als doel opvallen */
+      (dk.glimmers || []).forEach(gm => {
+        const r = gm.r || 16, pulse = 0.32 + 0.12 * Math.sin(now / 240 + gm.x);
+        const g = fctx.createRadialGradient(gm.x, gm.y, 1, gm.x, gm.y, r);
+        g.addColorStop(0, `rgba(255,150,60,${pulse})`);
+        g.addColorStop(1, 'rgba(255,150,60,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(gm.x - r, gm.y - r, r * 2, r * 2);
+      });
+      /* gloeiende ogen in het donker */
+      (dk.eyes || []).forEach(e => {
+        const fl = 0.55 + 0.45 * Math.sin(now / 170 + e.x);
+        const g = fctx.createRadialGradient(e.x + 1, e.y + 1, 0, e.x + 1, e.y + 1, 6);
+        g.addColorStop(0, `rgba(255,70,45,${fl * 0.6})`);
+        g.addColorStop(1, 'rgba(255,70,45,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(e.x - 5, e.y - 5, 12, 12);
+        fctx.fillStyle = `rgba(255,60,40,${fl})`;
+        fctx.fillRect(Math.round(e.x), Math.round(e.y), 2, 2);
+      });
+    }
+
     /* Debug: toon het loopgebied (alleen als __game.debugWalk aan staat) */
     if (window.__debugWalk) {
       fctx.save();
@@ -850,7 +894,8 @@
 
   function paintFx(scene, now) {
     const fx = scene.fx || {};
-    if (fx.flames) {
+    const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
+    if (fx.flames && !dark) {
       for (const f of fx.flames) {
         const flicker = 0.18 + 0.1 * Math.sin(now / 90 + f.x);
         const g = fctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, f.r || 14);
@@ -925,7 +970,7 @@
         fctx.fillRect(fx.chestOpen.x - 26, fx.chestOpen.y - h / 2 - 26, 52, 52);
       }
     }
-    if (fx.amulet && !state.flags.taken_temple_shrine) {
+    if (fx.amulet && !dark && !state.flags.taken_temple_shrine) {
       const a = fx.amulet;
       const glow = 0.3 + 0.18 * Math.sin(now / 350);
       const g = fctx.createRadialGradient(a.x + 8, a.y + 8, 1, a.x + 8, a.y + 8, 17);
@@ -1418,6 +1463,7 @@
   const elPuzTitle   = document.getElementById('puzzle-title');
   const elPuzClose   = document.getElementById('puzzle-close');
   const elPuzHintBtn = document.getElementById('puzzle-hint-btn');
+  const elPuzTip     = document.getElementById('puzzle-tip');
   let slide = null;      // { hs, n, tiles[], empty }
   let hintLevel = 0;     // 0 = geen, 1 = voorbeeld getoond, 2 = schuiftip getoond
 
@@ -1445,6 +1491,7 @@
     hintLevel = 0;
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) elPuzHintBtn.textContent = '💡 Hint';
+    if (elPuzTip) elPuzTip.hidden = true;
     renderSlide();
     elPuzzle.hidden = false;
     sfx('tap');
@@ -1454,6 +1501,7 @@
     const { hs, n, tiles } = slide;
     const cfg = hs.slidePuzzle;
     const px = 240 / n;
+    if (elPuzTip) elPuzTip.hidden = true;   // strategie-tip vervalt na elke zet
     elPuzGrid.innerHTML = '';
     tiles.forEach((tile, pos) => {
       if (tile === n * n - 1) return;            // leeg vak
@@ -1523,85 +1571,44 @@
     setTimeout(() => { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 2100);
   }
 
-  /* IDA* solver — geeft de optimale eerste positie om aan te tikken terug */
-  function findBestMove(tiles, n) {
-    const blank = n * n - 1;
-    const t0 = performance.now();
-
-    function h(state) {
-      let s = 0;
-      for (let i = 0; i < state.length; i++) {
-        if (state[i] === blank) continue;
-        s += Math.abs((state[i] % n) - (i % n)) + Math.abs(((state[i] / n) | 0) - ((i / n) | 0));
-      }
-      return s;
-    }
-
-    const work = tiles.slice();
-    let bound = h(work);
-    let answer = -1;
-
-    function dfs(blankPos, g, limit, prevBlank) {
-      if (performance.now() - t0 > 45) return 9999; // timeout
-      const f = g + h(work);
-      if (f > limit) return f;
-      if (f === g) return 0; // opgelost (h=0)
-      const bx = blankPos % n, by = (blankPos / n) | 0;
-      const ns = [];
-      if (bx > 0) ns.push(blankPos - 1);
-      if (bx < n - 1) ns.push(blankPos + 1);
-      if (by > 0) ns.push(blankPos - n);
-      if (by < n - 1) ns.push(blankPos + n);
-      let min = Infinity;
-      for (const next of ns) {
-        if (next === prevBlank) continue;
-        work[blankPos] = work[next]; work[next] = blank;
-        const t = dfs(next, g + 1, limit, blankPos);
-        work[next] = work[blankPos]; work[blankPos] = blank; // altijd ongedaan
-        if (t === 0) { if (g === 0) answer = next; return 0; }
-        if (t >= 9999) return 9999;
-        if (t < min) min = t;
-      }
-      return min;
-    }
-
-    for (let iter = 0; iter < 50 && bound < 100; iter++) {
-      answer = -1;
-      for (let j = 0; j < tiles.length; j++) work[j] = tiles[j]; // herstel
-      const result = dfs(tiles.indexOf(blank), 0, bound, -1);
-      if (result === 0) return answer;
-      if (result >= 9999) break;
-      bound = result;
-    }
-
-    // Greedy fallback: kies de aangrenzende tegel die de Manhattan-afstand het meest verkleint
-    const blankPos = tiles.indexOf(blank);
-    const bx = blankPos % n, by = (blankPos / n) | 0;
-    const adj = [];
-    if (bx > 0) adj.push(blankPos - 1);
-    if (bx < n - 1) adj.push(blankPos + 1);
-    if (by > 0) adj.push(blankPos - n);
-    if (by < n - 1) adj.push(blankPos + n);
-    let best = adj[0], bestH = Infinity;
-    for (const a of adj) {
-      const tmp = tiles[a]; tiles[blankPos] = tmp; tiles[a] = blank;
-      const hh = h(tiles);
-      tiles[a] = tmp; tiles[blankPos] = blank;
-      if (hh < bestH) { bestH = hh; best = a; }
-    }
-    return best;
+  /* Eerstvolgende vak dat volgens de laag-voor-laag-strategie aan de beurt is:
+     het eerste vak in leesvolgorde waar de verkeerde tegel ligt. */
+  function nextTargetCell(tiles) {
+    for (let i = 0; i < tiles.length - 1; i++) if (tiles[i] !== i) return i;
+    return -1;
   }
 
-  /* Hint niveau 2: hoe je het beste kan schuiven */
+  /* Hint niveau 2: legt de schuifstrategie uit (buitenrand eerst, naar de
+     hoek toe) en wijst de eerstvolgende tegel + zijn doelvak aan. */
   function showMoveHint() {
-    const pos = findBestMove(slide.tiles.slice(), slide.n);
-    if (pos < 0) return;
-    // verwijder eventuele oude suggest-highlight
+    const { tiles, n } = slide;
+    const target = nextTargetCell(tiles);
+    if (target < 0) return;
+    const tilePos = tiles.indexOf(target);          // waar die tegel nu ligt
+    const px = 240 / n;
+    const row = (target / n | 0) + 1, col = (target % n) + 1;
+
     elPuzGrid.querySelectorAll('.puz-tile.suggest').forEach(el => el.classList.remove('suggest'));
-    const tile = elPuzGrid.querySelector('[data-pos="' + pos + '"]');
-    if (!tile) return;
-    tile.classList.add('suggest');
-    setTimeout(() => tile.classList.remove('suggest'), 2200);
+    elPuzGrid.querySelectorAll('.puz-target').forEach(el => el.remove());
+
+    /* doelvak markeren */
+    const mark = document.createElement('div');
+    mark.className = 'puz-target';
+    mark.style.width = mark.style.height = px + 'px';
+    mark.style.left = (target % n) * px + 'px';
+    mark.style.top = (target / n | 0) * px + 'px';
+    elPuzGrid.appendChild(mark);
+
+    /* de tegel die in dat vak hoort laten pulseren */
+    const tEl = elPuzGrid.querySelector('[data-pos="' + tilePos + '"]');
+    if (tEl) tEl.classList.add('suggest');
+
+    if (elPuzTip) {
+      elPuzTip.textContent = lang === 'nl'
+        ? `Strategie: werk van linksboven naar rechtsonder — maak eerst de bovenste rij af, dan de linkerkolom, enzovoort naar de hoek rechtsonder. De oplichtende tegel hoort in het gemarkeerde vak (rij ${row}, kolom ${col}). De laatste 2×2 los je als geheel op.`
+        : `Strategy: work top-left to bottom-right — finish the top row first, then the left column, and so on toward the bottom-right corner. The glowing tile belongs in the marked cell (row ${row}, column ${col}). Solve the final 2×2 as one unit.`;
+      elPuzTip.hidden = false;
+    }
   }
 
   function showPuzzleHint() {
@@ -1839,7 +1846,8 @@
       say(lookText(hs), hsSpeaker(hs));
       return;
     }
-    if (hs.riddle && state.flags.visited_grove && !state.flags[hs.riddle.setFlag]) {
+    if (hs.riddle && !state.flags[hs.riddle.setFlag] &&
+        (!hs.riddle.requiresFlag || state.flags[hs.riddle.requiresFlag])) {
       openRiddle(hs);
       return;
     }

@@ -75,6 +75,9 @@ const GAME = {
     q_berries:   { nl: 'Pluk rode bessen tussen de struiken', en: 'Pick red berries from the bushes' },
     q_combine:   { nl: 'Combineer de bessen met het water in je tas', en: 'Combine the berries with the water in your bag' },
     q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal', en: 'Pour the sleeping draught into the stone bowl' },
+    q_torch:     { nl: 'Het is aardedonker — zoek een fakkel om de tempel te verlichten', en: 'It’s pitch dark — find a torch to light the temple' },
+    q_lightTorch:{ nl: 'Steek de fakkel aan bij de gloeiende kolen', en: 'Light the torch at the glowing coals' },
+    q_ward:      { nl: 'Een laatste ward beschermt de amulet — los het raadsel op', en: 'A final ward protects the amulet — solve its riddle' },
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
@@ -86,7 +89,10 @@ const GAME = {
      De engine leest dit generiek (zie condMet/questKey). */
   questRules: [
     { when: { flag: 'taken_temple_shrine' },                        quest: null },
+    { when: { flag: 'minotaurAsleep', notFlag: 'wardLifted' },      quest: 'q_ward' },
     { when: { flag: 'minotaurAsleep' },                             quest: 'q_amulet' },
+    { when: { flag: 'visited_temple', notFlag: 'torchLit', has: 'torch' }, quest: 'q_lightTorch' },
+    { when: { flag: 'visited_temple', notFlag: 'torchLit' },        quest: 'q_torch' },
     { when: { has: 'potion', notFlag: 'gateOpen' },                 quest: 'q_gate' },
     { when: { has: 'potion' },                                      quest: 'q_pour' },
     { when: { has: ['vialWater', 'berries'] },                      quest: 'q_combine' },
@@ -109,7 +115,8 @@ const GAME = {
     potion:    { name: { nl: 'Slaapdrank', en: 'Sleeping Draught' }, icon: '🧪', img: 'assets/art/item-potion.png' },
     amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' },
     vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' },
-    powder:    { name: { nl: 'Magisch Poeder', en: 'Magic Powder' }, icon: '✨', img: 'assets/art/item-powder.png' }
+    powder:    { name: { nl: 'Magisch Poeder', en: 'Magic Powder' }, icon: '✨', img: 'assets/art/item-powder.png' },
+    torch:     { name: { nl: 'Onaangestoken Fakkel', en: 'Unlit Torch' }, icon: '🔥' }
   },
 
   recipes: [
@@ -212,6 +219,7 @@ const GAME = {
           speaker: true,
           riddle: {
             setFlag: 'riddleSolved',
+            requiresFlag: 'visited_grove',
             reward: 'vest',
             title: { nl: 'De Proef van de Ziener', en: 'The Seer’s Trial' },
             intro: {
@@ -514,6 +522,15 @@ const GAME = {
         { id: 'minotaur', sprite: 'minotaur', x: 265, y: 255 }
       ],
       fx: {
+        /* Tempel begint aardedonker; aansteken van de fakkel (torchLit) verdrijft het.
+           Alleen een kijkveld rond de speler, de gloeiende kolen en de ogen
+           van de minotaur zijn dan zichtbaar. */
+        darkness: {
+          until: 'torchLit',
+          peekR: 52,
+          eyes: [ { x: 255, y: 185 }, { x: 270, y: 185 } ],
+          glimmers: [ { x: 176, y: 172, r: 18 } ]
+        },
         flames: [
           { x: 307, y: 148, r: 14 },
           { x: 434, y: 155, r: 14 }
@@ -537,6 +554,40 @@ const GAME = {
           look: {
             nl: 'Gehouwen glyphen tonen een geknield beest dat uit een schaal drinkt en in slaap valt.',
             en: 'Carved glyphs show a kneeling beast drinking from a bowl and falling asleep.'
+          }
+        },
+        {
+          id: 'sconce',
+          name: { nl: 'Muurhouder', en: 'Wall Sconce' },
+          rect: { x: 112, y: 104, w: 44, h: 72 },
+          walkTo: { x: 132, y: 212 },
+          gives: {
+            item: 'torch',
+            giveText: {
+              nl: 'Je grijpt een onaangestoken fakkel uit de muurhouder. Maar je hebt nog vuur nodig...',
+              en: 'You take an unlit torch from the wall sconce. But you still need a flame...'
+            },
+            emptyText: { nl: 'De houder is leeg.', en: 'The sconce is empty.' }
+          }
+        },
+        {
+          id: 'coals',
+          name: { nl: 'Gloeiende Kolen', en: 'Glowing Coals' },
+          rect: { x: 150, y: 146, w: 54, h: 58 },
+          walkTo: { x: 177, y: 214 },
+          look: (state) => state.flags.torchLit
+            ? { nl: 'De laatste kolen smeulen na in de kuil.', en: 'The last coals smoulder in the pit.' }
+            : { nl: 'Een kuil met smeulende kolen — net genoeg gloed om iets aan te steken.',
+                en: 'A pit of smouldering coals — just enough glow to light something.' },
+          use: {
+            torch: {
+              consume: 'torch',
+              setFlag: 'torchLit',
+              text: {
+                nl: 'Je houdt de fakkel in de kolen tot hij vlam vat en ontsteekt de tempelvuren. Warm licht verdrijft de duisternis — en daar staat de minotaur.',
+                en: 'You hold the torch to the coals until it catches, then light the temple fires. Warm light drives back the dark — and there stands the minotaur.'
+              }
+            }
           }
         },
         {
@@ -588,6 +639,47 @@ const GAME = {
           walkTo: { x: 438, y: 224 },
           requiresFlag: 'minotaurAsleep',
           blockedText: { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' },
+          riddle: {
+            setFlag: 'wardLifted',
+            requiresFlag: 'minotaurAsleep',
+            title: { nl: 'De Laatste Ward', en: 'The Final Ward' },
+            intro: {
+              nl: 'Een spectrale stem rijst uit het altaar: “Eén ward bewaak ik nog. Antwoord juist, of de amulet blijft buiten je bereik.”',
+              en: 'A spectral voice rises from the altar: “One ward I still keep. Answer truly, or the amulet stays beyond your reach.”'
+            },
+            questions: [
+              {
+                q: {
+                  nl: '“Ik kleur de bladeren rood en goud, ik laat ze vallen, en in mij heerst Emberfall. Welk seizoen ben ik?”',
+                  en: '“I paint the leaves red and gold, I make them fall, and in me Emberfall reigns. Which season am I?”'
+                },
+                answers: [
+                  { t: { nl: 'De herfst', en: 'Autumn' }, ok: true },
+                  { t: { nl: 'De lente', en: 'Spring' }, ok: false },
+                  { t: { nl: 'De winter', en: 'Winter' }, ok: false }
+                ]
+              },
+              {
+                q: {
+                  nl: '“Je trok geen zwaard, en toch versloeg je het beest. Wat was je ware wapen?”',
+                  en: '“You drew no sword, yet you bested the beast. What was your true weapon?”'
+                },
+                answers: [
+                  { t: { nl: 'List', en: 'Cunning' }, ok: true },
+                  { t: { nl: 'Rauwe kracht', en: 'Raw strength' }, ok: false },
+                  { t: { nl: 'Vuur', en: 'Fire' }, ok: false }
+                ]
+              }
+            ],
+            wrongText: {
+              nl: '“Onjuist.” De ward laait fel op — de proef begint opnieuw.',
+              en: '“Incorrect.” The ward flares bright — the trial begins anew.'
+            },
+            solvedText: {
+              nl: 'De ward dooft met een diepe zucht. De amulet ligt nu vrij op het altaar — voor het grijpen.',
+              en: 'The ward fades with a deep sigh. The amulet now lies free upon the altar — yours to take.'
+            }
+          },
           gives: {
             item: 'amulet',
             win: true,

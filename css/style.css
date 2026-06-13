@@ -604,6 +604,28 @@ html, body {
   50%      { filter: brightness(1.8); }
 }
 
+/* Doelvak waar de oplichtende tegel heen moet (schuiftip-niveau 2) */
+.puz-target {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  border: 2px dashed rgba(231,207,134,.95);
+  box-shadow: 0 0 10px 2px rgba(231,207,134,.4);
+  pointer-events: none;
+  animation: suggestPulse .7s ease-in-out infinite;
+}
+
+/* Strategie-uitleg onder het rooster */
+.puz-tip {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--parchment);
+  max-width: 240px;
+  margin: 10px auto 0;
+  text-align: left;
+}
+
 #puzzle-grid {
   position: relative;
   width: 240px;
