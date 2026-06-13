@@ -191,6 +191,16 @@ const GAME = {
           }
         },
         {
+          id: 'well',
+          name: { nl: 'Oude Put', en: 'Old Well' },
+          rect: { x: 236, y: 206, w: 62, h: 58 },
+          walkTo: { x: 262, y: 292 },
+          look: {
+            nl: 'Je tuurt in de oude put — helemaal droog, geen druppel water te bekennen. En de emmer die eraan hangt is kapot; hier kun je geen water halen.',
+            en: 'You peer into the old well — bone dry, not a drop of water in sight. And the bucket on it is broken; you can’t draw any water here.'
+          }
+        },
+        {
           id: 'toGrove',
           name: { nl: 'Pad naar het Bos', en: 'Path to the Forest' },
           rect: { x: 0, y: 168, w: 46, h: 134 },
@@ -220,13 +230,23 @@ const GAME = {
       },
       playerStart: { x: 498, y: 286 },
       spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
-      walkable: [ { x: 40, y: 236, w: 400, h: 66 }, { x: 40, y: 270, w: 488, h: 32 } ],
+      walkable: [
+        { x: 40, y: 272, w: 514, h: 34 },   // onderpad: verbindt links ↔ rechts
+        { x: 440, y: 236, w: 114, h: 70 },  // rechtergras bij de instap (niets blokkeert rechts)
+        { x: 60, y: 198, w: 174, h: 82 }    // linkerpad omhoog naar de stenen boog (na de brug)
+      ],
       fx: {
         waterfall: { x: 266, y: 28, w: 66, h: 186, streaks: 20 },
-        snakeTongue: { x: 314, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
+        ripples: [
+          { x: 236, y: 250, w: 98, h: 24, n: 10 },   // vijver onder de waterval stroomt
+          { x: 70, y: 288, w: 150, h: 16, n: 7 }      // beek bij de brug
+        ],
+        snakeTongue: { x: 320, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
         zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
-      obstacles: [],
+      obstacles: [
+        { x: 262, y: 270, w: 86, h: 38, notFlag: 'snakeCharmed' }  // de wakkere slang verspert het pad
+      ],
       overlays: [],
       worldItems: [],
       hotspots: [
@@ -234,7 +254,7 @@ const GAME = {
           id: 'snake',
           name: { nl: 'Sissende Slang', en: 'Hissing Snake' },
           rect: { x: 252, y: 126, w: 148, h: 96 },
-          walkTo: { x: 312, y: 290 },
+          walkTo: { x: 366, y: 290 },
           speaker: true,
           danger: true,
           dangerUntil: 'snakeCharmed',
@@ -249,6 +269,8 @@ const GAME = {
           use: {
             flute: {
               consume: 'flute',
+              anim: 'flute',
+              animDur: 1900,
               setFlag: 'snakeCharmed',
               text: {
                 nl: 'Je zet de Wilgenfluit aan je lippen en speelt een zacht wijsje. De slang wiegt mee, haar ogen vallen dicht — Z z z... ze zakt in slaap en glijdt loom opzij. De weg naar de grot is vrij.',
@@ -311,6 +333,13 @@ const GAME = {
       playerStart: { x: 120, y: 286 },
       spawnFrom: { grove: { x: 120, y: 286 } },
       walkable: [ { x: 55, y: 254, w: 250, h: 48 }, { x: 55, y: 280, w: 435, h: 22 } ],
+      fx: {
+        drips: [
+          { x: 198, y: 22, to: 150, period: 2400, phase: 0 },
+          { x: 366, y: 18, to: 138, period: 2900, phase: 1300 },
+          { x: 96, y: 30, to: 168, period: 3300, phase: 700 }
+        ]
+      },
       obstacles: [],
       overlays: [],
       worldItems: [

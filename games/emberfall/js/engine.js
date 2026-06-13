@@ -358,8 +358,11 @@
     return inside;
   }
   function inObstacle(scene, x, y) {
-    return scene.obstacles && scene.obstacles.some(r =>
-      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+    return scene.obstacles && scene.obstacles.some(r => {
+      if (r.requiresFlag && !state.flags[r.requiresFlag]) return false;
+      if (r.notFlag && state.flags[r.notFlag]) return false;
+      return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+    });
   }
   function inWalkableScene(scene, x, y) {
     if (inObstacle(scene, x, y)) return false;

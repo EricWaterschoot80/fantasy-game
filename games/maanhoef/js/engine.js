@@ -358,8 +358,11 @@
     return inside;
   }
   function inObstacle(scene, x, y) {
-    return scene.obstacles && scene.obstacles.some(r =>
-      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+    return scene.obstacles && scene.obstacles.some(r => {
+      if (r.requiresFlag && !state.flags[r.requiresFlag]) return false;  // pas actief als flag gezet
+      if (r.notFlag && state.flags[r.notFlag]) return false;             // niet meer actief zodra flag gezet
+      return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+    });
   }
   function inWalkableScene(scene, x, y) {
     if (inObstacle(scene, x, y)) return false;
@@ -938,6 +941,34 @@
         drawSprite(fctx, Z_GLYPH, Math.round(fx.zzz.x + z * 8), Math.round(fx.zzz.y - z * 11), false, z === zi ? 1 : 2);
       }
     }
+    if (fx.ripples) {
+      for (const rp of (Array.isArray(fx.ripples) ? fx.ripples : [fx.ripples])) {
+        const n = rp.n || 8, sp = rp.speed || 0.018;
+        for (let i = 0; i < n; i++) {
+          const yy = rp.y + ((i * 11) % rp.h);
+          const xoff = ((now * sp + i * 17) % (rp.w + 18)) - 9;
+          const al = 0.10 + 0.07 * Math.sin(now / 280 + i * 1.3);
+          fctx.fillStyle = `rgba(226,246,255,${Math.max(0, al)})`;
+          fctx.fillRect((rp.x + xoff) | 0, yy | 0, 3 + (i % 3), 1);
+        }
+      }
+    }
+    if (fx.drips) {
+      for (const dp of (Array.isArray(fx.drips) ? fx.drips : [fx.drips])) {
+        const period = dp.period || 2200;
+        const ph = ((now + (dp.phase || 0)) % period) / period;
+        if (ph < 0.86) {
+          const yy = dp.y + ph * (dp.to - dp.y);
+          fctx.fillStyle = 'rgba(206,238,255,0.9)';
+          fctx.fillRect(dp.x | 0, yy | 0, 1, 2);
+        } else {
+          const s = (ph - 0.86) / 0.14;
+          fctx.fillStyle = `rgba(220,245,255,${0.6 * (1 - s)})`;
+          fctx.fillRect((dp.x - 1 - (s * 2)) | 0, dp.to | 0, 1, 1);
+          fctx.fillRect((dp.x + 1 + (s * 2)) | 0, dp.to | 0, 1, 1);
+        }
+      }
+    }
     if (fx.flames && !dark) {
       for (const f of fx.flames) {
         const flicker = 0.18 + 0.1 * Math.sin(now / 90 + f.x);
@@ -1129,6 +1160,17 @@
     fctx.restore();
   }
 
+  /* Korte scripted held-animatie (bv. fluitspelen): toont een pose + muzieknoten. */
+  let heroAnim = null;   // { kind, t0, dur }
+  function startHeroAnim(kind, dur) { heroAnim = { kind, t0: performance.now(), dur }; }
+  function drawMusicNote(cx, cy, scale) {
+    fctx.fillStyle = '#2b2440';
+    fctx.fillRect((cx) | 0, (cy) | 0, 2 * scale, 2 * scale);            // noot-kop
+    fctx.fillRect((cx + 2 * scale) | 0, (cy - 3 * scale) | 0, scale, 4 * scale); // steel
+    fctx.fillStyle = '#efe3c8';
+    fctx.fillRect((cx) | 0, (cy) | 0, scale, scale);                    // glans
+  }
+
   /* Idle-gebaren: af en toe doet een figuur iets grappigs. */
   const gesture = { hero: { next: 4000, until: 0 }, seer: { next: 7000, until: 0 }, minotaur: { next: 9000, until: 0 } };
   function gestureState(id, now, durMs, minGap, maxGap) {
@@ -1143,6 +1185,27 @@
   function drawPlayer(now) {
     const hero = art.sprites.hero;
     const walking = !!player.target || player.kbMoving;
+    /* Scripted animatie (bv. fluitspelen) heeft voorrang en speelt op de plek van de held. */
+    if (heroAnim && !walking) {
+      const e = (now - heroAnim.t0) / heroAnim.dur;
+      if (e >= 1) { heroAnim = null; }
+      else {
+        const wave = art.sprites.heroWave;
+        const sway = Math.round(Math.sin(now / 110) * 1);
+        const img = ready(wave) ? wave : hero;
+        drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: -1, rot: Math.sin(now / 220) * 0.04 });
+        if (heroAnim.kind === 'flute') {
+          /* muzieknoten stijgen op naast de held */
+          for (let k = 0; k < 3; k++) {
+            const t = (e * 2.2 + k * 0.4) % 1;
+            const nx = player.x + (player.flip ? -16 : 12) + Math.sin((t * 6) + k) * 4;
+            const ny = player.y - 44 - t * 26;
+            if (t > 0.05 && t < 0.95) drawMusicNote(nx, ny, t < 0.5 ? 1 : 1);
+          }
+        }
+        return;
+      }
+    }
     if (ready(hero)) {
       if (walking) {
         /* loopcyclus: met 2 stap-frames (links/rechts) een echte animatie;
@@ -2138,6 +2201,14 @@
 
   function runAction(a, anchor, face) {
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
+    if (a.anim) {
+      /* speel eerst een korte animatie (bv. fluitspelen), dán pas het effect + tekst */
+      startHeroAnim(a.anim, a.animDur || 1800);
+      sfx('use');
+      const rest = Object.assign({}, a); delete rest.anim; delete rest.consume;
+      setTimeout(() => runAction(rest, anchor, face), a.animDur || 1800);
+      return;
+    }
     if (a.give) addItem(a.give);
     if (a.setFlag) {
       state.flags[a.setFlag] = true;
