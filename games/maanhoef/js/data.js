@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '4',
+  assetVer: '5',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -51,7 +51,9 @@ const GAME = {
 
     q_owl:    { nl: 'Vraag de wijze uil om raad', en: 'Ask the wise owl for advice' },
     q_snake:  { nl: 'Een slang verspert het bospad — betover haar met de fluit', en: 'A snake blocks the forest path — charm it with the flute' },
-    q_cave:   { nl: 'De slang slaapt — ga de grot in, pak het bot en herstel het runenzegel', en: 'The snake sleeps — enter the cave, take the bone and restore the rune seal' },
+    q_plank:  { nl: 'De brug naar de grot mist planken — haal een houten plank bij de stal', en: 'The bridge to the cave is missing planks — fetch a wooden plank from the stable' },
+    q_bridge: { nl: 'Repareer de kapotte brug met de houten plank', en: 'Repair the broken bridge with the wooden plank' },
+    q_cave:   { nl: 'De slang slaapt — steek de brug over, ga de grot in, pak het bot en herstel het runenzegel', en: 'The snake sleeps — cross the bridge, enter the cave, take the bone and restore the rune seal' },
     q_statue: { nl: 'Plaats de diamant in het beeld zodat het water gaat stromen', en: 'Place the diamond in the statue so the water starts to flow' },
     q_dog:    { nl: 'Geef het hongerige hondje het bot om bij de sleutel te komen', en: 'Give the hungry dog the bone to reach the key' },
     q_bucket: { nl: 'Maanhoef heeft dorst — pak de houten emmer bij de stal', en: 'Moonhoof is thirsty — grab the wooden bucket by the stable' },
@@ -72,7 +74,9 @@ const GAME = {
     bucketWater: { name: { nl: 'Emmer Water', en: 'Bucket of Water' }, icon: '🪣', img: 'assets/art/item-bucket-water.png',
                    noUseText: { nl: 'Hier heb ik geen water voor nodig.', en: 'No need for water here.' } },
     diamond: { name: { nl: 'Diamant', en: 'Diamond' }, icon: '💎', img: 'assets/art/item-diamond.png',
-               noUseText: { nl: 'Dit hoort hier niet.', en: 'This doesn’t belong here.' } }
+               noUseText: { nl: 'Dit hoort hier niet.', en: 'This doesn’t belong here.' } },
+    plank:   { name: { nl: 'Houten Plank', en: 'Wooden Plank' }, icon: '🪵', img: 'assets/art/item-plank.png',
+               noUseText: { nl: 'Daar heb ik die plank niet voor nodig.', en: 'No need for the plank here.' } }
   },
 
   recipes: [],
@@ -85,6 +89,8 @@ const GAME = {
     { when: { flag: 'waterFlowing', notHas: 'bucket' },    quest: 'q_bucket' },
     { when: { has: 'diamond' },                            quest: 'q_statue' },
     { when: { has: 'bone' },                               quest: 'q_dog' },
+    { when: { flag: 'snakeCharmed', notFlag: 'bridgeFixed', has: 'plank' }, quest: 'q_bridge' },
+    { when: { flag: 'snakeCharmed', notFlag: 'bridgeFixed' }, quest: 'q_plank' },
     { when: { flag: 'snakeCharmed', notFlag: 'sealSolved' }, quest: 'q_cave' },
     { when: { has: 'flute', notFlag: 'snakeCharmed' },     quest: 'q_snake' },
     { when: {},                                            quest: 'q_owl' }
@@ -105,14 +111,14 @@ const GAME = {
         grove: { x: 70, y: 256 },
         stable: { x: 498, y: 256 }
       },
-      walkPoly: [ [28, 226], [540, 226], [540, 298], [28, 298] ],
-      obstacles: [],
+      walkPoly: [ [28, 232], [540, 232], [540, 300], [28, 300] ],
+      obstacles: [ { x: 244, y: 234, w: 50, h: 30 } ],
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'dog', sprite: 'pup', x: 168, y: 262,
-          wander: { x: 96, y: 250, w: 220, h: 36, speed: 26, pauseMin: 1800, pauseMax: 5200 } },
-        { id: 'owl', sprite: 'owl', x: 430, y: 232 }
+        { id: 'dog', sprite: 'pup', x: 188, y: 272,
+          wander: { x: 120, y: 256, w: 180, h: 34, speed: 26, pauseMin: 1800, pauseMax: 5200 } },
+        { id: 'owl', sprite: 'owl', x: 511, y: 112 }
       ],
       hotspots: [
         {
@@ -142,8 +148,8 @@ const GAME = {
           id: 'owl',
           name: { nl: 'Wijze Uil', en: 'Wise Owl' },
           followNpc: 'owl',
-          rect: { x: 392, y: 150, w: 50, h: 58 },
-          walkTo: { x: 424, y: 262 },
+          rect: { x: 488, y: 84, w: 50, h: 58 },
+          walkTo: { x: 486, y: 276 },
           speaker: true,
           riddle: {
             setFlag: 'owlSolved',
@@ -206,18 +212,19 @@ const GAME = {
     /* ---------- Gebied 2: Het Wilgenbos ---------- */
     grove: {
       name: { nl: 'Het Wilgenbos', en: 'The Willow Forest' },
-      bg: 'assets/art/scene-grove.png',
+      bg: 'assets/art/scene-grove-broken.png',
+      bgVariants: [ { img: 'assets/art/scene-grove.png', flag: 'bridgeFixed' } ],
       entryText: {
-        nl: 'Een open plek met een ruisende waterval. In de boom kronkelt een grote slang die dreigend naar je sist. Links, bij een stenen boog, gaapt een donkere holte.',
-        en: 'A clearing with a rushing waterfall. A great snake coils in the tree, hissing at you in warning. To the left, by a stone arch, yawns a dark hollow.'
+        nl: 'Een open plek met een ruisende waterval. In de boom kronkelt een grote slang die dreigend naar je sist. Links, bij een stenen boog, gaapt een donkere holte — maar de brug over de beek ernaartoe mist planken.',
+        en: 'A clearing with a rushing waterfall. A great snake coils in the tree, hissing at you in warning. To the left, by a stone arch, yawns a dark hollow — but the bridge over the brook to it is missing planks.'
       },
       playerStart: { x: 498, y: 286 },
       spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
       walkable: [ { x: 40, y: 236, w: 400, h: 66 }, { x: 40, y: 270, w: 488, h: 32 } ],
       fx: {
         waterfall: { x: 266, y: 28, w: 66, h: 186, streaks: 20 },
-        snakeTongue: { x: 309, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
-        zzz: { x: 344, y: 138, flag: 'snakeCharmed' }
+        snakeTongue: { x: 314, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
+        zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
       obstacles: [],
       overlays: [],
@@ -251,14 +258,35 @@ const GAME = {
           }
         },
         {
+          id: 'bridge',
+          name: { nl: 'Houten Brug', en: 'Wooden Bridge' },
+          rect: { x: 44, y: 232, w: 134, h: 70 },
+          walkTo: { x: 182, y: 292 },
+          look: (state) => state.flags.bridgeFixed
+            ? { nl: 'De brug ligt er weer stevig bij; je kunt de beek oversteken naar de stenen boog.', en: 'The bridge is sturdy again; you can cross the brook to the stone arch.' }
+            : { nl: 'De houten brug over de beek mist een paar planken — zo waag je je er niet overheen. Je hebt een stevige plank nodig.', en: 'The wooden bridge over the brook is missing a few planks — you won’t risk crossing like this. You need a sturdy plank.' },
+          use: {
+            plank: {
+              consume: 'plank',
+              setFlag: 'bridgeFixed',
+              text: {
+                nl: 'Je legt de houten plank over het gat in de brug en stampt hem vast. De brug is weer heel — je kunt nu oversteken naar de grot.',
+                en: 'You lay the wooden plank over the gap in the bridge and stamp it down. The bridge is whole again — you can cross to the cave now.'
+              }
+            }
+          }
+        },
+        {
           id: 'toCave',
           name: { nl: 'Stenen Boog', en: 'Stone Arch' },
           rect: { x: 184, y: 48, w: 92, h: 100 },
-          walkTo: { x: 232, y: 288 },
+          walkTo: { x: 182, y: 292 },
           arrow: { x: 228, y: 70, dir: 'up' },
-          requiresFlag: 'snakeCharmed',
-          blockedText: { nl: 'De sissende slang verspert de weg naar de boog. Je durft er niet langs — bedaar haar eerst.', en: 'The hissing snake blocks the way to the arch. You don’t dare pass — calm her first.' },
-          exit: { to: 'cave', travelText: { nl: 'Je glipt door de stenen boog de koele grot in...', en: 'You slip through the stone arch into the cool cave...' } }
+          requiresFlag: [ 'snakeCharmed', 'bridgeFixed' ],
+          blockedText: (state) => state.flags.snakeCharmed
+            ? { nl: 'De brug over de beek is kapot — je komt zo niet bij de boog. Repareer hem eerst met een plank.', en: 'The bridge over the brook is broken — you can’t reach the arch like this. Repair it with a plank first.' }
+            : { nl: 'De sissende slang verspert de weg naar de boog. Je durft er niet langs — bedaar haar eerst.', en: 'The hissing snake blocks the way to the arch. You don’t dare pass — calm her first.' },
+          exit: { to: 'cave', travelText: { nl: 'Je steekt de brug over en glipt door de stenen boog de koele grot in...', en: 'You cross the bridge and slip through the stone arch into the cool cave...' } }
         },
         {
           id: 'toFarm',
@@ -378,9 +406,21 @@ const GAME = {
       obstacles: [],
       overlays: [],
       worldItems: [
-        { item: 'bucket', hotspot: 'bucket', x: 196, y: 244 }
+        { item: 'bucket', hotspot: 'bucket', x: 196, y: 244 },
+        { item: 'plank', hotspot: 'plank', x: 122, y: 250 }
       ],
       hotspots: [
+        {
+          id: 'plank',
+          name: { nl: 'Houten Plank', en: 'Wooden Plank' },
+          rect: { x: 96, y: 220, w: 60, h: 62 },
+          walkTo: { x: 132, y: 288 },
+          gives: {
+            item: 'plank',
+            giveText: { nl: 'Tegen de stalmuur leunt een stevige houten plank. Die kun je vast gebruiken om iets te repareren.', en: 'A sturdy wooden plank leans against the stable wall. That could come in handy to repair something.' },
+            emptyText: { nl: 'Verder geen planken meer.', en: 'No more planks here.' }
+          }
+        },
         {
           id: 'horse',
           name: { nl: 'Maanhoef', en: 'Moonhoof' },

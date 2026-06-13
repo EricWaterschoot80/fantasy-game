@@ -2063,9 +2063,12 @@
       return;
     }
     if (hs.exit) {
-      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) {
+      const need = hs.requiresFlag;
+      const unmet = need && (Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need]);
+      if (unmet) {
         sfx('error');
-        say(hs.blockedText || GAME.strings.noEffect);
+        const bt = typeof hs.blockedText === 'function' ? hs.blockedText(state) : hs.blockedText;
+        say(bt || GAME.strings.noEffect);
         return;
       }
       travelTo(hs.exit.to, hs.exit.travelText);
