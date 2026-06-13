@@ -248,9 +248,9 @@ const GAME = {
         nl: 'De oude stal in het avondrood. Achter de vergrendelde paddockpoort staat Maanhoef, die je hoopvol aankijkt.',
         en: 'The old stable in the evening glow. Behind the bolted paddock gate stands Moonhoof, looking at you with hope.'
       },
-      playerStart: { x: 130, y: 262 },
-      spawnFrom: { farm: { x: 110, y: 262 } },
-      walkable: [ { x: 78, y: 206, w: 404, h: 96 } ],
+      playerStart: { x: 120, y: 266 },
+      spawnFrom: { farm: { x: 110, y: 266 } },
+      walkable: [ { x: 70, y: 210, w: 412, h: 92 } ],
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -258,8 +258,8 @@ const GAME = {
         {
           id: 'horse',
           name: { nl: 'Maanhoef', en: 'Moonhoof' },
-          rect: { x: 314, y: 62, w: 124, h: 90 },
-          walkTo: { x: 332, y: 266 },
+          rect: { x: 300, y: 66, w: 130, h: 96 },
+          walkTo: { x: 300, y: 268 },
           look: {
             nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, drukt zijn neus over de stalrand. “Bijna, vriend,” fluister je. “Nog heel even.”',
             en: 'Moonhoof, a warm chestnut horse with a pale blaze, leans his nose over the stall rail. “Almost, friend,” you whisper. “Just a little longer.”'
@@ -268,8 +268,8 @@ const GAME = {
         {
           id: 'gate',
           name: { nl: 'Vergrendelde Poort', en: 'Bolted Gate' },
-          rect: { x: 296, y: 148, w: 156, h: 82 },
-          walkTo: { x: 324, y: 270 },
+          rect: { x: 236, y: 150, w: 132, h: 84 },
+          walkTo: { x: 288, y: 272 },
           look: (state) => ({ nl: 'Een zware houten paddockpoort met een ijzeren slot. Maanhoef wacht erachter.', en: 'A heavy wooden paddock gate with an iron lock. Moonhoof waits beyond.' }),
           use: {
             key: {
