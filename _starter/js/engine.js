@@ -1036,7 +1036,7 @@
   /* Idle-gebaren: af en toe doet een figuur iets grappigs. */
   const gesture = { hero: { next: 4000, until: 0 }, seer: { next: 7000, until: 0 }, minotaur: { next: 9000, until: 0 } };
   function gestureState(id, now, durMs, minGap, maxGap) {
-    const g = gesture[id];
+    let g = gesture[id]; if (!g) g = gesture[id] = { next: 0, until: 0 };
     if (now > g.next && now > g.until) {
       g.until = now + durMs;
       g.next = now + durMs + minGap + Math.random() * (maxGap - minGap);

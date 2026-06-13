@@ -76,6 +76,7 @@
        variant waarvan de flag-conditie klopt wint (bv. open vs. dichte poort).
      Sprites: GAME.sprites = { key: 'pad.png' }; een NPC verwijst via zijn
        sprite-naam naar zo'n key. */
+  const AV = GAME.assetVer ? ('?v=' + GAME.assetVer) : '';
   const ART = { scenes: {}, sprites: GAME.sprites || {} };
   for (const [id, sc] of Object.entries(GAME.scenes)) {
     if (sc.bg) ART.scenes[id] = sc.bg;
@@ -86,14 +87,14 @@
       if (!v.img || art.variants[v.img]) return;
       const im = new Image();
       im.onload = () => { if (id === state.currentScene) paintBackground(); };
-      im.src = v.img;
+      im.src = v.img + AV;
       art.variants[v.img] = im;
     });
   }
   function overlayImg(src) {
     if (!art.overlays[src]) {
       const img = new Image();
-      img.src = src;
+      img.src = src + AV;
       art.overlays[src] = img;
     }
     return art.overlays[src];
@@ -101,18 +102,18 @@
   for (const [id, src] of Object.entries(ART.scenes)) {
     const img = new Image();
     img.onload = () => { if (id === state.currentScene) paintBackground(); };
-    img.src = src;
+    img.src = src + AV;
     art.scenes[id] = img;
   }
   for (const [id, src] of Object.entries(ART.sprites)) {
     const img = new Image();
-    img.src = src;
+    img.src = src + AV;
     art.sprites[id] = img;
   }
   for (const [id, item] of Object.entries(GAME.items)) {
     if (item.img) {
       const img = new Image();
-      img.src = item.img;
+      img.src = item.img + AV;
       art.items[id] = img;
     }
   }
@@ -919,7 +920,7 @@
       fctx.fillStyle = `rgba(240,250,253,${fb})`;
       for (let k = 2; k < wf.w - 2; k += 3) fctx.fillRect((wf.x + k) | 0, (wf.y + wf.h - 2 + ((Math.sin(now / 90 + k) * 1) | 0)) | 0, 2, 1);
     }
-    if (fx.snakeTongue) {
+    if (fx.snakeTongue && !(fx.snakeTongue.hideFlag && state.flags[fx.snakeTongue.hideFlag])) {
       const t = fx.snakeTongue, cyc = (now % 1500) / 1500;
       if (cyc < 0.32) {
         const e = Math.round(Math.sin(cyc / 0.32 * Math.PI) * (t.len || 8));
@@ -1125,7 +1126,7 @@
   /* Idle-gebaren: af en toe doet een figuur iets grappigs. */
   const gesture = { hero: { next: 4000, until: 0 }, seer: { next: 7000, until: 0 }, minotaur: { next: 9000, until: 0 } };
   function gestureState(id, now, durMs, minGap, maxGap) {
-    const g = gesture[id];
+    let g = gesture[id]; if (!g) g = gesture[id] = { next: 0, until: 0 };
     if (now > g.next && now > g.until) {
       g.until = now + durMs;
       g.next = now + durMs + minGap + Math.random() * (maxGap - minGap);
@@ -1244,6 +1245,20 @@
         }
         const f = ((now / 600) | 0) % 2;
         drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
+      }
+    } else {
+      /* generieke NPC (bv. uil, hond): idle-deining, dribbel bij zwerven, af en toe een gebaartje */
+      const img = art.sprites[npc.sprite];
+      if (!ready(img)) return;
+      const fl = npc.facesLeft ? !rt.flip : rt.flip;
+      if (rt.target) {
+        const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.1)) * 2);
+        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: hop });
+      } else {
+        const g = gestureState(npc.id, now, 650, 3500, 7500);
+        const flap = g > 0 ? -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 2)) * 2) : 0;
+        const breathe = Math.round(Math.sin(now / 700 + (npc.x || 0)));
+        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: breathe + flap });
       }
     }
   }
@@ -1403,7 +1418,7 @@
         slot.classList.add('filled');
         if (item.img) {
           const im = document.createElement('img');
-          im.src = item.img;
+          im.src = item.img + AV;
           im.alt = L(item.name);
           im.draggable = false;
           im.onerror = () => { im.remove(); slot.textContent = item.icon; };
@@ -1564,7 +1579,7 @@
       d.style.width = d.style.height = px + 'px';
       d.style.left = (pos % n) * px + 'px';
       d.style.top = ((pos / n) | 0) * px + 'px';
-      d.style.backgroundImage = `url(${cfg.img})`;
+      d.style.backgroundImage = `url(${cfg.img}${AV})`;
       d.style.backgroundSize = '240px 240px';
       d.style.backgroundPosition = `-${(tile % n) * px}px -${((tile / n) | 0) * px}px`;
       d.dataset.pos = pos;
@@ -1616,7 +1631,7 @@
     const flash = document.createElement('div');
     flash.style.cssText =
       'position:absolute;inset:0;z-index:6;' +
-      'background-image:url(' + cfg.img + ');background-size:240px 240px;' +
+      'background-image:url(' + cfg.img + AV + ');background-size:240px 240px;' +
       'image-rendering:pixelated;opacity:0;transition:opacity .2s;pointer-events:none;' +
       'box-shadow:inset 0 0 0 3px rgba(231,207,134,.7)';
     elPuzGrid.appendChild(flash);
@@ -1845,7 +1860,7 @@
     elMazeCanvas.width = elMazeCanvas.height = cell * n;
     maze = { hs, g, n, cur: [1, 1], exit: [n - 2, n - 2], cell, trail: new Set(['1,1']), water: !!cfg.water };
     if (cfg.img && (!mazeImg || mazeImg._src !== cfg.img)) {
-      mazeImg = new Image(); mazeImg._src = cfg.img; mazeImg.src = cfg.img;
+      mazeImg = new Image(); mazeImg._src = cfg.img; mazeImg.src = cfg.img + AV;
     }
     elMazeTitle.textContent = L(cfg.title);
     if (elMazeHint) elMazeHint.textContent = L(cfg.hint || '');

@@ -10,12 +10,15 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
+  assetVer: '2',
 
   sprites: {
     hero:      'assets/art/hero.png',
     heroWalk:  'assets/art/hero-walk.png',
     heroWalk2: 'assets/art/hero-walk2.png',
-    heroWave:  'assets/art/hero-wave.png'
+    heroWave:  'assets/art/hero-wave.png',
+    pup:       'assets/art/pup.png',
+    owl:       'assets/art/owl.png'
   },
 
   winText: {
@@ -49,13 +52,14 @@ const GAME = {
     q_owl:    { nl: 'Vraag de wijze uil op de paal om raad', en: 'Ask the wise owl on the post for advice' },
     q_snake:  { nl: 'Een slang verspert het bospad — betover haar met de fluit', en: 'A snake blocks the forest path — charm it with the flute' },
     q_cave:   { nl: 'De slang sluimert — ga door de stenen boog de grot in', en: 'The snake is dozing — enter the cave through the stone arch' },
+    q_bone:   { nl: 'Los het runenzegel op om bij het bot te komen', en: 'Solve the rune seal to reach the bone' },
     q_dog:    { nl: 'Geef het hongerige hondje het bot om bij de sleutel te komen', en: 'Give the hungry dog the bone to reach the key' },
     q_gate:   { nl: 'Open met de sleutel de stalpoort naar Maanhoef', en: 'Open the stable gate to Moonhoof with the key' }
   },
 
   items: {
-    flute:   { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈' },
-    bone:    { name: { nl: 'Sappig Bot', en: 'Juicy Bone' }, icon: '🦴' },
+    flute:   { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈', img: 'assets/art/item-flute.png' },
+    bone:    { name: { nl: 'Sappig Bot', en: 'Juicy Bone' }, icon: '🦴', img: 'assets/art/item-bone.png' },
     key:     { name: { nl: 'Stalsleutel', en: 'Stable Key' }, icon: '🗝️', img: 'assets/art/item-key.png' },
     crystal: { name: { nl: 'Kristal', en: 'Crystal' }, icon: '🔷', img: 'assets/art/item-crystal.png' },
     comb:    { name: { nl: 'Kam', en: 'Comb' }, icon: '🪮', img: 'assets/art/item-comb.png' },
@@ -68,7 +72,8 @@ const GAME = {
   questRules: [
     { when: { has: 'key' },                                quest: 'q_gate' },
     { when: { has: 'bone' },                               quest: 'q_dog' },
-    { when: { flag: 'snakeCharmed', notFlag: 'taken_cave_bone' }, quest: 'q_cave' },
+    { when: { flag: 'sealSolved', notFlag: 'taken_cave_bone' }, quest: 'q_bone' },
+    { when: { flag: 'snakeCharmed', notFlag: 'sealSolved' }, quest: 'q_cave' },
     { when: { has: 'flute', notFlag: 'snakeCharmed' },     quest: 'q_snake' },
     { when: {},                                            quest: 'q_owl' }
   ],
@@ -92,11 +97,18 @@ const GAME = {
       obstacles: [],
       overlays: [],
       worldItems: [],
+      npcs: [
+        { id: 'dog', sprite: 'pup', x: 132, y: 256,
+          wander: { x: 78, y: 244, w: 150, h: 30, speed: 26, pauseMin: 1800, pauseMax: 5200 } },
+        { id: 'owl', sprite: 'owl', x: 416, y: 176 }
+      ],
       hotspots: [
         {
           id: 'dog',
           name: { nl: 'Schichtig Hondje', en: 'Skittish Dog' },
-          rect: { x: 45, y: 205, w: 138, h: 108 },
+          followNpc: 'dog',
+          speaker: true,
+          rect: { x: 104, y: 198, w: 58, h: 64 },
           walkTo: { x: 184, y: 268 },
           look: (state) => state.flags.dogFriendly
             ? { nl: 'Het hondje kwispelt blij om je heen, blij met zijn bot.', en: 'The dog wags happily around you, pleased with its bone.' }
@@ -117,7 +129,8 @@ const GAME = {
         {
           id: 'owl',
           name: { nl: 'Wijze Uil', en: 'Wise Owl' },
-          rect: { x: 376, y: 120, w: 100, h: 110 },
+          followNpc: 'owl',
+          rect: { x: 392, y: 150, w: 50, h: 58 },
           walkTo: { x: 424, y: 262 },
           speaker: true,
           riddle: {
@@ -191,7 +204,7 @@ const GAME = {
       walkPoly: [ [55, 266], [510, 266], [510, 302], [55, 302] ],
       fx: {
         waterfall: { x: 266, y: 28, w: 66, h: 186, streaks: 20 },
-        snakeTongue: { x: 300, y: 193, dx: -0.3, dy: 0.95, len: 11 }
+        snakeTongue: { x: 300, y: 193, dx: -0.3, dy: 0.95, len: 11, hideFlag: 'snakeCharmed' }
       },
       obstacles: [],
       overlays: [],
@@ -257,8 +270,32 @@ const GAME = {
       walkable: [ { x: 55, y: 254, w: 250, h: 48 }, { x: 55, y: 280, w: 435, h: 22 } ],
       obstacles: [],
       overlays: [],
-      worldItems: [],
+      worldItems: [
+        { item: 'crystal', hotspot: 'crystal', x: 200, y: 236 },
+        { item: 'bone', hotspot: 'bone', x: 118, y: 240, requiresFlag: 'sealSolved' }
+      ],
       hotspots: [
+        {
+          id: 'seal',
+          name: { nl: 'Runenzegel', en: 'Rune Seal' },
+          rect: { x: 206, y: 58, w: 124, h: 92 },
+          walkTo: { x: 256, y: 290 },
+          slidePuzzle: {
+            img: 'assets/art/cave-seal.png',
+            size: 3,
+            setFlag: 'sealSolved',
+            title: { nl: 'Het Runenzegel', en: 'The Rune Seal' },
+            solvedText: {
+              nl: 'Het runenzegel klikt op zijn plaats en gloeit op. Met een diep gerommel schuift een stenen luik opzij — er rolt een oud bot tevoorschijn!',
+              en: 'The rune seal clicks into place and glows. With a deep rumble a stone hatch slides aside — an old bone rolls out!'
+            },
+            burst: { x: 118, y: 230 }
+          },
+          look: {
+            nl: 'Het herstelde runenzegel gloeit zacht in de wand.',
+            en: 'The restored rune seal glows softly in the wall.'
+          }
+        },
         {
           id: 'statue',
           name: { nl: 'Stenen Beeld', en: 'Stone Statue' },
@@ -274,6 +311,8 @@ const GAME = {
           name: { nl: 'Oude Botten', en: 'Old Bones' },
           rect: { x: 62, y: 198, w: 98, h: 82 },
           walkTo: { x: 118, y: 288 },
+          requiresFlag: 'sealSolved',
+          blockedText: { nl: 'Een stenen luik verzegelt de nis. Herstel eerst het runenzegel in de wand.', en: 'A stone hatch seals the niche. Restore the rune seal in the wall first.' },
           gives: {
             item: 'bone',
             giveText: { nl: 'Aan de rand van het bekken liggen botten, achtergelaten door een dier dat hier kwam drinken. Je raapt een stevig, Sappig Bot op.', en: 'At the pool’s edge lie bones, left by some creature that came to drink. You pick up a sturdy, Juicy Bone.' },
