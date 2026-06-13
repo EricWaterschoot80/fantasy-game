@@ -580,6 +580,23 @@ html, body {
 }
 
 /* Raadsel-popup */
+.riddle-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.riddle-head h2 { margin-bottom: 0; }
+#riddle-face {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  image-rendering: pixelated;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410;
+}
+
 .riddle-q {
   font-family: var(--font-pixel);
   font-size: 15px;

@@ -619,7 +619,8 @@
       const s = sparks[i];
       s.life -= dt;
       s.x += s.vx * dt; s.y += s.vy * dt;
-      s.vx *= 0.96; s.vy *= 0.96;
+      if (s.grav) s.vy += s.grav * dt;
+      s.vx *= 0.96; if (!s.grav) s.vy *= 0.96;
       if (s.life <= 0) sparks.splice(i, 1);
     }
   }
@@ -733,8 +734,16 @@
       fctx.fillRect(f.x | 0, f.y | 0, 2, 2);
     }
     for (const s of sparks) {
-      fctx.fillStyle = `rgba(231,207,134,${Math.max(0, Math.min(1, s.life))})`;
-      fctx.fillRect(s.x | 0, s.y | 0, 2, 2);
+      const al = Math.max(0, Math.min(1, s.life / (s.max || 1)));
+      fctx.fillStyle = `rgba(${s.col},${al})`;
+      const x = s.x | 0, y = s.y | 0, sz = s.size || 2;
+      if (s.heart) {
+        fctx.fillRect(x - 1, y, 1, 2); fctx.fillRect(x + 1, y, 1, 2);
+        fctx.fillRect(x - 1, y - 1, 1, 1); fctx.fillRect(x + 1, y - 1, 1, 1);
+        fctx.fillRect(x, y + 1, 1, 1); fctx.fillRect(x, y + 2, 1, 1);
+      } else {
+        fctx.fillRect(x, y, sz, sz);
+      }
     }
     for (const Lf of leaves) {
       const lx = Lf.x + Math.sin(Lf.phase * Math.PI * 2) * Lf.swayAmp;
@@ -773,6 +782,16 @@
   }
 
   /* Sfeer-effecten bovenop de AI-art */
+  /* Klein fonkel-sterretje (plusvorm) met alpha */
+  function twinkle(x, y, a, col) {
+    if (a <= 0.05) return;
+    x = Math.round(x); y = Math.round(y);
+    fctx.fillStyle = `rgba(${col || '255,243,200'},${Math.min(1, a)})`;
+    fctx.fillRect(x, y - 1, 1, 3);
+    fctx.fillRect(x - 1, y, 3, 1);
+    if (a > 0.6) { fctx.fillRect(x, y - 2, 1, 1); fctx.fillRect(x, y + 2, 1, 1); }
+  }
+
   function paintFx(scene, now) {
     const fx = scene.fx || {};
     if (fx.flames) {
@@ -793,6 +812,29 @@
       g.addColorStop(1, 'rgba(231,207,134,0)');
       fctx.fillStyle = g;
       fctx.fillRect(e.x - (e.r || 18), e.y - (e.r || 18), (e.r || 18) * 2, (e.r || 18) * 2);
+    }
+    if (fx.fountain) {
+      const f = fx.fountain;
+      /* vallende waterstraal uit de tap */
+      for (let i = 0; i < 6; i++) {
+        const t = ((now / 42) + i * 4) % 24;
+        const al = 0.55 - t / 48;
+        fctx.fillStyle = `rgba(186,228,242,${al})`;
+        fctx.fillRect(Math.round(f.sx + Math.sin(t / 3) * 0.6), Math.round(f.sy + t), 1, 2);
+      }
+      /* opspattend bij het water */
+      if (((now / 120) | 0) % 2 === 0) {
+        fctx.fillStyle = 'rgba(220,242,250,0.6)';
+        fctx.fillRect(f.sx - 1, f.wy, 1, 1);
+        fctx.fillRect(f.sx + 2, f.wy + 1, 1, 1);
+      }
+      /* drijvende rimpels op het oppervlak */
+      for (let i = 0; i < 3; i++) {
+        const yy = f.wy + 5 + i * 7;
+        const off = Math.sin(now / 520 + i * 1.7) * 7;
+        fctx.fillStyle = `rgba(205,238,248,${0.16 + 0.1 * Math.sin(now / 300 + i)})`;
+        fctx.fillRect(Math.round(f.wx + 10 + off), yy, 12, 1);
+      }
     }
     if (fx.bowlEmpty && state.flags.minotaurAsleep) {
       const b = fx.bowlEmpty;
@@ -842,10 +884,13 @@
       } else {
         drawSprite(fctx, AMULET_SPRITE, a.x, a.y, false, 2);
       }
-      const sp = ((now / 260) | 0) % 4;
-      const spark = [[-4, -2], [16, 0], [14, 14], [-4, 12]][sp];
-      fctx.fillStyle = '#ffffff';
-      fctx.fillRect(a.x + spark[0], a.y + spark[1], 2, 2);
+      /* dansende fonkelingen rond de amulet */
+      for (let k = 0; k < 3; k++) {
+        const ang = now / 700 + k * 2.1;
+        const tx = a.x + 8 + Math.cos(ang) * 14;
+        const ty = a.y + 8 + Math.sin(ang * 1.3) * 12;
+        twinkle(tx, ty, 0.45 + 0.45 * Math.sin(now / 200 + k * 2));
+      }
     }
   }
 
@@ -867,6 +912,13 @@
       g.addColorStop(1, 'rgba(255,226,150,0)');
       fctx.fillStyle = g;
       fctx.fillRect(cx - 30, cy - 30, 60, 60);
+      /* fonkelende goud-sterretjes op de steen */
+      for (let k = 0; k < 3; k++) {
+        const ang = now / 600 + idx * 1.7 + k * 2.1;
+        const tx = cx + Math.cos(ang) * 13;
+        const ty = cy - 8 + Math.sin(ang * 1.4) * 16;
+        twinkle(tx, ty, 0.35 + 0.5 * Math.sin(now / 170 + idx * 2 + k * 3), '255,232,150');
+      }
     }
   }
 
@@ -1025,8 +1077,8 @@
       } else {
         const img = art.sprites.minotaur;
         if (ready(img)) {
-          /* hij staat stil — alleen zware ademhaling */
-          const breathe = Math.round(Math.sin(now / 620) * 1.4);
+          /* hij staat stil — heel subtiele ademhaling (1px, traag) */
+          const breathe = Math.sin(now / 1500) > 0.6 ? -1 : 0;
           drawArtSprite(img, rt.x, rt.y, { bob: breathe });
           return;
         }
@@ -1250,8 +1302,12 @@
     }
     const progKey = 'puzzle_' + hs.puzzleKey.puzzle;
     const prog = state.flags[progKey] || 0;
+    const r = hs.rect;
     if (hs.puzzleKey.key === pz.sequence[prog]) {
       state.flags[progKey] = prog + 1;
+      /* gouden vonken op de geactiveerde steen */
+      burstAt(r.x + r.w / 2, r.y + r.h / 2,
+        { n: 16, col: '255,232,150', spMin: 12, spRange: 30, up: 18, life: 0.7 });
       if (prog + 1 >= pz.sequence.length) {
         state.flags[pz.setFlag] = true;
         sfx('combine');
@@ -1362,6 +1418,9 @@
   function openRiddle(hs) {
     const r = hs.riddle;
     elRiddleTitle.textContent = L(r.title);
+    const rf = document.getElementById('riddle-face');
+    const face = hsFace(hs);
+    if (rf) { if (face) { rf.src = face; rf.hidden = false; } else rf.hidden = true; }
     if (r.intro) say(r.intro, hsSpeaker(hs), hsFace(hs));
     showRiddleQuestion(hs, 0);
     elRiddle.hidden = false;
@@ -1404,11 +1463,33 @@
 
   /* ---------- Vonken-burst (kist/poort die opengaat) ---------- */
   const sparks = [];
-  function burstAt(x, y) {
-    for (let i = 0; i < 26; i++) {
+  function burstAt(x, y, opts) {
+    opts = opts || {};
+    const n = opts.n || 26;
+    const col = opts.col || '231,207,134';
+    const spMin = opts.spMin != null ? opts.spMin : 18;
+    const spRange = opts.spRange != null ? opts.spRange : 42;
+    const grav = opts.grav != null ? opts.grav : 0;
+    const up = opts.up != null ? opts.up : 12;
+    const lifeBase = opts.life || 0.8;
+    for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2;
-      const sp = 18 + Math.random() * 42;
-      sparks.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 12, life: 0.8 + Math.random() * 0.5 });
+      const sp = spMin + Math.random() * spRange;
+      sparks.push({
+        x: x + (Math.random() * 6 - 3), y: y + (Math.random() * 6 - 3),
+        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - up,
+        life: lifeBase + Math.random() * 0.5, max: lifeBase + 0.5,
+        col, grav, size: opts.size || 2
+      });
+    }
+  }
+  /* hartjes/lik-spetters bij het hondje */
+  function lickAt(x, y) {
+    burstAt(x, y, { n: 14, col: '205,235,255', spMin: 10, spRange: 26, grav: 70, up: 22, life: 0.6, size: 2 });
+    for (let i = 0; i < 4; i++) {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 1.2;
+      const sp = 14 + Math.random() * 16;
+      sparks.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.9, max: 0.9, col: '236,120,150', grav: 8, size: 3, heart: true });
     }
   }
 
@@ -1502,6 +1583,7 @@
     if (a.consume) removeItem(a.consume);
     if (a.give) addItem(a.give);
     if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
+    if (a.setFlag === 'dogWarm' && npcRt.dog) lickAt(npcRt.dog.x, npcRt.dog.y - 18);
     if (a.setFlag === 'minotaurAsleep') sfx('sleep');
     else if (a.give) sfx('pickup');
     else if (a.consume) sfx('use');

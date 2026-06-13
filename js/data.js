@@ -122,8 +122,7 @@ const GAME = {
       ],
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
-        waterGlint: { x: 210, y: 106 },
-        gateDoor: { x: 417, y: 66, w: 55, h: 99 }
+        fountain: { sx: 213, sy: 127, wx: 211, wy: 132, ww: 58, wh: 24 }
       },
       hotspots: [
         {
@@ -470,8 +469,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'minotaur', sprite: 'minotaur', x: 265, y: 255,
-          patrol: { amp: 26, period: 5200 } }
+        { id: 'minotaur', sprite: 'minotaur', x: 265, y: 255 }
       ],
       fx: {
         flames: [
@@ -482,7 +480,7 @@ const GAME = {
           { x: 307, y: 150 },
           { x: 434, y: 157 }
         ],
-        amulet: { x: 354, y: 126 },
+        amulet: { x: 397, y: 133 },
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,
         bowlEmpty: { x: 95, y: 254, rx: 26, ry: 11 },
@@ -544,8 +542,8 @@ const GAME = {
         {
           id: 'shrine',
           name: { nl: 'Altaar met Amulet', en: 'Altar with Amulet' },
-          rect: { x: 322, y: 102, w: 86, h: 82 },
-          walkTo: { x: 365, y: 226 },
+          rect: { x: 352, y: 110, w: 104, h: 80 },
+          walkTo: { x: 438, y: 224 },
           requiresFlag: 'minotaurAsleep',
           blockedText: { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' },
           gives: {

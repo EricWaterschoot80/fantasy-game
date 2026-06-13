@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -86,7 +86,10 @@
   <div id="riddle-screen" class="overlay" hidden>
     <div class="overlay-card panel puzzle-card">
       <button id="riddle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
-      <h2 id="riddle-title">Het Raadsel van de Ziener</h2>
+      <div class="riddle-head">
+        <img id="riddle-face" alt="" hidden>
+        <h2 id="riddle-title">Het Raadsel van de Ziener</h2>
+      </div>
       <p id="riddle-question" class="riddle-q"></p>
       <div id="riddle-answers"></div>
     </div>
@@ -100,10 +103,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=15"></script>
-  <script src="js/scenes.js?v=15"></script>
-  <script src="js/data.js?v=15"></script>
-  <script src="js/engine.js?v=15"></script>
+  <script src="js/sprites.js?v=16"></script>
+  <script src="js/scenes.js?v=16"></script>
+  <script src="js/data.js?v=16"></script>
+  <script src="js/engine.js?v=16"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
