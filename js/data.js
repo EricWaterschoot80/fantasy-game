@@ -288,24 +288,25 @@ const GAME = {
       },
       playerStart: { x: 505, y: 205 },
       spawnFrom: { courtyard: { x: 505, y: 205 } },
-      walkable: [
-        { x: 95, y: 165, w: 440, h: 115 },
-        { x: 440, y: 140, w: 122, h: 95 }
+      /* Loopgebied volgt de open plek (veelhoek, scene-pixels) */
+      walkPoly: [
+        [150, 188], [345, 184], [450, 189], [500, 194], [523, 203], [523, 231],
+        [486, 255], [380, 286], [235, 288], [180, 270], [192, 236], [140, 210], [135, 194]
       ],
       obstacles: [
-        { x: 350, y: 158, w: 88, h: 26 },    // sokkel van de kist
-        { x: 66, y: 226, w: 114, h: 74 }     // kleitablet
+        { x: 366, y: 150, w: 88, h: 32 },    // sokkel van de kist
+        { x: 82, y: 224, w: 104, h: 76 }     // kleitablet
       ],
       overlays: [
         { img: 'assets/art/ov-grove-left.png', x: 0, y: 248, w: 110, h: 72, base: 330 },
         { img: 'assets/art/ov-grove-right.png', x: 330, y: 262, w: 238, h: 58, base: 332 }
       ],
       worldItems: [
-        { item: 'vialEmpty', hotspot: 'chest', x: 393, y: 128, requiresFlag: 'runesSolved' }
+        { item: 'vialEmpty', hotspot: 'chest', x: 412, y: 120, requiresFlag: 'runesSolved' }
       ],
       npcs: [
-        { id: 'dog', sprite: 'dog', x: 393, y: 207, facesLeft: true, wanderRequiresFlag: 'dogWarm',
-          wander: { x: 150, y: 180, w: 190, h: 55, speed: 48, pauseMin: 1500, pauseMax: 4500 } }
+        { id: 'dog', sprite: 'dog', x: 415, y: 198, facesLeft: true, wanderRequiresFlag: 'dogWarm',
+          wander: { x: 180, y: 200, w: 200, h: 58, speed: 48, pauseMin: 1500, pauseMax: 4500 } }
       ],
       puzzles: {
         runes: {
@@ -321,21 +322,21 @@ const GAME = {
           resetText: { nl: 'De stenen doven met een zucht. Die volgorde klopt niet.', en: 'The stones dim with a sigh. That order isn’t right.' },
           solvedText: { nl: 'De derde steen vlamt op — naast je springt het deksel van de stenen kist open!', en: 'The third stone flares — beside you, the lid of the stone chest springs open!' },
           doneText: { nl: 'De runen gloeien tevreden na.', en: 'The runes glow contentedly.' },
-          burst: { x: 393, y: 130 }
+          burst: { x: 412, y: 128 }
         }
       },
       fx: {
         fireflies: 8,
-        chestOpen: { x: 394, y: 172 }
+        chestOpen: { x: 412, y: 168 }
       },
       hotspots: [
         {
           id: 'dog',
           name: { nl: 'Hondje', en: 'Puppy' },
-          rect: { x: 230, y: 190, w: 40, h: 40 },
+          rect: { x: 396, y: 168, w: 42, h: 42 },
           followNpc: 'dog',
           speaker: true,
-          sendNpcTo: { npc: 'dog', x: 162, y: 182 },
+          sendNpcTo: { npc: 'dog', x: 178, y: 200 },
           sendRequiresFlag: 'dogWarm',
           look: (state) => state.flags.dogWarm
             ? {
@@ -361,8 +362,8 @@ const GAME = {
         {
           id: 'tablet',
           name: { nl: 'Mossig Kleitablet', en: 'Mossy Stone Tablet' },
-          rect: { x: 68, y: 220, w: 112, h: 86 },
-          walkTo: { x: 196, y: 242 },
+          rect: { x: 80, y: 222, w: 108, h: 82 },
+          walkTo: { x: 205, y: 252 },
           look: (state) => state.flags.runesRevealed
             ? { nl: 'De onthulde inscriptie gloeit zacht: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.”',
                 en: 'The revealed inscription glows softly: “First falls the Leaf, then sinks the Sun, then rises the Moon.”' }
@@ -382,26 +383,26 @@ const GAME = {
         {
           id: 'runeLeaf',
           name: { nl: 'Runensteen: Blad', en: 'Rune Stone: Leaf' },
-          rect: { x: 131, y: 54, w: 56, h: 86 },
-          walkTo: { x: 160, y: 192 },
+          rect: { x: 148, y: 52, w: 56, h: 98 },
+          walkTo: { x: 175, y: 200 },
           puzzleKey: { puzzle: 'runes', key: 'leaf' },
-          look: { nl: 'Een runensteen met een gloeiend bladsymbool.', en: 'A rune stone bearing a glowing leaf symbol.' }
+          look: { nl: 'Een runensteen met een ingekerfd bladsymbool.', en: 'A rune stone carved with a leaf symbol.' }
         },
         {
           id: 'runeSun',
           name: { nl: 'Runensteen: Zon', en: 'Rune Stone: Sun' },
-          rect: { x: 202, y: 50, w: 54, h: 86 },
-          walkTo: { x: 230, y: 190 },
+          rect: { x: 212, y: 48, w: 62, h: 102 },
+          walkTo: { x: 242, y: 200 },
           puzzleKey: { puzzle: 'runes', key: 'sun' },
-          look: { nl: 'Een runensteen met een gloeiend zonnesymbool.', en: 'A rune stone bearing a glowing sun symbol.' }
+          look: { nl: 'Een runensteen met een ingekerfd zonnesymbool.', en: 'A rune stone carved with a sun symbol.' }
         },
         {
           id: 'runeMoon',
           name: { nl: 'Runensteen: Maan', en: 'Rune Stone: Moon' },
-          rect: { x: 269, y: 50, w: 56, h: 90 },
-          walkTo: { x: 298, y: 192 },
+          rect: { x: 286, y: 50, w: 58, h: 100 },
+          walkTo: { x: 314, y: 200 },
           puzzleKey: { puzzle: 'runes', key: 'moon' },
-          look: { nl: 'Een runensteen met een gloeiende maansikkel.', en: 'A rune stone bearing a glowing crescent moon.' }
+          look: { nl: 'Een runensteen met een ingekerfde maansikkel.', en: 'A rune stone carved with a crescent moon.' }
         },
         {
           id: 'chest',
@@ -436,9 +437,9 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Pad naar de Binnenplaats', en: 'Path to the Courtyard' },
-          rect: { x: 500, y: 80, w: 68, h: 155 },
-          walkTo: { x: 522, y: 198 },
-          arrow: { x: 532, y: 175, dir: 'right' },
+          rect: { x: 500, y: 110, w: 68, h: 130 },
+          walkTo: { x: 508, y: 210 },
+          arrow: { x: 533, y: 188, dir: 'right' },
           exit: {
             to: 'courtyard',
             travelText: { nl: 'Je volgt het pad terug naar de binnenplaats.', en: 'You follow the path back to the courtyard.' }
