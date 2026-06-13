@@ -585,27 +585,23 @@ html, body {
   z-index: 2;
 }
 
-.puz-topbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.puz-hint-btn {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  padding: 9px 10px;
   margin-bottom: 10px;
 }
 
-.puz-preview {
-  flex: 0 0 auto;
-  width: 54px;
-  height: 54px;
-  image-rendering: pixelated;
-  border: 2px solid var(--gold);
-  box-shadow: 0 0 0 2px #1f1410;
-  opacity: .75;
+/* Tegel die uitgelicht wordt als schuiftip */
+.puz-tile.suggest {
+  z-index: 3;
+  box-shadow: inset 0 0 0 3px rgba(231,207,134,.95), 0 0 14px 4px rgba(231,207,134,.55);
+  animation: suggestPulse .55s ease-in-out infinite;
 }
-
-.puz-hint-btn {
-  flex: 1;
-  font-size: 14px;
-  padding: 9px 10px;
+@keyframes suggestPulse {
+  0%,100% { filter: brightness(1.3); }
+  50%      { filter: brightness(1.8); }
 }
 
 #puzzle-grid {
