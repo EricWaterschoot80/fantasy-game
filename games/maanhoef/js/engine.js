@@ -932,6 +932,12 @@
           fctx.fillRect((tx + dy) | 0, (ty - dx) | 0, 1, 1); }
       }
     }
+    if (fx.zzz && state.flags[fx.zzz.flag]) {
+      const zi = ((now / 700) | 0) % 3;
+      for (let z = 0; z <= zi; z++) {
+        drawSprite(fctx, Z_GLYPH, Math.round(fx.zzz.x + z * 8), Math.round(fx.zzz.y - z * 11), false, z === zi ? 1 : 2);
+      }
+    }
     if (fx.flames && !dark) {
       for (const f of fx.flames) {
         const flicker = 0.18 + 0.1 * Math.sin(now / 90 + f.x);
@@ -1252,8 +1258,10 @@
       if (!ready(img)) return;
       const fl = npc.facesLeft ? !rt.flip : rt.flip;
       if (rt.target) {
-        const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.1)) * 2);
-        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: hop });
+        /* levendige draf: bounce + zacht wiegen, leest als natuurlijk lopen */
+        const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.6)) * 3);
+        const rock = Math.sin(rt.phase * 1.6) * 0.06;
+        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: hop, rot: rock });
       } else {
         const g = gestureState(npc.id, now, 650, 3500, 7500);
         const flap = g > 0 ? -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 2)) * 2) : 0;
@@ -1604,8 +1612,9 @@
     if (s.tiles.every((t, i) => t === i)) {
       const cfg = s.hs.slidePuzzle;
       state.flags[cfg.setFlag] = true;
+      if (cfg.give) addItem(cfg.give);   // beloning (bv. de diamant)
       sfx('gate');
-      paintBackground();   // poort gaat open → achtergrond met open boog
+      paintBackground();
       setTimeout(() => {
         elPuzzle.hidden = true;
         slide = null;
@@ -2127,7 +2136,14 @@
   function runAction(a, anchor, face) {
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
-    if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
+    if (a.setFlag) {
+      state.flags[a.setFlag] = true;
+      updateQuest();
+      const sc = GAME.scenes[state.currentScene];
+      if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === a.setFlag || v.notFlag === a.setFlag)) {
+        paintBackground();
+      }
+    }
     if (a.win) { pendingWin = true; sfx('win'); }
     if (a.setFlag === 'runesRevealed') { paintBackground(); burstAt(170, 100, { n: 10, col: '255,232,150', up: 14 }); }
     if (a.setFlag === 'dogWarm') {

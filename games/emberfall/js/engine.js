@@ -1213,8 +1213,9 @@
         }
       } else if (rt.target) {
         /* dribbelen */
-        const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.1)) * 2);
-        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: hop });
+        const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.6)) * 3);
+        const rock = Math.sin(rt.phase * 1.6) * 0.06;
+        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: hop, rot: rock });
       } else {
         /* kwispelen: vrolijk wiebelen */
         const wag = Math.sin(now / 160) * 0.06;
@@ -1590,6 +1591,7 @@
     if (s.tiles.every((t, i) => t === i)) {
       const cfg = s.hs.slidePuzzle;
       state.flags[cfg.setFlag] = true;
+      if (cfg.give) addItem(cfg.give);
       sfx('gate');
       paintBackground();   // poort gaat open → achtergrond met open boog
       setTimeout(() => {
@@ -2113,7 +2115,14 @@
   function runAction(a, anchor, face) {
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
-    if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
+    if (a.setFlag) {
+      state.flags[a.setFlag] = true;
+      updateQuest();
+      const sc = GAME.scenes[state.currentScene];
+      if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === a.setFlag || v.notFlag === a.setFlag)) {
+        paintBackground();
+      }
+    }
     if (a.win) { pendingWin = true; sfx('win'); }
     if (a.setFlag === 'runesRevealed') { paintBackground(); burstAt(170, 100, { n: 10, col: '255,232,150', up: 14 }); }
     if (a.setFlag === 'dogWarm') {

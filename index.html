@@ -31,13 +31,30 @@
       padding: clamp(24px, 5vw, 64px) 16px 48px;
       min-height: 100vh;
     }
-    header { text-align: center; margin-bottom: clamp(24px, 5vw, 48px); max-width: 720px; }
-    .crest { font-size: clamp(28px, 7vw, 52px); line-height: 1; margin-bottom: 10px; }
+    header { text-align: center; margin-bottom: clamp(24px, 5vw, 48px); max-width: 760px; width: 100%; }
+    .banner-frame {
+      position: relative; width: 100%; margin-bottom: 18px;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.3), 0 12px 30px rgba(0,0,0,.5);
+      overflow: hidden; background: #14100b;
+    }
+    .banner-frame img {
+      display: block; width: 100%; aspect-ratio: 33 / 14; object-fit: cover;
+      image-rendering: pixelated;
+    }
+    .banner-frame::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, transparent 45%, rgba(20,16,11,.85) 100%);
+    }
+    .banner-title {
+      position: absolute; left: 0; right: 0; bottom: clamp(8px, 2.4vw, 18px);
+      text-align: center; pointer-events: none;
+    }
     h1 {
       font-family: var(--font-title); font-weight: 700;
-      font-size: clamp(26px, 6vw, 46px); letter-spacing: 2px;
+      font-size: clamp(24px, 6vw, 46px); letter-spacing: 2px;
       color: var(--gold-light);
-      text-shadow: 0 2px 0 #1f1410, 0 0 18px rgba(231,207,134,.25);
+      text-shadow: 0 2px 0 #1f1410, 0 3px 8px rgba(0,0,0,.8), 0 0 18px rgba(231,207,134,.3);
     }
     .tagline {
       font-family: var(--font-pixel); font-size: clamp(11px, 2.6vw, 14px);
@@ -78,8 +95,10 @@
   <button class="lang" id="lang" aria-label="Taal / Language">EN</button>
 
   <header>
-    <div class="crest">🍁🐴⚔️</div>
-    <h1>RetroAdventureWorld</h1>
+    <div class="banner-frame">
+      <img src="assets/banner.png" alt="" onerror="this.parentNode.style.display='none'">
+      <div class="banner-title"><h1>RetroAdventureWorld</h1></div>
+    </div>
     <p class="tagline" data-nl="KIES JE AVONTUUR" data-en="CHOOSE YOUR ADVENTURE">KIES JE AVONTUUR</p>
     <p class="sub" data-nl="Kleine point-and-click pixel-avonturen om in te verdwalen." data-en="Small point-and-click pixel adventures to get lost in.">Kleine point-and-click pixel-avonturen om in te verdwalen.</p>
   </header>
