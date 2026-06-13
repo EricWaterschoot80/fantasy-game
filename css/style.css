@@ -260,7 +260,19 @@ html, body {
   width: fit-content;
   cursor: pointer;
   animation: msgIn .22s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+#msgFace {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #8a6a3a, 0 0 0 4px #1f1410;
+}
+.msg-body { flex: 1 1 auto; }
 
 @keyframes msgIn {
   from { opacity: 0; transform: translateY(12px); }
@@ -630,6 +642,11 @@ html, body {
 @media (pointer: coarse) {
   #bottomui { display: contents; }
 
+  /* knoppen allemaal links: geluid, taal, oog — inventory staat rechts */
+  .round-btn.sound { left: 12px; }
+  .round-btn.lang  { left: 60px; }
+  #hintBtn { left: 108px; right: auto; }
+
   #invbar {
     position: fixed;
     right: 6px;
@@ -643,22 +660,21 @@ html, body {
     background: rgba(26, 20, 16, .55);
   }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 42px; height: 42px; font-size: 21px; }
+  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
 
+  /* tekst links onderaan, weg van de inventory */
   #msg {
     position: fixed;
     left: 8px;
-    right: 62px;
-    bottom: 6px;
-    max-width: none;
+    right: auto;
+    bottom: 8px;
+    max-width: 62vw;
     width: auto;
     margin: 0;
     padding: 7px 12px 5px;
   }
   #msgText { font-size: 13.5px; }
+  #msgFace { width: 34px; height: 34px; }
 
-  .speech { max-width: 56vw; }
-  #bubbleFace { width: 36px; height: 36px; }
-
-  #toast { bottom: auto; top: 56px; }
+  #toast { bottom: auto; top: 54px; }
 }

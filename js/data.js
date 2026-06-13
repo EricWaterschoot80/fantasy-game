@@ -53,7 +53,7 @@ const GAME = {
     selected:    { nl: 'geselecteerd', en: 'selected' },
     q_explore:   { nl: 'Verken de binnenplaats', en: 'Explore the courtyard' },
     q_water:     { nl: 'Zoek iets om water mee te scheppen — volg het westpad', en: 'Find something to scoop water — follow the west path' },
-    q_runes:     { nl: 'Ontcijfer de runenstenen — lees het tablet', en: 'Decipher the rune stones — read the tablet' },
+    q_runes:     { nl: 'Tik de runenstenen in de juiste volgorde aan', en: 'Tap the rune stones in the right order' },
     q_chest:     { nl: 'Open de stenen kist in het bos', en: 'Open the stone chest in the grove' },
     q_fill:      { nl: 'Vul het flesje bij het altaar', en: 'Fill the vial at the altar' },
     q_berries:   { nl: 'Pluk rode bessen tussen de struiken', en: 'Pick red berries from the bushes' },
@@ -122,7 +122,7 @@ const GAME = {
       ],
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
-        fountain: { sx: 213, sy: 127, wx: 211, wy: 132, ww: 58, wh: 24 }
+        fountain: { sx: 208, sy: 117, wx: 224, wy: 136, ww: 42, wh: 20 }
       },
       hotspots: [
         {

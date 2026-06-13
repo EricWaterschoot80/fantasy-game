@@ -25,6 +25,7 @@
   const elBubble    = document.getElementById('bubble');
   const elBubbleTxt = document.getElementById('bubbleText');
   const elBubbleFace= document.getElementById('bubbleFace');
+  const elMsgFace   = document.getElementById('msgFace');
   const elToast     = document.getElementById('toast');
   const elInvbar    = document.getElementById('invbar');
   const elTitle     = document.getElementById('title-screen');
@@ -92,6 +93,10 @@
   art.courtyardClosed = new Image();
   art.courtyardClosed.onload = () => { if (state.currentScene === 'courtyard') paintBackground(); };
   art.courtyardClosed.src = 'assets/art/scene-courtyard-closed.png';
+  /* verlichte-runen-variant van het bos (doffe variant = scene-grove.png) */
+  art.groveLit = new Image();
+  art.groveLit.onload = () => { if (state.currentScene === 'grove') paintBackground(); };
+  art.groveLit.src = 'assets/art/scene-grove-lit.png';
   function overlayImg(src) {
     if (!art.overlays[src]) {
       const img = new Image();
@@ -133,6 +138,9 @@
     dir: 'down', flip: false,
     phase: 0, stepAcc: 0
   };
+
+  /* Trouwe hond die je volgt zodra hij gered is (over alle velden) */
+  const follower = { active: false, x: 0, y: 0, flip: true, phase: 0, scared: false };
 
   /* Runtime-posities van NPC's (zwerven / patrouilleren) */
   let npcRt = {};
@@ -292,6 +300,10 @@
     if (state.currentScene === 'courtyard' && !state.flags.gateOpen && ready(art.courtyardClosed)) {
       img = art.courtyardClosed;
     }
+    /* bos: verlichte runen zodra het poeder op het tablet is gestrooid */
+    if (state.currentScene === 'grove' && state.flags.runesRevealed && ready(art.groveLit)) {
+      img = art.groveLit;
+    }
     if (ready(img)) {
       bgCtx.imageSmoothingEnabled = false;
       bgCtx.drawImage(img, 0, 0, SCENE_W, SCENE_H);
@@ -402,23 +414,23 @@
   }
 
   /* ---------- Dynamische hotspots (volgen een NPC) ---------- */
+  function npcPos(id) {
+    if (id === 'dog' && follower.active) return follower;   // volgt nu de speler
+    return npcRt[id];
+  }
   function hsRect(hs) {
-    if (hs.followNpc && npcRt[hs.followNpc]) {
-      const rt = npcRt[hs.followNpc];
-      return { x: rt.x - hs.rect.w / 2, y: rt.y - hs.rect.h, w: hs.rect.w, h: hs.rect.h };
-    }
+    const rt = hs.followNpc && npcPos(hs.followNpc);
+    if (rt) return { x: rt.x - hs.rect.w / 2, y: rt.y - hs.rect.h, w: hs.rect.w, h: hs.rect.h };
     return hs.rect;
   }
   function hsWalkTo(hs) {
-    if (hs.followNpc && npcRt[hs.followNpc]) {
-      const rt = npcRt[hs.followNpc];
-      return clampToWalkable(rt.x, rt.y + 38);
-    }
+    const rt = hs.followNpc && npcPos(hs.followNpc);
+    if (rt) return clampToWalkable(rt.x, rt.y + 38);
     return hs.walkTo;
   }
   function hsSpeaker(hs) {
     if (!hs.speaker) return null;
-    if (hs.followNpc && npcRt[hs.followNpc]) {
+    if (hs.followNpc && npcPos(hs.followNpc)) {
       const r = hsRect(hs);
       return { x: r.x + r.w / 2, y: r.y - 2 };
     }
@@ -583,6 +595,36 @@
       }
     }
 
+    /* Trouwe hond: volgt de speler; is bang vlakbij de wakkere minotaur */
+    if (follower.active) {
+      const mino = scene.npcs.find(n => n.sprite === 'minotaur');
+      const minoAwake = mino && !state.flags.minotaurAsleep;
+      if (minoAwake) {
+        /* bang: blijf op afstand bij de ingang, rillen */
+        follower.scared = true;
+        const safe = clampToWalkable(scene.playerStart.x, scene.playerStart.y);
+        const dx = safe.x - follower.x, dy = safe.y - follower.y;
+        const d = Math.hypot(dx, dy);
+        if (d > 4) {
+          const step = Math.min(70 * dt, d);
+          const nx = follower.x + dx / d * step, ny = follower.y + dy / d * step;
+          if (inWalkable(nx, ny)) { follower.x = nx; follower.y = ny; follower.phase += step * 0.2; }
+          if (Math.abs(dx) > 1) follower.flip = dx < 0;
+        }
+      } else {
+        follower.scared = false;
+        const dx = player.x - follower.x, dy = player.y - follower.y;
+        const d = Math.hypot(dx, dy);
+        if (d > 26) {
+          const step = Math.min(105 * dt, d - 24);
+          let nx = follower.x + dx / d * step, ny = follower.y + dy / d * step;
+          if (!inWalkable(nx, ny)) { if (inWalkable(nx, follower.y)) ny = follower.y; else if (inWalkable(follower.x, ny)) nx = follower.x; else { nx = follower.x; ny = follower.y; } }
+          follower.x = nx; follower.y = ny; follower.phase += step * 0.16;
+          if (Math.abs(dx) > 2) follower.flip = dx < 0;
+        }
+      }
+    }
+
     /* Partikels */
     /* Uitgangen triggeren door ernaartoe te lopen (eerst even weg zijn) */
     checkExitProximity(scene);
@@ -687,6 +729,7 @@
       ents.push({ y: rt.y, draw: () => drawNpc(npc, now) });
     }
     ents.push({ y: player.y, draw: () => drawPlayer(now) });
+    if (follower.active) ents.push({ y: follower.y, draw: () => drawFollower(now) });
     if (scene.overlays) {
       for (const o of scene.overlays) {
         ents.push({ y: o.base, draw: () => {
@@ -906,12 +949,16 @@
       if (!lit) continue;
       const r = hs.rect;
       const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
-      const pulse = 0.42 + 0.18 * Math.sin(now / 300 + idx);
-      const g = fctx.createRadialGradient(cx, cy, 3, cx, cy, 30);
-      g.addColorStop(0, `rgba(255,226,150,${pulse})`);
-      g.addColorStop(1, 'rgba(255,226,150,0)');
-      fctx.fillStyle = g;
-      fctx.fillRect(cx - 30, cy - 30, 60, 60);
+      /* met verlichte achtergrond geen extra halo, alleen fonkelingen */
+      const litBg = state.currentScene === 'grove' && state.flags.runesRevealed && ready(art.groveLit);
+      if (!litBg) {
+        const pulse = 0.42 + 0.18 * Math.sin(now / 300 + idx);
+        const g = fctx.createRadialGradient(cx, cy, 3, cx, cy, 30);
+        g.addColorStop(0, `rgba(255,226,150,${pulse})`);
+        g.addColorStop(1, 'rgba(255,226,150,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(cx - 30, cy - 30, 60, 60);
+      }
       /* fonkelende goud-sterretjes op de steen */
       for (let k = 0; k < 3; k++) {
         const ang = now / 600 + idx * 1.7 + k * 2.1;
@@ -1030,6 +1077,7 @@
       const f = ((now / 800) | 0) % 2;
       drawSprite(fctx, SEER_FRAMES[f], (rt.x - SEER_W * S / 2) | 0, (rt.y - SEER_H * S) | 0, false, S);
     } else if (npc.sprite === 'dog') {
+      if (state.flags.dogWarm && follower.active) return;   // volgt nu als follower
       const warm = state.flags.dogWarm;
       const img = warm
         ? (ready(art.sprites.dogVest) ? art.sprites.dogVest : art.sprites.dog)
@@ -1086,6 +1134,26 @@
         drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
       }
     }
+  }
+
+  function drawFollower(now) {
+    const moving = !follower.scared && Math.hypot(player.x - follower.x, player.y - follower.y) > 27;
+    if (follower.scared) {
+      /* bang: ineengedoken (koude pose) + rillen + uitroepteken */
+      const img = ready(art.sprites.dogCold) ? art.sprites.dogCold : art.sprites.dog;
+      const jit = Math.round(Math.sin(now / 40)) ;
+      if (ready(img)) drawArtSprite(img, follower.x + jit, follower.y, { flip: follower.flip });
+      if (((now / 350) | 0) % 2 === 0) {
+        fctx.fillStyle = '#e8d24a';
+        const hx = Math.round(follower.x), hy = Math.round(follower.y - 34);
+        fctx.fillRect(hx, hy, 2, 5); fctx.fillRect(hx, hy + 6, 2, 2);
+      }
+      return;
+    }
+    const img = ready(art.sprites.dogVest) ? art.sprites.dogVest : art.sprites.dog;
+    const hop = moving ? -Math.round(Math.abs(Math.sin(follower.phase * 1.1)) * 2) : 0;
+    const wag = moving ? 0 : Math.sin(now / 160) * 0.06;
+    if (ready(img)) drawArtSprite(img, follower.x, follower.y, { flip: follower.flip, bob: hop, rot: wag });
   }
 
   function drawHints(now, scale) {
@@ -1163,7 +1231,8 @@
       return;
     }
     const m = msgQueue.shift();
-    if (m.anchor && view.scale) {
+    const mobile = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    if (m.anchor && view.scale && !mobile) {
       elBubbleTxt.textContent = L(m.text);
       if (m.face) { elBubbleFace.src = m.face; elBubbleFace.hidden = false; }
       else elBubbleFace.hidden = true;
@@ -1174,7 +1243,10 @@
       elBubble.style.top = Math.max(56, by - 6) + 'px';
       elBubble.hidden = false;
     } else {
+      /* paneel (op mobiel ook voor personages — met gezicht) */
       elMsgText.textContent = L(m.text);
+      if (m.face) { elMsgFace.src = m.face; elMsgFace.hidden = false; }
+      else elMsgFace.hidden = true;
       elMsg.hidden = false;
       elMsg.style.animation = 'none';
       void elMsg.offsetWidth;
@@ -1583,7 +1655,14 @@
     if (a.consume) removeItem(a.consume);
     if (a.give) addItem(a.give);
     if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
-    if (a.setFlag === 'dogWarm' && npcRt.dog) lickAt(npcRt.dog.x, npcRt.dog.y - 18);
+    if (a.setFlag === 'runesRevealed') { paintBackground(); burstAt(170, 100, { n: 10, col: '255,232,150', up: 14 }); }
+    if (a.setFlag === 'dogWarm') {
+      const d = npcRt.dog || follower;
+      lickAt((d.x || player.x), (d.y || player.y) - 18);
+      follower.active = true;
+      follower.x = (npcRt.dog ? npcRt.dog.x : player.x);
+      follower.y = (npcRt.dog ? npcRt.dog.y : player.y);
+    }
     if (a.setFlag === 'minotaurAsleep') sfx('sleep');
     else if (a.give) sfx('pickup');
     else if (a.consume) sfx('use');
@@ -1626,6 +1705,10 @@
       player.x = spawn.x; player.y = spawn.y;
       player.target = null; player.pending = null;
       player.flip = spawn.x >= SCENE_W / 2;
+      if (follower.active) {
+        const fp = clampToWalkable(spawn.x + (spawn.x >= SCENE_W / 2 ? 22 : -22), spawn.y);
+        follower.x = fp.x; follower.y = fp.y; follower.scared = false;
+      }
       exitArm = {};
       initNpcs();
       initFireflies((scene.fx && scene.fx.fireflies) || 0);
@@ -1723,6 +1806,7 @@
     player.x = s.x; player.y = s.y;
     player.target = null; player.pending = null;
     player.dir = 'down'; player.flip = false; player.phase = 0;
+    follower.active = false; follower.scared = false;
     exitArm = {};
     initNpcs();
     initFireflies(0);
