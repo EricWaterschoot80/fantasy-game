@@ -12,9 +12,10 @@ const GAME = {
   startScene: 'farm',
 
   sprites: {
-    hero:     'assets/art/hero.png',
-    heroWalk: 'assets/art/hero-walk.png',
-    heroWave: 'assets/art/hero-wave.png'
+    hero:      'assets/art/hero.png',
+    heroWalk:  'assets/art/hero-walk.png',
+    heroWalk2: 'assets/art/hero-walk2.png',
+    heroWave:  'assets/art/hero-wave.png'
   },
 
   winText: {
@@ -53,9 +54,12 @@ const GAME = {
   },
 
   items: {
-    flute: { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈' },
-    bone:  { name: { nl: 'Sappig Bot', en: 'Juicy Bone' }, icon: '🦴' },
-    key:   { name: { nl: 'Stalsleutel', en: 'Stable Key' }, icon: '🗝️' }
+    flute:   { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈' },
+    bone:    { name: { nl: 'Sappig Bot', en: 'Juicy Bone' }, icon: '🦴' },
+    key:     { name: { nl: 'Stalsleutel', en: 'Stable Key' }, icon: '🗝️', img: 'assets/art/item-key.png' },
+    crystal: { name: { nl: 'Kristal', en: 'Crystal' }, icon: '🔷', img: 'assets/art/item-crystal.png' },
+    comb:    { name: { nl: 'Kam', en: 'Comb' }, icon: '🪮', img: 'assets/art/item-comb.png' },
+    saw:     { name: { nl: 'Zaag', en: 'Saw' }, icon: '🪚', img: 'assets/art/item-saw.png' }
   },
 
   recipes: [],
@@ -84,7 +88,7 @@ const GAME = {
         grove: { x: 70, y: 256 },
         stable: { x: 498, y: 256 }
       },
-      walkable: [ { x: 38, y: 205, w: 492, h: 98 } ],
+      walkPoly: [ [40, 236], [528, 236], [528, 286], [40, 286] ],
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -185,6 +189,7 @@ const GAME = {
       playerStart: { x: 498, y: 258 },
       spawnFrom: { farm: { x: 498, y: 258 } },
       walkable: [ { x: 60, y: 212, w: 450, h: 88 } ],
+      fx: { snakeTongue: { x: 314, y: 112, dx: -0.85, dy: 0.5, len: 13 } },
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -250,7 +255,7 @@ const GAME = {
       },
       playerStart: { x: 120, y: 266 },
       spawnFrom: { farm: { x: 110, y: 266 } },
-      walkable: [ { x: 70, y: 210, w: 412, h: 92 } ],
+      walkPoly: [ [78, 232], [472, 232], [472, 302], [78, 302] ],
       obstacles: [],
       overlays: [],
       worldItems: [],

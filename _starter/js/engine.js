@@ -1049,11 +1049,13 @@
     const walking = !!player.target || player.kbMoving;
     if (ready(hero)) {
       if (walking) {
-        /* echte 2-frame loopcyclus: wissel tussen sta- en stap-sprite */
-        const walkImg = art.sprites.heroWalk;
+        /* loopcyclus: met 2 stap-frames (links/rechts) een echte animatie;
+           anders terugvallen op de oude sta/stap-wissel. */
+        const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2;
         const stride = Math.sin(player.phase * 0.55);
-        const useWalk = stride > 0 && ready(walkImg);
-        const img = useWalk ? walkImg : hero;
+        let img;
+        if (ready(w1) && ready(w2)) img = stride > 0 ? w1 : w2;
+        else img = (stride > 0 && ready(w1)) ? w1 : hero;
         const hop = -Math.round(Math.abs(stride) * 2.5);
         const lean = stride * 0.05;
         drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: hop, rot: lean });

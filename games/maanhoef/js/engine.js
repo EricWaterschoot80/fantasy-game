@@ -906,6 +906,18 @@
   function paintFx(scene, now) {
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
+    if (fx.snakeTongue) {
+      const t = fx.snakeTongue, cyc = (now % 1500) / 1500;
+      if (cyc < 0.32) {
+        const e = Math.round(Math.sin(cyc / 0.32 * Math.PI) * (t.len || 8));
+        const dx = (t.dx == null ? 0 : t.dx), dy = (t.dy == null ? 1 : t.dy);
+        fctx.fillStyle = '#d62828';
+        for (let i = 1; i <= e; i++) fctx.fillRect((t.x + dx * i) | 0, (t.y + dy * i) | 0, 1, 1);
+        if (e > 2) { const tx = t.x + dx * e, ty = t.y + dy * e;
+          fctx.fillRect((tx - dy) | 0, (ty + dx) | 0, 1, 1);
+          fctx.fillRect((tx + dy) | 0, (ty - dx) | 0, 1, 1); }
+      }
+    }
     if (fx.flames && !dark) {
       for (const f of fx.flames) {
         const flicker = 0.18 + 0.1 * Math.sin(now / 90 + f.x);
@@ -1113,11 +1125,13 @@
     const walking = !!player.target || player.kbMoving;
     if (ready(hero)) {
       if (walking) {
-        /* echte 2-frame loopcyclus: wissel tussen sta- en stap-sprite */
-        const walkImg = art.sprites.heroWalk;
+        /* loopcyclus: met 2 stap-frames (links/rechts) een echte animatie;
+           anders terugvallen op de oude sta/stap-wissel. */
+        const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2;
         const stride = Math.sin(player.phase * 0.55);
-        const useWalk = stride > 0 && ready(walkImg);
-        const img = useWalk ? walkImg : hero;
+        let img;
+        if (ready(w1) && ready(w2)) img = stride > 0 ? w1 : w2;
+        else img = (stride > 0 && ready(w1)) ? w1 : hero;
         const hop = -Math.round(Math.abs(stride) * 2.5);
         const lean = stride * 0.05;
         drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: hop, rot: lean });
