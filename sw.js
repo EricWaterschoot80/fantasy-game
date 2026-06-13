@@ -1,6 +1,7 @@
-/* Service worker — cache-first zodat het spel offline speelt. */
+/* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet.
+   (Eerder: cache-first met ignoreSearch, waardoor updates niet doorkwamen.) */
 
-const CACHE = 'emberfall-v11';
+const CACHE = 'emberfall-v12';
 
 const PRECACHE = [
   './',
@@ -17,23 +18,22 @@ const PRECACHE = [
   './assets/art/hero.png',
   './assets/art/hero-walk.png',
   './assets/art/hero-wave.png',
-  './assets/art/title.png',
   './assets/art/seer.png',
   './assets/art/minotaur.png',
   './assets/art/minotaur-asleep.png',
-  './assets/art/item-berries.png',
-  './assets/art/item-vial-empty.png',
-  './assets/art/item-vial-water.png',
-  './assets/art/item-potion.png',
-  './assets/art/item-amulet.png',
   './assets/art/dog.png',
   './assets/art/dog-cold.png',
   './assets/art/dog-vest.png',
   './assets/art/chest-open.png',
   './assets/art/gate-door.png',
+  './assets/art/emblem-puzzle.png',
+  './assets/art/item-berries.png',
+  './assets/art/item-vial-empty.png',
+  './assets/art/item-vial-water.png',
+  './assets/art/item-potion.png',
+  './assets/art/item-amulet.png',
   './assets/art/item-vest.png',
   './assets/art/item-powder.png',
-  './assets/art/emblem-puzzle.png',
   './assets/art/ov-courtyard-bushes.png',
   './assets/art/ov-courtyard-rubble.png',
   './assets/art/ov-grove-left.png',
@@ -61,17 +61,22 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  /* Netwerk-eerst: altijd de nieuwste versie ophalen, cache bijwerken,
+     en alleen bij geen netwerk terugvallen op de cache (offline spelen). */
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        // Runtime-cache voor o.a. webfonts, zodat ook die offline werken.
-        if (response.ok && (response.type === 'basic' || response.type === 'cors')) {
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.ok &&
+            (response.type === 'basic' || response.type === 'cors')) {
           const copy = response.clone();
           caches.open(CACHE).then((cache) => cache.put(event.request, copy));
         }
         return response;
-      }).catch(() => cached);
-    })
+      })
+      .catch(() =>
+        caches.match(event.request, { ignoreSearch: true })
+          .then((cached) => cached || caches.match('./index.html'))
+      )
   );
 });
