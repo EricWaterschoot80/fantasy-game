@@ -24,6 +24,7 @@
   const elMsgMore   = document.getElementById('msgMore');
   const elBubble    = document.getElementById('bubble');
   const elBubbleTxt = document.getElementById('bubbleText');
+  const elBubbleFace= document.getElementById('bubbleFace');
   const elToast     = document.getElementById('toast');
   const elInvbar    = document.getElementById('invbar');
   const elTitle     = document.getElementById('title-screen');
@@ -87,6 +88,10 @@
     }
   };
   const art = { scenes: {}, sprites: {}, items: {}, overlays: {} };
+  /* dichte-deur-variant van de binnenplaats (open variant = scene-courtyard.png) */
+  art.courtyardClosed = new Image();
+  art.courtyardClosed.onload = () => { if (state.currentScene === 'courtyard') paintBackground(); };
+  art.courtyardClosed.src = 'assets/art/scene-courtyard-closed.png';
   function overlayImg(src) {
     if (!art.overlays[src]) {
       const img = new Image();
@@ -282,7 +287,11 @@
 
   function paintBackground() {
     bgCtx.clearRect(0, 0, SCENE_W, SCENE_H);
-    const img = art.scenes[state.currentScene];
+    let img = art.scenes[state.currentScene];
+    /* binnenplaats: dichte-deur-achtergrond tot de poort open is */
+    if (state.currentScene === 'courtyard' && !state.flags.gateOpen && ready(art.courtyardClosed)) {
+      img = art.courtyardClosed;
+    }
     if (ready(img)) {
       bgCtx.imageSmoothingEnabled = false;
       bgCtx.drawImage(img, 0, 0, SCENE_W, SCENE_H);
@@ -417,6 +426,16 @@
       ? { x: hs.rect.x + hs.rect.w / 2, y: hs.rect.y }
       : hs.speaker;
   }
+  const FACE_BY_SPRITE = {
+    seer: 'assets/art/face-seer.png',
+    minotaur: 'assets/art/face-minotaur.png',
+    dog: 'assets/art/face-dog.png'
+  };
+  function hsFace(hs) {
+    if (!hs.followNpc) return null;
+    const npc = GAME.scenes[state.currentScene].npcs.find(n => n.id === hs.followNpc);
+    return npc ? FACE_BY_SPRITE[npc.sprite] || null : null;
+  }
 
   /* ---------- Game-lus ---------- */
   let lastT = performance.now();
@@ -478,9 +497,10 @@
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
-    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && !msgOpen()) {
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden) {
       const { vx, vy } = keyVector();
       if (vx || vy) {
+        if (msgOpen()) showNextMsg();    // tekst weg én meteen lopen
         player.target = null;
         player.pending = null;
         player.kbMoving = true;
@@ -791,30 +811,7 @@
         fctx.fillRect(wgl.x + (((now / 800) | 0) % 3) * 5, wgl.y, 2, 1);
       }
     }
-    /* Dichte stenen poortdeur tot de embleem-puzzel is opgelost */
-    if (fx.gateDoor && !state.flags.gateOpen) {
-      const d = fx.gateDoor;
-      const doorImg = art.sprites.gateDoor;
-      if (ready(doorImg)) {
-        fctx.imageSmoothingEnabled = false;
-        fctx.drawImage(doorImg, d.x, d.y, d.w, d.h);
-        const pulse = 0.18 + 0.12 * Math.sin(now / 400);
-        const g = fctx.createRadialGradient(d.x + d.w / 2, d.y + d.h / 2, 2,
-          d.x + d.w / 2, d.y + d.h / 2, 16);
-        g.addColorStop(0, `rgba(231,207,134,${pulse})`);
-        g.addColorStop(1, 'rgba(231,207,134,0)');
-        fctx.fillStyle = g;
-        fctx.fillRect(d.x + d.w / 2 - 16, d.y + d.h / 2 - 16, 32, 32);
-      } else {
-        fctx.fillStyle = '#9a8266';
-        fctx.fillRect(d.x, d.y, d.w, d.h);
-        fctx.fillStyle = '#7c6850';
-        for (let yy = d.y + 6; yy < d.y + d.h; yy += 9) fctx.fillRect(d.x, yy, d.w, 1);
-        const pulse = 0.5 + 0.3 * Math.sin(now / 400);
-        fctx.fillStyle = `rgba(201,162,75,${pulse})`;
-        fctx.fillRect(d.x + (d.w >> 1) - 4, d.y + (d.h >> 1) - 4, 8, 8);
-      }
-    }
+    /* (De dichte/open poortdeur zit nu in de achtergrond-afbeelding.) */
     /* Open kist zodra de runenpuzzel is opgelost */
     if (fx.chestOpen && state.flags.runesSolved) {
       const img = art.sprites.chestOpen;
@@ -1099,9 +1096,9 @@
   }
 
   /* ---------- Narratie: paneel + tekstballonnen ---------- */
-  function say(text, anchor) {
+  function say(text, anchor, face) {
     if (!text) return;
-    msgQueue.push({ text, anchor: anchor || null });
+    msgQueue.push({ text, anchor: anchor || null, face: face || null });
     if (!msgOpen()) showNextMsg();
   }
   function msgOpen() { return !elMsg.hidden || !elBubble.hidden; }
@@ -1116,6 +1113,8 @@
     const m = msgQueue.shift();
     if (m.anchor && view.scale) {
       elBubbleTxt.textContent = L(m.text);
+      if (m.face) { elBubbleFace.src = m.face; elBubbleFace.hidden = false; }
+      else elBubbleFace.hidden = true;
       const bx = view.ox + m.anchor.x * view.scale;
       const by = view.oy + m.anchor.y * view.scale;
       elBubble.style.left = Math.max(window.innerWidth * 0.15,
@@ -1339,6 +1338,7 @@
       const cfg = s.hs.slidePuzzle;
       state.flags[cfg.setFlag] = true;
       sfx('gate');
+      paintBackground();   // poort gaat open → achtergrond met open boog
       setTimeout(() => {
         elPuzzle.hidden = true;
         slide = null;
@@ -1362,7 +1362,7 @@
   function openRiddle(hs) {
     const r = hs.riddle;
     elRiddleTitle.textContent = L(r.title);
-    if (r.intro) say(r.intro, hsSpeaker(hs));
+    if (r.intro) say(r.intro, hsSpeaker(hs), hsFace(hs));
     showRiddleQuestion(hs, 0);
     elRiddle.hidden = false;
     sfx('tap');
@@ -1387,7 +1387,7 @@
             state.flags[r.setFlag] = true;
             elRiddle.hidden = true;
             if (r.reward) { addItem(r.reward); sfx('pickup'); }
-            say(r.solvedText, hsSpeaker(hs));
+            say(r.solvedText, hsSpeaker(hs), hsFace(hs));
             updateQuest();
           }
         } else {
@@ -1419,7 +1419,7 @@
       state.selectedItem = null;
       renderInventory();
       const action = hs.use && hs.use[sel];
-      if (action) runAction(action, hsSpeaker(hs));
+      if (action) runAction(action, hsSpeaker(hs), hsFace(hs));
       else { sfx('error'); say(GAME.strings.noEffect); }
       return;
     }
@@ -1463,7 +1463,7 @@
       if (pokes >= 4) { die(); return; }
       if (pokes >= 2 && hs.angerTexts) {
         sfx('growl');
-        say(hs.angerTexts[Math.min(pokes - 2, hs.angerTexts.length - 1)], hsSpeaker(hs));
+        say(hs.angerTexts[Math.min(pokes - 2, hs.angerTexts.length - 1)], hsSpeaker(hs), hsFace(hs));
         return;
       }
       /* eerste keer: gewone beschrijving */
@@ -1495,17 +1495,17 @@
       if (hs.gives.win) { pendingWin = true; sfx('win'); }
       return;
     }
-    say(lookText(hs), hsSpeaker(hs));
+    say(lookText(hs), hsSpeaker(hs), hsFace(hs));
   }
 
-  function runAction(a, anchor) {
+  function runAction(a, anchor, face) {
     if (a.consume) removeItem(a.consume);
     if (a.give) addItem(a.give);
     if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
     if (a.setFlag === 'minotaurAsleep') sfx('sleep');
     else if (a.give) sfx('pickup');
     else if (a.consume) sfx('use');
-    if (a.text) say(a.text, anchor);
+    if (a.text) say(a.text, anchor, face);
   }
 
   /* ---------- Dood & herkansing ---------- */

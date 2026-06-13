@@ -136,6 +136,9 @@ html, body {
   position: fixed;
   z-index: 12;
   max-width: 64vw;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
   background: var(--parchment);
   color: #3a2a1a;
   border: 2px solid #8a6a3a;
@@ -150,6 +153,16 @@ html, body {
   transform: translate(-50%, -100%);
   animation: bubbleIn .18s ease-out;
 }
+#bubbleFace {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  image-rendering: pixelated;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #8a6a3a, 0 0 0 4px #1f1410;
+  align-self: center;
+}
+
 .speech .tail {
   position: absolute;
   left: 50%;
@@ -595,12 +608,40 @@ html, body {
   #rotate-hint { display: flex; }
 }
 
-/* Compacte onderkant op lage (telefoon-)schermen zodat de scene zichtbaar blijft */
-@media (max-height: 480px) {
-  .inv-slot { width: 40px; height: 40px; font-size: 21px; }
-  #invbar { padding: 5px; gap: 6px; }
-  #msg { padding: 9px 12px 7px; }
+/* ---------- Mobiel: inventory verticaal rechts, tekst compact onderaan ----------
+   Zo blijft het midden van de scene vrij i.p.v. door UI bedekt te worden. */
+@media (pointer: coarse) {
+  #bottomui { display: contents; }
+
+  #invbar {
+    position: fixed;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    flex-direction: column;
+    width: auto;
+    margin: 0;
+    gap: 5px;
+    padding: 6px;
+    background: rgba(26, 20, 16, .55);
+  }
+  #invbar::before, #invbar::after { display: none; }
+  .inv-slot { width: 42px; height: 42px; font-size: 21px; }
+
+  #msg {
+    position: fixed;
+    left: 8px;
+    right: 62px;
+    bottom: 6px;
+    max-width: none;
+    width: auto;
+    margin: 0;
+    padding: 7px 12px 5px;
+  }
   #msgText { font-size: 13.5px; }
-  #bottomui { gap: 5px; padding-bottom: calc(var(--safe-bottom) + 6px); }
-  #quest { font-size: 12px; }
+
+  .speech { max-width: 56vw; }
+  #bubbleFace { width: 36px; height: 36px; }
+
+  #toast { bottom: auto; top: 56px; }
 }
