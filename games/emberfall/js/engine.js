@@ -906,6 +906,19 @@
   function paintFx(scene, now) {
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
+    if (fx.waterfall) {
+      const wf = fx.waterfall, n = wf.streaks || 16;
+      for (let i = 0; i < n; i++) {
+        const sx = wf.x + ((i * 53) % wf.w);
+        const speed = 0.7 + ((i * 0.13) % 0.5);
+        const tt = ((now * speed / 12) + i * 9) % wf.h;
+        const al = 0.34 - (tt / wf.h) * 0.27;
+        if (al > 0) { fctx.fillStyle = `rgba(232,245,252,${al})`; fctx.fillRect(sx | 0, (wf.y + tt) | 0, 1, 5); }
+      }
+      const fb = 0.22 + 0.12 * Math.sin(now / 120);
+      fctx.fillStyle = `rgba(240,250,253,${fb})`;
+      for (let k = 2; k < wf.w - 2; k += 3) fctx.fillRect((wf.x + k) | 0, (wf.y + wf.h - 2 + ((Math.sin(now / 90 + k) * 1) | 0)) | 0, 2, 1);
+    }
     if (fx.snakeTongue) {
       const t = fx.snakeTongue, cyc = (now % 1500) / 1500;
       if (cyc < 0.32) {

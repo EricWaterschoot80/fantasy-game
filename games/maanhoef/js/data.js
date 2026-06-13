@@ -186,10 +186,13 @@ const GAME = {
         nl: 'Een open plek met een ruisende waterval. In de boom kronkelt een grote slang die dreigend naar je sist. Links, bij een stenen boog, gaapt een donkere holte.',
         en: 'A clearing with a rushing waterfall. A great snake coils in the tree, hissing at you in warning. To the left, by a stone arch, yawns a dark hollow.'
       },
-      playerStart: { x: 498, y: 270 },
-      spawnFrom: { farm: { x: 498, y: 270 }, cave: { x: 150, y: 270 } },
-      walkPoly: [ [70, 256], [505, 256], [505, 300], [70, 300] ],
-      fx: { snakeTongue: { x: 314, y: 112, dx: -0.85, dy: 0.5, len: 13 } },
+      playerStart: { x: 498, y: 286 },
+      spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
+      walkPoly: [ [55, 266], [510, 266], [510, 302], [55, 302] ],
+      fx: {
+        waterfall: { x: 266, y: 28, w: 66, h: 186, streaks: 20 },
+        snakeTongue: { x: 300, y: 193, dx: -0.3, dy: 0.95, len: 11 }
+      },
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -197,8 +200,8 @@ const GAME = {
         {
           id: 'snake',
           name: { nl: 'Sissende Slang', en: 'Hissing Snake' },
-          rect: { x: 268, y: 90, w: 156, h: 106 },
-          walkTo: { x: 300, y: 272 },
+          rect: { x: 252, y: 126, w: 148, h: 96 },
+          walkTo: { x: 312, y: 290 },
           speaker: true,
           danger: true,
           dangerUntil: 'snakeCharmed',
@@ -223,9 +226,9 @@ const GAME = {
         {
           id: 'toCave',
           name: { nl: 'Stenen Boog', en: 'Stone Arch' },
-          rect: { x: 60, y: 70, w: 134, h: 108 },
-          walkTo: { x: 140, y: 272 },
-          arrow: { x: 120, y: 96, dir: 'up' },
+          rect: { x: 184, y: 48, w: 92, h: 100 },
+          walkTo: { x: 232, y: 288 },
+          arrow: { x: 228, y: 70, dir: 'up' },
           requiresFlag: 'snakeCharmed',
           blockedText: { nl: 'De sissende slang verspert de weg naar de boog. Je durft er niet langs — bedaar haar eerst.', en: 'The hissing snake blocks the way to the arch. You don’t dare pass — calm her first.' },
           exit: { to: 'cave', travelText: { nl: 'Je glipt door de stenen boog de koele grot in...', en: 'You slip through the stone arch into the cool cave...' } }
@@ -234,7 +237,7 @@ const GAME = {
           id: 'toFarm',
           name: { nl: 'Pad naar het Erf', en: 'Path to the Farmyard' },
           rect: { x: 522, y: 168, w: 46, h: 134 },
-          walkTo: { x: 505, y: 272 },
+          walkTo: { x: 505, y: 288 },
           arrow: { x: 544, y: 196, dir: 'right' },
           exit: { to: 'farm', travelText: { nl: 'Je keert terug naar het boerenerf.', en: 'You head back to the farmyard.' } }
         }
@@ -249,9 +252,9 @@ const GAME = {
         nl: 'Een koele grot vol gloeiende kristallen. Een stenen beeld schenkt eeuwig water in een glinsterend bekken. Aan de rand liggen wat botten.',
         en: 'A cool cave full of glowing crystals. A stone statue pours endless water into a shimmering pool. A few bones lie at its edge.'
       },
-      playerStart: { x: 130, y: 272 },
-      spawnFrom: { grove: { x: 130, y: 272 } },
-      walkable: [ { x: 60, y: 252, w: 432, h: 50 } ],
+      playerStart: { x: 120, y: 286 },
+      spawnFrom: { grove: { x: 120, y: 286 } },
+      walkable: [ { x: 55, y: 254, w: 250, h: 48 }, { x: 55, y: 280, w: 435, h: 22 } ],
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -259,8 +262,8 @@ const GAME = {
         {
           id: 'statue',
           name: { nl: 'Stenen Beeld', en: 'Stone Statue' },
-          rect: { x: 404, y: 52, w: 158, h: 184 },
-          walkTo: { x: 392, y: 276 },
+          rect: { x: 398, y: 48, w: 164, h: 186 },
+          walkTo: { x: 386, y: 292 },
           look: {
             nl: 'Een sereen stenen beeld van een godin schenkt onophoudelijk helder water in het bekken. Het zoemt zacht van oude magie.',
             en: 'A serene stone goddess pours clear water endlessly into the pool. It hums softly with old magic.'
@@ -269,8 +272,8 @@ const GAME = {
         {
           id: 'bone',
           name: { nl: 'Oude Botten', en: 'Old Bones' },
-          rect: { x: 108, y: 198, w: 100, h: 84 },
-          walkTo: { x: 156, y: 276 },
+          rect: { x: 62, y: 198, w: 98, h: 82 },
+          walkTo: { x: 118, y: 288 },
           gives: {
             item: 'bone',
             giveText: { nl: 'Aan de rand van het bekken liggen botten, achtergelaten door een dier dat hier kwam drinken. Je raapt een stevig, Sappig Bot op.', en: 'At the pool’s edge lie bones, left by some creature that came to drink. You pick up a sturdy, Juicy Bone.' },
@@ -280,8 +283,8 @@ const GAME = {
         {
           id: 'crystal',
           name: { nl: 'Gloeiend Kristal', en: 'Glowing Crystal' },
-          rect: { x: 214, y: 204, w: 92, h: 82 },
-          walkTo: { x: 256, y: 278 },
+          rect: { x: 150, y: 196, w: 100, h: 82 },
+          walkTo: { x: 196, y: 288 },
           gives: {
             item: 'crystal',
             giveText: { nl: 'Je breekt een helder, blauw Kristal los uit de tros. Het gloeit warm na in je hand.', en: 'You break a clear blue Crystal from the cluster. It glows warmly in your hand.' },
@@ -291,8 +294,8 @@ const GAME = {
         {
           id: 'toGrove',
           name: { nl: 'Terug naar het Bos', en: 'Back to the Forest' },
-          rect: { x: 0, y: 92, w: 96, h: 176 },
-          walkTo: { x: 118, y: 272 },
+          rect: { x: 0, y: 88, w: 98, h: 178 },
+          walkTo: { x: 116, y: 288 },
           arrow: { x: 30, y: 150, dir: 'left' },
           exit: { to: 'grove', travelText: { nl: 'Je loopt door de boog terug het bos in.', en: 'You walk back out through the arch into the forest.' } }
         }
