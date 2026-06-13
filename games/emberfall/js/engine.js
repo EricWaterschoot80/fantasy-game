@@ -139,7 +139,7 @@
   let npcRt = {};
   function initNpcs() {
     npcRt = {};
-    for (const npc of GAME.scenes[state.currentScene].npcs) {
+    for (const npc of (GAME.scenes[state.currentScene].npcs || [])) {
       npcRt[npc.id] = {
         x: npc.x, y: npc.y, baseX: npc.x, baseY: npc.y,
         target: null, phase: 0, pauseUntil: 0, flip: false
@@ -439,7 +439,7 @@
   };
   function hsFace(hs) {
     if (!hs.followNpc) return null;
-    const npc = GAME.scenes[state.currentScene].npcs.find(n => n.id === hs.followNpc);
+    const npc = (GAME.scenes[state.currentScene].npcs || []).find(n => n.id === hs.followNpc);
     return npc ? FACE_BY_SPRITE[npc.sprite] || null : null;
   }
 
@@ -556,7 +556,7 @@
     }
 
     /* NPC's: zwerven en patrouilleren */
-    for (const npc of scene.npcs) {
+    for (const npc of (scene.npcs || [])) {
       const rt = npcRt[npc.id];
       if (!rt) continue;
       if (npc.wander && !(npc.wanderRequiresFlag && !state.flags[npc.wanderRequiresFlag])) {
@@ -592,7 +592,7 @@
 
     /* Trouwe hond: volgt de speler; is bang vlakbij de wakkere minotaur */
     if (follower.active) {
-      const mino = scene.npcs.find(n => n.sprite === 'minotaur');
+      const mino = (scene.npcs || []).find(n => n.sprite === 'minotaur');
       const minoAwake = mino && !state.flags.minotaurAsleep;
       /* de hond-sprite kijkt van zichzelf naar LINKS → flip=true = naar rechts */
       const stepToward = (tx, ty, speed, stop) => {
@@ -741,7 +741,7 @@
 
     /* Entiteiten + voorgrond-overlays op diepte gesorteerd */
     const ents = [];
-    for (const npc of scene.npcs) {
+    for (const npc of (scene.npcs || [])) {
       const rt = npcRt[npc.id] || npc;
       ents.push({ y: rt.y, draw: () => drawNpc(npc, now) });
     }
@@ -2083,6 +2083,7 @@
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
     if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
+    if (a.win) { pendingWin = true; sfx('win'); }
     if (a.setFlag === 'runesRevealed') { paintBackground(); burstAt(170, 100, { n: 10, col: '255,232,150', up: 14 }); }
     if (a.setFlag === 'dogWarm') {
       const d = npcRt.dog || follower;

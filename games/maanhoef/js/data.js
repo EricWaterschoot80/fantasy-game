@@ -1,0 +1,290 @@
+/* ============================================================
+   data.js — "Maanhoef" — een meisje redt het paard Maanhoef.
+   Zelfde generieke engine als Emberfall; alleen deze data + art is uniek.
+   Coördinaten zijn scene-pixels (568×320, liggend). Teksten zijn {nl,en}.
+   Dieren (hond, uil, slang, paard) staan in de scene-art; hotspots liggen
+   eroverheen. Alleen het meisje is een bewegende sprite (hero).
+   ============================================================ */
+
+const GAME = {
+  title: { nl: 'Maanhoef', en: 'Moonhoof' },
+  titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
+  startScene: 'farm',
+
+  sprites: {
+    hero:     'assets/art/hero.png',
+    heroWalk: 'assets/art/hero-walk.png',
+    heroWave: 'assets/art/hero-wave.png'
+  },
+
+  winText: {
+    nl: 'De poort zwaait open en Maanhoef stapt vrij de ochtend in. Het paard drukt zijn warme neus tegen je wang en hinnikt zacht. Met de trouwe hond aan je zij en de uil hoog in de lucht breng je Maanhoef naar huis. Je hebt je vriend gered.',
+    en: 'The gate swings open and Moonhoof steps free into the morning. The horse presses his warm muzzle to your cheek and softly whinnies. With the loyal dog at your side and the owl high above, you lead Moonhoof home. You have saved your friend.'
+  },
+
+  strings: {
+    noEffect:    { nl: 'Dat werkt hier niet.', en: 'That doesn’t work here.' },
+    noCombine:   { nl: 'Die twee laten zich niet combineren.', en: 'Those two don’t combine.' },
+    nothingThere:{ nl: 'Daar valt niets te ontdekken.', en: 'There’s nothing to find there.' }
+  },
+
+  ui: {
+    subtitle:   { nl: 'Een meisje en haar paard', en: 'A girl and her horse' },
+    intro:      { nl: 'Maanhoef, het mooiste paard van de vallei, is opgesloten achter een vergrendelde stalpoort. De sleutel hangt aan de halsband van een schichtige hond. Een wijze uil en een sissende slang kruisen je pad. Red Maanhoef!',
+                  en: 'Moonhoof, the finest horse in the valley, is locked behind a bolted stable gate. The key hangs from the collar of a skittish dog. A wise owl and a hissing snake cross your path. Save Moonhoof!' },
+    credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
+    startBtn:   { nl: 'Begin het avontuur', en: 'Begin the adventure' },
+    winTitle:   { nl: 'Maanhoef is Vrij', en: 'Moonhoof is Free' },
+    replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
+    deathTitle: { nl: 'Oeps...', en: 'Oops...' },
+    deathText:  { nl: 'Dat liep niet goed af. Probeer het opnieuw.', en: 'That went badly. Try again.' },
+    retryBtn:   { nl: 'Probeer opnieuw', en: 'Try again' },
+    rotateTitle:{ nl: 'Draai je telefoon', en: 'Rotate your phone' },
+    rotateText: { nl: 'Dit avontuur speelt liggend. Draai je scherm een kwartslag.',
+                  en: 'This adventure plays in landscape. Turn your screen sideways.' },
+    tapContinue:{ nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
+    selected:   { nl: 'geselecteerd', en: 'selected' },
+
+    q_owl:    { nl: 'Vraag de wijze uil op de paal om raad', en: 'Ask the wise owl on the post for advice' },
+    q_snake:  { nl: 'Een slang verspert het bospad — betover haar met de fluit', en: 'A snake blocks the forest path — charm it with the flute' },
+    q_chest:  { nl: 'De slang sluimert — open nu de oude kist', en: 'The snake is dozing — now open the old chest' },
+    q_dog:    { nl: 'Geef het hongerige hondje het bot om bij de sleutel te komen', en: 'Give the hungry dog the bone to reach the key' },
+    q_gate:   { nl: 'Open met de sleutel de stalpoort naar Maanhoef', en: 'Open the stable gate to Moonhoof with the key' }
+  },
+
+  items: {
+    flute: { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈' },
+    bone:  { name: { nl: 'Sappig Bot', en: 'Juicy Bone' }, icon: '🦴' },
+    key:   { name: { nl: 'Stalsleutel', en: 'Stable Key' }, icon: '🗝️' }
+  },
+
+  recipes: [],
+
+  /* Questhint-regels — eerste match wint; quest:null verbergt de hint. */
+  questRules: [
+    { when: { has: 'key' },                                quest: 'q_gate' },
+    { when: { has: 'bone' },                               quest: 'q_dog' },
+    { when: { flag: 'snakeCharmed', notFlag: 'taken_grove_chest' }, quest: 'q_chest' },
+    { when: { has: 'flute', notFlag: 'snakeCharmed' },     quest: 'q_snake' },
+    { when: {},                                            quest: 'q_owl' }
+  ],
+
+  scenes: {
+
+    /* ---------- Gebied 1: Het Boerenerf ---------- */
+    farm: {
+      name: { nl: 'Het Boerenerf', en: 'The Farmyard' },
+      bg: 'assets/art/scene-farm.png',
+      entryText: {
+        nl: 'Een mistig boerenerf in het ochtendlicht. Een schichtig hondje zit in het gras, en op een paal waakt een wijze uil.',
+        en: 'A misty farmyard in the morning light. A skittish dog sits in the grass, and a wise owl watches from a post.'
+      },
+      playerStart: { x: 284, y: 256 },
+      spawnFrom: {
+        grove: { x: 70, y: 256 },
+        stable: { x: 498, y: 256 }
+      },
+      walkable: [ { x: 38, y: 205, w: 492, h: 98 } ],
+      obstacles: [],
+      overlays: [],
+      worldItems: [],
+      hotspots: [
+        {
+          id: 'dog',
+          name: { nl: 'Schichtig Hondje', en: 'Skittish Dog' },
+          rect: { x: 45, y: 205, w: 138, h: 108 },
+          walkTo: { x: 184, y: 268 },
+          look: (state) => state.flags.dogFriendly
+            ? { nl: 'Het hondje kwispelt blij om je heen, blij met zijn bot.', en: 'The dog wags happily around you, pleased with its bone.' }
+            : { nl: 'Een mager hondje met een leren halsband; er bungelt een kleine sleutel aan. Het jankt van de honger en deinst terug zodra je je hand uitsteekt.',
+                en: 'A thin dog with a leather collar; a small key dangles from it. It whimpers with hunger and shies back the moment you reach out.' },
+          use: {
+            bone: {
+              consume: 'bone',
+              setFlag: 'dogFriendly',
+              give: 'key',
+              text: {
+                nl: 'Je legt het sappige bot voor het hondje neer. Het schrokt het dankbaar op, kwispelt wild — en laat je de Stalsleutel van zijn halsband halen!',
+                en: 'You set the juicy bone before the dog. It gulps it down gratefully, wags wildly — and lets you take the Stable Key from its collar!'
+              }
+            }
+          }
+        },
+        {
+          id: 'owl',
+          name: { nl: 'Wijze Uil', en: 'Wise Owl' },
+          rect: { x: 376, y: 120, w: 100, h: 110 },
+          walkTo: { x: 424, y: 262 },
+          speaker: true,
+          riddle: {
+            setFlag: 'owlSolved',
+            reward: 'flute',
+            title: { nl: 'Het Raadsel van de Uil', en: 'The Owl’s Riddle' },
+            intro: {
+              nl: '“Oehoe. Het paard Maanhoef, zeg je? De hond bewaart de sleutel, maar hij heeft honger. In het bos ligt een bot — bewaakt door een slang. Beantwoord eerst mijn raadsels, dan geef ik je iets om haar te bedaren.”',
+              en: '“Hoo. The horse Moonhoof, you say? The dog keeps the key, but it is hungry. In the forest lies a bone — guarded by a snake. Answer my riddles first, and I shall give you something to calm her.”'
+            },
+            questions: [
+              {
+                q: { nl: 'Raadsel 1: “Ik draaf zonder moe te worden, ik draag zonder handen, en in de wei ben ik koning. Wat ben ik?”',
+                     en: 'Riddle 1: “I gallop without tiring, I carry without hands, and in the meadow I am king. What am I?”' },
+                answers: [
+                  { t: { nl: 'Een paard', en: 'A horse' }, ok: true },
+                  { t: { nl: 'De wind', en: 'The wind' }, ok: false },
+                  { t: { nl: 'Een wolk', en: 'A cloud' }, ok: false }
+                ]
+              },
+              {
+                q: { nl: 'Raadsel 2: “Ik heb geen stem en toch breng ik de slang in slaap, ik heb geen adem en toch zing ik. Wat ben ik?”',
+                     en: 'Riddle 2: “I have no voice yet I lull the snake to sleep, I have no breath yet I sing. What am I?”' },
+                answers: [
+                  { t: { nl: 'Een fluit', en: 'A flute' }, ok: true },
+                  { t: { nl: 'De regen', en: 'The rain' }, ok: false },
+                  { t: { nl: 'Een klok', en: 'A bell' }, ok: false }
+                ]
+              }
+            ],
+            wrongText: { nl: '“Oehoe... nee. Denk nog eens goed na — we beginnen opnieuw.”', en: '“Hoo... no. Think again — we start anew.”' },
+            solvedText: {
+              nl: '“Wijs geantwoord.” De uil laat een gladde Wilgenfluit in je handen vallen. “Speel ervoor de slang; ze kan geen wijsje weerstaan.”',
+              en: '“Wisely answered.” The owl drops a smooth Willow Flute into your hands. “Play it for the snake; she cannot resist a tune.”'
+            }
+          },
+          look: {
+            nl: 'De wijze uil tuurt je met grote amberen ogen aan. “Het bos ligt naar het westen, de stal naar het oosten.”',
+            en: 'The wise owl studies you with great amber eyes. “The forest lies to the west, the stable to the east.”'
+          }
+        },
+        {
+          id: 'toGrove',
+          name: { nl: 'Pad naar het Bos', en: 'Path to the Forest' },
+          rect: { x: 0, y: 168, w: 46, h: 134 },
+          walkTo: { x: 58, y: 252 },
+          arrow: { x: 24, y: 196, dir: 'left' },
+          exit: { to: 'grove', travelText: { nl: 'Je volgt het pad westwaarts het wilgenbos in...', en: 'You follow the path west into the willow forest...' } }
+        },
+        {
+          id: 'toStable',
+          name: { nl: 'Pad naar de Stal', en: 'Path to the Stable' },
+          rect: { x: 522, y: 168, w: 46, h: 134 },
+          walkTo: { x: 510, y: 252 },
+          arrow: { x: 544, y: 196, dir: 'right' },
+          exit: { to: 'stable', travelText: { nl: 'Je loopt oostwaarts naar de oude stal...', en: 'You walk east toward the old stable...' } }
+        }
+      ]
+    },
+
+    /* ---------- Gebied 2: Het Wilgenbos ---------- */
+    grove: {
+      name: { nl: 'Het Wilgenbos', en: 'The Willow Forest' },
+      bg: 'assets/art/scene-grove.png',
+      entryText: {
+        nl: 'Een nevelige open plek tussen de wilgen. Op een omgevallen stam ligt een grote slang te sissen; daarachter glanst een oude kist.',
+        en: 'A misty clearing among the willows. A great snake hisses on a fallen log; behind it gleams an old chest.'
+      },
+      playerStart: { x: 498, y: 252 },
+      spawnFrom: { farm: { x: 498, y: 252 } },
+      walkable: [ { x: 40, y: 210, w: 492, h: 90 } ],
+      obstacles: [],
+      overlays: [],
+      worldItems: [],
+      hotspots: [
+        {
+          id: 'snake',
+          name: { nl: 'Sissende Slang', en: 'Hissing Snake' },
+          rect: { x: 226, y: 84, w: 134, h: 102 },
+          walkTo: { x: 300, y: 254 },
+          speaker: true,
+          look: (state) => state.flags.snakeCharmed
+            ? { nl: 'De slang wiegt loom heen en weer, betoverd door het wijsje. De weg naar de kist is vrij.', en: 'The snake sways lazily, charmed by the tune. The way to the chest is clear.' }
+            : { nl: 'Een grote groene slang kronkelt over de stam en sist dreigend. Zo kom je er niet langs... had je maar iets om haar te bedaren.',
+                en: 'A great green snake coils over the log and hisses in warning. There’s no getting past like this... if only you had something to calm her.' },
+          use: {
+            flute: {
+              setFlag: 'snakeCharmed',
+              text: {
+                nl: 'Je zet de Wilgenfluit aan je lippen en speelt een zacht wijsje. De slang wiegt mee, haar ogen vallen half dicht — ze glijdt loom opzij. De kist is bereikbaar.',
+                en: 'You raise the Willow Flute to your lips and play a soft tune. The snake sways along, her eyes half closing — she slides lazily aside. The chest is within reach.'
+              }
+            }
+          }
+        },
+        {
+          id: 'chest',
+          name: { nl: 'Oude Kist', en: 'Old Chest' },
+          rect: { x: 26, y: 92, w: 104, h: 98 },
+          walkTo: { x: 120, y: 250 },
+          blockedBy: [
+            { flag: 'snakeCharmed', text: { nl: 'De sissende slang laat je niet bij de kist. Bedaar haar eerst.', en: 'The hissing snake won’t let you near the chest. Calm her first.' } }
+          ],
+          gives: {
+            item: 'bone',
+            giveText: { nl: 'In de oude kist ligt een groot, Sappig Bot — precies waar een hongerig hondje van droomt.', en: 'Inside the old chest lies a big, Juicy Bone — exactly what a hungry dog dreams of.' },
+            emptyText: { nl: 'De kist is leeg.', en: 'The chest is empty.' }
+          }
+        },
+        {
+          id: 'toFarm',
+          name: { nl: 'Pad naar het Erf', en: 'Path to the Farmyard' },
+          rect: { x: 522, y: 168, w: 46, h: 134 },
+          walkTo: { x: 510, y: 250 },
+          arrow: { x: 544, y: 196, dir: 'right' },
+          exit: { to: 'farm', travelText: { nl: 'Je keert terug naar het boerenerf.', en: 'You head back to the farmyard.' } }
+        }
+      ]
+    },
+
+    /* ---------- Gebied 3: De Oude Stal ---------- */
+    stable: {
+      name: { nl: 'De Oude Stal', en: 'The Old Stable' },
+      bg: 'assets/art/scene-stable.png',
+      entryText: {
+        nl: 'De oude stal in het avondrood. Achter de vergrendelde paddockpoort staat Maanhoef, die je hoopvol aankijkt.',
+        en: 'The old stable in the evening glow. Behind the bolted paddock gate stands Moonhoof, looking at you with hope.'
+      },
+      playerStart: { x: 120, y: 258 },
+      spawnFrom: { farm: { x: 100, y: 258 } },
+      walkable: [ { x: 40, y: 212, w: 440, h: 90 } ],
+      obstacles: [],
+      overlays: [],
+      worldItems: [],
+      hotspots: [
+        {
+          id: 'horse',
+          name: { nl: 'Maanhoef', en: 'Moonhoof' },
+          rect: { x: 358, y: 84, w: 124, h: 86 },
+          walkTo: { x: 360, y: 264 },
+          look: {
+            nl: 'Maanhoef, melkwit met een zilveren manen, drukt zijn neus tegen de spijlen. “Bijna, vriend,” fluister je. “Nog even.”',
+            en: 'Moonhoof, milk-white with a silver mane, presses his nose to the bars. “Almost, friend,” you whisper. “Just a little longer.”'
+          }
+        },
+        {
+          id: 'gate',
+          name: { nl: 'Vergrendelde Poort', en: 'Bolted Gate' },
+          rect: { x: 316, y: 166, w: 134, h: 92 },
+          walkTo: { x: 342, y: 268 },
+          look: (state) => ({ nl: 'Een zware houten paddockpoort met een ijzeren slot. Maanhoef wacht erachter.', en: 'A heavy wooden paddock gate with an iron lock. Moonhoof waits beyond.' }),
+          use: {
+            key: {
+              consume: 'key',
+              win: true,
+              text: {
+                nl: 'De Stalsleutel past precies. Met een klik draait het slot om en de poort zwaait open...',
+                en: 'The Stable Key fits perfectly. With a click the lock turns and the gate swings open...'
+              }
+            }
+          }
+        },
+        {
+          id: 'toFarm',
+          name: { nl: 'Pad naar het Erf', en: 'Path to the Farmyard' },
+          rect: { x: 0, y: 188, w: 52, h: 114 },
+          walkTo: { x: 82, y: 266 },
+          arrow: { x: 26, y: 214, dir: 'left' },
+          exit: { to: 'farm', travelText: { nl: 'Je keert terug naar het boerenerf.', en: 'You head back to the farmyard.' } }
+        }
+      ]
+    }
+  }
+};

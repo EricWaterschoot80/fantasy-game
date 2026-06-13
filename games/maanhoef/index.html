@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#221a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Maanhoef — een point-and-click pixel-avontuur.">
+  <title>Maanhoef</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=1">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="ui">
+    <div id="topbar">
+      <div id="topcenter">
+        <div id="quest" class="panel-mini" hidden></div>
+        <div id="hotspot-label" class="panel-mini" hidden></div>
+      </div>
+      <button id="soundBtn" class="round-btn sound" title="Geluid" aria-label="Geluid aan of uit"><img id="soundIcon" src="assets/icons/ui-sound-on.png" alt=""></button>
+      <button id="hintBtn" class="round-btn" title="Toon hotspots" aria-label="Toon aanwijzingen"><img src="assets/icons/ui-eye.png" alt=""></button>
+    </div>
+
+    <div id="bubble" class="speech" hidden>
+      <img id="bubbleFace" alt="" hidden>
+      <p id="bubbleText"></p>
+      <span class="tail"></span>
+    </div>
+    <div id="toast" hidden></div>
+
+    <div id="bottomui">
+      <div id="msg" class="panel" hidden>
+        <img id="msgFace" alt="" hidden>
+        <div class="msg-body">
+          <p id="msgText"></p>
+          <span id="msgMore">tik om verder te gaan ▸</span>
+        </div>
+      </div>
+      <div id="invbar" class="panel" aria-label="Inventaris"></div>
+    </div>
+  </div>
+
+  <button id="langBtn" class="round-btn lang" title="Taal / Language" aria-label="Wissel taal">EN</button>
+
+  <div id="title-screen" class="overlay title">
+    <img class="title-bg" src="assets/art/title.png" alt="" onerror="this.remove()">
+    <div class="title-content">
+      <h1 id="title-h1"><span>Maanhoef</span></h1>
+      <p id="title-sub" class="subtitle">Een meisje en haar paard</p>
+      <p id="title-intro" class="intro"></p>
+      <button id="startBtn" class="gold-btn">Begin het avontuur</button>
+      <p id="title-credit" class="title-credit"></p>
+    </div>
+  </div>
+
+  <div id="win-screen" class="overlay" hidden>
+    <div class="overlay-card panel">
+      <div class="ornament">🐴</div>
+      <h1 id="win-h1">Emberfall is Gered</h1>
+      <p class="intro" id="winText"></p>
+      <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
+    </div>
+  </div>
+
+  <div id="death-screen" class="overlay" hidden>
+    <div class="overlay-card panel death">
+      <div class="ornament">💀</div>
+      <h1 id="death-h1">Verslagen...</h1>
+      <p class="intro" id="deathText"></p>
+      <button id="retryBtn" class="gold-btn">Probeer opnieuw</button>
+    </div>
+  </div>
+
+  <div id="puzzle-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card" id="puzzle-card">
+      <button id="puzzle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="puzzle-title">Het Embleem van de Orde</h2>
+      <button id="puzzle-hint-btn" class="gold-btn puz-hint-btn">💡 Hint</button>
+      <div id="puzzle-grid"></div>
+      <p id="puzzle-tip" class="puz-tip" hidden></p>
+    </div>
+  </div>
+
+  <div id="riddle-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card">
+      <button id="riddle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <div class="riddle-head">
+        <img id="riddle-face" alt="" hidden>
+        <h2 id="riddle-title">Het Raadsel van de Ziener</h2>
+      </div>
+      <p id="riddle-question" class="riddle-q"></p>
+      <div id="riddle-answers"></div>
+    </div>
+  </div>
+
+  <div id="rune-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card">
+      <button id="rune-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="rune-title">De Runenstenen</h2>
+      <p id="rune-hint" class="riddle-q"></p>
+      <div id="rune-btns" class="rune-btn-row"></div>
+      <p id="rune-status" class="rune-status"></p>
+    </div>
+  </div>
+
+  <div id="maze-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card" id="maze-card">
+      <button id="maze-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="maze-title">De Waterloop van de Ward</h2>
+      <p id="maze-hint" class="maze-hint"></p>
+      <div class="maze-body">
+        <canvas id="maze-canvas" width="264" height="264"></canvas>
+        <div id="maze-dpad">
+          <button id="maze-up" class="gold-btn maze-btn" aria-label="Omhoog">▲</button>
+          <div class="maze-mid">
+            <button id="maze-left" class="gold-btn maze-btn" aria-label="Links">◀</button>
+            <button id="maze-right" class="gold-btn maze-btn" aria-label="Rechts">▶</button>
+          </div>
+          <button id="maze-down" class="gold-btn maze-btn" aria-label="Omlaag">▼</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="rotate-hint" class="overlay">
+    <div class="overlay-card panel">
+      <div class="ornament">📱↻</div>
+      <h1 id="rotate-h1">Draai je telefoon</h1>
+      <p class="intro" id="rotate-text">Dit avontuur speelt liggend. Draai je scherm een kwartslag.</p>
+    </div>
+  </div>
+
+  <script src="js/sprites.js?v=1"></script>
+  <script src="js/scenes.js?v=1"></script>
+  <script src="js/data.js?v=1"></script>
+  <script src="js/engine.js?v=1"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

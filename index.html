@@ -2,152 +2,128 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#221a2e">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="De Amulet van Emberfall — een point-and-click pixel-avontuur.">
-  <title>De Amulet van Emberfall</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <meta name="description" content="RetroAdventureWorld — een verzameling retro point-and-click pixel-avonturen.">
+  <title>RetroAdventureWorld</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="games/emberfall/assets/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=25">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Pro:ital@0;1&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #1a1410; --panel: #221a2e; --panel-2: #2c2238;
+      --gold: #c9a24b; --gold-light: #e7cf86; --parchment: #efe3c8;
+      --font-title: 'Cinzel','Trajan Pro',Georgia,serif;
+      --font-body: 'Crimson Pro',Georgia,serif;
+      --font-pixel: 'Pixelify Sans','Courier New',monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      background:
+        radial-gradient(1200px 600px at 50% -10%, #2a2038 0%, transparent 60%),
+        var(--bg-deep);
+      color: var(--parchment);
+      font-family: var(--font-body);
+      -webkit-tap-highlight-color: transparent;
+      display: flex; flex-direction: column; align-items: center;
+      padding: clamp(24px, 5vw, 64px) 16px 48px;
+      min-height: 100vh;
+    }
+    header { text-align: center; margin-bottom: clamp(24px, 5vw, 48px); max-width: 720px; }
+    .crest { font-size: clamp(28px, 7vw, 52px); line-height: 1; margin-bottom: 10px; }
+    h1 {
+      font-family: var(--font-title); font-weight: 700;
+      font-size: clamp(26px, 6vw, 46px); letter-spacing: 2px;
+      color: var(--gold-light);
+      text-shadow: 0 2px 0 #1f1410, 0 0 18px rgba(231,207,134,.25);
+    }
+    .tagline {
+      font-family: var(--font-pixel); font-size: clamp(11px, 2.6vw, 14px);
+      color: var(--gold); margin-top: 12px; letter-spacing: 1px;
+    }
+    .sub { font-style: italic; color: #bfb39a; margin-top: 10px; font-size: clamp(13px,3vw,16px); }
+    .grid {
+      display: grid; gap: clamp(16px, 3vw, 28px);
+      grid-template-columns: repeat(auto-fit, minmax(248px, 320px));
+      justify-content: center; width: 100%; max-width: 760px;
+    }
+    .card {
+      background: var(--panel);
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.3), inset 0 -2px 0 rgba(0,0,0,.5), 0 12px 28px rgba(0,0,0,.45);
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; overflow: hidden;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.4), 0 16px 34px rgba(0,0,0,.55), 0 0 22px rgba(231,207,134,.2); }
+    .cover { aspect-ratio: 16 / 9; width: 100%; object-fit: cover; image-rendering: pixelated; border-bottom: 2px solid var(--gold); background: #14100b; display: block; }
+    .card-body { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .card h2 { font-family: var(--font-title); font-weight: 700; font-size: 20px; color: var(--gold-light); letter-spacing: 1px; }
+    .card p { font-size: 14px; line-height: 1.45; color: #d8cdb4; flex: 1; }
+    .play {
+      align-self: flex-start; margin-top: 6px;
+      font-family: var(--font-pixel); font-size: 13px;
+      background: linear-gradient(#e7cf86, #c9a24b);
+      color: #2a1e0c; border: 2px solid #1f1410; padding: 8px 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+    }
+    footer { margin-top: 40px; font-family: var(--font-pixel); font-size: 11px; color: #6f6555; text-align: center; }
+    .lang { position: fixed; top: 12px; right: 12px; font-family: var(--font-pixel); font-size: 12px;
+      background: var(--panel); color: var(--gold-light); border: 2px solid var(--gold); box-shadow: 0 0 0 2px #1f1410; padding: 6px 10px; cursor: pointer; }
+  </style>
 </head>
 <body>
-  <canvas id="game"></canvas>
+  <button class="lang" id="lang" aria-label="Taal / Language">EN</button>
 
-  <div id="ui">
-    <div id="topbar">
-      <div id="topcenter">
-        <div id="quest" class="panel-mini" hidden></div>
-        <div id="hotspot-label" class="panel-mini" hidden></div>
+  <header>
+    <div class="crest">🍁🐴⚔️</div>
+    <h1>RetroAdventureWorld</h1>
+    <p class="tagline" data-nl="KIES JE AVONTUUR" data-en="CHOOSE YOUR ADVENTURE">KIES JE AVONTUUR</p>
+    <p class="sub" data-nl="Kleine point-and-click pixel-avonturen om in te verdwalen." data-en="Small point-and-click pixel adventures to get lost in.">Kleine point-and-click pixel-avonturen om in te verdwalen.</p>
+  </header>
+
+  <main class="grid">
+    <a class="card" href="games/emberfall/index.html">
+      <img class="cover" src="games/emberfall/assets/art/scene-courtyard.png" alt="De Amulet van Emberfall" loading="lazy" onerror="this.style.display='none'">
+      <div class="card-body">
+        <h2>De Amulet van Emberfall</h2>
+        <p data-nl="Eeuwige herfst, een gestolen amulet en een slapende minotaur. Verzamel, combineer en verslaan met list." data-en="Eternal autumn, a stolen amulet and a sleeping minotaur. Gather, combine and win by cunning.">Eeuwige herfst, een gestolen amulet en een slapende minotaur. Verzamel, combineer en verslaan met list.</p>
+        <span class="play" data-nl="▸ Speel" data-en="▸ Play">▸ Speel</span>
       </div>
-      <button id="soundBtn" class="round-btn sound" title="Geluid" aria-label="Geluid aan of uit"><img id="soundIcon" src="assets/icons/ui-sound-on.png" alt=""></button>
-      <button id="hintBtn" class="round-btn" title="Toon hotspots" aria-label="Toon aanwijzingen"><img src="assets/icons/ui-eye.png" alt=""></button>
-    </div>
+    </a>
 
-    <div id="bubble" class="speech" hidden>
-      <img id="bubbleFace" alt="" hidden>
-      <p id="bubbleText"></p>
-      <span class="tail"></span>
-    </div>
-    <div id="toast" hidden></div>
-
-    <div id="bottomui">
-      <div id="msg" class="panel" hidden>
-        <img id="msgFace" alt="" hidden>
-        <div class="msg-body">
-          <p id="msgText"></p>
-          <span id="msgMore">tik om verder te gaan ▸</span>
-        </div>
+    <a class="card" href="games/maanhoef/index.html">
+      <img class="cover" src="games/maanhoef/assets/art/scene-farm.png" alt="Maanhoef" loading="lazy" onerror="this.style.display='none'">
+      <div class="card-body">
+        <h2>Maanhoef</h2>
+        <p data-nl="Een meisje wil het paard Maanhoef redden. De sleutel hangt aan de halsband van een hond — en een uil en slang kruisen je pad." data-en="A girl sets out to rescue the horse Moonhoof. The key hangs from a dog’s collar — and an owl and a snake cross her path.">Een meisje wil het paard Maanhoef redden. De sleutel hangt aan de halsband van een hond — en een uil en slang kruisen je pad.</p>
+        <span class="play" data-nl="▸ Speel" data-en="▸ Play">▸ Speel</span>
       </div>
-      <div id="invbar" class="panel" aria-label="Inventaris"></div>
-    </div>
-  </div>
+    </a>
+  </main>
 
-  <button id="langBtn" class="round-btn lang" title="Taal / Language" aria-label="Wissel taal">EN</button>
+  <footer>RetroAdventureWorld · gemaakt met pixels &amp; liefde</footer>
 
-  <div id="title-screen" class="overlay title">
-    <img class="title-bg" src="assets/art/title.png" alt="" onerror="this.remove()">
-    <div class="title-content">
-      <h1 id="title-h1"><span>De Amulet</span><br><span>van Emberfall</span></h1>
-      <p id="title-sub" class="subtitle">Een point-and-click avontuur</p>
-      <p id="title-intro" class="intro"></p>
-      <button id="startBtn" class="gold-btn">Begin het avontuur</button>
-      <p id="title-credit" class="title-credit">Gemaakt voor Sandra</p>
-    </div>
-  </div>
-
-  <div id="win-screen" class="overlay" hidden>
-    <div class="overlay-card panel">
-      <div class="ornament">🍁</div>
-      <h1 id="win-h1">Emberfall is Gered</h1>
-      <p class="intro" id="winText"></p>
-      <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
-    </div>
-  </div>
-
-  <div id="death-screen" class="overlay" hidden>
-    <div class="overlay-card panel death">
-      <div class="ornament">💀</div>
-      <h1 id="death-h1">Verslagen...</h1>
-      <p class="intro" id="deathText"></p>
-      <button id="retryBtn" class="gold-btn">Probeer opnieuw</button>
-    </div>
-  </div>
-
-  <div id="puzzle-screen" class="overlay" hidden>
-    <div class="overlay-card panel puzzle-card" id="puzzle-card">
-      <button id="puzzle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
-      <h2 id="puzzle-title">Het Embleem van de Orde</h2>
-      <button id="puzzle-hint-btn" class="gold-btn puz-hint-btn">💡 Hint</button>
-      <div id="puzzle-grid"></div>
-      <p id="puzzle-tip" class="puz-tip" hidden></p>
-    </div>
-  </div>
-
-  <div id="riddle-screen" class="overlay" hidden>
-    <div class="overlay-card panel puzzle-card">
-      <button id="riddle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
-      <div class="riddle-head">
-        <img id="riddle-face" alt="" hidden>
-        <h2 id="riddle-title">Het Raadsel van de Ziener</h2>
-      </div>
-      <p id="riddle-question" class="riddle-q"></p>
-      <div id="riddle-answers"></div>
-    </div>
-  </div>
-
-  <div id="rune-screen" class="overlay" hidden>
-    <div class="overlay-card panel puzzle-card">
-      <button id="rune-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
-      <h2 id="rune-title">De Runenstenen</h2>
-      <p id="rune-hint" class="riddle-q"></p>
-      <div id="rune-btns" class="rune-btn-row"></div>
-      <p id="rune-status" class="rune-status"></p>
-    </div>
-  </div>
-
-  <div id="maze-screen" class="overlay" hidden>
-    <div class="overlay-card panel puzzle-card" id="maze-card">
-      <button id="maze-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
-      <h2 id="maze-title">De Waterloop van de Ward</h2>
-      <p id="maze-hint" class="maze-hint"></p>
-      <div class="maze-body">
-        <canvas id="maze-canvas" width="264" height="264"></canvas>
-        <div id="maze-dpad">
-          <button id="maze-up" class="gold-btn maze-btn" aria-label="Omhoog">▲</button>
-          <div class="maze-mid">
-            <button id="maze-left" class="gold-btn maze-btn" aria-label="Links">◀</button>
-            <button id="maze-right" class="gold-btn maze-btn" aria-label="Rechts">▶</button>
-          </div>
-          <button id="maze-down" class="gold-btn maze-btn" aria-label="Omlaag">▼</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="rotate-hint" class="overlay">
-    <div class="overlay-card panel">
-      <div class="ornament">📱↻</div>
-      <h1 id="rotate-h1">Draai je telefoon</h1>
-      <p class="intro" id="rotate-text">Dit avontuur speelt liggend. Draai je scherm een kwartslag.</p>
-    </div>
-  </div>
-
-  <script src="js/sprites.js?v=25"></script>
-  <script src="js/scenes.js?v=25"></script>
-  <script src="js/data.js?v=25"></script>
-  <script src="js/engine.js?v=25"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
+    (function () {
+      var lang = localStorage.getItem('raw-lang') || 'nl';
+      var btn = document.getElementById('lang');
+      function apply() {
+        document.documentElement.lang = lang;
+        btn.textContent = lang === 'nl' ? 'EN' : 'NL';
+        document.querySelectorAll('[data-nl]').forEach(function (el) {
+          el.textContent = el.getAttribute('data-' + lang);
+        });
+      }
+      btn.addEventListener('click', function () {
+        lang = lang === 'nl' ? 'en' : 'nl';
+        localStorage.setItem('raw-lang', lang);
+        apply();
       });
-    }
+      apply();
+    })();
   </script>
 </body>
 </html>

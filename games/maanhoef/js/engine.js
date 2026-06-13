@@ -69,36 +69,27 @@
     renderInventory();
   }
 
-  /* ---------- AI-art assets ---------- */
-  const ART = {
-    scenes: {
-      courtyard: 'assets/art/scene-courtyard.png',
-      temple: 'assets/art/scene-temple.png',
-      grove: 'assets/art/scene-grove.png'
-    },
-    sprites: {
-      hero: 'assets/art/hero.png',
-      heroWalk: 'assets/art/hero-walk.png',
-      heroWave: 'assets/art/hero-wave.png',
-      seer: 'assets/art/seer.png',
-      minotaur: 'assets/art/minotaur.png',
-      minotaurAsleep: 'assets/art/minotaur-asleep.png',
-      dog: 'assets/art/dog.png',
-      dogCold: 'assets/art/dog-cold.png',
-      dogVest: 'assets/art/dog-vest.png',
-      chestOpen: 'assets/art/chest-open.png',
-      gateDoor: 'assets/art/gate-door.png'
-    }
-  };
-  const art = { scenes: {}, sprites: {}, items: {}, overlays: {} };
-  /* dichte-deur-variant van de binnenplaats (open variant = scene-courtyard.png) */
-  art.courtyardClosed = new Image();
-  art.courtyardClosed.onload = () => { if (state.currentScene === 'courtyard') paintBackground(); };
-  art.courtyardClosed.src = 'assets/art/scene-courtyard-closed.png';
-  /* verlichte-runen-variant van het bos (doffe variant = scene-grove.png) */
-  art.groveLit = new Image();
-  art.groveLit.onload = () => { if (state.currentScene === 'grove') paintBackground(); };
-  art.groveLit.src = 'assets/art/scene-grove-lit.png';
+  /* ---------- Art assets (data-driven) ----------
+     Scene-achtergrond: scene.bg (PNG 568×320) — valt terug op de fallback-
+       painter in scenes.js als het bestand ontbreekt.
+     Wissel-achtergronden: scene.bgVariants:[{img, flag?, notFlag?}] — de eerste
+       variant waarvan de flag-conditie klopt wint (bv. open vs. dichte poort).
+     Sprites: GAME.sprites = { key: 'pad.png' }; een NPC verwijst via zijn
+       sprite-naam naar zo'n key. */
+  const ART = { scenes: {}, sprites: GAME.sprites || {} };
+  for (const [id, sc] of Object.entries(GAME.scenes)) {
+    if (sc.bg) ART.scenes[id] = sc.bg;
+  }
+  const art = { scenes: {}, sprites: {}, items: {}, overlays: {}, variants: {} };
+  for (const [id, sc] of Object.entries(GAME.scenes)) {
+    (sc.bgVariants || []).forEach((v) => {
+      if (!v.img || art.variants[v.img]) return;
+      const im = new Image();
+      im.onload = () => { if (id === state.currentScene) paintBackground(); };
+      im.src = v.img;
+      art.variants[v.img] = im;
+    });
+  }
   function overlayImg(src) {
     if (!art.overlays[src]) {
       const img = new Image();
@@ -298,13 +289,14 @@
   function paintBackground() {
     bgCtx.clearRect(0, 0, SCENE_W, SCENE_H);
     let img = art.scenes[state.currentScene];
-    /* binnenplaats: dichte-deur-achtergrond tot de poort open is */
-    if (state.currentScene === 'courtyard' && !state.flags.gateOpen && ready(art.courtyardClosed)) {
-      img = art.courtyardClosed;
-    }
-    /* bos: verlichte runen zodra het poeder op het tablet is gestrooid */
-    if (state.currentScene === 'grove' && state.flags.runesRevealed && ready(art.groveLit)) {
-      img = art.groveLit;
+    /* wissel-achtergrond: eerste variant waarvan de flag-conditie klopt */
+    const sc = GAME.scenes[state.currentScene];
+    if (sc && sc.bgVariants) {
+      for (const v of sc.bgVariants) {
+        const okFlag = !v.flag || state.flags[v.flag];
+        const okNot  = !v.notFlag || !state.flags[v.notFlag];
+        if (okFlag && okNot && ready(art.variants[v.img])) { img = art.variants[v.img]; break; }
+      }
     }
     if (ready(img)) {
       bgCtx.imageSmoothingEnabled = false;
@@ -459,6 +451,7 @@
     lastT = now;
     update(dt, now);
     draw(now);
+    if (elMaze && !elMaze.hidden) drawMaze(now);
   }
 
   /* ---------- Toetsenbord (WASD / pijltjes, fysieke key-codes) ---------- */
@@ -511,7 +504,7 @@
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
-    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden) {
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden && elMaze.hidden) {
       const { vx, vy } = keyVector();
       if (vx || vy) {
         if (msgOpen()) showNextMsg();    // tekst weg én meteen lopen
@@ -661,7 +654,8 @@
       if (dust[i].life <= 0) dust.splice(i, 1);
     }
     const fxd = scene.fx || {};
-    if (fxd.embers && Math.random() < 0.25) {
+    const darkU = !!(fxd.darkness && !state.flags[fxd.darkness.until]);
+    if (fxd.embers && !darkU && Math.random() < 0.25) {
       const src = fxd.embers[(Math.random() * fxd.embers.length) | 0];
       embers.push({ x: src.x + Math.random() * 8 - 4, y: src.y, life: 1.4, ph: Math.random() * 6 });
     }
@@ -692,7 +686,7 @@
      bent — anders stuiter je direct terug na het binnenkomen. */
   let exitArm = {};
   function checkExitProximity(scene) {
-    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden) return;
+    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden) return;
     for (const hs of scene.hotspots) {
       if (!hs.exit || !hs.walkTo) continue;
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
@@ -726,6 +720,8 @@
     fctx.drawImage(bgCanvas, 0, 0);
 
     const scene = GAME.scenes[state.currentScene];
+    const _fx = scene.fx || {};
+    const dark = !!(_fx.darkness && !state.flags[_fx.darkness.until]);
     const usingArt = ready(art.scenes[state.currentScene]);
     if (usingArt) paintFx(scene, now);
     paintPuzzleGlow(scene, now);
@@ -815,6 +811,57 @@
       fctx.fillRect(lx | 0, Lf.y | 0, Lf.size, Lf.size);
     }
 
+    /* Duisternis: dekt de hele scene tot de licht-flag gezet is; laat alleen
+       een zacht kijkveld rond de speler, gloeiende ogen en glimmers (bv. kolen) zien. */
+    if (dark) {
+      const dk = _fx.darkness;
+      fctx.save();
+      fctx.fillStyle = 'rgba(5,4,12,0.94)';
+      fctx.fillRect(0, 0, SCENE_W, SCENE_H);
+      fctx.globalCompositeOperation = 'destination-out';
+      const hole = (x, y, r) => {
+        const g = fctx.createRadialGradient(x, y, 2, x, y, r);
+        g.addColorStop(0, 'rgba(0,0,0,0.96)');
+        g.addColorStop(0.6, 'rgba(0,0,0,0.5)');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(x - r, y - r, r * 2, r * 2);
+      };
+      if (dk.peekAround !== false) hole(player.x, player.y - 12, dk.peekR || 48);
+      (dk.glimmers || []).forEach(gm => hole(gm.x, gm.y, gm.r || 16));
+      fctx.restore();
+      /* gekleurde gloed bij de glimmers (warm vuur of koud maanlicht) */
+      (dk.glimmers || []).forEach(gm => {
+        const r = gm.r || 16, col = gm.col || '255,150,60';
+        const pulse = (gm.base || 0.3) + 0.12 * Math.sin(now / (gm.speed || 240) + gm.x);
+        const g = fctx.createRadialGradient(gm.x, gm.y, 1, gm.x, gm.y, r);
+        g.addColorStop(0, `rgba(${col},${pulse})`);
+        g.addColorStop(1, `rgba(${col},0)`);
+        fctx.fillStyle = g;
+        fctx.fillRect(gm.x - r, gm.y - r, r * 2, r * 2);
+      });
+      /* zwevende stofdeeltjes voor sfeer (binnen het kijkveld) */
+      const motes = dk.motes || 0;
+      for (let i = 0; i < motes; i++) {
+        const bx = player.x + Math.sin(now / 1400 + i * 1.7) * (dk.peekR || 48) * 0.7;
+        const by = (player.y - 12) + Math.cos(now / 1700 + i * 2.3) * (dk.peekR || 48) * 0.55;
+        const a = 0.10 + 0.10 * Math.sin(now / 500 + i * 3);
+        fctx.fillStyle = `rgba(225,210,170,${Math.max(0, a)})`;
+        fctx.fillRect(bx | 0, by | 0, 1, 1);
+      }
+      /* gloeiende ogen in het donker */
+      (dk.eyes || []).forEach(e => {
+        const fl = 0.55 + 0.45 * Math.sin(now / 170 + e.x);
+        const g = fctx.createRadialGradient(e.x + 1, e.y + 1, 0, e.x + 1, e.y + 1, 6);
+        g.addColorStop(0, `rgba(255,70,45,${fl * 0.6})`);
+        g.addColorStop(1, 'rgba(255,70,45,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(e.x - 5, e.y - 5, 12, 12);
+        fctx.fillStyle = `rgba(255,60,40,${fl})`;
+        fctx.fillRect(Math.round(e.x), Math.round(e.y), 2, 2);
+      });
+    }
+
     /* Debug: toon het loopgebied (alleen als __game.debugWalk aan staat) */
     if (window.__debugWalk) {
       fctx.save();
@@ -858,7 +905,8 @@
 
   function paintFx(scene, now) {
     const fx = scene.fx || {};
-    if (fx.flames) {
+    const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
+    if (fx.flames && !dark) {
       for (const f of fx.flames) {
         const flicker = 0.18 + 0.1 * Math.sin(now / 90 + f.x);
         const g = fctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, f.r || 14);
@@ -867,6 +915,22 @@
         fctx.fillStyle = g;
         fctx.fillRect(f.x - (f.r || 14), f.y - (f.r || 14), (f.r || 14) * 2, (f.r || 14) * 2);
       }
+    }
+    /* Brandende muurfakkel zodra hij is aangestoken */
+    if (fx.wallTorch && state.flags[fx.wallTorch.flag || 'torchLit']) {
+      const t = fx.wallTorch, hgt = t.h || 46;
+      const img = art.sprites.wallTorch;
+      const topY = t.y - hgt;
+      if (ready(img)) {
+        const wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+        fctx.drawImage(img, Math.round(t.x - wd / 2), Math.round(topY), wd, hgt);
+      }
+      const fl = 0.22 + 0.13 * Math.sin(now / 90 + t.x);
+      const g = fctx.createRadialGradient(t.x, topY + 4, 2, t.x, topY + 4, 24);
+      g.addColorStop(0, `rgba(255,185,85,${fl})`);
+      g.addColorStop(1, 'rgba(255,140,40,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(t.x - 24, topY - 18, 48, 48);
     }
     if (fx.emblemGlow) {
       const e = fx.emblemGlow;
@@ -933,7 +997,7 @@
         fctx.fillRect(fx.chestOpen.x - 26, fx.chestOpen.y - h / 2 - 26, 52, 52);
       }
     }
-    if (fx.amulet && !state.flags.taken_temple_shrine) {
+    if (fx.amulet && !dark && !state.flags.taken_temple_shrine) {
       const a = fx.amulet;
       const glow = 0.3 + 0.18 * Math.sin(now / 350);
       const g = fctx.createRadialGradient(a.x + 8, a.y + 8, 1, a.x + 8, a.y + 8, 17);
@@ -1426,6 +1490,7 @@
   const elPuzTitle   = document.getElementById('puzzle-title');
   const elPuzClose   = document.getElementById('puzzle-close');
   const elPuzHintBtn = document.getElementById('puzzle-hint-btn');
+  const elPuzTip     = document.getElementById('puzzle-tip');
   let slide = null;      // { hs, n, tiles[], empty }
   let hintLevel = 0;     // 0 = geen, 1 = voorbeeld getoond, 2 = schuiftip getoond
 
@@ -1453,6 +1518,7 @@
     hintLevel = 0;
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) elPuzHintBtn.textContent = '💡 Hint';
+    if (elPuzTip) elPuzTip.hidden = true;
     renderSlide();
     elPuzzle.hidden = false;
     sfx('tap');
@@ -1462,6 +1528,7 @@
     const { hs, n, tiles } = slide;
     const cfg = hs.slidePuzzle;
     const px = 240 / n;
+    if (elPuzTip) elPuzTip.hidden = true;   // strategie-tip vervalt na elke zet
     elPuzGrid.innerHTML = '';
     tiles.forEach((tile, pos) => {
       if (tile === n * n - 1) return;            // leeg vak
@@ -1531,85 +1598,44 @@
     setTimeout(() => { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 2100);
   }
 
-  /* IDA* solver — geeft de optimale eerste positie om aan te tikken terug */
-  function findBestMove(tiles, n) {
-    const blank = n * n - 1;
-    const t0 = performance.now();
-
-    function h(state) {
-      let s = 0;
-      for (let i = 0; i < state.length; i++) {
-        if (state[i] === blank) continue;
-        s += Math.abs((state[i] % n) - (i % n)) + Math.abs(((state[i] / n) | 0) - ((i / n) | 0));
-      }
-      return s;
-    }
-
-    const work = tiles.slice();
-    let bound = h(work);
-    let answer = -1;
-
-    function dfs(blankPos, g, limit, prevBlank) {
-      if (performance.now() - t0 > 45) return 9999; // timeout
-      const f = g + h(work);
-      if (f > limit) return f;
-      if (f === g) return 0; // opgelost (h=0)
-      const bx = blankPos % n, by = (blankPos / n) | 0;
-      const ns = [];
-      if (bx > 0) ns.push(blankPos - 1);
-      if (bx < n - 1) ns.push(blankPos + 1);
-      if (by > 0) ns.push(blankPos - n);
-      if (by < n - 1) ns.push(blankPos + n);
-      let min = Infinity;
-      for (const next of ns) {
-        if (next === prevBlank) continue;
-        work[blankPos] = work[next]; work[next] = blank;
-        const t = dfs(next, g + 1, limit, blankPos);
-        work[next] = work[blankPos]; work[blankPos] = blank; // altijd ongedaan
-        if (t === 0) { if (g === 0) answer = next; return 0; }
-        if (t >= 9999) return 9999;
-        if (t < min) min = t;
-      }
-      return min;
-    }
-
-    for (let iter = 0; iter < 50 && bound < 100; iter++) {
-      answer = -1;
-      for (let j = 0; j < tiles.length; j++) work[j] = tiles[j]; // herstel
-      const result = dfs(tiles.indexOf(blank), 0, bound, -1);
-      if (result === 0) return answer;
-      if (result >= 9999) break;
-      bound = result;
-    }
-
-    // Greedy fallback: kies de aangrenzende tegel die de Manhattan-afstand het meest verkleint
-    const blankPos = tiles.indexOf(blank);
-    const bx = blankPos % n, by = (blankPos / n) | 0;
-    const adj = [];
-    if (bx > 0) adj.push(blankPos - 1);
-    if (bx < n - 1) adj.push(blankPos + 1);
-    if (by > 0) adj.push(blankPos - n);
-    if (by < n - 1) adj.push(blankPos + n);
-    let best = adj[0], bestH = Infinity;
-    for (const a of adj) {
-      const tmp = tiles[a]; tiles[blankPos] = tmp; tiles[a] = blank;
-      const hh = h(tiles);
-      tiles[a] = tmp; tiles[blankPos] = blank;
-      if (hh < bestH) { bestH = hh; best = a; }
-    }
-    return best;
+  /* Eerstvolgende vak dat volgens de laag-voor-laag-strategie aan de beurt is:
+     het eerste vak in leesvolgorde waar de verkeerde tegel ligt. */
+  function nextTargetCell(tiles) {
+    for (let i = 0; i < tiles.length - 1; i++) if (tiles[i] !== i) return i;
+    return -1;
   }
 
-  /* Hint niveau 2: hoe je het beste kan schuiven */
+  /* Hint niveau 2: legt de schuifstrategie uit (buitenrand eerst, naar de
+     hoek toe) en wijst de eerstvolgende tegel + zijn doelvak aan. */
   function showMoveHint() {
-    const pos = findBestMove(slide.tiles.slice(), slide.n);
-    if (pos < 0) return;
-    // verwijder eventuele oude suggest-highlight
+    const { tiles, n } = slide;
+    const target = nextTargetCell(tiles);
+    if (target < 0) return;
+    const tilePos = tiles.indexOf(target);          // waar die tegel nu ligt
+    const px = 240 / n;
+    const row = (target / n | 0) + 1, col = (target % n) + 1;
+
     elPuzGrid.querySelectorAll('.puz-tile.suggest').forEach(el => el.classList.remove('suggest'));
-    const tile = elPuzGrid.querySelector('[data-pos="' + pos + '"]');
-    if (!tile) return;
-    tile.classList.add('suggest');
-    setTimeout(() => tile.classList.remove('suggest'), 2200);
+    elPuzGrid.querySelectorAll('.puz-target').forEach(el => el.remove());
+
+    /* doelvak markeren */
+    const mark = document.createElement('div');
+    mark.className = 'puz-target';
+    mark.style.width = mark.style.height = px + 'px';
+    mark.style.left = (target % n) * px + 'px';
+    mark.style.top = (target / n | 0) * px + 'px';
+    elPuzGrid.appendChild(mark);
+
+    /* de tegel die in dat vak hoort laten pulseren */
+    const tEl = elPuzGrid.querySelector('[data-pos="' + tilePos + '"]');
+    if (tEl) tEl.classList.add('suggest');
+
+    if (elPuzTip) {
+      elPuzTip.textContent = lang === 'nl'
+        ? `Strategie: werk van linksboven naar rechtsonder — maak eerst de bovenste rij af, dan de linkerkolom, enzovoort naar de hoek rechtsonder. De oplichtende tegel hoort in het gemarkeerde vak (rij ${row}, kolom ${col}). De laatste 2×2 los je als geheel op.`
+        : `Strategy: work top-left to bottom-right — finish the top row first, then the left column, and so on toward the bottom-right corner. The glowing tile belongs in the marked cell (row ${row}, column ${col}). Solve the final 2×2 as one unit.`;
+      elPuzTip.hidden = false;
+    }
   }
 
   function showPuzzleHint() {
@@ -1755,6 +1781,149 @@
 
   elRuneClose.addEventListener('click', () => { elRune.hidden = true; });
 
+  /* ---------- Doolhof-puzzel (de ward bij het altaar) ----------
+     Een willekeurig (altijd oplosbaar) doolhof; stuur de figuur met de
+     richtingsknoppen/pijltjes naar de gloeiende amulet om de ward te lichten. */
+  const elMaze       = document.getElementById('maze-screen');
+  const elMazeTitle  = document.getElementById('maze-title');
+  const elMazeHint   = document.getElementById('maze-hint');
+  const elMazeCanvas = document.getElementById('maze-canvas');
+  const elMazeClose  = document.getElementById('maze-close');
+  const mctx = elMazeCanvas ? elMazeCanvas.getContext('2d') : null;
+  let maze = null;     // { hs, g, n, cur, exit, cell, trail }
+  let mazeImg = null;  // optionele Higgsfield-achtergrond
+
+  function genMazeGrid(cells) {
+    const n = cells * 2 + 1;
+    const g = Array.from({ length: n }, () => Array(n).fill(1)); // 1 = muur
+    (function carve(r, c) {
+      g[r][c] = 0;
+      const dirs = [[0, 2], [0, -2], [2, 0], [-2, 0]].sort(() => Math.random() - 0.5);
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (nr > 0 && nr < n - 1 && nc > 0 && nc < n - 1 && g[nr][nc] === 1) {
+          g[r + dr / 2][c + dc / 2] = 0;
+          carve(nr, nc);
+        }
+      }
+    })(1, 1);
+    return { g, n };
+  }
+
+  function openMaze(hs) {
+    if (!mctx) return;
+    const cfg = hs.maze;
+    const { g, n } = genMazeGrid(cfg.cells || 5);
+    const cell = Math.floor(264 / n);
+    elMazeCanvas.width = elMazeCanvas.height = cell * n;
+    maze = { hs, g, n, cur: [1, 1], exit: [n - 2, n - 2], cell, trail: new Set(['1,1']), water: !!cfg.water };
+    if (cfg.img && (!mazeImg || mazeImg._src !== cfg.img)) {
+      mazeImg = new Image(); mazeImg._src = cfg.img; mazeImg.src = cfg.img;
+    }
+    elMazeTitle.textContent = L(cfg.title);
+    if (elMazeHint) elMazeHint.textContent = L(cfg.hint || '');
+    elMaze.hidden = false;
+    drawMaze(performance.now());
+    sfx('tap');
+  }
+
+  /* Eén waterkanaal-vakje met stromende glinstering */
+  function waterCell(x, y, cell, now, phase) {
+    mctx.fillStyle = '#1c4d6b'; mctx.fillRect(x, y, cell, cell);
+    for (let i = 0; i < 2; i++) {
+      const yy = y + 5 + i * 9 + Math.sin(now / 380 + phase + i) * 1.5;
+      mctx.fillStyle = `rgba(150,205,232,${0.22 + 0.16 * Math.sin(now / 280 + phase + i * 2)})`;
+      mctx.fillRect(x + 2, Math.round(yy), cell - 4, 1);
+    }
+  }
+
+  function drawMaze(now) {
+    if (!maze || !mctx) return;
+    now = now || performance.now();
+    const { g, n, cur, exit, cell, trail } = maze;
+    const W = cell * n;
+    /* achtergrond: Higgsfield-textuur (gedimd) of effen */
+    if (mazeImg && mazeImg.complete && mazeImg.naturalWidth > 0) {
+      mctx.imageSmoothingEnabled = false;
+      mctx.drawImage(mazeImg, 0, 0, W, W);
+      mctx.fillStyle = 'rgba(12,10,20,0.35)'; mctx.fillRect(0, 0, W, W);
+    } else {
+      mctx.fillStyle = '#14100b'; mctx.fillRect(0, 0, W, W);
+    }
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+      const x = c * cell, y = r * cell;
+      if (g[r][c] === 1) {                       // muur: nat steen
+        mctx.fillStyle = '#241a30'; mctx.fillRect(x, y, cell, cell);
+        mctx.fillStyle = '#37294a'; mctx.fillRect(x, y, cell, 2);
+        mctx.fillStyle = '#140d1d'; mctx.fillRect(x, y + cell - 2, cell, 2);
+      } else if (trail.has(r + ',' + c)) {       // afgelegd pad
+        if (maze.water) waterCell(x, y, cell, now, (r * 3 + c) * 0.9);
+        else { mctx.fillStyle = 'rgba(216,185,138,0.5)'; mctx.fillRect(x, y, cell, cell); }
+      } else {                                   // nog niet betreden
+        mctx.fillStyle = 'rgba(20,16,28,0.45)'; mctx.fillRect(x, y, cell, cell);
+        mctx.fillStyle = 'rgba(90,80,70,0.25)'; mctx.fillRect(x + 2, y + cell - 3, cell - 4, 1);
+      }
+    }
+    /* uitgang: bekken onder de gloeiende amulet */
+    const ex = exit[1] * cell + cell / 2, ey = exit[0] * cell + cell / 2;
+    const filled = trail.has(exit[0] + ',' + exit[1]);
+    const glow = 0.4 + 0.28 * Math.sin(now / 300);
+    const gg = mctx.createRadialGradient(ex, ey, 1, ex, ey, cell);
+    gg.addColorStop(0, `rgba(231,207,134,${glow})`); gg.addColorStop(1, 'rgba(231,207,134,0)');
+    mctx.fillStyle = gg; mctx.fillRect(ex - cell, ey - cell, cell * 2, cell * 2);
+    mctx.strokeStyle = '#e7cf86'; mctx.lineWidth = 2;
+    mctx.strokeRect(Math.round(ex - cell / 2 + 2), Math.round(ey - cell / 2 + 2), cell - 4, cell - 4);
+    if (filled && maze.water) { waterCell(Math.round(ex - cell / 2 + 3), Math.round(ey - cell / 2 + 3), cell - 6, now, 1.3); }
+    mctx.fillStyle = '#e7cf86'; mctx.fillRect(Math.round(ex - 3), Math.round(ey - 4), 6, 8);
+    mctx.fillStyle = '#a8432a'; mctx.fillRect(Math.round(ex - 2), Math.round(ey - 1), 4, 4);
+    /* token: waterfront (water-modus) of gehulde figuur */
+    const px = cur[1] * cell + cell / 2, py = cur[0] * cell + cell / 2;
+    if (maze.water) {
+      const tg = mctx.createRadialGradient(px, py, 1, px, py, cell * 0.7);
+      tg.addColorStop(0, 'rgba(180,235,255,0.8)'); tg.addColorStop(1, 'rgba(120,200,235,0)');
+      mctx.fillStyle = tg; mctx.fillRect(px - cell, py - cell, cell * 2, cell * 2);
+      mctx.fillStyle = '#bfecff'; mctx.fillRect(Math.round(px - 3), Math.round(py - 3), 6, 6);
+    } else {
+      mctx.fillStyle = '#3a2a5a'; mctx.fillRect(Math.round(px - 4), Math.round(py - 5), 8, 10);
+      mctx.fillStyle = '#e7cf86'; mctx.fillRect(Math.round(px - 3), Math.round(py - 6), 6, 3);
+    }
+  }
+
+  function mazeMove(dr, dc) {
+    if (!maze) return;
+    const nr = maze.cur[0] + dr, nc = maze.cur[1] + dc;
+    if (nr < 0 || nr >= maze.n || nc < 0 || nc >= maze.n) return;
+    if (maze.g[nr][nc] === 1) { sfx('error'); return; }
+    maze.cur = [nr, nc];
+    maze.trail.add(nr + ',' + nc);   // water stroomt mee langs het pad
+    sfx('step');
+    drawMaze(performance.now());
+    if (nr === maze.exit[0] && nc === maze.exit[1]) {
+      const cfg = maze.hs.maze;
+      state.flags[cfg.setFlag] = true;
+      sfx('combine');
+      setTimeout(() => { elMaze.hidden = true; maze = null; say(cfg.solvedText); updateQuest(); }, 600);
+    }
+  }
+
+  function closeMaze() { elMaze.hidden = true; maze = null; }
+  if (elMazeClose) elMazeClose.addEventListener('click', closeMaze);
+  if (elMaze) elMaze.addEventListener('pointerdown', (e) => { if (e.target === elMaze) closeMaze(); });
+
+  const MAZE_DIRS = { 'maze-up': [-1, 0], 'maze-down': [1, 0], 'maze-left': [0, -1], 'maze-right': [0, 1] };
+  for (const id in MAZE_DIRS) {
+    const b = document.getElementById(id);
+    if (!b) continue;
+    const d = MAZE_DIRS[id];
+    b.addEventListener('touchend', (e) => { e.preventDefault(); mazeMove(d[0], d[1]); }, { passive: false });
+    b.addEventListener('click', () => mazeMove(d[0], d[1]));
+  }
+  window.addEventListener('keydown', (e) => {
+    if (!elMaze || elMaze.hidden) return;
+    const m = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+    if (m) { e.preventDefault(); mazeMove(m[0], m[1]); }
+  });
+
   /* ---------- Vonken-burst (kist/poort die opengaat) ---------- */
   const sparks = [];
   function burstAt(x, y, opts) {
@@ -1815,8 +1984,18 @@
       state.selectedItem = null;
       renderInventory();
       const action = hs.use && hs.use[sel];
-      if (action) runAction(action, hsSpeaker(hs), hsFace(hs));
-      else { sfx('error'); say(GAME.strings.noEffect); }
+      if (action) {
+        if (action.needItem && !state.inventory.includes(action.needItem)) {
+          sfx('error');
+          say(action.needText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
+        } else {
+          runAction(action, hsSpeaker(hs), hsFace(hs));
+        }
+      } else {
+        sfx('error');
+        const it = GAME.items[sel];
+        say((it && it.noUseText) || GAME.strings.noEffect);
+      }
       return;
     }
 
@@ -1847,8 +2026,14 @@
       say(lookText(hs), hsSpeaker(hs));
       return;
     }
-    if (hs.riddle && state.flags.visited_grove && !state.flags[hs.riddle.setFlag]) {
+    if (hs.riddle && !state.flags[hs.riddle.setFlag] &&
+        (!hs.riddle.requiresFlag || state.flags[hs.riddle.requiresFlag])) {
       openRiddle(hs);
+      return;
+    }
+    if (hs.maze && !state.flags[hs.maze.setFlag] &&
+        (!hs.maze.requiresFlag || state.flags[hs.maze.requiresFlag])) {
+      openMaze(hs);
       return;
     }
 
@@ -1895,7 +2080,7 @@
   }
 
   function runAction(a, anchor, face) {
-    if (a.consume) removeItem(a.consume);
+    if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
     if (a.setFlag) { state.flags[a.setFlag] = true; updateQuest(); }
     if (a.win) { pendingWin = true; sfx('win'); }
@@ -2115,6 +2300,8 @@
     isDeathShown: () => !elDeath.hidden,
     setLang: (l) => { lang = l; applyLang(); },
     questKey,
+    getMaze: () => maze && { g: maze.g.map(r => r.slice()), n: maze.n, cur: maze.cur.slice(), exit: maze.exit.slice() },
+    mazeMove: (dr, dc) => mazeMove(dr, dc),
     reset: resetGame
   };
 

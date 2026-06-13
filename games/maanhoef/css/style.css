@@ -1,0 +1,816 @@
+/* ============================================================
+   De Amulet van de Herfst — navy + goud thema, mobile-first
+   ============================================================ */
+
+:root {
+  --bg-deep:    #1a1410;
+  --panel:      #221a2e;
+  --panel-2:    #2c2238;
+  --gold:       #c9a24b;
+  --gold-light: #e7cf86;
+  --parchment:  #efe3c8;
+  --sand:       #d8b98a;
+  --rust:       #a8432a;
+
+  --font-title: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --font-body:  'Crimson Pro', Georgia, serif;
+  --font-pixel: 'Pixelify Sans', 'Courier New', monospace;
+
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-deep);
+  color: var(--parchment);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ---------- Panelen met dubbele goudrand ---------- */
+
+.panel {
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 0;
+  box-shadow:
+    0 0 0 2px #1f1410,
+    inset 0 2px 0 rgba(231,207,134,.3),
+    inset 0 -2px 0 rgba(0,0,0,.5);
+}
+
+.panel-mini {
+  background: rgba(34, 26, 46, .94);
+  border: 2px solid var(--gold);
+  border-radius: 0;
+  box-shadow: 0 0 0 2px #1f1410;
+}
+
+/* ---------- UI lagen ---------- */
+
+#ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(var(--safe-top) + 10px) 12px 0;
+  position: relative;
+}
+
+#topcenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100vw - 130px);
+}
+
+/* Doel-banner: pixel-lint bovenin (harde hoeken, geen gradiënt) */
+#quest {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.25;
+  color: #2a1c10;
+  background: var(--gold);
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    0 0 0 2px #1f1410,
+    0 0 0 4px var(--gold),
+    0 0 0 6px #1f1410,
+    inset 0 2px 0 var(--gold-light),
+    inset 0 -2px 0 #8a6a26;
+  padding: 5px 14px;
+  text-align: center;
+  transition: opacity .3s;
+}
+
+/* Geluidsknop links, hintknop rechts — banner vrij in het midden */
+.round-btn.sound {
+  right: auto;
+  left: 12px;
+}
+
+/* Taalknop: ook bruikbaar op het titelscherm (boven de overlays) */
+.round-btn.lang {
+  position: fixed;
+  right: auto;
+  left: 62px;
+  top: calc(var(--safe-top) + 8px);
+  z-index: 30;
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Tekstballon boven een personage */
+.speech {
+  position: fixed;
+  z-index: 12;
+  max-width: 64vw;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: var(--parchment);
+  color: #3a2a1a;
+  border: 2px solid #8a6a3a;
+  border-radius: 4px;
+  padding: 9px 13px;
+  box-shadow: 0 0 0 2px #1f1410, inset 0 0 0 1px rgba(255,255,255,.6);
+  font-family: var(--font-pixel);
+  font-size: 14.5px;
+  line-height: 1.35;
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translate(-50%, -100%);
+  animation: bubbleIn .18s ease-out;
+}
+#bubbleFace {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  image-rendering: pixelated;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #8a6a3a, 0 0 0 4px #1f1410;
+  align-self: center;
+}
+
+.speech .tail {
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 14px;
+  height: 14px;
+  background: var(--parchment);
+  border-right: 2px solid #8a6a3a;
+  border-bottom: 2px solid #8a6a3a;
+  transform: translateX(-50%) rotate(45deg);
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translate(-50%, -100%) scale(.85); }
+  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
+/* Oppak-toast boven de inventaris */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 110px;
+  transform: translateX(-50%);
+  z-index: 12;
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  color: var(--gold-light);
+  background: rgba(34,26,46,.94);
+  border: 2px solid var(--gold);
+  border-radius: 0;
+  box-shadow: 0 0 0 2px #1f1410;
+  padding: 6px 14px;
+  pointer-events: none;
+  animation: toastUp 1.6s ease-out forwards;
+}
+@keyframes toastUp {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-22px); }
+}
+
+#hotspot-label {
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  color: var(--gold-light);
+  padding: 5px 14px;
+  max-width: 70vw;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: labelIn .18s ease-out;
+  border-radius: 0;
+  box-shadow: 0 0 0 2px #1f1410, inset 0 0 0 1px rgba(231,207,134,.45);
+}
+
+@keyframes labelIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.round-btn {
+  pointer-events: auto;
+  position: absolute;
+  right: 12px;
+  top: calc(var(--safe-top) + 8px);
+  width: 42px;
+  height: 42px;
+  border-radius: 0;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--gold-light);
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.35), inset 0 -2px 0 rgba(0,0,0,.5);
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+.round-btn:active { transform: scale(.92); }
+
+/* ---------- Onderkant: tekstvenster + inventaris ---------- */
+
+#bottomui {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 10px calc(var(--safe-bottom) + 10px);
+}
+
+#msg {
+  pointer-events: auto;
+  padding: 8px 14px 6px;
+  max-width: 620px;
+  margin: 0 auto;
+  width: fit-content;
+  cursor: pointer;
+  animation: msgIn .22s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#msgFace {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #8a6a3a, 0 0 0 4px #1f1410;
+}
+.msg-body { flex: 1 1 auto; }
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+#msgText {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--parchment);
+}
+
+#msgMore {
+  display: block;
+  margin-top: 3px;
+  text-align: right;
+  font-family: var(--font-pixel);
+  font-size: 10.5px;
+  color: var(--sand);
+  opacity: .85;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: .95; }
+}
+
+#invbar {
+  pointer-events: auto;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 18px;
+  width: fit-content;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Ornamentele eindkapjes op de toolbar */
+#invbar::before,
+#invbar::after {
+  content: '◆';
+  color: var(--gold);
+  font-size: 11px;
+  text-shadow: 0 1px 0 #1f1410;
+  flex: 0 0 auto;
+}
+
+#invbar {
+  background: rgba(26, 20, 16, .72);
+}
+
+.inv-slot {
+  width: 50px;
+  height: 50px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  border-radius: 0;
+  background: linear-gradient(180deg, #241a12, #140f0a);
+  border: 2px solid #5e4a22;
+  box-shadow:
+    0 0 0 1px #1f1410,
+    inset 0 2px 4px rgba(0,0,0,.8),
+    inset 0 -1px 0 rgba(231,207,134,.10);
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, transform .1s;
+}
+
+.inv-slot.filled {
+  border-color: var(--gold);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(231,207,134,.16), transparent 68%),
+    linear-gradient(180deg, #241a12, #140f0a);
+}
+
+.inv-slot img {
+  width: 84%;
+  height: 84%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.inv-slot:active { transform: scale(.93); }
+
+.inv-slot.selected {
+  border-color: var(--gold-light);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,.7),
+    0 0 12px 2px rgba(231,207,134,.65),
+    0 0 4px 1px var(--gold-light);
+  animation: glow 1.2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: inset 0 2px 6px rgba(0,0,0,.7), 0 0 12px 2px rgba(231,207,134,.65); }
+  50%      { box-shadow: inset 0 2px 6px rgba(0,0,0,.7), 0 0 18px 4px rgba(231,207,134,.85); }
+}
+
+.inv-slot.pop { animation: itemPop .35s ease-out; }
+
+@keyframes itemPop {
+  0%   { transform: scale(.3); }
+  60%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- Overlays (titel + winst) ---------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(201,162,75,.10), transparent 60%),
+    rgba(15, 11, 8, .88);
+  z-index: 20;
+  animation: overlayIn .4s ease-out;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.overlay-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.overlay-card h1 {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: clamp(24px, 6vw, 36px);
+  line-height: 1.15;
+  color: var(--gold-light);
+  text-shadow:
+    2px 0 0 #1f1410, -2px 0 0 #1f1410, 0 2px 0 #1f1410, 0 -2px 0 #1f1410,
+    0 0 22px rgba(201,162,75,.45);
+  margin: 10px 0 6px;
+}
+
+.overlay-card.death h1 { color: #e88a7a; text-shadow:
+  2px 0 0 #1f1410, -2px 0 0 #1f1410, 0 2px 0 #1f1410, 0 -2px 0 #1f1410,
+  0 0 22px rgba(168,67,42,.5); }
+
+.overlay-card .subtitle {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--sand);
+  margin-bottom: 16px;
+}
+
+/* ---------- Titelscherm met key-art ---------- */
+.overlay.title {
+  padding: 0;
+  background: var(--bg-deep);
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.title-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.title-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  text-align: center;
+  padding: 30px 24px calc(var(--safe-bottom) + 26px);
+  background: linear-gradient(180deg, rgba(20,13,9,0) 0%, rgba(20,13,9,.72) 45%, rgba(20,13,9,.92) 100%);
+}
+
+#title-h1 {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: clamp(30px, 7.5vh, 48px);
+  line-height: 1.08;
+  color: var(--gold-light);
+  text-shadow:
+    3px 0 0 #1f1410, -3px 0 0 #1f1410, 0 3px 0 #1f1410, 0 -3px 0 #1f1410,
+    2px 2px 0 #1f1410, -2px -2px 0 #1f1410, 2px -2px 0 #1f1410, -2px 2px 0 #1f1410,
+    0 4px 18px rgba(0,0,0,.8), 0 0 30px rgba(201,162,75,.4);
+  margin-bottom: 4px;
+}
+
+#title-sub {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--sand);
+  text-shadow: 1px 1px 0 #1f1410;
+  margin-bottom: 10px;
+}
+
+#title-intro {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--parchment);
+  max-width: 540px;
+  margin: 0 auto 16px;
+  text-shadow: 1px 1px 0 #1f1410, 0 2px 4px rgba(0,0,0,.7);
+}
+
+.title-credit {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: var(--sand);
+  margin-top: 12px;
+  opacity: .9;
+  text-shadow: 1px 1px 0 #1f1410;
+}
+
+.overlay-card .intro {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--parchment);
+  margin-bottom: 22px;
+}
+
+.ornament {
+  color: var(--gold);
+  font-size: 22px;
+  opacity: .85;
+}
+.ornament.flip { transform: scaleX(-1); margin-top: 14px; }
+
+.gold-btn {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: 18px;
+  color: #2a1c10;
+  background: var(--gold);
+  border: none;
+  border-radius: 0;
+  padding: 12px 28px;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 2px #1f1410,
+    0 0 0 4px var(--gold),
+    0 0 0 6px #1f1410,
+    inset 0 3px 0 var(--gold-light),
+    inset 0 -3px 0 #8a6a26;
+  transition: transform .1s, box-shadow .15s;
+}
+.gold-btn:active {
+  transform: scale(.96);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 2px 8px rgba(0,0,0,.5);
+}
+
+/* Pixel-iconen in de knoppen */
+.round-btn img {
+  width: 28px;
+  height: auto;
+  image-rendering: pixelated;
+  display: block;
+  margin: 0 auto;
+  pointer-events: none;
+}
+
+/* ---------- Schuifpuzzel-popup ---------- */
+.puzzle-card {
+  position: relative;
+  max-width: 320px;
+  padding: 20px 24px 24px;
+}
+
+.puzzle-card h2 {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--gold-light);
+  text-shadow: 1px 1px 0 #1f1410;
+  margin-bottom: 10px;
+  padding-right: 46px; /* ruimte voor kruisje */
+}
+
+/* Kruisje altijd zichtbaar: binnen de kaart */
+.round-btn.puz-x {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  font-family: var(--font-pixel);
+  z-index: 2;
+}
+
+.puz-hint-btn {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  padding: 9px 10px;
+  margin-bottom: 10px;
+}
+
+/* Tegel die uitgelicht wordt als schuiftip */
+.puz-tile.suggest {
+  z-index: 3;
+  box-shadow: inset 0 0 0 3px rgba(231,207,134,.95), 0 0 14px 4px rgba(231,207,134,.55);
+  animation: suggestPulse .55s ease-in-out infinite;
+}
+@keyframes suggestPulse {
+  0%,100% { filter: brightness(1.3); }
+  50%      { filter: brightness(1.8); }
+}
+
+/* Doelvak waar de oplichtende tegel heen moet (schuiftip-niveau 2) */
+.puz-target {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  border: 2px dashed rgba(231,207,134,.95);
+  box-shadow: 0 0 10px 2px rgba(231,207,134,.4);
+  pointer-events: none;
+  animation: suggestPulse .7s ease-in-out infinite;
+}
+
+/* Strategie-uitleg onder het rooster */
+.puz-tip {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--parchment);
+  max-width: 240px;
+  margin: 10px auto 0;
+  text-align: left;
+}
+
+/* ---------- Doolhof-puzzel ---------- */
+.maze-hint {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--sand);
+  text-align: center;
+  max-width: 320px;
+  margin: 4px auto 8px;
+}
+/* Liggend mobiel: doolhof links, D-pad rechts, schaalt mee met schermhoogte. */
+.maze-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+#maze-canvas {
+  display: block;
+  width: min(264px, 60vh);
+  height: min(264px, 60vh);
+  image-rendering: pixelated;
+  background: #14100b;
+  box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410, inset 0 0 18px rgba(0,0,0,.8);
+  touch-action: none;
+}
+#maze-dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.maze-mid { display: flex; gap: 50px; }
+.maze-btn {
+  width: 50px;
+  height: 42px;
+  font-size: 18px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#puzzle-grid {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin: 0 auto;
+  background: #14100b;
+  box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410, inset 0 0 18px rgba(0,0,0,.8);
+  touch-action: none;           /* voorkomt scroll-interferentie op Safari */
+  -webkit-user-select: none;
+}
+
+.puz-tile {
+  position: absolute;
+  image-rendering: pixelated;
+  box-shadow: inset 0 0 0 1px rgba(31,20,16,.85);
+  cursor: pointer;
+  transition: left .12s ease-out, top .12s ease-out;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.puz-tile:active { filter: brightness(1.3); }
+
+/* Raadsel-popup */
+.riddle-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.riddle-head h2 { margin-bottom: 0; }
+#riddle-face {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  image-rendering: pixelated;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410;
+}
+
+.riddle-q {
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--parchment);
+  margin-bottom: 16px;
+  min-height: 66px;
+}
+
+#riddle-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gold-btn.riddle-ans {
+  font-size: 15px;
+  padding: 9px 18px;
+}
+
+/* Runenstenen-popup (mobiel volgorde-puzzel) */
+.rune-btn-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 10px;
+}
+.rune-stone-btn {
+  flex: 1;
+  background: linear-gradient(180deg, #241a12, #140f0a);
+  border: 2px solid var(--gold);
+  color: var(--gold-light);
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  line-height: 1.45;
+  padding: 12px 4px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.15);
+  transition: background .12s, transform .1s;
+}
+.rune-stone-btn.lit {
+  background: rgba(231,207,134,.18);
+  border-color: var(--gold-light);
+  box-shadow: 0 0 0 2px #1f1410, 0 0 10px 2px rgba(231,207,134,.35);
+  pointer-events: none;
+}
+.rune-stone-btn:active { transform: scale(.92); }
+.rune-status {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--sand);
+  min-height: 18px;
+  text-align: center;
+}
+
+[hidden] { display: none !important; }
+
+/* Draai-hint: het spel speelt liggend */
+#rotate-hint { display: none; z-index: 40; }
+@media (orientation: portrait) {
+  #rotate-hint { display: flex; }
+}
+
+/* ---------- Mobiel: inventory verticaal rechts, tekst compact onderaan ----------
+   Zo blijft het midden van de scene vrij i.p.v. door UI bedekt te worden. */
+@media (pointer: coarse) {
+  #bottomui { display: contents; }
+
+  /* knoppen allemaal links: geluid, taal, oog — inventory staat rechts */
+  .round-btn.sound { left: 12px; }
+  .round-btn.lang  { left: 60px; }
+  #hintBtn { left: 108px; right: auto; }
+
+  #invbar {
+    position: fixed;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    flex-direction: column;
+    width: auto;
+    margin: 0;
+    gap: 5px;
+    padding: 6px;
+    background: rgba(26, 20, 16, .55);
+  }
+  #invbar::before, #invbar::after { display: none; }
+  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
+
+  /* tekst links onderaan, weg van de inventory */
+  #msg {
+    position: fixed;
+    left: 8px;
+    right: auto;
+    bottom: 8px;
+    max-width: 62vw;
+    width: auto;
+    margin: 0;
+    padding: 7px 12px 5px;
+  }
+  #msgText { font-size: 13.5px; }
+  #msgFace { width: 34px; height: 34px; }
+
+  #toast { bottom: auto; top: 54px; }
+}
