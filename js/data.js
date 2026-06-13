@@ -31,7 +31,8 @@ const GAME = {
     dogCold:        'assets/art/dog-cold.png',
     dogVest:        'assets/art/dog-vest.png',
     chestOpen:      'assets/art/chest-open.png',
-    gateDoor:       'assets/art/gate-door.png'
+    gateDoor:       'assets/art/gate-door.png',
+    wallTorch:      'assets/art/torch-lit.png'
   },
 
   winText: {
@@ -557,6 +558,7 @@ const GAME = {
           /* koud maanlicht dat zwak op de onaangestoken fakkel valt */
           glimmers: [ { x: 136, y: 142, r: 26, col: '150,180,225', base: 0.16, speed: 900 } ]
         },
+        wallTorch: { x: 135, y: 150, h: 46 },
         flames: [
           { x: 307, y: 148, r: 14 },
           { x: 434, y: 155, r: 14 }

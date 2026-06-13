@@ -916,6 +916,22 @@
         fctx.fillRect(f.x - (f.r || 14), f.y - (f.r || 14), (f.r || 14) * 2, (f.r || 14) * 2);
       }
     }
+    /* Brandende muurfakkel zodra hij is aangestoken */
+    if (fx.wallTorch && state.flags[fx.wallTorch.flag || 'torchLit']) {
+      const t = fx.wallTorch, hgt = t.h || 46;
+      const img = art.sprites.wallTorch;
+      const topY = t.y - hgt;
+      if (ready(img)) {
+        const wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+        fctx.drawImage(img, Math.round(t.x - wd / 2), Math.round(topY), wd, hgt);
+      }
+      const fl = 0.22 + 0.13 * Math.sin(now / 90 + t.x);
+      const g = fctx.createRadialGradient(t.x, topY + 4, 2, t.x, topY + 4, 24);
+      g.addColorStop(0, `rgba(255,185,85,${fl})`);
+      g.addColorStop(1, 'rgba(255,140,40,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(t.x - 24, topY - 18, 48, 48);
+    }
     if (fx.emblemGlow) {
       const e = fx.emblemGlow;
       const pulse = 0.12 + 0.1 * Math.sin(now / 420);
