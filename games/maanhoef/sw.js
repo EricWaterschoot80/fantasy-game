@@ -14,6 +14,8 @@ const PRECACHE = [
   './assets/art/scene-farm.png',
   './assets/art/scene-grove.png',
   './assets/art/scene-stable.png',
+  './assets/art/scene-cave.png',
+  './assets/art/title.png',
   './assets/art/hero.png',
   './assets/art/hero-walk.png',
   './assets/art/hero-wave.png',

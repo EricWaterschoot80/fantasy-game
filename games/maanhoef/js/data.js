@@ -48,7 +48,7 @@ const GAME = {
 
     q_owl:    { nl: 'Vraag de wijze uil op de paal om raad', en: 'Ask the wise owl on the post for advice' },
     q_snake:  { nl: 'Een slang verspert het bospad — betover haar met de fluit', en: 'A snake blocks the forest path — charm it with the flute' },
-    q_chest:  { nl: 'De slang sluimert — open nu de oude kist', en: 'The snake is dozing — now open the old chest' },
+    q_cave:   { nl: 'De slang sluimert — ga door de stenen boog de grot in', en: 'The snake is dozing — enter the cave through the stone arch' },
     q_dog:    { nl: 'Geef het hongerige hondje het bot om bij de sleutel te komen', en: 'Give the hungry dog the bone to reach the key' },
     q_gate:   { nl: 'Open met de sleutel de stalpoort naar Maanhoef', en: 'Open the stable gate to Moonhoof with the key' }
   },
@@ -68,7 +68,7 @@ const GAME = {
   questRules: [
     { when: { has: 'key' },                                quest: 'q_gate' },
     { when: { has: 'bone' },                               quest: 'q_dog' },
-    { when: { flag: 'snakeCharmed', notFlag: 'taken_grove_chest' }, quest: 'q_chest' },
+    { when: { flag: 'snakeCharmed', notFlag: 'taken_cave_bone' }, quest: 'q_cave' },
     { when: { has: 'flute', notFlag: 'snakeCharmed' },     quest: 'q_snake' },
     { when: {},                                            quest: 'q_owl' }
   ],
@@ -186,9 +186,9 @@ const GAME = {
         nl: 'Een open plek met een ruisende waterval. In de boom kronkelt een grote slang die dreigend naar je sist. Links, bij een stenen boog, gaapt een donkere holte.',
         en: 'A clearing with a rushing waterfall. A great snake coils in the tree, hissing at you in warning. To the left, by a stone arch, yawns a dark hollow.'
       },
-      playerStart: { x: 498, y: 258 },
-      spawnFrom: { farm: { x: 498, y: 258 } },
-      walkable: [ { x: 60, y: 212, w: 450, h: 88 } ],
+      playerStart: { x: 498, y: 270 },
+      spawnFrom: { farm: { x: 498, y: 270 }, cave: { x: 150, y: 270 } },
+      walkPoly: [ [70, 256], [505, 256], [505, 300], [70, 300] ],
       fx: { snakeTongue: { x: 314, y: 112, dx: -0.85, dy: 0.5, len: 13 } },
       obstacles: [],
       overlays: [],
@@ -198,7 +198,7 @@ const GAME = {
           id: 'snake',
           name: { nl: 'Sissende Slang', en: 'Hissing Snake' },
           rect: { x: 268, y: 90, w: 156, h: 106 },
-          walkTo: { x: 300, y: 264 },
+          walkTo: { x: 300, y: 272 },
           speaker: true,
           danger: true,
           dangerUntil: 'snakeCharmed',
@@ -221,26 +221,80 @@ const GAME = {
           }
         },
         {
-          id: 'chest',
-          name: { nl: 'Donkere Holte', en: 'Dark Hollow' },
-          rect: { x: 68, y: 76, w: 124, h: 100 },
-          walkTo: { x: 134, y: 262 },
-          blockedBy: [
-            { flag: 'snakeCharmed', text: { nl: 'De sissende slang verspert de weg naar de holte. Je durft er niet langs — bedaar haar eerst.', en: 'The hissing snake blocks the way to the hollow. You don’t dare pass — calm her first.' } }
-          ],
-          gives: {
-            item: 'bone',
-            giveText: { nl: 'Diep in de donkere holte, tussen de kristallen, vind je een groot, Sappig Bot — precies waar een hongerig hondje van droomt.', en: 'Deep in the dark hollow, among the crystals, you find a big, Juicy Bone — exactly what a hungry dog dreams of.' },
-            emptyText: { nl: 'De holte is verder leeg.', en: 'The hollow is otherwise empty.' }
-          }
+          id: 'toCave',
+          name: { nl: 'Stenen Boog', en: 'Stone Arch' },
+          rect: { x: 60, y: 70, w: 134, h: 108 },
+          walkTo: { x: 140, y: 272 },
+          arrow: { x: 120, y: 96, dir: 'up' },
+          requiresFlag: 'snakeCharmed',
+          blockedText: { nl: 'De sissende slang verspert de weg naar de boog. Je durft er niet langs — bedaar haar eerst.', en: 'The hissing snake blocks the way to the arch. You don’t dare pass — calm her first.' },
+          exit: { to: 'cave', travelText: { nl: 'Je glipt door de stenen boog de koele grot in...', en: 'You slip through the stone arch into the cool cave...' } }
         },
         {
           id: 'toFarm',
           name: { nl: 'Pad naar het Erf', en: 'Path to the Farmyard' },
           rect: { x: 522, y: 168, w: 46, h: 134 },
-          walkTo: { x: 510, y: 250 },
+          walkTo: { x: 505, y: 272 },
           arrow: { x: 544, y: 196, dir: 'right' },
           exit: { to: 'farm', travelText: { nl: 'Je keert terug naar het boerenerf.', en: 'You head back to the farmyard.' } }
+        }
+      ]
+    },
+
+    /* ---------- Gebied 4: De Kristalgrot ---------- */
+    cave: {
+      name: { nl: 'De Kristalgrot', en: 'The Crystal Cave' },
+      bg: 'assets/art/scene-cave.png',
+      entryText: {
+        nl: 'Een koele grot vol gloeiende kristallen. Een stenen beeld schenkt eeuwig water in een glinsterend bekken. Aan de rand liggen wat botten.',
+        en: 'A cool cave full of glowing crystals. A stone statue pours endless water into a shimmering pool. A few bones lie at its edge.'
+      },
+      playerStart: { x: 130, y: 272 },
+      spawnFrom: { grove: { x: 130, y: 272 } },
+      walkable: [ { x: 60, y: 252, w: 432, h: 50 } ],
+      obstacles: [],
+      overlays: [],
+      worldItems: [],
+      hotspots: [
+        {
+          id: 'statue',
+          name: { nl: 'Stenen Beeld', en: 'Stone Statue' },
+          rect: { x: 404, y: 52, w: 158, h: 184 },
+          walkTo: { x: 392, y: 276 },
+          look: {
+            nl: 'Een sereen stenen beeld van een godin schenkt onophoudelijk helder water in het bekken. Het zoemt zacht van oude magie.',
+            en: 'A serene stone goddess pours clear water endlessly into the pool. It hums softly with old magic.'
+          }
+        },
+        {
+          id: 'bone',
+          name: { nl: 'Oude Botten', en: 'Old Bones' },
+          rect: { x: 108, y: 198, w: 100, h: 84 },
+          walkTo: { x: 156, y: 276 },
+          gives: {
+            item: 'bone',
+            giveText: { nl: 'Aan de rand van het bekken liggen botten, achtergelaten door een dier dat hier kwam drinken. Je raapt een stevig, Sappig Bot op.', en: 'At the pool’s edge lie bones, left by some creature that came to drink. You pick up a sturdy, Juicy Bone.' },
+            emptyText: { nl: 'Verder geen bruikbare botten meer.', en: 'No more usable bones here.' }
+          }
+        },
+        {
+          id: 'crystal',
+          name: { nl: 'Gloeiend Kristal', en: 'Glowing Crystal' },
+          rect: { x: 214, y: 204, w: 92, h: 82 },
+          walkTo: { x: 256, y: 278 },
+          gives: {
+            item: 'crystal',
+            giveText: { nl: 'Je breekt een helder, blauw Kristal los uit de tros. Het gloeit warm na in je hand.', en: 'You break a clear blue Crystal from the cluster. It glows warmly in your hand.' },
+            emptyText: { nl: 'De rest van de kristallen zit muurvast.', en: 'The rest of the crystals are stuck fast.' }
+          }
+        },
+        {
+          id: 'toGrove',
+          name: { nl: 'Terug naar het Bos', en: 'Back to the Forest' },
+          rect: { x: 0, y: 92, w: 96, h: 176 },
+          walkTo: { x: 118, y: 272 },
+          arrow: { x: 30, y: 150, dir: 'left' },
+          exit: { to: 'grove', travelText: { nl: 'Je loopt door de boog terug het bos in.', en: 'You walk back out through the arch into the forest.' } }
         }
       ]
     },
