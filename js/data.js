@@ -96,17 +96,16 @@ const GAME = {
       playerStart: { x: 300, y: 260 },
       spawnFrom: {
         temple: { x: 452, y: 182 },
-        grove: { x: 121, y: 194 }
+        grove: { x: 168, y: 230 }
       },
       walkable: [
-        { x: 10, y: 168, w: 530, h: 50 },
-        { x: 125, y: 218, w: 255, h: 88 }
+        { x: 108, y: 150, w: 432, h: 70 },  // doorgang-mond + bovenste vloer
+        { x: 96,  y: 200, w: 444, h: 98 }   // open binnenplaatsvloer
       ],
       obstacles: [
-        { x: 160, y: 84, w: 110, h: 84 },   // altaartrog
-        { x: 0, y: 0, w: 112, h: 232 },     // schuine muur linksboven
-        { x: 0, y: 232, w: 58, h: 42 },     // muurvoet linksonder
-        { x: 136, y: 120, w: 30, h: 130 }   // klimop-pilaar naast de doorgang
+        { x: 160, y: 84, w: 110, h: 80 },   // altaartrog
+        { x: 0, y: 0, w: 106, h: 206 },     // schuine muur linksboven
+        { x: 132, y: 110, w: 40, h: 78 }    // klimop-pilaar (basis op ~y188)
       ],
       overlays: [
         { img: 'assets/art/ov-courtyard-bushes.png', x: 0, y: 196, w: 128, h: 124, base: 330 },
@@ -122,7 +121,7 @@ const GAME = {
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
         waterGlint: { x: 210, y: 106 },
-        gateDoor: { x: 422, y: 77, w: 49, h: 84 }
+        gateDoor: { x: 418, y: 70, w: 56, h: 94 }
       },
       hotspots: [
         {
@@ -251,9 +250,9 @@ const GAME = {
         {
           id: 'toGrove',
           name: { nl: 'Doorgang naar het Bos', en: 'Passage to the Grove' },
-          rect: { x: 98, y: 100, w: 46, h: 95 },
-          walkTo: { x: 121, y: 190 },
-          arrow: { x: 121, y: 116, dir: 'up' },
+          rect: { x: 104, y: 100, w: 56, h: 96 },
+          walkTo: { x: 128, y: 198 },
+          arrow: { x: 130, y: 120, dir: 'up' },
           exit: {
             to: 'grove',
             travelText: { nl: 'Je glipt door de doorgang het herfstbos in...', en: 'You slip through the passage into the autumn grove...' }

@@ -1,6 +1,6 @@
 /* Service worker — cache-first zodat het spel offline speelt. */
 
-const CACHE = 'emberfall-v9';
+const CACHE = 'emberfall-v10';
 
 const PRECACHE = [
   './',
