@@ -490,13 +490,23 @@ html, body {
 }
 
 #title-intro {
-  font-family: var(--font-body);
-  font-size: 15.5px;
-  line-height: 1.45;
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--parchment);
-  max-width: 520px;
+  max-width: 540px;
   margin: 0 auto 16px;
-  text-shadow: 0 1px 3px rgba(0,0,0,.8);
+  text-shadow: 1px 1px 0 #1f1410, 0 2px 4px rgba(0,0,0,.7);
+}
+
+.title-credit {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: var(--sand);
+  margin-top: 12px;
+  opacity: .9;
+  text-shadow: 1px 1px 0 #1f1410;
 }
 
 .overlay-card .intro {

@@ -54,6 +54,8 @@
     document.getElementById('title-sub').textContent = L(GAME.ui.subtitle);
     document.getElementById('title-intro').textContent = L(GAME.ui.intro);
     elStartBtn.textContent = L(GAME.ui.startBtn);
+    const cr = document.getElementById('title-credit');
+    if (cr) cr.textContent = L(GAME.ui.credit);
     document.getElementById('win-h1').textContent = L(GAME.ui.winTitle);
     elWinText.textContent = L(GAME.winText);
     elReplayBtn.textContent = L(GAME.ui.replayBtn);
@@ -599,28 +601,47 @@
     if (follower.active) {
       const mino = scene.npcs.find(n => n.sprite === 'minotaur');
       const minoAwake = mino && !state.flags.minotaurAsleep;
-      if (minoAwake) {
-        /* bang: blijf op afstand bij de ingang, rillen */
-        follower.scared = true;
-        const safe = clampToWalkable(scene.playerStart.x, scene.playerStart.y);
-        const dx = safe.x - follower.x, dy = safe.y - follower.y;
+      /* de hond-sprite kijkt van zichzelf naar LINKS → flip=true = naar rechts */
+      const stepToward = (tx, ty, speed, stop) => {
+        const dx = tx - follower.x, dy = ty - follower.y;
         const d = Math.hypot(dx, dy);
-        if (d > 4) {
-          const step = Math.min(70 * dt, d);
-          const nx = follower.x + dx / d * step, ny = follower.y + dy / d * step;
-          if (inWalkable(nx, ny)) { follower.x = nx; follower.y = ny; follower.phase += step * 0.2; }
-          if (Math.abs(dx) > 1) follower.flip = dx < 0;
-        }
+        if (d <= (stop || 0) + 0.5) return false;
+        const step = Math.min(speed * dt, d - (stop || 0));
+        let nx = follower.x + dx / d * step, ny = follower.y + dy / d * step;
+        if (!inWalkable(nx, ny)) { if (inWalkable(nx, follower.y)) ny = follower.y; else if (inWalkable(follower.x, ny)) nx = follower.x; else return false; }
+        follower.x = nx; follower.y = ny; follower.phase += step * 0.16;
+        if (Math.abs(dx) > 2) follower.flip = dx > 0;
+        return true;
+      };
+      if (minoAwake) {
+        /* bang: vlucht naar de ingang en blijf daar rillen */
+        follower.scared = true; follower.wTarget = null;
+        const safe = clampToWalkable(scene.playerStart.x, scene.playerStart.y);
+        stepToward(safe.x, safe.y, 80, 0);
       } else {
         follower.scared = false;
         const dx = player.x - follower.x, dy = player.y - follower.y;
         const d = Math.hypot(dx, dy);
-        if (d > 26) {
-          const step = Math.min(105 * dt, d - 24);
-          let nx = follower.x + dx / d * step, ny = follower.y + dy / d * step;
-          if (!inWalkable(nx, ny)) { if (inWalkable(nx, follower.y)) ny = follower.y; else if (inWalkable(follower.x, ny)) nx = follower.x; else { nx = follower.x; ny = follower.y; } }
-          follower.x = nx; follower.y = ny; follower.phase += step * 0.16;
-          if (Math.abs(dx) > 2) follower.flip = dx < 0;
+        if (d > 80) {                       // ver weg → inhalen
+          follower.wTarget = null;
+          stepToward(player.x, player.y, 115, 44);
+        } else if (d > 46) {                // op afstand volgen, rustig tempo
+          follower.wTarget = null;
+          stepToward(player.x, player.y, 72, 40);
+        } else {                            // dichtbij → eigen willetje
+          if (follower.wTarget) {
+            if (!stepToward(follower.wTarget.x, follower.wTarget.y, 46, 0)) {
+              follower.wTarget = null;
+              follower.idleNext = now + 2500 + Math.random() * 4500;
+            }
+          } else if (now > (follower.idleNext || 0)) {
+            const ang = Math.random() * Math.PI * 2;
+            const r = 12 + Math.random() * 26;
+            follower.wTarget = clampToWalkable(player.x + Math.cos(ang) * r, player.y + Math.sin(ang) * r);
+            follower.idleNext = now + 2500 + Math.random() * 4500;
+          } else if (Math.abs(dx) > 4) {
+            follower.flip = dx > 0;         // kijkt naar de speler
+          }
         }
       }
     }
@@ -871,12 +892,12 @@
         fctx.fillRect(f.sx - 1, f.wy, 1, 1);
         fctx.fillRect(f.sx + 2, f.wy + 1, 1, 1);
       }
-      /* drijvende rimpels op het oppervlak */
-      for (let i = 0; i < 3; i++) {
-        const yy = f.wy + 5 + i * 7;
-        const off = Math.sin(now / 520 + i * 1.7) * 7;
+      /* drijvende rimpels op het oppervlak (klein, binnen de rand) */
+      for (let i = 0; i < 2; i++) {
+        const yy = f.wy + 4 + i * 6;
+        const off = Math.sin(now / 520 + i * 1.7) * 3;
         fctx.fillStyle = `rgba(205,238,248,${0.16 + 0.1 * Math.sin(now / 300 + i)})`;
-        fctx.fillRect(Math.round(f.wx + 10 + off), yy, 12, 1);
+        fctx.fillRect(Math.round(f.wx + off), yy, 7, 1);
       }
     }
     if (fx.bowlEmpty && state.flags.minotaurAsleep) {
@@ -1137,7 +1158,8 @@
   }
 
   function drawFollower(now) {
-    const moving = !follower.scared && Math.hypot(player.x - follower.x, player.y - follower.y) > 27;
+    const moving = !follower.scared &&
+      (!!follower.wTarget || Math.hypot(player.x - follower.x, player.y - follower.y) > 46);
     if (follower.scared) {
       /* bang: ineengedoken (koude pose) + rillen + uitroepteken */
       const img = ready(art.sprites.dogCold) ? art.sprites.dogCold : art.sprites.dog;

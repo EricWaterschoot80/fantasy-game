@@ -37,8 +37,9 @@ const GAME = {
   /* UI-teksten voor de engine */
   ui: {
     subtitle:    { nl: 'Een point-and-click avontuur', en: 'A point-and-click adventure' },
-    intro:       { nl: 'Het is voor altijd herfst geworden in het rijk Emberfall. De amulet is gestolen en wordt bewaakt door een minotaur. Geen zwaard velt hem — enkel list.',
-                   en: 'Autumn has become eternal in the realm of Emberfall. The amulet was stolen and is guarded by a minotaur. No sword can fell him — only cunning.' },
+    intro:       { nl: 'Het is voor altijd herfst geworden in het rijk Emberfall. De amulet is gestolen en wordt bewaakt door een minotaur. Geen zwaard velt hem. Enkel list.',
+                   en: 'Autumn has become eternal in the realm of Emberfall. The amulet was stolen and is guarded by a minotaur. No sword can fell him. Only cunning.' },
+    credit:      { nl: 'Gemaakt voor Sandra', en: 'Made for Sandra' },
     startBtn:    { nl: 'Begin het avontuur', en: 'Begin the adventure' },
     winTitle:    { nl: 'Emberfall is Gered', en: 'Emberfall is Saved' },
     replayBtn:   { nl: 'Opnieuw spelen', en: 'Play again' },
@@ -122,7 +123,7 @@ const GAME = {
       ],
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
-        fountain: { sx: 208, sy: 117, wx: 224, wy: 136, ww: 42, wh: 20 }
+        fountain: { sx: 223, sy: 117, wx: 226, wy: 138 }
       },
       hotspots: [
         {
@@ -296,10 +297,7 @@ const GAME = {
         { x: 366, y: 150, w: 88, h: 32 },    // sokkel van de kist
         { x: 82, y: 224, w: 104, h: 76 }     // kleitablet
       ],
-      overlays: [
-        { img: 'assets/art/ov-grove-left.png', x: 0, y: 248, w: 110, h: 72, base: 330 },
-        { img: 'assets/art/ov-grove-right.png', x: 330, y: 262, w: 238, h: 58, base: 332 }
-      ],
+      overlays: [],
       worldItems: [
         { item: 'vialEmpty', hotspot: 'chest', x: 412, y: 120, requiresFlag: 'runesSolved' }
       ],
