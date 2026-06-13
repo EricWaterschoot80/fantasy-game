@@ -1420,10 +1420,12 @@
   }
 
   /* ---------- Schuifpuzzel-popup (gouden embleem) ---------- */
-  const elPuzzle   = document.getElementById('puzzle-screen');
-  const elPuzGrid  = document.getElementById('puzzle-grid');
-  const elPuzTitle = document.getElementById('puzzle-title');
-  const elPuzClose = document.getElementById('puzzle-close');
+  const elPuzzle      = document.getElementById('puzzle-screen');
+  const elPuzGrid     = document.getElementById('puzzle-grid');
+  const elPuzTitle    = document.getElementById('puzzle-title');
+  const elPuzClose    = document.getElementById('puzzle-close');
+  const elPuzPreview  = document.getElementById('puzzle-preview');
+  const elPuzHintBtn  = document.getElementById('puzzle-hint-btn');
   let slide = null;   // { hs, n, tiles[], empty }
 
   function openSlidePuzzle(hs) {
@@ -1448,6 +1450,7 @@
     }
     slide = { hs, n, tiles, empty };
     elPuzTitle.textContent = L(cfg.title);
+    if (elPuzPreview) { elPuzPreview.src = cfg.img; }
     renderSlide();
     elPuzzle.hidden = false;
     sfx('tap');
@@ -1468,6 +1471,8 @@
       d.style.backgroundImage = `url(${cfg.img})`;
       d.style.backgroundSize = '240px 240px';
       d.style.backgroundPosition = `-${(tile % n) * px}px -${((tile / n) | 0) * px}px`;
+      /* touchend met preventDefault zodat Safari niet de 300ms click-delay heeft */
+      d.addEventListener('touchend', (e) => { e.preventDefault(); slideTile(pos); }, { passive: false });
       d.addEventListener('click', () => slideTile(pos));
       elPuzGrid.appendChild(d);
     });
@@ -1499,7 +1504,33 @@
     }
   }
 
-  elPuzClose.addEventListener('click', () => { elPuzzle.hidden = true; slide = null; });
+  function closePuzzle() { elPuzzle.hidden = true; slide = null; }
+
+  elPuzClose.addEventListener('click', closePuzzle);
+
+  /* Klik buiten de kaart sluit de popup */
+  elPuzzle.addEventListener('pointerdown', (e) => {
+    if (e.target === elPuzzle) closePuzzle();
+  });
+
+  /* Hint: flash het opgeloste beeld 1,5 seconde over het rooster */
+  function showPuzzleHint() {
+    if (!slide) return;
+    sfx('tap');
+    const cfg = slide.hs.slidePuzzle;
+    const flash = document.createElement('div');
+    flash.style.cssText =
+      'position:absolute;inset:0;z-index:6;' +
+      'background-image:url(' + cfg.img + ');background-size:240px 240px;' +
+      'image-rendering:pixelated;opacity:0;transition:opacity .2s;pointer-events:none;' +
+      'box-shadow:inset 0 0 0 3px rgba(231,207,134,.7)';
+    elPuzGrid.appendChild(flash);
+    requestAnimationFrame(() => { flash.style.opacity = '0.92'; });
+    setTimeout(() => { flash.style.opacity = '0'; }, 1600);
+    setTimeout(() => { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 2000);
+  }
+
+  if (elPuzHintBtn) elPuzHintBtn.addEventListener('click', showPuzzleHint);
 
   /* ---------- Raadsel-popup (de ziener) ---------- */
   const elRiddle      = document.getElementById('riddle-screen');

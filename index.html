@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=19">
+  <link rel="stylesheet" href="css/style.css?v=20">
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -80,9 +80,13 @@
   </div>
 
   <div id="puzzle-screen" class="overlay" hidden>
-    <div class="overlay-card panel puzzle-card">
+    <div class="overlay-card panel puzzle-card" id="puzzle-card">
       <button id="puzzle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
       <h2 id="puzzle-title">Het Embleem van de Orde</h2>
+      <div class="puz-topbar">
+        <img id="puzzle-preview" class="puz-preview" alt="">
+        <button id="puzzle-hint-btn" class="gold-btn puz-hint-btn">💡 Hint</button>
+      </div>
       <div id="puzzle-grid"></div>
     </div>
   </div>
@@ -117,10 +121,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=19"></script>
-  <script src="js/scenes.js?v=19"></script>
-  <script src="js/data.js?v=19"></script>
-  <script src="js/engine.js?v=19"></script>
+  <script src="js/sprites.js?v=20"></script>
+  <script src="js/scenes.js?v=20"></script>
+  <script src="js/data.js?v=20"></script>
+  <script src="js/engine.js?v=20"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
