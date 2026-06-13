@@ -2016,6 +2016,9 @@
         if (action.needItem && !state.inventory.includes(action.needItem)) {
           sfx('error');
           say(action.needText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
+        } else if (action.requiresFlag && !state.flags[action.requiresFlag]) {
+          sfx('error');
+          say(action.requiresText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
         } else {
           runAction(action, hsSpeaker(hs), hsFace(hs));
         }

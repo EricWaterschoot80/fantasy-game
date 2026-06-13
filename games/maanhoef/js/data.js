@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '2',
+  assetVer: '3',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -54,7 +54,10 @@ const GAME = {
     q_cave:   { nl: 'De slang sluimert — ga door de stenen boog de grot in', en: 'The snake is dozing — enter the cave through the stone arch' },
     q_bone:   { nl: 'Los het runenzegel op om bij het bot te komen', en: 'Solve the rune seal to reach the bone' },
     q_dog:    { nl: 'Geef het hongerige hondje het bot om bij de sleutel te komen', en: 'Give the hungry dog the bone to reach the key' },
-    q_gate:   { nl: 'Open met de sleutel de stalpoort naar Maanhoef', en: 'Open the stable gate to Moonhoof with the key' }
+    q_gate:   { nl: 'Open met de sleutel de stalpoort naar Maanhoef', en: 'Open the stable gate to Moonhoof with the key' },
+    q_bucket: { nl: 'Maanhoef heeft dorst — pak de houten emmer bij de stal', en: 'Moonhoof is thirsty — grab the wooden bucket by the stable' },
+    q_fill:   { nl: 'Vul de emmer met water bij het beeld in de grot', en: 'Fill the bucket with water at the statue in the cave' },
+    q_freehorse:{ nl: 'Geef Maanhoef het water om hem te bevrijden', en: 'Give Moonhoof the water to set him free' }
   },
 
   items: {
@@ -63,13 +66,20 @@ const GAME = {
     key:     { name: { nl: 'Stalsleutel', en: 'Stable Key' }, icon: '🗝️', img: 'assets/art/item-key.png' },
     crystal: { name: { nl: 'Kristal', en: 'Crystal' }, icon: '🔷', img: 'assets/art/item-crystal.png' },
     comb:    { name: { nl: 'Kam', en: 'Comb' }, icon: '🪮', img: 'assets/art/item-comb.png' },
-    saw:     { name: { nl: 'Zaag', en: 'Saw' }, icon: '🪚', img: 'assets/art/item-saw.png' }
+    saw:     { name: { nl: 'Zaag', en: 'Saw' }, icon: '🪚', img: 'assets/art/item-saw.png' },
+    bucket:      { name: { nl: 'Lege Emmer', en: 'Empty Bucket' }, icon: '🪣', img: 'assets/art/item-bucket.png',
+                   noUseText: { nl: 'Daar valt niets te scheppen.', en: 'Nothing to scoop here.' } },
+    bucketWater: { name: { nl: 'Emmer Water', en: 'Bucket of Water' }, icon: '🪣', img: 'assets/art/item-bucket-water.png',
+                   noUseText: { nl: 'Hier heb ik geen water voor nodig.', en: 'No need for water here.' } }
   },
 
   recipes: [],
 
   /* Questhint-regels — eerste match wint; quest:null verbergt de hint. */
   questRules: [
+    { when: { flag: 'gateOpen', has: 'bucketWater' },      quest: 'q_freehorse' },
+    { when: { flag: 'gateOpen', has: 'bucket' },           quest: 'q_fill' },
+    { when: { flag: 'gateOpen' },                          quest: 'q_bucket' },
     { when: { has: 'key' },                                quest: 'q_gate' },
     { when: { has: 'bone' },                               quest: 'q_dog' },
     { when: { flag: 'sealSolved', notFlag: 'taken_cave_bone' }, quest: 'q_bone' },
@@ -201,7 +211,7 @@ const GAME = {
       },
       playerStart: { x: 498, y: 286 },
       spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
-      walkPoly: [ [55, 266], [510, 266], [510, 302], [55, 302] ],
+      walkable: [ { x: 58, y: 238, w: 366, h: 64 }, { x: 58, y: 272, w: 456, h: 30 } ],
       fx: {
         waterfall: { x: 266, y: 28, w: 66, h: 186, streaks: 20 },
         snakeTongue: { x: 300, y: 193, dx: -0.3, dy: 0.95, len: 11, hideFlag: 'snakeCharmed' }
@@ -271,8 +281,8 @@ const GAME = {
       obstacles: [],
       overlays: [],
       worldItems: [
-        { item: 'crystal', hotspot: 'crystal', x: 200, y: 236 },
-        { item: 'bone', hotspot: 'bone', x: 118, y: 240, requiresFlag: 'sealSolved' }
+        { item: 'crystal', hotspot: 'crystal', x: 196, y: 234 },
+        { item: 'bone', hotspot: 'bone', x: 120, y: 232, requiresFlag: 'sealSolved' }
       ],
       hotspots: [
         {
@@ -298,12 +308,22 @@ const GAME = {
         },
         {
           id: 'statue',
-          name: { nl: 'Stenen Beeld', en: 'Stone Statue' },
+          name: { nl: 'Waterbeeld', en: 'Water Statue' },
           rect: { x: 398, y: 48, w: 164, h: 186 },
-          walkTo: { x: 386, y: 292 },
+          walkTo: { x: 360, y: 292 },
           look: {
-            nl: 'Een sereen stenen beeld van een godin schenkt onophoudelijk helder water in het bekken. Het zoemt zacht van oude magie.',
-            en: 'A serene stone goddess pours clear water endlessly into the pool. It hums softly with old magic.'
+            nl: 'Een sereen stenen beeld van een godin schenkt onophoudelijk helder water in het bekken. Hier zou je iets kunnen vullen.',
+            en: 'A serene stone goddess pours clear water endlessly into the pool. You could fill something here.'
+          },
+          use: {
+            bucket: {
+              consume: 'bucket',
+              give: 'bucketWater',
+              text: {
+                nl: 'Je houdt de emmer onder de waterstraal van het beeld. Klaterend vult hij zich met helder, koel water.',
+                en: 'You hold the bucket under the statue’s stream. It fills with clear, cool water with a splash.'
+              }
+            }
           }
         },
         {
@@ -354,16 +374,40 @@ const GAME = {
       walkPoly: [ [78, 232], [472, 232], [472, 302], [78, 302] ],
       obstacles: [],
       overlays: [],
-      worldItems: [],
+      worldItems: [
+        { item: 'bucket', hotspot: 'bucket', x: 196, y: 244 }
+      ],
       hotspots: [
         {
           id: 'horse',
           name: { nl: 'Maanhoef', en: 'Moonhoof' },
           rect: { x: 300, y: 66, w: 130, h: 96 },
           walkTo: { x: 300, y: 268 },
-          look: {
-            nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, drukt zijn neus over de stalrand. “Bijna, vriend,” fluister je. “Nog heel even.”',
-            en: 'Moonhoof, a warm chestnut horse with a pale blaze, leans his nose over the stall rail. “Almost, friend,” you whisper. “Just a little longer.”'
+          look: (state) => state.flags.gateOpen
+            ? { nl: 'Maanhoef staat vrij, maar trilt van angst en dorst. Een slok water zou hem vast kalmeren.', en: 'Moonhoof is free, but trembles with fear and thirst. A drink of water would surely calm him.' }
+            : { nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, drukt zijn neus over de stalrand. “Bijna, vriend,” fluister je.', en: 'Moonhoof, a warm chestnut horse with a pale blaze, leans his nose over the stall rail. “Almost, friend,” you whisper.' },
+          use: {
+            bucketWater: {
+              requiresFlag: 'gateOpen',
+              requiresText: { nl: 'De poort zit nog op slot — je kunt niet bij Maanhoef.', en: 'The gate is still locked — you can’t reach Moonhoof.' },
+              consume: 'bucketWater',
+              win: true,
+              text: {
+                nl: 'Je houdt Maanhoef de emmer voor. Hij drinkt gulzig, kalmeert, en drukt dankbaar zijn neus in je hand. Samen lopen jullie de vrijheid tegemoet.',
+                en: 'You offer Moonhoof the bucket. He drinks deeply, calms, and gratefully presses his nose into your hand. Together you walk toward freedom.'
+              }
+            }
+          }
+        },
+        {
+          id: 'bucket',
+          name: { nl: 'Houten Emmer', en: 'Wooden Bucket' },
+          rect: { x: 168, y: 214, w: 70, h: 64 },
+          walkTo: { x: 200, y: 280 },
+          gives: {
+            item: 'bucket',
+            giveText: { nl: 'Je pakt een stevige houten emmer op die naast de stal staat. Misschien handig om water mee te halen.', en: 'You pick up a sturdy wooden bucket standing by the stable. Handy for fetching water, perhaps.' },
+            emptyText: { nl: 'Verder geen emmers meer.', en: 'No more buckets here.' }
           }
         },
         {
@@ -371,14 +415,16 @@ const GAME = {
           name: { nl: 'Vergrendelde Poort', en: 'Bolted Gate' },
           rect: { x: 236, y: 150, w: 132, h: 84 },
           walkTo: { x: 288, y: 272 },
-          look: (state) => ({ nl: 'Een zware houten paddockpoort met een ijzeren slot. Maanhoef wacht erachter.', en: 'A heavy wooden paddock gate with an iron lock. Moonhoof waits beyond.' }),
+          look: (state) => state.flags.gateOpen
+            ? { nl: 'De poort staat open; de weg naar Maanhoef is vrij.', en: 'The gate stands open; the way to Moonhoof is clear.' }
+            : { nl: 'Een zware houten paddockpoort met een ijzeren slot. Maanhoef wacht erachter.', en: 'A heavy wooden paddock gate with an iron lock. Moonhoof waits beyond.' },
           use: {
             key: {
               consume: 'key',
-              win: true,
+              setFlag: 'gateOpen',
               text: {
-                nl: 'De Stalsleutel past precies. Met een klik draait het slot om en de poort zwaait open...',
-                en: 'The Stable Key fits perfectly. With a click the lock turns and the gate swings open...'
+                nl: 'De Stalsleutel past precies. Met een klik draait het slot om en de poort zwaait open. Maar Maanhoef deinst angstig terug — en heeft duidelijk dorst.',
+                en: 'The Stable Key fits perfectly. With a click the lock turns and the gate swings open. But Moonhoof shies back in fear — and is clearly thirsty.'
               }
             }
           }
