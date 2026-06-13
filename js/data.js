@@ -77,8 +77,9 @@ const GAME = {
     q_combine:   { nl: 'Combineer de bessen met het water in je tas', en: 'Combine the berries with the water in your bag' },
     q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal', en: 'Pour the sleeping draught into the stone bowl' },
     q_torch:     { nl: 'Het is aardedonker — verzamel een vuursteen (binnenplaats) en droog hout (bos)', en: 'It’s pitch dark — gather a flint (courtyard) and dry wood (grove)' },
-    q_lightTorch:{ nl: 'Steek de fakkel aan met de vuursteen en het hout', en: 'Light the torch with the flint and the wood' },
-    q_ward:      { nl: 'Een laatste ward beschermt de amulet — los het doolhof op', en: 'A final ward protects the amulet — solve the labyrinth' },
+    q_makeTorch: { nl: 'Combineer de vuursteen en het hout in je tas tot een fakkel', en: 'Combine the flint and the wood in your bag into a torch' },
+    q_lightTorch:{ nl: 'Steek met de fakkel de toortsen bij de minotaur aan', en: 'Light the braziers by the minotaur with your torch' },
+    q_ward:      { nl: 'Een laatste ward: laat het water naar de amulet stromen', en: 'A final ward: make the water flow to the amulet' },
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
@@ -92,8 +93,9 @@ const GAME = {
     { when: { flag: 'taken_temple_shrine' },                        quest: null },
     { when: { flag: 'minotaurAsleep', notFlag: 'wardLifted' },      quest: 'q_ward' },
     { when: { flag: 'minotaurAsleep' },                             quest: 'q_amulet' },
-    { when: { flag: 'visited_temple', notFlag: 'torchLit', has: ['flint', 'wood'] }, quest: 'q_lightTorch' },
-    { when: { flag: 'visited_temple', notFlag: 'torchLit' },        quest: 'q_torch' },
+    { when: { flag: 'visited_temple', notFlag: 'torchLit', has: 'torch' },           quest: 'q_lightTorch' },
+    { when: { flag: 'visited_temple', notFlag: 'torchLit', has: ['flint', 'wood'] }, quest: 'q_makeTorch' },
+    { when: { flag: 'visited_temple', notFlag: 'torchLit' },                          quest: 'q_torch' },
     { when: { has: 'potion', notFlag: 'gateOpen' },                 quest: 'q_gate' },
     { when: { has: 'potion' },                                      quest: 'q_pour' },
     { when: { has: ['vialWater', 'berries'] },                      quest: 'q_combine' },
@@ -120,7 +122,9 @@ const GAME = {
     flint:     { name: { nl: 'Vuursteen', en: 'Flint' }, icon: '🪨', img: 'assets/art/item-flint.png',
                  noUseText: { nl: 'Hier heb ik geen vuur nodig.', en: 'I don’t need fire here.' } },
     wood:      { name: { nl: 'Stuk Hout', en: 'Piece of Wood' }, icon: '🪵', img: 'assets/art/item-wood.png',
-                 noUseText: { nl: 'Hier heb ik geen vuur nodig.', en: 'I don’t need fire here.' } }
+                 noUseText: { nl: 'Hier heb ik geen vuur nodig.', en: 'I don’t need fire here.' } },
+    torch:     { name: { nl: 'Brandende Fakkel', en: 'Lit Torch' }, icon: '🔥', img: 'assets/art/torch-lit.png',
+                 noUseText: { nl: 'Hier hoef ik niets aan te steken.', en: 'Nothing to light here.' } }
   },
 
   recipes: [
@@ -129,6 +133,13 @@ const GAME = {
       text: {
         nl: 'Je kneust de Rode Bessen in het regenwater. Het brouwsel kleurt diep en geurt zoet — een Slaapdrank.',
         en: 'You crush the Red Berries into the rainwater. The brew turns deep red and smells sweet — a Sleeping Draught.'
+      }
+    },
+    {
+      a: 'flint', b: 'wood', result: 'torch',
+      text: {
+        nl: 'Je wikkelt droog mos om het hout en slaat vonken met de vuursteen — het hout vat vlam. Je hebt een Brandende Fakkel.',
+        en: 'You wrap dry moss around the wood and strike sparks with the flint — the wood catches. You now hold a Lit Torch.'
       }
     }
   ],
@@ -361,7 +372,8 @@ const GAME = {
       ],
       overlays: [],
       worldItems: [
-        { item: 'vialEmpty', hotspot: 'chest', x: 412, y: 120, requiresFlag: 'runesSolved' }
+        { item: 'vialEmpty', hotspot: 'chest', x: 412, y: 120, requiresFlag: 'runesSolved' },
+        { item: 'wood', hotspot: 'branch', x: 256, y: 250 }
       ],
       npcs: [
         { id: 'dog', sprite: 'dog', x: 415, y: 198, facesLeft: true, wanderRequiresFlag: 'dogWarm',
@@ -555,8 +567,8 @@ const GAME = {
           peekR: 54,
           motes: 16,
           eyes: [ { x: 255, y: 185 }, { x: 270, y: 185 } ],
-          /* koud maanlicht dat zwak op de onaangestoken fakkel valt */
-          glimmers: [ { x: 136, y: 142, r: 26, col: '150,180,225', base: 0.16, speed: 900 } ]
+          /* koud maanlicht dat zwak op de gedoofde toortsen bij het altaar valt */
+          glimmers: [ { x: 300, y: 136, r: 28, col: '150,180,225', base: 0.16, speed: 900 } ]
         },
         wallTorch: { x: 135, y: 150, h: 46 },
         flames: [
@@ -585,33 +597,21 @@ const GAME = {
           }
         },
         {
-          id: 'torch',
-          name: { nl: 'Onaangestoken Fakkel', en: 'Unlit Torch' },
-          rect: { x: 110, y: 102, w: 50, h: 80 },
-          walkTo: { x: 134, y: 214 },
+          id: 'braziers',
+          name: { nl: 'Gedoofde Toortsen', en: 'Cold Braziers' },
+          rect: { x: 286, y: 114, w: 50, h: 46 },
+          walkTo: { x: 300, y: 214 },
           look: (state) => state.flags.torchLit
-            ? { nl: 'De fakkel brandt warm en houdt de duisternis op afstand.', en: 'The torch burns warm, holding the darkness at bay.' }
-            : { nl: 'Een onaangestoken fakkel in een muurhouder. Met een vuursteen én droog hout zou je hem kunnen ontsteken.',
-                en: 'An unlit torch in a wall bracket. With a flint and dry wood you could set it alight.' },
+            ? { nl: 'De toortsen bij het altaar branden hoog; hun licht vult de hele tempel.', en: 'The braziers by the altar burn high; their light fills the whole temple.' }
+            : { nl: 'Twee gedoofde toortsen flankeren het altaar, vlak bij de minotaur. Met een brandende fakkel kun je ze ontsteken.',
+                en: 'Two cold braziers flank the altar, right by the minotaur. With a lit torch you could set them ablaze.' },
           use: {
-            flint: {
-              needItem: 'wood',
-              needText: { nl: 'Je slaat vonken met de vuursteen, maar zonder droog hout vat niets vlam.', en: 'You strike sparks with the flint, but without dry wood nothing catches.' },
-              consume: ['flint', 'wood'],
+            torch: {
+              consume: 'torch',
               setFlag: 'torchLit',
               text: {
-                nl: 'In het pikdonker sla je met de vuursteen vonken op het droge hout — de fakkel vlamt op en warm licht vult de tempel. En daar, in het midden, doemt de minotaur op.',
-                en: 'In the pitch dark you strike sparks off the flint onto the dry wood — the torch flares to life and warm light fills the temple. And there, in the middle, looms the minotaur.'
-              }
-            },
-            wood: {
-              needItem: 'flint',
-              needText: { nl: 'Je hebt droog hout, maar geen vonk om het te ontsteken. Een vuursteen zou helpen.', en: 'You have dry wood, but no spark to light it. A flint would help.' },
-              consume: ['flint', 'wood'],
-              setFlag: 'torchLit',
-              text: {
-                nl: 'In het pikdonker sla je met de vuursteen vonken op het droge hout — de fakkel vlamt op en warm licht vult de tempel. En daar, in het midden, doemt de minotaur op.',
-                en: 'In the pitch dark you strike sparks off the flint onto the dry wood — the torch flares to life and warm light fills the temple. And there, in the middle, looms the minotaur.'
+                nl: 'Je houdt je fakkel bij de gedoofde toortsen — ze vatten vlam en warm licht overspoelt de tempel. Vlak voor je doemt de minotaur op.',
+                en: 'You hold your torch to the cold braziers — they catch fire and warm light floods the temple. Right before you looms the minotaur.'
               }
             }
           }
@@ -669,11 +669,13 @@ const GAME = {
             setFlag: 'wardLifted',
             requiresFlag: 'minotaurAsleep',
             cells: 5,
-            title: { nl: 'Het Doolhof van de Ward', en: 'The Ward Labyrinth' },
-            img: 'assets/art/maze-ward.png',
+            water: true,
+            title: { nl: 'De Waterloop van de Ward', en: 'The Ward’s Watercourse' },
+            hint: { nl: 'Leid het water door de kanalen naar het bekken onder de amulet.', en: 'Guide the water through the channels to the basin beneath the amulet.' },
+            img: 'assets/art/maze-water.png',
             solvedText: {
-              nl: 'Je bereikt het hart van het doolhof; de ward dooft met een diepe zucht. De amulet ligt nu vrij op het altaar — voor het grijpen.',
-              en: 'You reach the heart of the labyrinth; the ward fades with a deep sigh. The amulet now lies free upon the altar — yours to take.'
+              nl: 'Het water bereikt het bekken onder de amulet en klatert vol. De ward dooft met een diepe zucht — de amulet ligt nu vrij voor het grijpen.',
+              en: 'The water reaches the basin beneath the amulet and brims over. The ward fades with a deep sigh — the amulet now lies free for the taking.'
             }
           },
           gives: {

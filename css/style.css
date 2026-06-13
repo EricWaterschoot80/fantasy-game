@@ -627,6 +627,15 @@ html, body {
 }
 
 /* ---------- Doolhof-puzzel ---------- */
+.maze-hint {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--sand);
+  text-align: center;
+  max-width: 320px;
+  margin: 4px auto 8px;
+}
 /* Liggend mobiel: doolhof links, D-pad rechts, schaalt mee met schermhoogte. */
 .maze-body {
   display: flex;

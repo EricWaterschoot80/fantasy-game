@@ -276,14 +276,17 @@ Tik objecten in de juiste volgorde. Op mobiel opent één tik een **popup met kn
 pixel-precieze tik op kleine stenen nodig). De juiste volgorde wordt elders in de wereld onthuld
 (een tablet, een hint-NPC).
 
-**D. Doolhof** (`hotspot.maze`)
+**D. Doolhof / Waterloop** (`hotspot.maze`)
 ```js
-maze: { setFlag, requiresFlag, cells: 5, title: {nl,en}, img?, solvedText: {nl,en} }
+maze: { setFlag, requiresFlag, cells: 5, title: {nl,en}, hint?: {nl,en}, img?, water?: true, solvedText: {nl,en} }
 ```
 Een willekeurig, **altijd oplosbaar** doolhof (recursive-backtracker, `cells`×`cells` gangen).
-Loods de figuur met de richtingsknoppen (of pijltjestoetsen) naar de gloeiende uitgang; aankomst
-zet `setFlag`. Mobiel-vriendelijk (D-pad, schaalt mee met de schermhoogte). `img` is optioneel
-decoratief. Geschikt als climax-puzzel vóór een beloning (bv. de ward bij het altaar).
+Loods met de richtingsknoppen (of pijltjestoetsen) naar de gloeiende uitgang; aankomst zet
+`setFlag`. Mobiel-vriendelijk (D-pad, schaalt mee met de schermhoogte). `img` wordt als gedimde
+achtergrond-textuur achter het rooster getekend (bv. een Higgsfield stenen-kanaal-labyrint). Met
+`water: true` wordt het een **waterloop**: het afgelegde pad vult zich met stromend blauw water en
+de uitgang is een bekken — "laat het water stromen" tot het de beloning vrijgeeft. Geschikt als
+climax-puzzel (bv. de ward bij het altaar).
 
 > Een nieuw avontuur kan deze types vrij hergebruiken en hercombineren. Een nieuw type toevoegen
 > = generieke engine-code + een nieuw datablok, nooit hardcoded verhaal.
