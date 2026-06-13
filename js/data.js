@@ -98,14 +98,14 @@ const GAME = {
         temple: { x: 452, y: 182 },
         grove: { x: 168, y: 230 }
       },
-      walkable: [
-        { x: 108, y: 150, w: 432, h: 70 },  // doorgang-mond + bovenste vloer
-        { x: 96,  y: 200, w: 444, h: 98 }   // open binnenplaatsvloer
+      /* Loopgebied volgt de echte zandvloer (veelhoek, scene-pixels) */
+      walkPoly: [
+        [122, 206], [150, 192], [180, 188], [292, 186], [330, 162],
+        [432, 158], [482, 186], [474, 214], [430, 250], [388, 282],
+        [250, 288], [165, 252], [122, 232]
       ],
       obstacles: [
-        { x: 160, y: 84, w: 110, h: 80 },   // altaartrog
-        { x: 0, y: 0, w: 106, h: 206 },     // schuine muur linksboven
-        { x: 132, y: 110, w: 40, h: 78 }    // klimop-pilaar (basis op ~y188)
+        { x: 172, y: 100, w: 122, h: 86 }   // fontein/altaartrog (basis op ~y186)
       ],
       overlays: [
         { img: 'assets/art/ov-courtyard-bushes.png', x: 0, y: 196, w: 128, h: 124, base: 330 },
@@ -128,7 +128,7 @@ const GAME = {
           id: 'altar',
           name: { nl: 'Verweerd Altaar', en: 'Weathered Altar' },
           rect: { x: 162, y: 84, w: 106, h: 76 },
-          walkTo: { x: 215, y: 174 },
+          walkTo: { x: 233, y: 202 },
           look: {
             nl: 'Een verweerd altaar. In de uitgesleten trog heeft zich regenwater verzameld. Inscriptie: “Wat de woede van het beest sust, groeit rood tussen de stenen.”',
             en: 'A weathered altar. Rainwater has gathered in its worn trough. An inscription reads: “What soothes the beast’s fury grows red among the stones.”'
@@ -230,7 +230,7 @@ const GAME = {
           id: 'bushes',
           name: { nl: 'Rode Struiken', en: 'Red Bushes' },
           rect: { x: 0, y: 170, w: 118, h: 150 },
-          walkTo: { x: 136, y: 248 },
+          walkTo: { x: 172, y: 246 },
           gives: {
             item: 'berries',
             giveText: { nl: 'Tussen de rode struiken pluk je een handvol Rode Bessen.', en: 'Among the red bushes you pick a handful of Red Berries.' },
@@ -250,9 +250,9 @@ const GAME = {
         {
           id: 'toGrove',
           name: { nl: 'Doorgang naar het Bos', en: 'Passage to the Grove' },
-          rect: { x: 104, y: 100, w: 56, h: 96 },
-          walkTo: { x: 128, y: 198 },
-          arrow: { x: 130, y: 120, dir: 'up' },
+          rect: { x: 104, y: 100, w: 56, h: 110 },
+          walkTo: { x: 142, y: 202 },
+          arrow: { x: 132, y: 120, dir: 'up' },
           exit: {
             to: 'grove',
             travelText: { nl: 'Je glipt door de doorgang het herfstbos in...', en: 'You slip through the passage into the autumn grove...' }

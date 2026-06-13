@@ -332,21 +332,58 @@
     }
   }
 
-  /* ---------- Botsing: walkable min obstacles ---------- */
-  function inWalkable(x, y) {
-    const scene = GAME.scenes[state.currentScene];
-    const inside = scene.walkable.some(r =>
+  /* ---------- Botsing: walkable (rects of polygon) min obstacles ---------- */
+  function pointInPoly(poly, x, y) {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+      if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+    }
+    return inside;
+  }
+  function inObstacle(scene, x, y) {
+    return scene.obstacles && scene.obstacles.some(r =>
       x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
-    if (!inside) return false;
-    if (scene.obstacles && scene.obstacles.some(r =>
-      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)) return false;
-    return true;
+  }
+  function inWalkableScene(scene, x, y) {
+    if (inObstacle(scene, x, y)) return false;
+    if (scene.walkPoly) return pointInPoly(scene.walkPoly, x, y);
+    return scene.walkable.some(r =>
+      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+  }
+  function inWalkable(x, y) {
+    return inWalkableScene(GAME.scenes[state.currentScene], x, y);
+  }
+  function polyCentroid(poly) {
+    let sx = 0, sy = 0;
+    for (const p of poly) { sx += p[0]; sy += p[1]; }
+    return { x: sx / poly.length, y: sy / poly.length };
   }
   function clampToWalkable(x, y) {
     if (inWalkable(x, y)) return { x, y };
-    const rects = GAME.scenes[state.currentScene].walkable;
+    const scene = GAME.scenes[state.currentScene];
+    if (scene.walkPoly) {
+      /* projecteer op de dichtstbijzijnde rand, schuif dan iets naar binnen */
+      const poly = scene.walkPoly;
+      let best = null, bestD = Infinity;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const ax = poly[j][0], ay = poly[j][1], bx = poly[i][0], by = poly[i][1];
+        const dx = bx - ax, dy = by - ay;
+        const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1)));
+        const px_ = ax + t * dx, py_ = ay + t * dy;
+        const d = (px_ - x) ** 2 + (py_ - y) ** 2;
+        if (d < bestD) { bestD = d; best = { x: px_, y: py_ }; }
+      }
+      const c = polyCentroid(poly);
+      for (let k = 1; k <= 6; k++) {
+        const nx = best.x + (c.x - best.x) * 0.04 * k;
+        const ny = best.y + (c.y - best.y) * 0.04 * k;
+        if (inWalkable(nx, ny)) return { x: nx, y: ny };
+      }
+      return inWalkable(best.x, best.y) ? best : c;
+    }
     let best = null, bestD = Infinity;
-    for (const r of rects) {
+    for (const r of scene.walkable) {
       const cx = Math.max(r.x + 2, Math.min(r.x + r.w - 2, x));
       const cy = Math.max(r.y + 2, Math.min(r.y + r.h - 2, y));
       const d = (cx - x) ** 2 + (cy - y) ** 2;
@@ -683,6 +720,17 @@
       const lx = Lf.x + Math.sin(Lf.phase * Math.PI * 2) * Lf.swayAmp;
       fctx.fillStyle = Lf.col;
       fctx.fillRect(lx | 0, Lf.y | 0, Lf.size, Lf.size);
+    }
+
+    /* Debug: toon het loopgebied (alleen als __game.debugWalk aan staat) */
+    if (window.__debugWalk) {
+      fctx.save();
+      fctx.globalAlpha = 0.45;
+      fctx.fillStyle = '#19ff2e';
+      for (let yy = 0; yy < SCENE_H; yy += 2)
+        for (let xx = 0; xx < SCENE_W; xx += 2)
+          if (inWalkableScene(scene, xx, yy)) fctx.fillRect(xx, yy, 2, 2);
+      fctx.restore();
     }
 
     const fa = fadeAlpha(now);
@@ -1629,6 +1677,8 @@
       interactNow(hs);
     },
     walkTo: (x, y) => { player.pending = null; player.target = clampToWalkable(x, y); },
+    canWalk: (x, y) => inWalkable(x, y),
+    setDebug: (on) => { window.__debugWalk = on; },
     select: (itemId) => onInventoryTap(itemId),
     dismissAll: () => { let n = 0; while (msgOpen() && n++ < 50) showNextMsg(); },
     isWinShown: () => !elWin.hidden,
