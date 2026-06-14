@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '12',
+  assetVer: '14',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -64,7 +64,9 @@ const GAME = {
     q_dog:    { nl: 'Geef het hongerige hondje het bot om bij de sleutel te komen', en: 'Give the hungry dog the bone to reach the key' },
     q_bucket: { nl: 'Maanhoef heeft dorst — pak de houten emmer bij de stal', en: 'Moonhoof is thirsty — grab the wooden bucket by the stable' },
     q_fill:   { nl: 'Vul de emmer met water bij het beeld in de grot', en: 'Fill the bucket with water at the statue in the cave' },
-    q_freehorse:{ nl: 'Geef Maanhoef éérst water over de poort — anders werkt de sleutel niet', en: 'Give Moonhoof water over the gate first — otherwise the key won’t work' },
+    q_carrot:   { nl: 'Maanhoef vertrouwt je nog niet — pluk eerst een wortel uit de moestuin op het erf', en: 'Moonhoof doesn’t trust you yet — pick a carrot from the vegetable garden first' },
+    q_feedhorse:{ nl: 'Geef Maanhoef de wortel om zijn vertrouwen te winnen', en: 'Give Moonhoof the carrot to earn his trust' },
+    q_freehorse:{ nl: 'Geef Maanhoef nu water over de poort — anders werkt de sleutel niet', en: 'Now give Moonhoof water over the gate — otherwise the key won’t work' },
     q_gate:   { nl: 'Maanhoef is gekalmeerd — haal nu het slot van de stalpoort met de sleutel', en: 'Moonhoof is calm now — unlock the stable gate with the key' },
     q_bridle_search: { nl: 'Maanhoef is vrij! Hij heeft een hoofdstel nodig — doorzoek het stro in de stal', en: 'Moonhoof is free! He needs a bridle — search the straw in the stable' },
     q_bridle_cheese: { nl: 'Geef het stuk kaas aan het brutale muisje bij het schuurtje op het erf', en: 'Give the wedge of cheese to the cheeky mouse by the barn in the farmyard' },
@@ -91,7 +93,9 @@ const GAME = {
     cheese:  { name: { nl: 'Stuk Kaas', en: 'Wedge of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
                noUseText: { nl: 'Ik ga dat lekkere stuk kaas niet zomaar weggeven.', en: 'I won’t just give away that tasty cheese.' } },
     bridle:  { name: { nl: 'Hoofdstel', en: 'Bridle' }, icon: '🐴', img: 'assets/art/item-bridle.png',
-               noUseText: { nl: 'Het hoofdstel is voor Maanhoef.', en: 'The bridle is for Moonhoof.' } }
+               noUseText: { nl: 'Het hoofdstel is voor Maanhoef.', en: 'The bridle is for Moonhoof.' } },
+    carrot:  { name: { nl: 'Wortel', en: 'Carrot' }, icon: '🥕', img: 'assets/art/item-carrot.png',
+               noUseText: { nl: 'De wortel is een lekkernij voor Maanhoef.', en: 'The carrot is a treat for Moonhoof.' } }
   },
 
   recipes: [],
@@ -104,7 +108,9 @@ const GAME = {
     { when: { flag: 'gateOpen', has: 'cheese' },           quest: 'q_bridle_cheese' },
     { when: { flag: 'gateOpen' },                          quest: 'q_bridle_search' },
     { when: { flag: 'horseWatered', has: 'key' },          quest: 'q_gate' },
-    { when: { has: 'bucketWater' },                        quest: 'q_freehorse' },
+    { when: { has: 'carrot', notFlag: 'horseFed' },        quest: 'q_feedhorse' },
+    { when: { has: 'bucketWater', flag: 'horseFed' },      quest: 'q_freehorse' },
+    { when: { has: 'bucketWater', notFlag: 'horseFed' },   quest: 'q_carrot' },
     { when: { flag: 'waterFlowing', has: 'bucket' },       quest: 'q_fill' },
     { when: { flag: 'waterFlowing', notHas: 'bucket' },    quest: 'q_bucket' },
     { when: { has: 'diamond' },                            quest: 'q_statue' },
@@ -225,6 +231,17 @@ const GAME = {
           look: {
             nl: 'Je tuurt in de oude put — helemaal droog, geen druppel water te bekennen. En de emmer die eraan hangt is kapot; hier kun je geen water halen.',
             en: 'You peer into the old well — bone dry, not a drop of water in sight. And the bucket on it is broken; you can’t draw any water here.'
+          }
+        },
+        {
+          id: 'moestuin',
+          name: { nl: 'Moestuin', en: 'Vegetable Garden' },
+          rect: { x: 120, y: 80, w: 88, h: 42 },
+          walkTo: { x: 168, y: 240 },
+          gives: {
+            item: 'carrot',
+            giveText: { nl: 'In de moestuin groeien rijen groenten. Je trekt een mooie verse wortel uit de grond — een echte lekkernij voor een paard.', en: 'Rows of vegetables grow in the garden. You pull a fine fresh carrot from the soil — a real treat for a horse.' },
+            emptyText: { nl: 'Eén verse wortel is genoeg; de rest laat je staan.', en: 'One fresh carrot is enough; you leave the rest.' }
           }
         },
         {
@@ -565,9 +582,21 @@ const GAME = {
             ? { nl: 'De stal is leeg — Maanhoef staat nu vrij op de binnenplaats.', en: 'The stall is empty — Moonhoof now stands free in the yard.' }
             : state.flags.horseWatered
               ? { nl: 'Maanhoef is gekalmeerd en staat rustig achter de poort. Nu hij je vertrouwt, kun je de poort van het slot halen.', en: 'Moonhoof is calm and stands quietly behind the gate. Now that he trusts you, you can unlock the gate.' }
-              : { nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, deinst angstig achteruit en kijkt je wantrouwend aan. "Ik vertrouw je nog niet," lijkt hij te zeggen. Geef hem eerst water om zijn vertrouwen te winnen.', en: 'Moonhoof, a warm chestnut horse with a pale blaze, shies back fearfully and eyes you with mistrust. "I don’t trust you yet," he seems to say. Give him water first to earn his trust.' },
+              : state.flags.horseFed
+                ? { nl: 'Maanhoef heeft de wortel smakelijk opgegeten en kijkt al wat vriendelijker. Maar hij heeft dorst — geef hem nu water om zijn vertrouwen helemaal te winnen.', en: 'Moonhoof has happily eaten the carrot and looks a bit friendlier already. But he’s thirsty — give him water now to fully earn his trust.' }
+                : { nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, deinst angstig achteruit en kijkt je wantrouwend aan. "Ik vertrouw je nog niet," lijkt hij te zeggen. Verwen hem eerst met een lekkere wortel uit de moestuin.', en: 'Moonhoof, a warm chestnut horse with a pale blaze, shies back fearfully and eyes you with mistrust. "I don’t trust you yet," he seems to say. Spoil him first with a tasty carrot from the vegetable garden.' },
           use: {
+            carrot: {
+              consume: 'carrot',
+              setFlag: 'horseFed',
+              text: {
+                nl: 'Je houdt Maanhoef de verse wortel voor. Voorzichtig snuffelt hij, dan knabbelt hij hem gretig op. Zijn oren komen naar voren — hij begint je te vertrouwen. Geef hem nu wat water.',
+                en: 'You hold out the fresh carrot to Moonhoof. He sniffs cautiously, then eagerly munches it down. His ears prick forward — he’s starting to trust you. Now give him some water.'
+              }
+            },
             bucketWater: {
+              requiresFlag: 'horseFed',
+              requiresText: { nl: 'Maanhoef is nog te schuw om uit je hand te drinken. Geef hem eerst een wortel uit de moestuin om hem op zijn gemak te stellen.', en: 'Moonhoof is still too shy to drink from your hand. Give him a carrot from the vegetable garden first to put him at ease.' },
               consume: 'bucketWater',
               setFlag: 'horseWatered',
               text: {
