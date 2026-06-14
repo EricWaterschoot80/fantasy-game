@@ -1349,13 +1349,19 @@
     }
     if (ready(hero)) {
       if (walking) {
-        /* loopcyclus: met 2 stap-frames (links/rechts) een echte animatie;
-           anders terugvallen op de oude sta/stap-wissel. */
-        const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2;
+        /* loopcyclus: 3 stap-frames (wijde pas → benen samen → andere pas → samen) voor een
+           vloeiende animatie; valt terug op 2 of 1 frame als er minder beschikbaar zijn. */
+        const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2, w3 = art.sprites.heroWalk3;
         const stride = Math.sin(player.phase * 0.55);
         let img;
-        if (ready(w1) && ready(w2)) img = stride > 0 ? w1 : w2;
-        else img = (stride > 0 && ready(w1)) ? w1 : hero;
+        if (ready(w1) && ready(w2) && ready(w3)) {
+          const seq = [w1, w2, w3, w2];                 // contact → passing → contact → passing
+          img = seq[Math.floor(player.phase * 0.35) % 4];
+        } else if (ready(w1) && ready(w2)) {
+          img = stride > 0 ? w1 : w2;
+        } else {
+          img = (stride > 0 && ready(w1)) ? w1 : hero;
+        }
         const hop = -Math.round(Math.abs(stride) * 2.5);
         const lean = stride * 0.05;
         drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: hop, rot: lean });

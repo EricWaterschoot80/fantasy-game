@@ -10,12 +10,13 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '19',
+  assetVer: '20',
 
   sprites: {
     hero:      'assets/art/hero.png',
     heroWalk:  'assets/art/hero-walk.png',
     heroWalk2: 'assets/art/hero-walk2.png',
+    heroWalk3: 'assets/art/hero-walk3.png',
     heroWave:  'assets/art/hero-wave.png',
     heroFlute: 'assets/art/hero-flute.png',
     heroFace:  'assets/art/hero-face.png',
@@ -144,8 +145,8 @@ const GAME = {
       walkPoly: [ [20, 224], [430, 224], [430, 204], [564, 204], [564, 308], [20, 308] ],
       obstacles: [],
       overlays: [
-        { img: 'assets/art/chest-closed.png', x: 50, y: 176, base: 224, notFlag: 'tackSolved' },
-        { img: 'assets/art/chest-open.png',   x: 52, y: 172, base: 224, requiresFlag: 'tackSolved' }
+        { img: 'assets/art/chest-closed.png', x: 54, y: 183, base: 224, notFlag: 'tackSolved' },
+        { img: 'assets/art/chest-open.png',   x: 56, y: 180, base: 224, requiresFlag: 'tackSolved' }
       ],
       worldItems: [
         { item: 'carrot', hotspot: 'moestuin', x: 245, y: 150, h: 17 }   // zichtbare wortel in de moestuin
