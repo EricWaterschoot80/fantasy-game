@@ -278,17 +278,29 @@
     }
   }
   /* Achtergrondmuziek: 'Velvet Compass' zacht in een lus (vervangt de generatieve ambient). */
-  let bgMusic = null;
-  function startMusic() {
-    if (music.started) return;
-    music.started = true;
+  let bgMusic = null, bgMusicTrack = null;
+  const DEFAULT_MUSIC = 'assets/audio/amber-logic.mp3';
+  function playTrack(src) {
+    if (bgMusicTrack === src && bgMusic) return;   // al deze track aan het spelen
+    bgMusicTrack = src;
     try {
-      bgMusic = new Audio('assets/audio/amber-logic.mp3' + AV_AUDIO);
+      if (bgMusic) { try { bgMusic.pause(); } catch (e) {} }
+      bgMusic = new Audio(src + AV_AUDIO);
       bgMusic.loop = true;
       bgMusic.volume = soundOn ? 0.10 : 0;
       bgMusic.play().catch(() => {});
     } catch (e) { /* nooit het spel breken */ }
   }
+  function sceneTrack() {
+    const sc = GAME.scenes[state.currentScene];
+    return (sc && sc.music) || DEFAULT_MUSIC;
+  }
+  function startMusic() {
+    if (music.started) return;
+    music.started = true;
+    playTrack(sceneTrack());
+  }
+  function updateSceneMusic() { if (music.started) playTrack(sceneTrack()); }
 
   elSoundBtn.addEventListener('click', () => {
     soundOn = !soundOn;
@@ -647,7 +659,7 @@
           const w = npc.wander;
           const tx = w.x + Math.random() * w.w;
           const ty = w.y + Math.random() * w.h;
-          if (inWalkable(tx, ty)) rt.target = { x: tx, y: ty };
+          if (w.anywhere || inWalkable(tx, ty)) rt.target = { x: tx, y: ty };
           else rt.pauseUntil = now + 800;
         }
       }
@@ -996,9 +1008,7 @@
         const al = 0.34 - (tt / wf.h) * 0.27;
         if (al > 0) { fctx.fillStyle = `rgba(232,245,252,${al})`; fctx.fillRect((sx + tt * slant) | 0, (wf.y + tt) | 0, 1, len); }
       }
-      const fb = 0.22 + 0.12 * Math.sin(now / 120);
-      fctx.fillStyle = `rgba(240,250,253,${fb})`;
-      for (let k = 2; k < wf.w - 2; k += 3) fctx.fillRect((wf.x + k) | 0, (wf.y + wf.h - 2 + ((Math.sin(now / 90 + k) * 1) | 0)) | 0, 2, 1);
+      /* (horizontale schuim-/plaslijn onderaan verwijderd op verzoek) */
     }
     if (fx.snakeTongue && !(fx.snakeTongue.hideFlag && state.flags[fx.snakeTongue.hideFlag])) {
       const t = fx.snakeTongue, cyc = (now % 1500) / 1500;
@@ -1306,8 +1316,9 @@
       const e = (now - heroAnim.t0) / heroAnim.dur;
       if (e >= 1) { heroAnim = null; }
       else {
-        const wave = art.sprites.heroWave;
-        const img = ready(wave) ? wave : hero;
+        const flute = art.sprites.heroFlute, wave = art.sprites.heroWave;
+        const img = (heroAnim.kind === 'flute' && ready(flute)) ? flute
+                  : (ready(wave) ? wave : hero);
         /* speelse wieg-beweging tijdens het spelen */
         const sway = Math.sin(now / 130) * 0.07;
         const bob = -1 - Math.round(Math.abs(Math.sin(now / 150)) * 1);
@@ -2482,6 +2493,7 @@
         follower.x = fp.x; follower.y = fp.y; follower.scared = false;
       }
       exitArm = {};
+      updateSceneMusic();
       initNpcs();
       initFireflies((scene.fx && scene.fx.fireflies) || 0);
       embers.length = 0;

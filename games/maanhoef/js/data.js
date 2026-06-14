@@ -10,18 +10,20 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '14',
+  assetVer: '15',
 
   sprites: {
     hero:      'assets/art/hero.png',
     heroWalk:  'assets/art/hero-walk.png',
     heroWalk2: 'assets/art/hero-walk2.png',
     heroWave:  'assets/art/hero-wave.png',
+    heroFlute: 'assets/art/hero-flute.png',
     heroFace:  'assets/art/hero-face.png',
     pup:       'assets/art/pup.png',
     pup2:      'assets/art/pup2.png',
     pupNoKey:  'assets/art/pup-nokey.png',
     pupNoKey2: 'assets/art/pup-nokey2.png',
+    pupSit:    'assets/art/pup-sit.png',
     owl:       'assets/art/owl.png',
     mouse:     'assets/art/mouse.png',
     mouse2:    'assets/art/mouse2.png'
@@ -68,7 +70,7 @@ const GAME = {
     q_feedhorse:{ nl: 'Geef Maanhoef de wortel om zijn vertrouwen te winnen', en: 'Give Moonhoof the carrot to earn his trust' },
     q_freehorse:{ nl: 'Geef Maanhoef nu water over de poort — anders werkt de sleutel niet', en: 'Now give Moonhoof water over the gate — otherwise the key won’t work' },
     q_gate:   { nl: 'Maanhoef is gekalmeerd — haal nu het slot van de stalpoort met de sleutel', en: 'Moonhoof is calm now — unlock the stable gate with the key' },
-    q_bridle_search: { nl: 'Maanhoef is vrij! Hij heeft een hoofdstel nodig — doorzoek het stro in de stal', en: 'Moonhoof is free! He needs a bridle — search the straw in the stable' },
+    q_bridle_search: { nl: 'Maanhoef is vrij! Hij heeft een hoofdstel nodig — pak het stuk kaas dat in de stal ligt', en: 'Moonhoof is free! He needs a bridle — grab the wedge of cheese lying in the stable' },
     q_bridle_cheese: { nl: 'Geef het stuk kaas aan het brutale muisje bij het schuurtje op het erf', en: 'Give the wedge of cheese to the cheeky mouse by the barn in the farmyard' },
     q_tackbox:       { nl: 'Open de tuigkist bij het schuurtje op het erf — los het houten slot op', en: 'Open the tack-chest by the barn in the farmyard — solve the wooden lock' },
     q_bridle_on:     { nl: 'Doe Maanhoef het hoofdstel om (gebruik het hoofdstel op hem)', en: 'Put the bridle on Moonhoof (use the bridle on him)' },
@@ -137,20 +139,23 @@ const GAME = {
         grove: { x: 70, y: 262 },
         stable: { x: 498, y: 262 }
       },
-      walkPoly: [ [28, 232], [430, 232], [430, 214], [560, 214], [560, 302], [28, 302] ],
+      walkPoly: [ [20, 224], [430, 224], [430, 204], [564, 204], [564, 308], [20, 308] ],
       obstacles: [],
       overlays: [
         { img: 'assets/art/chest-closed.png', x: 50, y: 176, base: 224, notFlag: 'tackSolved' },
         { img: 'assets/art/chest-open.png',   x: 52, y: 172, base: 224, requiresFlag: 'tackSolved' }
       ],
-      worldItems: [],
+      worldItems: [
+        { item: 'carrot', hotspot: 'moestuin', x: 168, y: 116, h: 22 }   // zichtbare wortel in de moestuin
+      ],
       npcs: [
         { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.78, x: 188, y: 274,
           altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2' },
           fleeBox: { x: 90, y: 256, w: 270, h: 36 },
           fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
         { id: 'owl', sprite: 'owl', x: 511, y: 112 },
-        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.6, x: 92, y: 236 }
+        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.62, x: 92, y: 236,
+          wander: { x: 66, y: 228, w: 64, h: 24, speed: 16, pauseMin: 500, pauseMax: 2200, anywhere: true } }
       ],
       hotspots: [
         {
@@ -317,13 +322,12 @@ const GAME = {
       playerStart: { x: 498, y: 286 },
       spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
       walkable: [
-        { x: 138, y: 288, w: 418, h: 26 },  // bredere voorgrond-strook (meer ruimte om te lopen bij de slang)
-        { x: 418, y: 230, w: 138, h: 84 },  // rechtergras bij de instap
-        { x: 56, y: 196, w: 182, h: 118 }   // brug + linkerpad omhoog naar de grot (verbindt nu ruim met de strook)
+        { x: 112, y: 282, w: 448, h: 32 },  // bredere voorgrond-strook (meer ruimte om te lopen bij de slang)
+        { x: 408, y: 224, w: 152, h: 90 },  // rechtergras bij de instap (ruimer)
+        { x: 50, y: 190, w: 196, h: 124 }   // brug + linkerpad omhoog naar de grot (ruimer)
       ],
       fx: {
-        waterfall: { x: 282, y: 64, w: 44, h: 128, streaks: 14, slant: 0.16, len: 4 },  // kleiner, minder hoog, schuin — alleen op het water
-        spray: { x: 305, y: 196, w: 44, h: 20, n: 12, speed: 0.05 },   // opspattende nevel onder de waterval
+        waterfall: { x: 282, y: 64, w: 44, h: 128, streaks: 14, slant: 0.16, len: 4 },  // alleen verticale val, geen horizontale lijn
         butterfly: [
           { x: 410, y: 150, rx: 54, ry: 30, col: '255,170,210', phase: 0 },   // roze vlinder bij de boom
           { x: 150, y: 168, rx: 40, ry: 24, col: '250,225,120', phase: 3 }     // gele vlinder bij de boog
@@ -436,6 +440,7 @@ const GAME = {
     /* ---------- Gebied 4: De Kristalgrot ---------- */
     cave: {
       name: { nl: 'De Kristalgrot', en: 'The Crystal Cave' },
+      music: 'assets/audio/velvet-compass.mp3',   // eigen grot-muziek (vervang door aangeleverd bestand)
       bg: 'assets/art/scene-cave-dry.png',
       bgVariants: [ { img: 'assets/art/scene-cave.png', flag: 'waterFlowing' } ],
       entryText: {
@@ -444,7 +449,7 @@ const GAME = {
       },
       playerStart: { x: 120, y: 286 },
       spawnFrom: { grove: { x: 120, y: 286 } },
-      walkable: [ { x: 55, y: 254, w: 250, h: 48 }, { x: 55, y: 280, w: 435, h: 22 } ],
+      walkable: [ { x: 48, y: 248, w: 264, h: 56 }, { x: 48, y: 276, w: 452, h: 30 } ],
       fx: {
         drips: [
           { x: 198, y: 22, to: 150, period: 2400, phase: 0 },
@@ -548,7 +553,7 @@ const GAME = {
       },
       playerStart: { x: 120, y: 266 },
       spawnFrom: { farm: { x: 110, y: 266 } },
-      walkPoly: [ [70, 210], [474, 210], [474, 304], [70, 304] ],
+      walkPoly: [ [58, 202], [486, 202], [486, 308], [58, 308] ],
       obstacles: [],
       overlays: [
         { img: 'assets/art/horse-free.png',    x: 164, y: 118, base: 208, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
@@ -556,15 +561,16 @@ const GAME = {
       ],
       worldItems: [
         { item: 'bucket', hotspot: 'bucket', x: 196, y: 244, h: 28 },
-        { item: 'plank', hotspot: 'plank', x: 432, y: 252, h: 28 }
+        { item: 'plank', hotspot: 'plank', x: 430, y: 282, h: 44 },             // groter + lager, beter zichtbaar
+        { item: 'cheese', hotspot: 'haysearch', x: 150, y: 214, h: 24, requiresFlag: 'gateOpen' }  // zichtbaar stuk kaas in de stal
       ],
       npcs: [],
       hotspots: [
         {
           id: 'plank',
           name: { nl: 'Houten Plank', en: 'Wooden Plank' },
-          rect: { x: 402, y: 208, w: 60, h: 58 },
-          walkTo: { x: 428, y: 292 },
+          rect: { x: 400, y: 244, w: 66, h: 64 },
+          walkTo: { x: 430, y: 296 },
           gives: {
             item: 'plank',
             giveText: { nl: 'Tegen de stalmuur leunt een stevige houten plank. Die kun je vast gebruiken om iets te repareren.', en: 'A sturdy wooden plank leans against the stable wall. That could come in handy to repair something.' },
@@ -678,15 +684,15 @@ const GAME = {
         },
         {
           id: 'haysearch',
-          name: { nl: 'Hoop Stro', en: 'Pile of Straw' },
-          rect: { x: 116, y: 178, w: 64, h: 56 },
-          walkTo: { x: 148, y: 284 },
+          name: { nl: 'Stuk Kaas', en: 'Wedge of Cheese' },
+          rect: { x: 120, y: 196, w: 64, h: 44 },
+          walkTo: { x: 150, y: 284 },
           requiresFlag: 'gateOpen',
-          blockedText: { nl: 'Er is nu niets om te doorzoeken — bevrijd eerst Maanhoef.', en: 'Nothing to search through right now — free Moonhoof first.' },
+          blockedText: { nl: 'Er ligt nu niets — bevrijd eerst Maanhoef.', en: 'There’s nothing here yet — free Moonhoof first.' },
           gives: {
             item: 'cheese',
-            giveText: { nl: 'Je doorzoekt de oude hoop stro bij de muur... en vindt er een vergeten stuk kaas in! Iemand zou daar blij mee zijn.', en: 'You rummage through the old pile of straw by the wall... and find a forgotten wedge of cheese in it! Someone would be glad to have that.' },
-            emptyText: { nl: 'Alleen nog wat stoffig stro.', en: 'Just some dusty straw now.' }
+            giveText: { nl: 'Je pakt het stuk kaas op dat naast de hoop stro ligt. Iemand zou daar vast blij mee zijn.', en: 'You pick up the wedge of cheese lying beside the pile of straw. Someone would surely be glad to have it.' },
+            emptyText: { nl: 'Het stuk kaas heb je al opgepakt.', en: 'You’ve already picked up the cheese.' }
           }
         },
         {
