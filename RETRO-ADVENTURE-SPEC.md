@@ -459,3 +459,24 @@ Eén **portaal** met een raster van avonturen, elk een losse PWA in deze stijl. 
 
 Elk spel verschilt in `data.js` + art + accentkleur + sfeer; samen voelen ze als één familie.
 **Eerste titel:** *De Amulet van Emberfall* (eeuwige herfst, minotaur, runenbos).
+
+---
+
+## VASTE REGEL — Character & background consistency (ALTIJD toepassen)
+
+Bij élke nieuwe of bijgewerkte afbeelding (personages én achtergronden) **altijd character
+consistency** gebruiken — nooit los van de bestaande look genereren:
+
+- **Personages** (held, dieren, NPC's): genereer via **image-to-image** met de bestaande sprite/art
+  als referentie (`media_import_url` op de gedeployde PNG → `media_id` → `generate_image` met
+  `medias:[{value:media_id, role:'image'}]`). Zo blijven outfit, kleuren, haar, vacht, bles, mane enz.
+  identiek. Beschrijf in de prompt expliciet "use this as the exact character reference" + de vaste
+  kenmerken (bv. Loïs: auburn haar, **groen vestje**, bruine laarzen; Maanhoef: kastanjebruin, lichte
+  bles, donkere manen).
+- **Achtergronden / scene-varianten** (bv. lege stal, dag/nacht, dichte/open poort): genereer de
+  variant óók via image-to-image met de originele scene als referentie, zelfde camerahoek/stijl/lay-out,
+  alleen het gevraagde verschil. Crop daarna identiek (cover naar 568×320).
+- **Eindbeeld / cutscenes**: zelfde personages + paard via consistency-referenties; geen nieuwe
+  "andere" figuur.
+- Bewaar/gebruik dezelfde referentie-`media_id` voor een reeks samenhorende beelden (bv. los paard,
+  paard mét hoofdstel, rij-eindbeeld) zodat ze onderling kloppen.

@@ -1,6 +1,6 @@
 /* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet. */
 
-const CACHE = 'maanhoef-v10';
+const CACHE = 'maanhoef-v11';
 
 const PRECACHE = [
   './',
@@ -22,6 +22,12 @@ const PRECACHE = [
   './assets/art/scene-stable-open.png',
   './assets/art/horse-free.png',
   './assets/art/mouse.png',
+  './assets/art/pup-nokey.png',
+  './assets/art/pup-nokey2.png',
+  './assets/art/mouse2.png',
+  './assets/art/horse-bridled.png',
+  './assets/art/tackbox.png',
+
   './assets/art/item-cheese.png',
   './assets/art/item-bridle.png',
   './assets/art/win-ride.png',

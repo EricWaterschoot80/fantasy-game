@@ -972,6 +972,8 @@
     }
     if (fx.ripples) {
       for (const rp of (Array.isArray(fx.ripples) ? fx.ripples : [fx.ripples])) {
+        if (rp.flag && !state.flags[rp.flag]) continue;
+        if (rp.fill) { fctx.fillStyle = rp.fill; fctx.fillRect(rp.x | 0, rp.y | 0, rp.w | 0, rp.h | 0); }
         const n = rp.n || 8, sp = rp.speed || 0.026;
         for (let i = 0; i < n; i++) {
           const yy = rp.y + ((i * 11) % rp.h);
@@ -1214,8 +1216,8 @@
   }
 
   /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
-  function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0 } = {}) {
-    const w = img.naturalWidth, h = img.naturalHeight;
+  function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0, scale = 1 } = {}) {
+    const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
     const px = Math.round(x), py = Math.round(y + bob);
     shadow(x, y, w * 0.8);
     fctx.save();
@@ -1223,7 +1225,7 @@
     fctx.translate(px, py);
     if (rot) fctx.rotate(rot);
     if (flip) fctx.scale(-1, 1);
-    fctx.drawImage(img, Math.round(-w / 2), Math.round(-h * squashY), w, Math.round(h * squashY));
+    fctx.drawImage(img, Math.round(-w / 2), Math.round(-h * squashY), Math.round(w), Math.round(h * squashY));
     fctx.restore();
   }
 
@@ -1384,22 +1386,28 @@
       }
     } else {
       /* generieke NPC (bv. uil, hond): idle-deining, dribbel bij zwerven, af en toe een gebaartje */
-      const img = art.sprites[npc.sprite];
+      /* alternatief sprite-stel zodra een vlag gezet is (bv. hond zónder sleutel na dogFriendly) */
+      let sName = npc.sprite, s2Name = npc.sprite2;
+      if (npc.altSprite && state.flags[npc.altSprite.flag]) {
+        sName = npc.altSprite.sprite;
+        s2Name = npc.altSprite.sprite2 || npc.altSprite.sprite;
+      }
+      const img = art.sprites[sName];
       if (!ready(img)) return;
       const fl = npc.facesLeft ? !rt.flip : rt.flip;
       const moving = rt.target || rt.fleeing;
       if (moving) {
         /* levendige draf: wissel tussen 2 loopframes (indien aanwezig) + bounce + wiegen */
-        const alt = npc.sprite2 && ready(art.sprites[npc.sprite2]);
-        const fimg = (alt && (Math.floor(rt.phase * 0.6) % 2)) ? art.sprites[npc.sprite2] : img;
+        const alt = s2Name && ready(art.sprites[s2Name]);
+        const fimg = (alt && (Math.floor(rt.phase * 0.6) % 2)) ? art.sprites[s2Name] : img;
         const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.6)) * 3);
         const rock = Math.sin(rt.phase * 1.6) * 0.06;
-        drawArtSprite(fimg, rt.x, rt.y, { flip: fl, bob: hop, rot: rock });
+        drawArtSprite(fimg, rt.x, rt.y, { flip: fl, bob: hop, rot: rock, scale: npc.scale || 1 });
       } else {
         const g = gestureState(npc.id, now, 650, 3500, 7500);
         const flap = g > 0 ? -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 2)) * 2) : 0;
         const breathe = Math.round(Math.sin(now / 700 + (npc.x || 0)));
-        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: breathe + flap });
+        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: breathe + flap, scale: npc.scale || 1 });
       }
     }
   }
