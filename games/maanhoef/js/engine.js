@@ -1675,6 +1675,13 @@
 
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
+    /* speelse items (bv. de fluit): elke tik laat de held het deuntje spelen */
+    const def = GAME.items[itemId];
+    if (def && def.tapAnim) {
+      player.target = null; player.pending = null;   // even stilstaan om te spelen
+      startHeroAnim(def.tapAnim, def.tapAnimDur || 1800);
+      if (def.tapSound) playFile(def.tapSound, { vol: 0.9 });
+    }
     const sel = state.selectedItem;
     if (sel === itemId) {
       state.selectedItem = null;

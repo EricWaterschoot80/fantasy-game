@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '15',
+  assetVer: '16',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -24,6 +24,7 @@ const GAME = {
     pupNoKey:  'assets/art/pup-nokey.png',
     pupNoKey2: 'assets/art/pup-nokey2.png',
     pupSit:    'assets/art/pup-sit.png',
+    pupSitNoKey: 'assets/art/pup-sit-nokey.png',
     owl:       'assets/art/owl.png',
     mouse:     'assets/art/mouse.png',
     mouse2:    'assets/art/mouse2.png'
@@ -78,7 +79,8 @@ const GAME = {
   },
 
   items: {
-    flute:   { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈', img: 'assets/art/item-flute.png' },
+    flute:   { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈', img: 'assets/art/item-flute.png',
+               tapAnim: 'flute', tapAnimDur: 4200, tapSound: 'willow-flute' },
     bone:    { name: { nl: 'Kaal Bot', en: 'Bare Bone' }, icon: '🦴', img: 'assets/art/item-bone.png' },
     key:     { name: { nl: 'Stalsleutel', en: 'Stable Key' }, icon: '🗝️', img: 'assets/art/item-key.png' },
     crystal: { name: { nl: 'Kristal', en: 'Crystal' }, icon: '🔷', img: 'assets/art/item-crystal.png' },
@@ -146,11 +148,11 @@ const GAME = {
         { img: 'assets/art/chest-open.png',   x: 52, y: 172, base: 224, requiresFlag: 'tackSolved' }
       ],
       worldItems: [
-        { item: 'carrot', hotspot: 'moestuin', x: 168, y: 116, h: 22 }   // zichtbare wortel in de moestuin
+        { item: 'carrot', hotspot: 'moestuin', x: 206, y: 130, h: 17 }   // zichtbare wortel in de moestuin (rechter, lager, kleiner)
       ],
       npcs: [
-        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.78, x: 188, y: 274,
-          altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2' },
+        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.72, x: 188, y: 274,
+          altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2', idleSprite: 'pupSitNoKey' },
           fleeBox: { x: 90, y: 256, w: 270, h: 36 },
           fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
         { id: 'owl', sprite: 'owl', x: 511, y: 112 },
@@ -374,9 +376,8 @@ const GAME = {
                 en: 'The snake sways softly and beckons you closer — she wants to whisper in your ear. Don’t trust her; play your flute instead.' },
           use: {
             flute: {
-              consume: 'flute',
               anim: 'flute',
-              animDur: 1900,
+              animDur: 4200,
               sound: 'willow-flute',
               setFlag: 'snakeCharmed',
               text: {
