@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '2',
+  assetVer: '4',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -69,6 +69,7 @@ const GAME = {
                    en: 'This adventure plays in landscape. Turn your screen sideways.' },
     tapContinue: { nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
     selected:    { nl: 'geselecteerd', en: 'selected' },
+    homeConfirm: { nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
     q_explore:   { nl: 'Verken de binnenplaats', en: 'Explore the courtyard' },
     q_water:     { nl: 'Zoek iets om water mee te scheppen — volg het westpad', en: 'Find something to scoop water — follow the west path' },
     q_runes:     { nl: 'Tik de runenstenen in de juiste volgorde aan', en: 'Tap the rune stones in the right order' },
@@ -666,28 +667,19 @@ const GAME = {
           walkTo: { x: 438, y: 224 },
           requiresFlag: 'minotaurAsleep',
           blockedText: { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' },
-          maze: {
-            setFlag: 'wardLifted',
+          jigsaw: {
             requiresFlag: 'minotaurAsleep',
-            cells: 5,
-            water: true,
-            title: { nl: 'De Waterloop van de Ward', en: 'The Ward’s Watercourse' },
-            hint: { nl: 'Leid het water door de kanalen naar het bekken onder de amulet.', en: 'Guide the water through the channels to the basin beneath the amulet.' },
-            img: 'assets/art/maze-water.png',
+            setFlag: 'wardLifted',
+            give: 'amulet', win: true,
+            cols: 4, rows: 2,
+            img: 'assets/art/emblem-puzzle.png',
+            title: { nl: 'Het Zegel van de Amulet', en: 'The Amulet Seal' },
             solvedText: {
-              nl: 'Het water bereikt het bekken onder de amulet en klatert vol. De ward dooft met een diepe zucht — de amulet ligt nu vrij voor het grijpen.',
-              en: 'The water reaches the basin beneath the amulet and brims over. The ward fades with a deep sigh — the amulet now lies free for the taking.'
+              nl: 'De acht scherven klikken samen tot één geheel. Het zegel dooft met een diepe zucht en de Amulet van Emberfall ligt vrij — je grijpt hem. Warm licht stroomt door je heen.',
+              en: 'The eight shards click together into one. The seal fades with a deep sigh and the Amulet of Emberfall lies free — you seize it. Warm light flows through you.'
             }
           },
-          gives: {
-            item: 'amulet',
-            win: true,
-            giveText: {
-              nl: 'Je grijpt de Amulet van Emberfall van het altaar. Warm licht stroomt door je heen.',
-              en: 'You seize the Amulet of Emberfall from the altar. Warm light flows through you.'
-            },
-            emptyText: { nl: 'Het altaar is leeg; de amulet is van jou.', en: 'The altar is empty; the amulet is yours.' }
-          }
+          look: { nl: 'Het altaar is leeg; de amulet is van jou.', en: 'The altar is empty; the amulet is yours.' }
         },
         {
           id: 'toCourtyard',

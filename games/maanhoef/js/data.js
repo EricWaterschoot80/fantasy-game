@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '32',
+  assetVer: '33',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -462,7 +462,8 @@ const GAME = {
           { x: 366, y: 18, to: 138, period: 2900, phase: 1300 },
           { x: 96, y: 30, to: 168, period: 3300, phase: 700 }
         ],
-        shade: [ { x: 454, y: 262, r: 30, a: 0.55 } ]   // schaduwhoekje waar het bot verstopt ligt
+        shade: [ { x: 454, y: 262, r: 30, a: 0.55 } ],   // schaduwhoekje waar het bot verstopt ligt
+        sparkles: { x: 210, y: 62, w: 116, h: 84, n: 14, speed: 700, hideFlag: 'sealSolved' }   // glinstering in de wand bij het runenzegel
       },
       obstacles: [],
       overlays: [],
@@ -475,15 +476,15 @@ const GAME = {
           name: { nl: 'Runenzegel', en: 'Rune Seal' },
           rect: { x: 206, y: 58, w: 124, h: 92 },
           walkTo: { x: 256, y: 290 },
-          slidePuzzle: {
+          jigsaw: {
             img: 'assets/art/cave-seal.png',
-            size: 3,
+            cols: 4, rows: 2,
             setFlag: 'sealSolved',
             give: 'diamond',
             title: { nl: 'Het Runenzegel', en: 'The Rune Seal' },
             solvedText: {
-              nl: 'Het runenzegel klikt op zijn plaats en gloeit op. Met een diep gerommel schuift een stenen luik opzij — er rolt een fonkelende Diamant in je hand!',
-              en: 'The rune seal clicks into place and glows. With a deep rumble a stone hatch slides aside — a sparkling Diamond rolls into your hand!'
+              nl: 'De acht scherven klikken in elkaar tot één heel zegel. Het gloeit op en met een diep gerommel schuift een stenen luik opzij — er rolt een fonkelende Diamant in je hand!',
+              en: 'The eight shards click together into one whole seal. It glows and with a deep rumble a stone hatch slides aside — a sparkling Diamond rolls into your hand!'
             },
             burst: { x: 256, y: 96 }
           },

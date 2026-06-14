@@ -411,6 +411,76 @@
     return best || { x, y };
   }
 
+  /* ---------- Pathfinding (A* over een raster) zodat de speler netjes om obstakels
+       (zuilen, de minotaur) heen loopt in plaats van vast te lopen. ---------- */
+  function lineClear(x1, y1, x2, y2) {
+    const d = Math.hypot(x2 - x1, y2 - y1);
+    const n = Math.max(1, Math.ceil(d / 4));
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      if (!inWalkable(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t)) return false;
+    }
+    return true;
+  }
+  function findPath(sx, sy, tx, ty) {
+    const scene = GAME.scenes[state.currentScene];
+    if (lineClear(sx, sy, tx, ty)) return [{ x: tx, y: ty }];
+    const C = 8;
+    const cols = Math.ceil(SCENE_W / C), rows = Math.ceil(SCENE_H / C);
+    const ok = (cx, cy) => cx >= 0 && cy >= 0 && cx < cols && cy < rows &&
+      inWalkableScene(scene, cx * C + C / 2, cy * C + C / 2);
+    const nearestOk = (cx, cy) => {
+      if (ok(cx, cy)) return { x: cx, y: cy };
+      for (let r = 1; r < 30; r++) {
+        for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
+          if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+          if (ok(cx + dx, cy + dy)) return { x: cx + dx, y: cy + dy };
+        }
+      }
+      return null;
+    };
+    const s = nearestOk(Math.floor(sx / C), Math.floor(sy / C));
+    const g = nearestOk(Math.floor(tx / C), Math.floor(ty / C));
+    if (!s || !g) return null;
+    const key = (x, y) => y * cols + x;
+    const open = [s], gScore = {}, came = {};
+    gScore[key(s.x, s.y)] = 0;
+    const h = (a) => Math.abs(a.x - g.x) + Math.abs(a.y - g.y);
+    let guard = 0;
+    while (open.length && guard++ < 6000) {
+      let bi = 0;
+      for (let i = 1; i < open.length; i++)
+        if ((gScore[key(open[i].x, open[i].y)] + h(open[i])) < (gScore[key(open[bi].x, open[bi].y)] + h(open[bi]))) bi = i;
+      const cur = open.splice(bi, 1)[0];
+      if (cur.x === g.x && cur.y === g.y) {
+        const cells = [];
+        let c = cur;
+        while (c) { cells.unshift(c); c = came[key(c.x, c.y)]; }
+        let pts = cells.map((c) => ({ x: c.x * C + C / 2, y: c.y * C + C / 2 }));
+        pts.push({ x: tx, y: ty });
+        const simp = [pts[0]];
+        let i = 0;
+        while (i < pts.length - 1) {
+          let j = pts.length - 1;
+          while (j > i + 1 && !lineClear(pts[i].x, pts[i].y, pts[j].x, pts[j].y)) j--;
+          simp.push(pts[j]); i = j;
+        }
+        simp.shift();
+        return simp.length ? simp : [{ x: tx, y: ty }];
+      }
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = cur.x + dx, ny = cur.y + dy;
+        if (!ok(nx, ny)) continue;
+        const t = gScore[key(cur.x, cur.y)] + 1;
+        if (gScore[key(nx, ny)] === undefined || t < gScore[key(nx, ny)]) {
+          gScore[key(nx, ny)] = t; came[key(nx, ny)] = cur;
+          if (!open.some((o) => o.x === nx && o.y === ny)) open.push({ x: nx, y: ny });
+        }
+      }
+    }
+    return null;
+  }
+
   /* ---------- Dynamische hotspots (volgen een NPC) ---------- */
   function npcPos(id) {
     if (id === 'dog' && follower.active) return follower;   // volgt nu de speler
@@ -522,13 +592,19 @@
 
     /* Speler */
     if (player.target) {
-      const dx = player.target.x - player.x;
-      const dy = player.target.y - player.y;
+      if (player._pathFor !== player.target) {
+        player._pathFor = player.target;
+        player.path = findPath(player.x, player.y, player.target.x, player.target.y) || [player.target];
+      }
+      const wp = (player.path && player.path[0]) || player.target;
+      const dx = wp.x - player.x;
+      const dy = wp.y - player.y;
       const dist = Math.hypot(dx, dy);
       if (dist <= ARRIVE_DIST) {
-        player.x = player.target.x;
-        player.y = player.target.y;
-        arrive();
+        player.x = wp.x;
+        player.y = wp.y;
+        if (player.path && player.path.length) player.path.shift();
+        if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
       } else {
         const step = Math.min(WALK_SPEED * dt, dist);
         let nx = player.x + (dx / dist) * step;
@@ -536,13 +612,12 @@
         if (!inWalkable(nx, ny)) {
           if (inWalkable(nx, player.y)) ny = player.y;
           else if (inWalkable(player.x, ny)) nx = player.x;
-          else { player.target = null; arrive(); return; }
+          else { player.target = null; player.path = null; arrive(); return; }
         }
-        /* klem tegen een obstakel: stop in plaats van eeuwig doorlopen */
+        /* klem tegen een obstakel: probeer het volgende waypoint, anders stop */
         if (Math.abs(nx - player.x) < 0.05 && Math.abs(ny - player.y) < 0.05) {
-          player.target = null;
-          arrive();
-          return;
+          if (player.path && player.path.length > 1) { player.path.shift(); }
+          else { player.target = null; player.path = null; arrive(); return; }
         }
         player.x = nx; player.y = ny;
         player.phase += step * 0.14;
@@ -1569,7 +1644,7 @@
     slide = { hs, n, tiles, empty };
     hintLevel = 0;
     elPuzTitle.textContent = L(cfg.title);
-    if (elPuzHintBtn) elPuzHintBtn.textContent = '💡 Hint';
+    if (elPuzHintBtn) { elPuzHintBtn.textContent = '💡 Hint'; elPuzHintBtn.style.display = ''; }
     if (elPuzTip) elPuzTip.hidden = true;
     renderSlide();
     elPuzzle.hidden = false;
@@ -1627,7 +1702,65 @@
     }
   }
 
-  function closePuzzle() { elPuzzle.hidden = true; slide = null; }
+  function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; }
+
+  /* ---------- Legpuzzel: 8 stukken die in elkaar passen (tik twee stukken om te wisselen) ---------- */
+  let jig = null;   // { hs, cols, rows, order[], sel }
+  function openJigsaw(hs) {
+    const cfg = hs.jigsaw;
+    const cols = cfg.cols || 4, rows = cfg.rows || 2, n = cols * rows;
+    const order = Array.from({ length: n }, (_, i) => i);
+    let guard = 0;
+    do {
+      for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; const t = order[i]; order[i] = order[j]; order[j] = t; }
+    } while (order.every((v, i) => v === i) && ++guard < 20);
+    jig = { hs, cols, rows, order, sel: -1 };
+    elPuzTitle.textContent = L(cfg.title);
+    if (elPuzHintBtn) elPuzHintBtn.style.display = 'none';
+    if (elPuzTip) elPuzTip.hidden = true;
+    renderJigsaw();
+    elPuzzle.hidden = false;
+    sfx('tap');
+  }
+  function renderJigsaw() {
+    const { hs, cols, rows, order, sel } = jig;
+    const cfg = hs.jigsaw;
+    const pw = 240 / cols, ph = 240 / rows;
+    elPuzGrid.innerHTML = '';
+    order.forEach((piece, slot) => {
+      const d = document.createElement('div');
+      d.className = 'puz-tile jig-tile' + (slot === sel ? ' jig-sel' : '');
+      d.style.width = pw + 'px'; d.style.height = ph + 'px';
+      d.style.left = (slot % cols) * pw + 'px';
+      d.style.top = ((slot / cols) | 0) * ph + 'px';
+      d.style.backgroundImage = 'url(' + cfg.img + AV + ')';
+      d.style.backgroundSize = '240px 240px';
+      d.style.backgroundPosition = '-' + (piece % cols) * pw + 'px -' + ((piece / cols) | 0) * ph + 'px';
+      d.addEventListener('touchend', (e) => { e.preventDefault(); tapJig(slot); }, { passive: false });
+      d.addEventListener('click', () => tapJig(slot));
+      elPuzGrid.appendChild(d);
+    });
+  }
+  function tapJig(slot) {
+    const j = jig; if (!j) return;
+    if (j.sel === -1) { j.sel = slot; sfx('tap'); renderJigsaw(); return; }
+    if (j.sel === slot) { j.sel = -1; renderJigsaw(); return; }
+    const t = j.order[j.sel]; j.order[j.sel] = j.order[slot]; j.order[slot] = t;
+    j.sel = -1; sfx('tap'); renderJigsaw();
+    if (j.order.every((v, i) => v === i)) {
+      const cfg = j.hs.jigsaw;
+      if (cfg.setFlag) state.flags[cfg.setFlag] = true;
+      if (cfg.give) addItem(cfg.give);
+      sfx('gate'); paintBackground();
+      setTimeout(() => {
+        elPuzzle.hidden = true; jig = null;
+        if (cfg.win) { pendingWin = true; sfx('win'); }
+        say(cfg.solvedText);
+        updateQuest();
+        if (cfg.burst) burstAt(cfg.burst.x, cfg.burst.y);
+      }, 450);
+    }
+  }
 
   elPuzClose.addEventListener('click', closePuzzle);
 
@@ -2064,6 +2197,19 @@
       else openSlidePuzzle(hs);
       return;
     }
+    if (hs.jigsaw) {
+      const need = hs.jigsaw.requiresFlag;
+      const unmet = need && (Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need]);
+      if (state.flags[hs.jigsaw.setFlag]) { say(lookText(hs), hsSpeaker(hs)); return; }
+      if (unmet) {
+        sfx('error');
+        const bt = typeof hs.blockedText === 'function' ? hs.blockedText(state) : hs.blockedText;
+        say(bt || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      openJigsaw(hs);
+      return;
+    }
     if (hs.exit) {
       const need = hs.requiresFlag;
       const unmet = need && (Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need]);
@@ -2346,6 +2492,14 @@
 
   elReplayBtn.addEventListener('click', resetGame);
 
+  /* Home-knop: tijdens het spel eerst bevestigen (ja/nee) voor je het spel verlaat. */
+  const elHomeBtn = document.getElementById('homeBtn');
+  if (elHomeBtn) {
+    elHomeBtn.addEventListener('click', (e) => {
+      if (started && !window.confirm(L(GAME.ui.homeConfirm))) e.preventDefault();
+    });
+  }
+
   /* ---------- Test-API ---------- */
   window.__game = {
     getState: () => state,
@@ -2359,6 +2513,7 @@
       interactNow(hs);
     },
     walkTo: (x, y) => { player.pending = null; player.target = clampToWalkable(x, y); },
+    setPlayer: (x, y) => { player.x = x; player.y = y; player.target = null; player.pending = null; player.path = null; },
     canWalk: (x, y) => inWalkable(x, y),
     setDebug: (on) => { window.__debugWalk = on; },
     select: (itemId) => onInventoryTap(itemId),

@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=25">
+  <link rel="stylesheet" href="css/style.css?v=27">
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -37,6 +37,8 @@
       <button id="soundBtn" class="round-btn sound" title="Geluid" aria-label="Geluid aan of uit"><img id="soundIcon" src="assets/icons/ui-sound-on.png" alt=""></button>
       <button id="hintBtn" class="round-btn" title="Toon hotspots" aria-label="Toon aanwijzingen"><img src="assets/icons/ui-eye.png" alt=""></button>
     </div>
+
+    <a id="homeBtn" class="round-btn home" href="../../index.html" title="Home" aria-label="Terug naar de homepagina">⌂</a>
 
     <div id="bubble" class="speech" hidden>
       <img id="bubbleFace" alt="" hidden>
@@ -147,10 +149,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=25"></script>
-  <script src="js/scenes.js?v=25"></script>
-  <script src="js/data.js?v=25"></script>
-  <script src="js/engine.js?v=25"></script>
+  <script src="js/sprites.js?v=27"></script>
+  <script src="js/scenes.js?v=27"></script>
+  <script src="js/data.js?v=27"></script>
+  <script src="js/engine.js?v=27"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

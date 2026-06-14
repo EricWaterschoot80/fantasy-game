@@ -706,6 +706,8 @@ html, body {
   user-select: none;
 }
 .puz-tile:active { filter: brightness(1.3); }
+.jig-tile { box-shadow: inset 0 0 0 2px rgba(31,20,16,.95); transition: none; }
+.jig-tile.jig-sel { box-shadow: inset 0 0 0 3px var(--gold-light, #e7cf86), 0 0 12px rgba(231,207,134,.7); z-index: 5; filter: brightness(1.15); }
 
 /* Raadsel-popup */
 .riddle-head {
