@@ -213,6 +213,28 @@
     } catch (e) { /* audio mag nooit het spel breken */ }
   }
 
+  /* ---------- Bestand-geluiden (mp3/m4a): effecten + stemfragmenten ---------- */
+  const AV_AUDIO = GAME.assetVer ? ('?v=' + GAME.assetVer) : '';
+  const SOUND_FILES = {
+    'snake-rattle': 'assets/audio/snake-rattle.mp3',
+    'willow-flute': 'assets/audio/willow-flute.mp3',
+    'horse-whinny': 'assets/audio/horse-whinny.mp3',
+    'snake-grot':   'assets/audio/snake-grot.m4a',
+    'bucket-empty': 'assets/audio/bucket-empty.m4a'
+  };
+  const soundCache = {};
+  function playFile(name, opts) {
+    opts = opts || {};
+    if (!soundOn || !SOUND_FILES[name]) return;
+    try {
+      let a = soundCache[name];
+      if (!a) { a = soundCache[name] = new Audio(SOUND_FILES[name] + AV_AUDIO); a.preload = 'auto'; }
+      a.pause(); a.currentTime = 0;
+      a.volume = opts.vol != null ? opts.vol : 0.7;
+      a.play().catch(() => {});
+    } catch (e) { /* nooit het spel breken */ }
+  }
+
   /* Generatieve ambient: lage drone + trage mineurakkoorden + sprankels */
   const music = { started: false, master: null, timer: null };
   const MUSIC_CHORDS = [
@@ -245,22 +267,17 @@
       tone(n, 1.0, { delay: dt + 0.32, vol: 0.006, dest: music.master });
     }
   }
+  /* Achtergrondmuziek: 'Velvet Compass' zacht in een lus (vervangt de generatieve ambient). */
+  let bgMusic = null;
   function startMusic() {
-    const a = ac(); if (!a || music.started) return;
+    if (music.started) return;
     music.started = true;
-    music.master = a.createGain();
-    music.master.gain.value = soundOn ? 1 : 0;
-    music.master.connect(a.destination);
-    // constante donkere drone, licht ontstemd
-    for (const f of [55, 55.35, 82.5]) {
-      const o = a.createOscillator(), g = a.createGain();
-      o.type = 'sine'; o.frequency.value = f;
-      g.gain.value = 0.011;
-      o.connect(g).connect(music.master);
-      o.start();
-    }
-    playChord();
-    music.timer = setInterval(playChord, 8000);
+    try {
+      bgMusic = new Audio('assets/audio/velvet-compass.mp3' + AV_AUDIO);
+      bgMusic.loop = true;
+      bgMusic.volume = soundOn ? 0.16 : 0;
+      bgMusic.play().catch(() => {});
+    } catch (e) { /* nooit het spel breken */ }
   }
 
   elSoundBtn.addEventListener('click', () => {
@@ -268,6 +285,7 @@
     const icon = document.getElementById('soundIcon');
     if (icon) icon.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png';
     if (music.master) music.master.gain.value = soundOn ? 1 : 0;
+    if (bgMusic) { bgMusic.volume = soundOn ? 0.16 : 0; if (soundOn) bgMusic.play().catch(() => {}); }
     if (soundOn) sfx('tap');
   });
 
@@ -442,6 +460,7 @@
     dog: 'assets/art/face-dog.png'
   };
   function hsFace(hs) {
+    if (hs.face) return hs.face;
     if (!hs.followNpc) return null;
     const npc = (GAME.scenes[state.currentScene].npcs || []).find(n => n.id === hs.followNpc);
     return npc ? FACE_BY_SPRITE[npc.sprite] || null : null;
@@ -575,7 +594,7 @@
           const sp = (npc.fleeSpeed || 78) * dt;
           let nx = rt.x + (dxp / (d || 1)) * sp;
           let ny = rt.y + (dyp / (d || 1)) * sp * 0.45;
-          const w = npc.wander;
+          const w = npc.fleeBox || npc.wander;
           if (w) { nx = Math.max(w.x, Math.min(w.x + w.w, nx)); ny = Math.max(w.y, Math.min(w.y + w.h, ny)); }
           if (inWalkable(nx, ny)) {
             if (Math.abs(nx - rt.x) > 0.3) rt.flip = (nx - rt.x) < 0;
@@ -940,13 +959,13 @@
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
     if (fx.waterfall) {
-      const wf = fx.waterfall, n = wf.streaks || 16;
+      const wf = fx.waterfall, n = wf.streaks || 16, slant = wf.slant || 0, len = wf.len || 4;
       for (let i = 0; i < n; i++) {
         const sx = wf.x + ((i * 53) % wf.w);
         const speed = 0.7 + ((i * 0.13) % 0.5);
         const tt = ((now * speed / 12) + i * 9) % wf.h;
         const al = 0.34 - (tt / wf.h) * 0.27;
-        if (al > 0) { fctx.fillStyle = `rgba(232,245,252,${al})`; fctx.fillRect(sx | 0, (wf.y + tt) | 0, 1, 5); }
+        if (al > 0) { fctx.fillStyle = `rgba(232,245,252,${al})`; fctx.fillRect((sx + tt * slant) | 0, (wf.y + tt) | 0, 1, len); }
       }
       const fb = 0.22 + 0.12 * Math.sin(now / 120);
       fctx.fillStyle = `rgba(240,250,253,${fb})`;
@@ -1260,16 +1279,28 @@
       if (e >= 1) { heroAnim = null; }
       else {
         const wave = art.sprites.heroWave;
-        const sway = Math.round(Math.sin(now / 110) * 1);
         const img = ready(wave) ? wave : hero;
-        drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: -1, rot: Math.sin(now / 220) * 0.04 });
+        /* speelse wieg-beweging tijdens het spelen */
+        const sway = Math.sin(now / 130) * 0.07;
+        const bob = -1 - Math.round(Math.abs(Math.sin(now / 150)) * 1);
+        drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: bob, rot: sway });
         if (heroAnim.kind === 'flute') {
-          /* muzieknoten stijgen op naast de held */
+          /* meerdere muzieknoten dansen op rond de held, met halo-stipjes */
+          const side = player.flip ? -1 : 1;
+          for (let k = 0; k < 5; k++) {
+            const t = (e * 2.4 + k * 0.27) % 1;
+            if (t <= 0.04 || t >= 0.97) continue;
+            const nx = player.x + side * (10 + k * 2) + Math.sin((t * 7) + k * 1.7) * 6;
+            const ny = player.y - 40 - t * 34 - Math.abs(Math.sin(t * 3)) * 3;
+            drawMusicNote(nx, ny, t < 0.55 ? 1 : 2);
+          }
+          /* zachte glinster-stipjes (de melodie) */
           for (let k = 0; k < 3; k++) {
-            const t = (e * 2.2 + k * 0.4) % 1;
-            const nx = player.x + (player.flip ? -16 : 12) + Math.sin((t * 6) + k) * 4;
-            const ny = player.y - 44 - t * 26;
-            if (t > 0.05 && t < 0.95) drawMusicNote(nx, ny, t < 0.5 ? 1 : 1);
+            const t = (e * 3.1 + k * 0.5) % 1;
+            const gx = player.x + side * (6 + k * 5);
+            const gy = player.y - 30 - t * 40;
+            fctx.fillStyle = `rgba(255,243,200,${0.5 * (1 - t)})`;
+            fctx.fillRect(gx | 0, gy | 0, 1, 1);
           }
         }
         return;
@@ -1387,10 +1418,11 @@
     } else {
       /* generieke NPC (bv. uil, hond): idle-deining, dribbel bij zwerven, af en toe een gebaartje */
       /* alternatief sprite-stel zodra een vlag gezet is (bv. hond zónder sleutel na dogFriendly) */
-      let sName = npc.sprite, s2Name = npc.sprite2;
+      let sName = npc.sprite, s2Name = npc.sprite2, idleName = npc.idleSprite;
       if (npc.altSprite && state.flags[npc.altSprite.flag]) {
         sName = npc.altSprite.sprite;
         s2Name = npc.altSprite.sprite2 || npc.altSprite.sprite;
+        idleName = npc.altSprite.idleSprite || null;
       }
       const img = art.sprites[sName];
       if (!ready(img)) return;
@@ -1404,10 +1436,12 @@
         const rock = Math.sin(rt.phase * 1.6) * 0.06;
         drawArtSprite(fimg, rt.x, rt.y, { flip: fl, bob: hop, rot: rock, scale: npc.scale || 1 });
       } else {
+        /* stilzittend (bv. het hondje zit tot je nadert) of rustig deinen */
+        const idleImg = (idleName && ready(art.sprites[idleName])) ? art.sprites[idleName] : img;
         const g = gestureState(npc.id, now, 650, 3500, 7500);
         const flap = g > 0 ? -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 2)) * 2) : 0;
         const breathe = Math.round(Math.sin(now / 700 + (npc.x || 0)));
-        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: breathe + flap, scale: npc.scale || 1 });
+        drawArtSprite(idleImg, rt.x, rt.y, { flip: fl, bob: breathe + flap, scale: npc.scale || 1 });
       }
     }
   }
@@ -1903,6 +1937,38 @@
   }
   elRiddleClose.addEventListener('click', () => { elRiddle.hidden = true; });
 
+  /* Keuze-dialoog (hergebruikt het raadsel-scherm): toon een vraag + knoppen met gevolgen
+     (bv. de slang die je iets in je oor wil fluisteren — luister = dood). */
+  function openChoice(hs) {
+    const c = hs.choice;
+    if (c.sound) playFile(c.sound, { vol: 0.6 });
+    if (c.firstSound && !state.flags['heard_' + hs.id]) {
+      state.flags['heard_' + hs.id] = true;
+      playFile(c.firstSound, { vol: 1.0 });
+    }
+    elRiddleTitle.textContent = L(c.title);
+    const rf = document.getElementById('riddle-face');
+    const face = c.image || hsFace(hs);
+    if (rf) { if (face) { rf.src = face; rf.hidden = false; } else rf.hidden = true; }
+    elRiddleQ.textContent = L(c.question);
+    elRiddleAns.innerHTML = '';
+    for (const opt of c.options) {
+      const btn = document.createElement('button');
+      btn.className = 'gold-btn riddle-ans';
+      btn.textContent = L(opt.t);
+      btn.addEventListener('click', () => {
+        elRiddle.hidden = true;
+        if (opt.die) { die(opt.deathText); return; }
+        if (opt.setFlag) { state.flags[opt.setFlag] = true; updateQuest(); }
+        sfx('tap');
+        if (opt.text) say(opt.text, hsSpeaker(hs), hsFace(hs));
+      });
+      elRiddleAns.appendChild(btn);
+    }
+    elRiddle.hidden = false;
+    sfx('tap');
+  }
+
   /* ---------- Runenstenen-popup (mobiel: klik volgorde in popup) ---------- */
   const elRune       = document.getElementById('rune-screen');
   const elRuneTitle  = document.getElementById('rune-title');
@@ -2169,6 +2235,12 @@
   function interactNow(hs) {
     const sel = state.selectedItem;
 
+    /* Klik-geluiden bij dit object (bv. paard hinnikt, slang ratelt) — alleen bij gewone klik. */
+    if (!sel) {
+      if (hs.clickSound) playFile(hs.clickSound, { vol: 0.6 });
+      if (hs.clickVoice) playFile(hs.clickVoice, { vol: 1.0 });
+    }
+
     /* Aaien: hondje met vest dat je volgt */
     if (!sel && hs.followNpc === 'dog' && follower.active && !follower.scared) {
       petDog();
@@ -2194,6 +2266,20 @@
         const it = GAME.items[sel];
         say((it && it.noUseText) || GAME.strings.noEffect);
       }
+      return;
+    }
+
+    /* onTap: gewone klik-actie (zonder item te selecteren) — bv. brug repareren met de plank
+       die je al hebt, of het hoofdstel-paard berijden. Voorwaarden niet vervuld → val door naar look. */
+    if (hs.onTap) {
+      const a = hs.onTap;
+      const itemOk = !a.needsItem || state.inventory.includes(a.needsItem);
+      const flagOk = !a.requiresFlag || state.flags[a.requiresFlag];
+      if (itemOk && flagOk) { runAction(a, hsSpeaker(hs), hsFace(hs)); return; }
+    }
+
+    if (hs.choice && !(hs.choice.skipFlag && state.flags[hs.choice.skipFlag])) {
+      openChoice(hs);
       return;
     }
 
@@ -2281,12 +2367,13 @@
   }
 
   function runAction(a, anchor, face) {
+    if (a.sound) playFile(a.sound, { vol: a.soundVol != null ? a.soundVol : 0.55 });
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.anim) {
       /* speel eerst een korte animatie (bv. fluitspelen), dán pas het effect + tekst */
       startHeroAnim(a.anim, a.animDur || 1800);
       sfx('use');
-      const rest = Object.assign({}, a); delete rest.anim; delete rest.consume;
+      const rest = Object.assign({}, a); delete rest.anim; delete rest.consume; delete rest.sound;
       setTimeout(() => runAction(rest, anchor, face), a.animDur || 1800);
       return;
     }

@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '9',
+  assetVer: '10',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -66,10 +66,11 @@ const GAME = {
     q_fill:   { nl: 'Vul de emmer met water bij het beeld in de grot', en: 'Fill the bucket with water at the statue in the cave' },
     q_freehorse:{ nl: 'Geef Maanhoef éérst water over de poort — anders werkt de sleutel niet', en: 'Give Moonhoof water over the gate first — otherwise the key won’t work' },
     q_gate:   { nl: 'Maanhoef is gekalmeerd — haal nu het slot van de stalpoort met de sleutel', en: 'Moonhoof is calm now — unlock the stable gate with the key' },
-    q_bridle_search: { nl: 'Maanhoef is vrij! Hij heeft een hoofdstel nodig — doorzoek de stal', en: 'Moonhoof is free! He needs a bridle — search the stable' },
-    q_bridle_cheese: { nl: 'Geef het stuk kaas aan het brutale muisje in de stal', en: 'Give the wedge of cheese to the cheeky mouse in the stable' },
-    q_tackbox:       { nl: 'Los het houten slot van de tuigkist in de schuur op voor het hoofdstel', en: 'Solve the wooden lock of the tack-chest in the shed for the bridle' },
-    q_bridle_on:     { nl: 'Doe Maanhoef het hoofdstel om en rijd samen weg', en: 'Put the bridle on Moonhoof and ride off together' }
+    q_bridle_search: { nl: 'Maanhoef is vrij! Hij heeft een hoofdstel nodig — doorzoek het stro in de stal', en: 'Moonhoof is free! He needs a bridle — search the straw in the stable' },
+    q_bridle_cheese: { nl: 'Geef het stuk kaas aan het brutale muisje bij het schuurtje op het erf', en: 'Give the wedge of cheese to the cheeky mouse by the barn in the farmyard' },
+    q_tackbox:       { nl: 'Open de tuigkist bij het schuurtje op het erf — los het houten slot op', en: 'Open the tack-chest by the barn in the farmyard — solve the wooden lock' },
+    q_bridle_on:     { nl: 'Doe Maanhoef het hoofdstel om (gebruik het hoofdstel op hem)', en: 'Put the bridle on Moonhoof (use the bridle on him)' },
+    q_ride:          { nl: 'Klik op Maanhoef om op te stijgen en samen weg te rijden!', en: 'Click Moonhoof to mount up and ride off together!' }
   },
 
   items: {
@@ -97,6 +98,7 @@ const GAME = {
 
   /* Questhint-regels — eerste match wint; quest:null verbergt de hint. */
   questRules: [
+    { when: { flag: 'bridleOn' },                          quest: 'q_ride' },
     { when: { flag: 'gateOpen', has: 'bridle' },           quest: 'q_bridle_on' },
     { when: { flag: 'mouseFed', notHas: 'bridle' },        quest: 'q_tackbox' },
     { when: { flag: 'gateOpen', has: 'cheese' },           quest: 'q_bridle_cheese' },
@@ -134,11 +136,14 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'dog', sprite: 'pup', sprite2: 'pup2', x: 168, y: 274,
+        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.9, x: 176, y: 274,
           altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2' },
-          wander: { x: 90, y: 256, w: 210, h: 34, speed: 24, pauseMin: 1800, pauseMax: 5200 },
-          fleeFrom: 'player', fleeRadius: 76, fleeSpeed: 84, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
-        { id: 'owl', sprite: 'owl', x: 511, y: 112 }
+          fleeBox: { x: 70, y: 256, w: 280, h: 36 },
+          fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
+        { id: 'owl', sprite: 'owl', x: 511, y: 112 },
+        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.62, x: 96, y: 258,
+          fleeBox: { x: 56, y: 250, w: 110, h: 16 },
+          fleeFrom: 'player', fleeRadius: 56, fleeSpeed: 64, fleeUnlessHas: 'cheese', fleeUntilFlag: 'mouseFed' }
       ],
       hotspots: [
         {
@@ -168,6 +173,7 @@ const GAME = {
           id: 'owl',
           name: { nl: 'Wijze Uil', en: 'Wise Owl' },
           followNpc: 'owl',
+          face: 'assets/art/face-owl.png',
           rect: { x: 488, y: 84, w: 50, h: 58 },
           walkTo: { x: 486, y: 276 },
           speaker: true,
@@ -221,6 +227,48 @@ const GAME = {
           }
         },
         {
+          id: 'mouse',
+          name: { nl: 'Brutaal Muisje', en: 'Cheeky Mouse' },
+          followNpc: 'mouse',
+          speaker: true,
+          rect: { x: 78, y: 238, w: 34, h: 30 },
+          walkTo: { x: 108, y: 280 },
+          look: (state) => state.flags.mouseFed
+            ? { nl: 'Het muisje knabbelt tevreden aan zijn kaas bij het schuurtje.', en: 'The mouse nibbles its cheese contentedly by the barn.' }
+            : { nl: 'Een brutaal muisje piept en schiet steeds het schuurtje in. Het ruikt vast graag iets lekkers.', en: 'A cheeky mouse squeaks and keeps darting into the barn. It would surely love a treat.' },
+          use: {
+            cheese: {
+              consume: 'cheese',
+              setFlag: 'mouseFed',
+              text: {
+                nl: 'Je legt het stuk kaas voor het muisje neer. Het grijpt de kaas blij en schiet het schuurtje in — en wijst je zo de oude tuigkist aan, waar Maanhoefs hoofdstel in moet liggen. Maar het deksel zit op een vreemd houten slot...',
+                en: 'You set the cheese before the mouse. It grabs the cheese gleefully and darts into the barn — pointing you to the old tack-chest where Moonhoof’s bridle must be. But the lid is held shut by a strange wooden lock...'
+              }
+            }
+          }
+        },
+        {
+          id: 'tackbox',
+          name: { nl: 'Oude Tuigkist', en: 'Old Tack-Chest' },
+          rect: { x: 40, y: 196, w: 64, h: 56 },
+          walkTo: { x: 78, y: 284 },
+          requiresFlag: 'mouseFed',
+          blockedText: { nl: 'Een oude tuigkist bij het schuurtje, stevig dicht. Misschien weet dat brutale muisje waar Maanhoefs hoofdstel ligt — geef het iets lekkers.', en: 'An old tack-chest by the barn, shut tight. Maybe that cheeky mouse knows where Moonhoof’s bridle is — give it a treat.' },
+          slidePuzzle: {
+            img: 'assets/art/tackbox.png',
+            size: 3,
+            setFlag: 'tackSolved',
+            give: 'bridle',
+            title: { nl: 'Het Slot van de Tuigkist', en: 'The Tack-Chest Lock' },
+            solvedText: {
+              nl: 'De houten schijven klikken op hun plaats en het slot springt open. In de kist ligt Maanhoefs leren hoofdstel — je pakt het eruit! Breng het naar Maanhoef in de stal.',
+              en: 'The wooden discs click into place and the lock springs open. Inside the chest lies Moonhoof’s leather bridle — you take it out! Bring it to Moonhoof in the stable.'
+            },
+            burst: { x: 78, y: 220 }
+          },
+          look: { nl: 'De open tuigkist; het hoofdstel heb je eruit gehaald.', en: 'The open tack-chest; you’ve taken the bridle out.' }
+        },
+        {
           id: 'toGrove',
           name: { nl: 'Pad naar het Bos', en: 'Path to the Forest' },
           rect: { x: 0, y: 168, w: 46, h: 134 },
@@ -256,8 +304,8 @@ const GAME = {
         { x: 60, y: 198, w: 174, h: 100 }   // brug + linkerpad omhoog naar de stenen boog
       ],
       fx: {
-        waterfall: { x: 266, y: 28, w: 66, h: 186, streaks: 20 },
-        spray: { x: 299, y: 214, w: 60, h: 26, n: 18, speed: 0.05 },   // opspattende nevel onder de waterval
+        waterfall: { x: 282, y: 64, w: 44, h: 128, streaks: 14, slant: 0.16, len: 4 },  // kleiner, minder hoog, schuin — alleen op het water
+        spray: { x: 305, y: 196, w: 44, h: 20, n: 12, speed: 0.05 },   // opspattende nevel onder de waterval
         ripples: [
           { x: 236, y: 250, w: 98, h: 24, n: 12 },   // vijver onder de waterval stroomt
           { x: 70, y: 288, w: 150, h: 16, n: 8 }      // beek bij de brug
@@ -282,24 +330,36 @@ const GAME = {
           rect: { x: 252, y: 126, w: 148, h: 96 },
           walkTo: { x: 366, y: 302 },
           speaker: true,
-          danger: true,
-          dangerUntil: 'snakeCharmed',
-          dangerPokes: 3,
-          angerTexts: [
-            { nl: 'Je buigt je oor naar de slang toe. Ze spant zich, haar giftanden glinsteren vlak bij je wang. Nog één keer en ze bijt — speel snel op je fluit!',
-              en: 'You lean your ear toward the snake. She coils tight, her fangs glinting by your cheek. One more time and she bites — quick, play your flute!' }
-          ],
-          deathText: { nl: 'Je brengt je oor te dicht bij de slang om haar gefluister te horen. Bliksemsnel schiet ze toe en bijt — het gif verlamt je. Had je maar de fluit gespeeld...',
-                       en: 'You bring your ear too close to hear the snake’s whisper. In a flash she strikes and bites — the venom freezes you. If only you had played the flute...' },
+          face: 'assets/art/face-snake.png',
+          clickSound: 'snake-rattle',
+          choice: {
+            skipFlag: 'snakeCharmed',
+            sound: 'snake-rattle',
+            firstSound: 'snake-grot',
+            image: 'assets/art/face-snake.png',
+            title: { nl: 'De Sissende Slang', en: 'The Hissing Snake' },
+            question: { nl: 'Ssss... kom is dichterbij, ik wil je iets vertellen over de geheime grot. De giftanden van de slang glinsteren vlak bij je oor. Wat doe je?',
+                        en: 'Ssss... come closer, I want to tell you something about the secret cave. The snake’s fangs glint right by your ear. What do you do?' },
+            options: [
+              { t: { nl: '👂 Luister naar haar geheim', en: '👂 Listen to her secret' },
+                die: true,
+                deathText: { nl: 'Je buigt je oor naar de slang om haar geheim te horen. Bliksemsnel schiet ze toe en bijt — het gif verlamt je. Je had haar nooit moeten vertrouwen; speel liever de fluit.',
+                             en: 'You lean your ear toward the snake to hear her secret. In a flash she strikes and bites — the venom freezes you. You should never have trusted her; play the flute instead.' } },
+              { t: { nl: '🚫 Vertrouw haar niet', en: '🚫 Don’t trust her' },
+                text: { nl: 'Je deinst wijs achteruit, weg van haar giftanden. Een slang fluistert geen geheimen voor niets... Beter betover je haar met je wilgenfluit.',
+                        en: 'You wisely step back, away from her fangs. A snake whispers no secrets for free... Better to charm her with your willow flute.' } }
+            ]
+          },
           look: (state) => state.flags.snakeCharmed
             ? { nl: 'De slang wiegt loom heen en weer, betoverd door het wijsje. De weg is vrij.', en: 'The snake sways lazily, charmed by the tune. The way is clear.' }
-            : { nl: 'De slang wiegt zacht en wenkt je dichterbij. "Kom... ik wil je iets in je oor fluisteren," sist ze zoetjes. Maar haar giftanden glinsteren gevaarlijk — vertrouw haar niet en speel liever je fluit.',
-                en: 'The snake sways softly and beckons you closer. "Come... I want to whisper something in your ear," she hisses sweetly. But her fangs glint dangerously — don’t trust her; play your flute instead.' },
+            : { nl: 'De slang wiegt zacht en wenkt je dichterbij — ze wil je iets in je oor fluisteren. Vertrouw haar niet; speel liever je fluit.',
+                en: 'The snake sways softly and beckons you closer — she wants to whisper in your ear. Don’t trust her; play your flute instead.' },
           use: {
             flute: {
               consume: 'flute',
               anim: 'flute',
               animDur: 1900,
+              sound: 'willow-flute',
               setFlag: 'snakeCharmed',
               text: {
                 nl: 'Je zet de Wilgenfluit aan je lippen en speelt een zacht wijsje. De slang wiegt mee, haar ogen vallen dicht — Z z z... ze zakt in slaap en glijdt loom opzij. De weg naar de grot is vrij.',
@@ -311,11 +371,20 @@ const GAME = {
         {
           id: 'bridge',
           name: { nl: 'Houten Brug', en: 'Wooden Bridge' },
-          rect: { x: 44, y: 232, w: 134, h: 70 },
-          walkTo: { x: 182, y: 292 },
+          rect: { x: 44, y: 232, w: 200, h: 78 },
+          walkTo: { x: 250, y: 302 },
           look: (state) => state.flags.bridgeFixed
             ? { nl: 'De brug ligt er weer stevig bij; je kunt de beek oversteken naar de stenen boog.', en: 'The bridge is sturdy again; you can cross the brook to the stone arch.' }
-            : { nl: 'De houten brug over de beek mist een paar planken — zo waag je je er niet overheen. Je hebt een stevige plank nodig.', en: 'The wooden bridge over the brook is missing a few planks — you won’t risk crossing like this. You need a sturdy plank.' },
+            : { nl: 'De houten brug over de beek mist een paar planken — zo waag je je er niet overheen. Klik op de brug met een stevige plank in je tas om hem te maken.', en: 'The wooden bridge over the brook is missing a few planks — you won’t risk crossing like this. Click the bridge with a sturdy plank in your bag to fix it.' },
+          onTap: {
+            needsItem: 'plank',
+            consume: 'plank',
+            setFlag: 'bridgeFixed',
+            text: {
+              nl: 'Je legt de houten plank over het gat in de brug en stampt hem vast. De brug is weer heel — je kunt nu oversteken naar de grot.',
+              en: 'You lay the wooden plank over the gap in the bridge and stamp it down. The bridge is whole again — you can cross to the cave now.'
+            }
+          },
           use: {
             plank: {
               consume: 'plank',
@@ -331,7 +400,7 @@ const GAME = {
           id: 'toCave',
           name: { nl: 'Stenen Boog', en: 'Stone Arch' },
           rect: { x: 184, y: 48, w: 92, h: 100 },
-          walkTo: { x: 182, y: 292 },
+          walkTo: { x: 176, y: 214 },
           arrow: { x: 228, y: 70, dir: 'up' },
           requiresFlag: [ 'snakeCharmed', 'bridgeFixed' ],
           blockedText: (state) => state.flags.snakeCharmed
@@ -455,7 +524,10 @@ const GAME = {
     stable: {
       name: { nl: 'De Oude Stal', en: 'The Old Stable' },
       bg: 'assets/art/scene-stable.png',
-      bgVariants: [ { img: 'assets/art/scene-stable-open.png', flag: 'gateOpen' } ],
+      bgVariants: [
+        { img: 'assets/art/scene-stable-open.png', flag: 'gateOpen' },
+        { img: 'assets/art/scene-stable-water.png', flag: 'horseWatered' }
+      ],
       entryText: {
         nl: 'De oude stal in het avondrood. Achter de vergrendelde paddockpoort staat Maanhoef, die je hoopvol aankijkt.',
         en: 'The old stable in the evening glow. Behind the bolted paddock gate stands Moonhoof, looking at you with hope.'
@@ -465,21 +537,14 @@ const GAME = {
       walkPoly: [ [70, 210], [474, 210], [474, 304], [70, 304] ],
       obstacles: [],
       overlays: [
-        { img: 'assets/art/horse-free.png',    x: 168, y: 126, base: 208, requiresFlag: 'gateOpen', notFlag: 'tackSolved' },
-        { img: 'assets/art/horse-bridled.png', x: 170, y: 126, base: 208, requiresFlag: 'tackSolved' }
+        { img: 'assets/art/horse-free.png',    x: 168, y: 126, base: 208, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
+        { img: 'assets/art/horse-bridled.png', x: 170, y: 126, base: 208, requiresFlag: 'bridleOn' }
       ],
       worldItems: [
         { item: 'bucket', hotspot: 'bucket', x: 196, y: 244, h: 28 },
-        { item: 'plank', hotspot: 'plank', x: 430, y: 236 }
+        { item: 'plank', hotspot: 'plank', x: 432, y: 250, h: 22 }
       ],
-      npcs: [
-        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', x: 372, y: 268, scale: 0.7,
-          wander: { x: 330, y: 260, w: 90, h: 18, speed: 22, pauseMin: 1000, pauseMax: 3600 },
-          fleeFrom: 'player', fleeRadius: 60, fleeSpeed: 70, fleeUnlessHas: 'cheese', fleeUntilFlag: 'mouseFed' }
-      ],
-      fx: {
-        ripples: { x: 286, y: 232, w: 58, h: 12, n: 7, flag: 'horseWatered', fill: 'rgba(70,120,150,0.7)' }  // waterbak gevuld na het drenken
-      },
+      npcs: [],
       hotspots: [
         {
           id: 'plank',
@@ -497,6 +562,8 @@ const GAME = {
           name: { nl: 'Maanhoef', en: 'Moonhoof' },
           rect: { x: 296, y: 66, w: 132, h: 120 },
           walkTo: { x: 344, y: 268 },
+          clickSound: 'horse-whinny',
+          clickVoice: 'bucket-empty',
           look: (state) => state.flags.gateOpen
             ? { nl: 'De stal is leeg — Maanhoef staat nu vrij op de binnenplaats.', en: 'The stall is empty — Moonhoof now stands free in the yard.' }
             : state.flags.horseWatered
@@ -516,19 +583,30 @@ const GAME = {
         {
           id: 'horsefree',
           name: { nl: 'Maanhoef', en: 'Moonhoof' },
-          rect: { x: 164, y: 124, w: 120, h: 116 },
-          walkTo: { x: 212, y: 290 },
-          look: (state) => state.flags.gateOpen
-            ? { nl: 'Maanhoef staat vrij en blij op de binnenplaats, maar zonder hoofdstel kun je niet op hem rijden. Waar zou zijn hoofdstel zijn? Doorzoek de stal.', en: 'Moonhoof stands free and happy in the yard, but without a bridle you can’t ride him. Where could his bridle be? Search the stable.' }
-            : { nl: 'De lege binnenplaats van de stal.', en: 'The empty stable yard.' },
+          rect: { x: 150, y: 120, w: 130, h: 120 },
+          walkTo: { x: 210, y: 292 },
+          clickSound: 'horse-whinny',
+          look: (state) => state.flags.bridleOn
+            ? { nl: 'Maanhoef draagt zijn hoofdstel en staat klaar. Klik op hem om op te stijgen en weg te rijden!', en: 'Moonhoof wears his bridle and stands ready. Click him to mount up and ride away!' }
+            : state.flags.gateOpen
+              ? { nl: 'Maanhoef staat vrij en blij op de binnenplaats, maar zonder hoofdstel kun je niet op hem rijden. Waar zou zijn hoofdstel zijn? Doorzoek de stal.', en: 'Moonhoof stands free and happy in the yard, but without a bridle you can’t ride him. Where could his bridle be? Search the stable.' }
+              : { nl: 'De lege binnenplaats van de stal.', en: 'The empty stable yard.' },
+          onTap: {
+            requiresFlag: 'bridleOn',
+            win: true,
+            text: {
+              nl: 'Je klimt op Maanhoefs warme rug en pakt de teugels. Hij hinnikt blij en draaft de open poort uit. Samen galopperen jullie de gouden ochtend tegemoet — vrij!',
+              en: 'You climb onto Moonhoof’s warm back and take the reins. He whinnies happily and trots out the open gate. Together you gallop into the golden morning — free!'
+            }
+          },
           use: {
             bridle: {
               requiresFlag: 'gateOpen',
               consume: 'bridle',
-              win: true,
+              setFlag: 'bridleOn',
               text: {
-                nl: 'Je doet Maanhoef voorzichtig het hoofdstel om. Hij snuift blij, en je klimt op zijn warme rug. Samen galopperen jullie de gouden ochtend tegemoet — vrij!',
-                en: 'You gently slip the bridle onto Moonhoof. He snorts happily, and you climb onto his warm back. Together you gallop into the golden morning — free!'
+                nl: 'Je doet Maanhoef voorzichtig het hoofdstel om. Het zit precies — nu hoef je hem alleen nog aan te klikken om op te stijgen en weg te rijden!',
+                en: 'You gently slip the bridle onto Moonhoof. It fits perfectly — now just click him to mount up and ride away!'
               }
             }
           }
@@ -586,48 +664,6 @@ const GAME = {
           }
         },
         {
-          id: 'mouse',
-          name: { nl: 'Brutaal Muisje', en: 'Cheeky Mouse' },
-          followNpc: 'mouse',
-          speaker: true,
-          rect: { x: 354, y: 244, w: 36, h: 32 },
-          walkTo: { x: 372, y: 288 },
-          look: (state) => state.flags.mouseFed
-            ? { nl: 'Het muisje knabbelt tevreden aan zijn kaas, weggekropen in de schuur.', en: 'The mouse nibbles its cheese contentedly, tucked away in the shed.' }
-            : { nl: 'Een brutaal muisje piept en schiet steeds de schuur in. Het ruikt vast graag iets lekkers.', en: 'A cheeky mouse squeaks and keeps darting into the shed. It would surely love a treat.' },
-          use: {
-            cheese: {
-              consume: 'cheese',
-              setFlag: 'mouseFed',
-              text: {
-                nl: 'Je legt het stuk kaas voor het muisje neer. Het grijpt de kaas blij en schiet de schuur in — en wijst je zo de oude tuigkist aan, waar Maanhoefs hoofdstel in moet liggen. Maar het deksel zit op een vreemd houten slot...',
-                en: 'You set the cheese before the mouse. It grabs the cheese gleefully and darts into the shed — pointing you to the old tack-chest where Moonhoof’s bridle must be. But the lid is held shut by a strange wooden lock...'
-              }
-            }
-          }
-        },
-        {
-          id: 'tackbox',
-          name: { nl: 'Oude Tuigkist', en: 'Old Tack-Chest' },
-          rect: { x: 332, y: 196, w: 64, h: 56 },
-          walkTo: { x: 364, y: 286 },
-          requiresFlag: 'mouseFed',
-          blockedText: { nl: 'Een oude tuigkist, stevig dicht. Misschien weet dat brutale muisje waar Maanhoefs hoofdstel ligt — geef het iets lekkers.', en: 'An old tack-chest, shut tight. Maybe that cheeky mouse knows where Moonhoof’s bridle is — give it a treat.' },
-          slidePuzzle: {
-            img: 'assets/art/tackbox.png',
-            size: 3,
-            setFlag: 'tackSolved',
-            give: 'bridle',
-            title: { nl: 'Het Slot van de Tuigkist', en: 'The Tack-Chest Lock' },
-            solvedText: {
-              nl: 'De houten schijven klikken op hun plaats en het slot springt open. In de kist ligt Maanhoefs leren hoofdstel — je pakt het eruit!',
-              en: 'The wooden discs click into place and the lock springs open. Inside the chest lies Moonhoof’s leather bridle — you take it out!'
-            },
-            burst: { x: 364, y: 220 }
-          },
-          look: { nl: 'De open tuigkist; het hoofdstel heb je eruit gehaald.', en: 'The open tack-chest; you’ve taken the bridle out.' }
-        },
-        {
           id: 'tilesBroken',
           name: { nl: 'Stalvloer', en: 'Stable Floor' },
           rect: { x: 128, y: 280, w: 84, h: 24 },
@@ -640,6 +676,13 @@ const GAME = {
           rect: { x: 296, y: 220, w: 44, h: 42 },
           walkTo: { x: 316, y: 286 },
           look: { nl: 'Een paar oude hoofdstellen hangen aan de muur, maar het leer is verrot en de gespen kapot. Hier heeft Maanhoef niets aan.', en: 'A couple of old bridles hang on the wall, but the leather is rotten and the buckles broken. No use to Moonhoof.' }
+        },
+        {
+          id: 'fountain',
+          name: { nl: 'Stenen Fontein', en: 'Stone Fountain' },
+          rect: { x: 56, y: 128, w: 74, h: 96 },
+          walkTo: { x: 98, y: 266 },
+          look: { nl: 'Een oude stenen fontein, maar hij doet het niet — er komt geen druppel water uit. Maanhoef moet je dus zelf water brengen.', en: 'An old stone fountain, but it doesn’t work — not a drop of water comes out. You’ll have to bring Moonhoof water yourself.' }
         },
         {
           id: 'toFarm',
