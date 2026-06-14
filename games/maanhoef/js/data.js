@@ -133,8 +133,8 @@ const GAME = {
           walkTo: { x: 184, y: 268 },
           look: (state) => state.flags.dogFriendly
             ? { nl: 'Het hondje kwispelt blij om je heen, blij met zijn bot.', en: 'The dog wags happily around you, pleased with its bone.' }
-            : { nl: 'Een mager hondje met een leren halsband; er bungelt een kleine sleutel aan. Het jankt van de honger en deinst terug zodra je je hand uitsteekt.',
-                en: 'A thin dog with a leather collar; a small key dangles from it. It whimpers with hunger and shies back the moment you reach out.' },
+            : { nl: 'Het beagle-puppy is veel te speels om mee te praten — zodra je dichterbij komt, rent het kwispelend weg. Aan zijn rode halsband bungelt een sleuteltje. Misschien blijft hij wél staan voor iets lekkers...',
+                en: 'The beagle puppy is far too playful to talk to — the moment you get close, it scampers off wagging its tail. A little key dangles from its red collar. Maybe it would stay put for a treat...' },
           use: {
             bone: {
               consume: 'bone',
@@ -234,21 +234,27 @@ const GAME = {
       playerStart: { x: 498, y: 286 },
       spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
       walkable: [
-        { x: 40, y: 272, w: 514, h: 34 },   // onderpad: verbindt links ↔ rechts
-        { x: 440, y: 236, w: 114, h: 70 },  // rechtergras bij de instap (niets blokkeert rechts)
-        { x: 60, y: 198, w: 174, h: 82 }    // linkerpad omhoog naar de stenen boog (na de brug)
+        { x: 148, y: 296, w: 406, h: 16 },  // voorgrond-strook vóór het water (niet ín het water/de beek lopen)
+        { x: 430, y: 236, w: 124, h: 76 },  // rechtergras bij de instap (niets blokkeert rechts)
+        { x: 60, y: 198, w: 174, h: 100 }   // brug + linkerpad omhoog naar de stenen boog
       ],
       fx: {
         waterfall: { x: 266, y: 28, w: 66, h: 186, streaks: 20 },
+        spray: { x: 299, y: 214, w: 60, h: 26, n: 18, speed: 0.05 },   // opspattende nevel onder de waterval
         ripples: [
-          { x: 236, y: 250, w: 98, h: 24, n: 10 },   // vijver onder de waterval stroomt
-          { x: 70, y: 288, w: 150, h: 16, n: 7 }      // beek bij de brug
+          { x: 236, y: 250, w: 98, h: 24, n: 12 },   // vijver onder de waterval stroomt
+          { x: 70, y: 288, w: 150, h: 16, n: 8 }      // beek bij de brug
         ],
-        snakeTongue: { x: 320, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
+        butterfly: [
+          { x: 410, y: 150, rx: 54, ry: 30, col: '255,170,210', phase: 0 },   // roze vlinder bij de boom
+          { x: 150, y: 168, rx: 40, ry: 24, col: '250,225,120', phase: 3 }     // gele vlinder bij de boog
+        ],
+        snakeTongue: { x: 317, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
         zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
       obstacles: [
-        { x: 262, y: 270, w: 86, h: 38, notFlag: 'snakeCharmed' }  // de wakkere slang verspert het pad
+        { x: 270, y: 294, w: 86, h: 20, notFlag: 'snakeCharmed' },  // de wakkere slang verspert het pad
+        { x: 132, y: 248, w: 82, h: 64, notFlag: 'bridgeFixed' }    // het gat in de brug — niet oversteken zonder plank
       ],
       overlays: [],
       worldItems: [],
@@ -257,18 +263,21 @@ const GAME = {
           id: 'snake',
           name: { nl: 'Sissende Slang', en: 'Hissing Snake' },
           rect: { x: 252, y: 126, w: 148, h: 96 },
-          walkTo: { x: 366, y: 290 },
+          walkTo: { x: 366, y: 302 },
           speaker: true,
           danger: true,
           dangerUntil: 'snakeCharmed',
+          dangerPokes: 3,
           angerTexts: [
-            { nl: 'De slang schiet sissend omhoog en ontbloot haar giftanden. Je durft geen stap dichterbij te zetten.', en: 'The snake rears up hissing, baring her fangs. You don’t dare take a step closer.' },
-            { nl: 'Met een venijnige uithaal hapt ze naar je. Nog één keer tergen en het loopt slecht af...', en: 'She lashes out viciously, snapping at you. Provoke her once more and it ends badly...' }
+            { nl: 'Je buigt je oor naar de slang toe. Ze spant zich, haar giftanden glinsteren vlak bij je wang. Nog één keer en ze bijt — speel snel op je fluit!',
+              en: 'You lean your ear toward the snake. She coils tight, her fangs glinting by your cheek. One more time and she bites — quick, play your flute!' }
           ],
+          deathText: { nl: 'Je brengt je oor te dicht bij de slang om haar gefluister te horen. Bliksemsnel schiet ze toe en bijt — het gif verlamt je. Had je maar de fluit gespeeld...',
+                       en: 'You bring your ear too close to hear the snake’s whisper. In a flash she strikes and bites — the venom freezes you. If only you had played the flute...' },
           look: (state) => state.flags.snakeCharmed
-            ? { nl: 'De slang wiegt loom heen en weer, betoverd door het wijsje. De weg naar de kist is vrij.', en: 'The snake sways lazily, charmed by the tune. The way to the chest is clear.' }
-            : { nl: 'Een grote groene slang kronkelt over de stam en sist dreigend. Zo kom je er niet langs... had je maar iets om haar te bedaren.',
-                en: 'A great green snake coils over the log and hisses in warning. There’s no getting past like this... if only you had something to calm her.' },
+            ? { nl: 'De slang wiegt loom heen en weer, betoverd door het wijsje. De weg is vrij.', en: 'The snake sways lazily, charmed by the tune. The way is clear.' }
+            : { nl: 'De slang wiegt zacht en wenkt je dichterbij. "Kom... ik wil je iets in je oor fluisteren," sist ze zoetjes. Maar haar giftanden glinsteren gevaarlijk — vertrouw haar niet en speel liever je fluit.',
+                en: 'The snake sways softly and beckons you closer. "Come... I want to whisper something in your ear," she hisses sweetly. But her fangs glint dangerously — don’t trust her; play your flute instead.' },
           use: {
             flute: {
               consume: 'flute',
@@ -341,12 +350,13 @@ const GAME = {
           { x: 198, y: 22, to: 150, period: 2400, phase: 0 },
           { x: 366, y: 18, to: 138, period: 2900, phase: 1300 },
           { x: 96, y: 30, to: 168, period: 3300, phase: 700 }
-        ]
+        ],
+        shade: [ { x: 454, y: 262, r: 30, a: 0.55 } ]   // schaduwhoekje waar het bot verstopt ligt
       },
       obstacles: [],
       overlays: [],
       worldItems: [
-        { item: 'bone', hotspot: 'bone', x: 120, y: 232 }
+        { item: 'bone', hotspot: 'bone', x: 454, y: 264 }
       ],
       hotspots: [
         {
@@ -405,11 +415,11 @@ const GAME = {
         {
           id: 'bone',
           name: { nl: 'Oud Bot', en: 'Old Bone' },
-          rect: { x: 62, y: 198, w: 98, h: 82 },
-          walkTo: { x: 118, y: 288 },
+          rect: { x: 430, y: 240, w: 52, h: 52 },
+          walkTo: { x: 452, y: 296 },
           gives: {
             item: 'bone',
-            giveText: { nl: 'Aan de rand van het droge bekken ligt een kaal bot, lang geleden afgekloven. Je raapt het stevige bot op — precies iets voor een hongerig hondje.', en: 'At the edge of the dry basin lies a bare bone, gnawed clean long ago. You pick up the sturdy bone — just the thing for a hungry dog.' },
+            giveText: { nl: 'Weggestopt in een donker hoekje achter het beeld ligt een kaal bot, lang geleden afgekloven. Je raapt het stevige bot op — precies iets voor een speels hondje.', en: 'Tucked away in a dark corner behind the statue lies a bare bone, gnawed clean long ago. You pick up the sturdy bone — just the thing for a playful dog.' },
             emptyText: { nl: 'Verder geen botten meer.', en: 'No more bones here.' }
           }
         },
@@ -439,14 +449,14 @@ const GAME = {
       overlays: [],
       worldItems: [
         { item: 'bucket', hotspot: 'bucket', x: 196, y: 244 },
-        { item: 'plank', hotspot: 'plank', x: 122, y: 250 }
+        { item: 'plank', hotspot: 'plank', x: 430, y: 236 }
       ],
       hotspots: [
         {
           id: 'plank',
           name: { nl: 'Houten Plank', en: 'Wooden Plank' },
-          rect: { x: 96, y: 220, w: 60, h: 62 },
-          walkTo: { x: 132, y: 288 },
+          rect: { x: 402, y: 208, w: 60, h: 58 },
+          walkTo: { x: 428, y: 292 },
           gives: {
             item: 'plank',
             giveText: { nl: 'Tegen de stalmuur leunt een stevige houten plank. Die kun je vast gebruiken om iets te repareren.', en: 'A sturdy wooden plank leans against the stable wall. That could come in handy to repair something.' },
@@ -460,7 +470,7 @@ const GAME = {
           walkTo: { x: 300, y: 268 },
           look: (state) => state.flags.horseWatered
             ? { nl: 'Maanhoef is gekalmeerd en staat rustig achter de poort. Nu hij je vertrouwt, kun je de poort openen.', en: 'Moonhoof is calm and stands quietly behind the gate. Now that he trusts you, you can open the gate.' }
-            : { nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, drukt zijn neus over de stalrand. Hij trilt van angst en dorst — geef hem eerst water voordat je iets anders probeert.', en: 'Moonhoof, a warm chestnut horse with a pale blaze, leans his nose over the stall rail. He trembles with fear and thirst — give him water first before trying anything else.' },
+            : { nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, deinst angstig achteruit en kijkt je wantrouwend aan. "Ik vertrouw je nog niet," lijkt hij te zeggen. Geef hem eerst water om zijn vertrouwen te winnen.', en: 'Moonhoof, a warm chestnut horse with a pale blaze, shies back fearfully and eyes you with mistrust. "I don’t trust you yet," he seems to say. Give him water first to earn his trust.' },
           use: {
             bucketWater: {
               consume: 'bucketWater',

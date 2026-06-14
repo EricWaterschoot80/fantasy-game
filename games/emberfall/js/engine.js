@@ -2100,7 +2100,7 @@
     if (hs.danger && !state.flags[hs.dangerUntil || 'minotaurAsleep']) {
       const pokes = (state.flags['pokes_' + hs.id] || 0) + 1;
       state.flags['pokes_' + hs.id] = pokes;
-      if (pokes >= 4) { die(); return; }
+      if (pokes >= (hs.dangerPokes || 4)) { die(hs.deathText); return; }
       if (pokes >= 2 && hs.angerTexts) {
         sfx('growl');
         say(hs.angerTexts[Math.min(pokes - 2, hs.angerTexts.length - 1)], hsSpeaker(hs), hsFace(hs));
@@ -2165,12 +2165,13 @@
   }
 
   /* ---------- Dood & herkansing ---------- */
-  function die() {
+  function die(customText) {
     sfx('death');
     msgQueue = [];
     pendingWin = false;
     elMsg.hidden = true;
     elBubble.hidden = true;
+    elDeathText.textContent = customText ? L(customText) : L(GAME.ui.deathText);
     elDeath.hidden = false;
   }
 

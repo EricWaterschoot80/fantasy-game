@@ -966,14 +966,52 @@
     }
     if (fx.ripples) {
       for (const rp of (Array.isArray(fx.ripples) ? fx.ripples : [fx.ripples])) {
-        const n = rp.n || 8, sp = rp.speed || 0.018;
+        const n = rp.n || 8, sp = rp.speed || 0.026;
         for (let i = 0; i < n; i++) {
           const yy = rp.y + ((i * 11) % rp.h);
-          const xoff = ((now * sp + i * 17) % (rp.w + 18)) - 9;
-          const al = 0.10 + 0.07 * Math.sin(now / 280 + i * 1.3);
-          fctx.fillStyle = `rgba(226,246,255,${Math.max(0, al)})`;
-          fctx.fillRect((rp.x + xoff) | 0, yy | 0, 3 + (i % 3), 1);
+          const xoff = ((now * sp + i * 17) % (rp.w + 20)) - 10;
+          const al = 0.18 + 0.14 * Math.sin(now / 240 + i * 1.3);
+          fctx.fillStyle = `rgba(232,248,255,${Math.max(0, al)})`;
+          fctx.fillRect((rp.x + xoff) | 0, yy | 0, 4 + (i % 3), 1);
+          /* glinster-stipje dat met de stroom meedrijft */
+          if (i % 2 === 0) {
+            fctx.fillStyle = `rgba(255,255,255,${0.10 + 0.10 * Math.sin(now / 160 + i)})`;
+            fctx.fillRect((rp.x + xoff + 2) | 0, (yy - 1) | 0, 1, 1);
+          }
         }
+      }
+    }
+    /* opspattende nevel onderaan de waterval */
+    if (fx.spray) {
+      for (const sp of (Array.isArray(fx.spray) ? fx.spray : [fx.spray])) {
+        const n = sp.n || 16;
+        for (let i = 0; i < n; i++) {
+          const tt = ((now * (sp.speed || 0.05) + i * 53) % 100) / 100;
+          const px = sp.x + ((i * 37) % sp.w) - (sp.w / 2);
+          const py = sp.y - tt * (sp.h || 22);
+          const al = 0.30 * (1 - tt);
+          fctx.fillStyle = `rgba(234,247,255,${al})`;
+          fctx.fillRect(px | 0, py | 0, 1, 1);
+        }
+      }
+    }
+    /* fladderende vlinder(s) */
+    if (fx.butterfly) {
+      for (const bf of (Array.isArray(fx.butterfly) ? fx.butterfly : [fx.butterfly])) {
+        const t = now / 1000 + (bf.phase || 0);
+        const cx = bf.x + Math.sin(t * 0.8) * (bf.rx || 40) + Math.sin(t * 2.3) * 4;
+        const cy = bf.y + Math.sin(t * 1.7) * (bf.ry || 16);
+        const flap = Math.sin(now / 70) > 0;
+        const wsp = flap ? 2 : 1;
+        const col = bf.col || '255,170,210';
+        fctx.fillStyle = '#2b2440';
+        fctx.fillRect(Math.round(cx), Math.round(cy), 1, 3);          // lijfje
+        fctx.fillStyle = `rgba(${col},0.95)`;
+        fctx.fillRect(Math.round(cx - 1 - wsp), Math.round(cy), wsp, 2);   // linkervleugel
+        fctx.fillRect(Math.round(cx + 1), Math.round(cy), wsp, 2);         // rechtervleugel
+        fctx.fillStyle = `rgba(${col},0.6)`;
+        fctx.fillRect(Math.round(cx - 1 - wsp), Math.round(cy + 2), wsp, 1);
+        fctx.fillRect(Math.round(cx + 1), Math.round(cy + 2), wsp, 1);
       }
     }
     if (fx.drips) {
@@ -2190,7 +2228,7 @@
     if (hs.danger && !state.flags[hs.dangerUntil || 'minotaurAsleep']) {
       const pokes = (state.flags['pokes_' + hs.id] || 0) + 1;
       state.flags['pokes_' + hs.id] = pokes;
-      if (pokes >= 4) { die(); return; }
+      if (pokes >= (hs.dangerPokes || 4)) { die(hs.deathText); return; }
       if (pokes >= 2 && hs.angerTexts) {
         sfx('growl');
         say(hs.angerTexts[Math.min(pokes - 2, hs.angerTexts.length - 1)], hsSpeaker(hs), hsFace(hs));
@@ -2263,12 +2301,13 @@
   }
 
   /* ---------- Dood & herkansing ---------- */
-  function die() {
+  function die(customText) {
     sfx('death');
     msgQueue = [];
     pendingWin = false;
     elMsg.hidden = true;
     elBubble.hidden = true;
+    elDeathText.textContent = customText ? L(customText) : L(GAME.ui.deathText);
     elDeath.hidden = false;
   }
 
