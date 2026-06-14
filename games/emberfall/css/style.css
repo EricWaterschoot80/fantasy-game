@@ -709,7 +709,7 @@ html, body {
 
 /* ---------- Legpuzzel: sleep de stukken naar het kader ---------- */
 #puzzle-grid.jig-stage {
-  width: 280px;
+  width: 300px;
   height: auto;
   background: none;
   box-shadow: none;
@@ -717,19 +717,21 @@ html, body {
 .jig-frame {
   position: absolute;
   left: 0; top: 0;
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
+  background: #14100b;
   border-radius: 3px;
   box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410, inset 0 0 18px rgba(0,0,0,.85);
   transition: box-shadow .5s ease;
 }
-.jig-frame::after {                /* dim het spookbeeld zodat lege sleuven leeg ogen */
-  content: ''; position: absolute; inset: 0;
-  background: rgba(15,11,8,.66);
+.jig-ghost {                        /* voorbeeld-beeld: standaard verborgen, alleen bij Hint */
+  position: absolute; inset: 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
   border-radius: 3px;
-  transition: background .6s ease;
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
 }
-.jig-frame.jig-done::after { background: rgba(15,11,8,0); }
+.jig-frame.jig-hint .jig-ghost { opacity: .6; }
 .jig-frame.jig-done {
   box-shadow: 0 0 0 2px var(--gold-light,#e7cf86), 0 0 16px rgba(231,207,134,.85), 0 0 0 4px #1f1410;
 }

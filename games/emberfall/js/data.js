@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '7',
+  assetVer: '8',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -673,12 +673,12 @@ const GAME = {
             requiresFlag: 'minotaurAsleep',
             setFlag: 'wardLifted',
             give: 'amulet', win: true,
-            cols: 4, rows: 2,
+            cols: 4, rows: 3,
             img: 'assets/art/amulet-seal.png',
             title: { nl: 'Het Zegel van de Amulet', en: 'The Amulet Seal' },
             solvedText: {
-              nl: 'De acht scherven klikken samen tot één geheel. Het zegel dooft met een diepe zucht en de Amulet van Emberfall ligt vrij — je grijpt hem. Warm licht stroomt door je heen.',
-              en: 'The eight shards click together into one. The seal fades with a deep sigh and the Amulet of Emberfall lies free — you seize it. Warm light flows through you.'
+              nl: 'De scherven klikken samen tot één geheel. Het zegel dooft met een diepe zucht en de Amulet van Emberfall ligt vrij — je grijpt hem. Warm licht stroomt door je heen.',
+              en: 'The shards click together into one. The seal fades with a deep sigh and the Amulet of Emberfall lies free — you seize it. Warm light flows through you.'
             }
           },
           look: { nl: 'Het altaar is leeg; de amulet is van jou.', en: 'The altar is empty; the amulet is yours.' }

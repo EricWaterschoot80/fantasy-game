@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '35',
+  assetVer: '36',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -478,13 +478,13 @@ const GAME = {
           walkTo: { x: 256, y: 290 },
           jigsaw: {
             img: 'assets/art/cave-seal.png',
-            cols: 4, rows: 2,
+            cols: 4, rows: 3,
             setFlag: 'sealSolved',
             give: 'diamond',
-            title: { nl: 'Het Runenzegel', en: 'The Rune Seal' },
+            title: { nl: 'Het Diamantzegel', en: 'The Diamond Seal' },
             solvedText: {
-              nl: 'De acht scherven klikken in elkaar tot één heel zegel. Het gloeit op en met een diep gerommel schuift een stenen luik opzij — er rolt een fonkelende Diamant in je hand!',
-              en: 'The eight shards click together into one whole seal. It glows and with a deep rumble a stone hatch slides aside — a sparkling Diamond rolls into your hand!'
+              nl: 'De scherven klikken in elkaar tot één heel zegel. Het gloeit op en met een diep gerommel schuift een stenen luik opzij — er rolt een fonkelende Diamant in je hand!',
+              en: 'The shards click together into one whole seal. It glows and with a deep rumble a stone hatch slides aside — a sparkling Diamond rolls into your hand!'
             },
             burst: { x: 256, y: 96 }
           },

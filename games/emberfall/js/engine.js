@@ -1729,15 +1729,23 @@
 
   /* ---------- Legpuzzel: sleep de losse stukken vanuit de bak naar het kader ---------- */
   let jig = null;   // { hs, cols, rows, n, cell, frameH, stageH, locked[], drag, pieces[] }
-  const JIG_W = 280;            // logische breedte van het speelveld (px)
+  const JIG_W = 300;            // logische breedte van het speelveld (px)
   const JIG_TIP = { nl: 'Sleep elk stuk naar de juiste plek in het kader.', en: 'Drag each piece into its spot in the frame.' };
+  const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
+  function jigHint() {
+    if (!jig || !jig.frameEl) return;
+    sfx('tap');
+    jig.frameEl.classList.add('jig-hint');
+    clearTimeout(jig._hintT);
+    jig._hintT = setTimeout(() => { if (jig && jig.frameEl) jig.frameEl.classList.remove('jig-hint'); }, 3500);
+  }
   function openJigsaw(hs) {
     const cfg = hs.jigsaw;
     const cols = cfg.cols || 4, rows = cfg.rows || 2, n = cols * rows;
     const cell = JIG_W / cols, frameH = cell * rows;
     jig = { hs, cols, rows, n, cell, frameH, stageH: frameH * 2 + 20, locked: new Array(n).fill(false), drag: null };
     elPuzTitle.textContent = L(cfg.title);
-    if (elPuzHintBtn) elPuzHintBtn.style.display = 'none';
+    if (elPuzHintBtn) { elPuzHintBtn.style.display = ''; elPuzHintBtn.textContent = L(JIG_HINT_LABEL); }
     if (elPuzTip) { elPuzTip.hidden = false; elPuzTip.textContent = L(JIG_TIP); }
     buildJigsaw();
     elPuzzle.hidden = false;
@@ -1756,8 +1764,13 @@
     frame.className = 'jig-frame';
     frame.style.width = JIG_W + 'px';
     frame.style.height = frameH + 'px';
-    frame.style.backgroundImage = img;
-    frame.style.backgroundSize = JIG_W + 'px ' + frameH + 'px';
+    // Voorbeeld-laag: standaard verborgen, alleen zichtbaar bij Hint
+    const ghost = document.createElement('div');
+    ghost.className = 'jig-ghost';
+    ghost.style.backgroundImage = img;
+    ghost.style.backgroundSize = '100% 100%';
+    frame.appendChild(ghost);
+    j.ghostEl = ghost;
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const s = document.createElement('div');
       s.className = 'jig-slot';
@@ -1919,6 +1932,7 @@
   }
 
   function showPuzzleHint() {
+    if (jig) { jigHint(); return; }
     if (!slide) return;
     sfx('tap');
     hintLevel = (hintLevel % 2) + 1;
