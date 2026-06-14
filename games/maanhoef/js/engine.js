@@ -231,6 +231,16 @@
       if (!a) { a = soundCache[name] = new Audio(SOUND_FILES[name] + AV_AUDIO); a.preload = 'auto'; }
       a.pause(); a.currentTime = 0;
       a.volume = opts.vol != null ? opts.vol : 0.7;
+      /* Stille stemfragmenten extra hard zetten via Web Audio (gain > 1). */
+      if (opts.boost && opts.boost > 1) {
+        const ctx = ac();
+        if (ctx) {
+          if (!a._gain) {
+            try { const src = ctx.createMediaElementSource(a); const g = ctx.createGain(); src.connect(g).connect(ctx.destination); a._gain = g; } catch (e) { /* al gewired */ }
+          }
+          if (a._gain) a._gain.gain.value = opts.boost;
+        }
+      }
       a.play().catch(() => {});
     } catch (e) { /* nooit het spel breken */ }
   }
@@ -273,9 +283,9 @@
     if (music.started) return;
     music.started = true;
     try {
-      bgMusic = new Audio('assets/audio/velvet-compass.mp3' + AV_AUDIO);
+      bgMusic = new Audio('assets/audio/amber-logic.mp3' + AV_AUDIO);
       bgMusic.loop = true;
-      bgMusic.volume = soundOn ? 0.16 : 0;
+      bgMusic.volume = soundOn ? 0.10 : 0;
       bgMusic.play().catch(() => {});
     } catch (e) { /* nooit het spel breken */ }
   }
@@ -285,7 +295,7 @@
     const icon = document.getElementById('soundIcon');
     if (icon) icon.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png';
     if (music.master) music.master.gain.value = soundOn ? 1 : 0;
-    if (bgMusic) { bgMusic.volume = soundOn ? 0.16 : 0; if (soundOn) bgMusic.play().catch(() => {}); }
+    if (bgMusic) { bgMusic.volume = soundOn ? 0.10 : 0; if (soundOn) bgMusic.play().catch(() => {}); }
     if (soundOn) sfx('tap');
   });
 
@@ -536,6 +546,18 @@
         player.kbMoving = true;
         const len = Math.hypot(vx, vy);
         movePlayer(vx * 50, vy * 50, len * 50, dt);
+        /* met het toetsenbord naar een uitgangspijl lopen = doorgaan naar de volgende ruimte */
+        if (!fade.mode) {
+          for (const hs of scene.hotspots) {
+            if (!hs.exit || !hs.arrow) continue;
+            if (hs.requiresFlag) {
+              const need = hs.requiresFlag;
+              if (Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need]) continue;
+            }
+            const wt = hsWalkTo(hs);
+            if (Math.hypot(wt.x - player.x, wt.y - player.y) < 16) { travelTo(hs.exit.to, hs.exit.travelText); break; }
+          }
+        }
       }
     }
 
@@ -816,16 +838,23 @@
         if (unmet) continue;
       }
       const a = hs.arrow;
-      const pulse = 0.34 + 0.2 * Math.sin(now / 350);
-      const f = Math.sin(now / 350) * 2;
+      const pulse = 0.7 + 0.3 * Math.sin(now / 320);
+      const f = Math.sin(now / 320) * 3;
+      /* duidelijke gloed-cirkel achter de pijl */
+      const gl = fctx.createRadialGradient(a.x, a.y, 1, a.x, a.y, 18);
+      gl.addColorStop(0, `rgba(255,236,170,${0.30 * pulse})`);
+      gl.addColorStop(1, 'rgba(255,236,170,0)');
+      fctx.fillStyle = gl;
+      fctx.fillRect(a.x - 18, a.y - 18, 36, 36);
       fctx.save();
       fctx.translate(a.x, a.y + (a.dir === 'up' ? f : a.dir === 'down' ? -f : 0));
       if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
       else if (a.dir === 'right') { fctx.rotate(Math.PI / 2); fctx.translate(f, 0); }
       else if (a.dir === 'down') fctx.rotate(Math.PI);
-      fctx.fillStyle = `rgba(231,207,134,${pulse})`;
-      fctx.strokeStyle = `rgba(31,20,16,${pulse + 0.25})`;
-      fctx.lineWidth = 1.5;
+      fctx.scale(1.6, 1.6);   // groter en beter zichtbaar
+      fctx.fillStyle = `rgba(244,222,150,${Math.min(1, pulse)})`;
+      fctx.strokeStyle = `rgba(31,20,16,0.95)`;
+      fctx.lineWidth = 1.4;
       fctx.beginPath();
       fctx.moveTo(0, -10); fctx.lineTo(9, 1); fctx.lineTo(4, 1); fctx.lineTo(4, 9);
       fctx.lineTo(-4, 9); fctx.lineTo(-4, 1); fctx.lineTo(-9, 1);
@@ -1213,15 +1242,14 @@
       if (wi.requiresFlag && !state.flags[wi.requiresFlag]) continue;
       const img = art.items[wi.item];
       if (!ready(img)) continue;
-      const hgt = wi.h || 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
-      const bob = Math.round(Math.sin(now / 650 + wi.x) * 1.5);
-      const glow = 0.14 + 0.08 * Math.sin(now / 500 + wi.x);
-      const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, 13);
-      g.addColorStop(0, `rgba(231,207,134,${glow})`);
+      const hgt = wi.h || 24, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+      /* items op locaties staan stil (geen gewiebel); alleen een zachte, vaste gloed eronder */
+      const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, 15);
+      g.addColorStop(0, 'rgba(231,207,134,0.16)');
       g.addColorStop(1, 'rgba(231,207,134,0)');
       fctx.fillStyle = g;
-      fctx.fillRect(wi.x - 13, wi.y - 13, 26, 26);
-      fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
+      fctx.fillRect(wi.x - 15, wi.y - 15, 30, 30);
+      fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2), wd, hgt);
     }
   }
 
@@ -1557,6 +1585,17 @@
         Math.min(window.innerWidth * 0.85, bx)) + 'px';
       elBubble.style.top = Math.max(56, by - 6) + 'px';
       elBubble.hidden = false;
+      /* meet de werkelijke ballon en houd hem volledig binnen het scherm
+         (transform = translate(-50%,-100%): box = [left-w/2 .. left+w/2] x [top-h .. top]) */
+      const bw = elBubble.offsetWidth, bh = elBubble.offsetHeight;
+      const pad = 8;
+      let lft = parseFloat(elBubble.style.left);
+      let tp = parseFloat(elBubble.style.top);
+      lft = Math.max(bw / 2 + pad, Math.min(window.innerWidth - bw / 2 - pad, lft));
+      if (tp - bh < pad) tp = bh + pad;                 // niet boven het scherm uit
+      if (tp > window.innerHeight - pad) tp = window.innerHeight - pad;
+      elBubble.style.left = lft + 'px';
+      elBubble.style.top = tp + 'px';
     } else {
       /* paneel (op mobiel ook voor personages — met gezicht) */
       elMsgText.textContent = L(m.text);
@@ -1944,7 +1983,7 @@
     if (c.sound) playFile(c.sound, { vol: 0.6 });
     if (c.firstSound && !state.flags['heard_' + hs.id]) {
       state.flags['heard_' + hs.id] = true;
-      playFile(c.firstSound, { vol: 1.0 });
+      playFile(c.firstSound, { vol: 1.0, boost: 8 });
     }
     elRiddleTitle.textContent = L(c.title);
     const rf = document.getElementById('riddle-face');
@@ -2238,7 +2277,7 @@
     /* Klik-geluiden bij dit object (bv. paard hinnikt, slang ratelt) — alleen bij gewone klik. */
     if (!sel) {
       if (hs.clickSound) playFile(hs.clickSound, { vol: 0.6 });
-      if (hs.clickVoice) playFile(hs.clickVoice, { vol: 1.0 });
+      if (hs.clickVoice) playFile(hs.clickVoice, { vol: 1.0, boost: 8 });
     }
 
     /* Aaien: hondje met vest dat je volgt */
@@ -2486,6 +2525,7 @@
     return { x: (px_ - view.ox) / view.scale, y: (py_ - view.oy) / view.scale };
   }
 
+  let lastExitTap = { id: null, t: 0 };
   canvas.addEventListener('pointerdown', (e) => {
     ac();
     if (!started || fade.mode === 'out' || !elDeath.hidden) return;
@@ -2509,6 +2549,23 @@
         petDog();
         return;
       }
+    }
+
+    /* Dubbelklik op een uitgangspijl = meteen naar de locatie (zonder lopen) */
+    if (hs && hs.exit) {
+      const nowT = performance.now();
+      if (lastExitTap.id === hs.id && nowT - lastExitTap.t < 400) {
+        lastExitTap = { id: null, t: 0 };
+        let unmet = false;
+        if (hs.requiresFlag) {
+          const need = hs.requiresFlag;
+          unmet = Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need];
+        }
+        if (unmet) { sfx('error'); const bt = typeof hs.blockedText === 'function' ? hs.blockedText(state) : hs.blockedText; say(bt || GAME.strings.noEffect); return; }
+        travelTo(hs.exit.to, hs.exit.travelText);
+        return;
+      }
+      lastExitTap = { id: hs.id, t: nowT };
     }
 
     if (hs) {
@@ -2596,6 +2653,7 @@
       interactNow(hs);
     },
     walkTo: (x, y) => { player.pending = null; player.target = clampToWalkable(x, y); },
+    setPlayer: (x, y) => { player.x = x; player.y = y; player.target = null; player.pending = null; },
     canWalk: (x, y) => inWalkable(x, y),
     setDebug: (on) => { window.__debugWalk = on; },
     select: (itemId) => onInventoryTap(itemId),

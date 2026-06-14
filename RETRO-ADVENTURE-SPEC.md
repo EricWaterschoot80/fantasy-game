@@ -480,3 +480,39 @@ consistency** gebruiken — nooit los van de bestaande look genereren:
   "andere" figuur.
 - Bewaar/gebruik dezelfde referentie-`media_id` voor een reeks samenhorende beelden (bv. los paard,
   paard mét hoofdstel, rij-eindbeeld) zodat ze onderling kloppen.
+- **Vaste prompt-zin (altijd meesturen bij personage-varianten):**
+  *"Maintain: identical face, identical eye shape, identical hairstyle, identical hair color,
+  identical clothing, identical proportions, identical age. Only change: pose, facial expression,
+  camera angle, environment. Character consistency is extremely important."*
+
+---
+
+## VASTE REGEL — Alles is 16-bit pixel-art
+
+Elk avontuur in RetroAdventureWorld is een **16-bit pixel-art game** (SNES-tijdperk look). Alle art —
+scenes, sprites, items, iconen, titel- en eindbeelden — wordt in die stijl gegenereerd en verwerkt:
+beperkt palet, harde pixels, `image-rendering: pixelated`, géén anti-aliasing/zachte gradiënten.
+Zet dit expliciet in elke beeld-prompt ("16-bit pixel-art, SNES style, crisp pixels, limited palette").
+
+---
+
+## CHARACTER BIBLE
+
+Vaste, canonieke beschrijving van elk personage per game. Gebruik deze tekst letterlijk in
+image-to-image prompts (samen met de referentie-`media_id` en de "Maintain:"-zin hierboven) zodat
+elk personage er in élk beeld identiek uitziet. Per nieuwe game vul je hier een eigen blok aan,
+én herhaal je het blok in de game-eigen `games/<slug>/CHARACTER-BIBLE.md`.
+
+### Maanhoef (games/maanhoef)
+
+- **Loïs** (de heldin, ~10 jaar): meisje met **auburn/roodbruin haar** in een eenvoudige bos/staart,
+  ronde vriendelijke gezicht, **groen vestje** over een lichte top, bruine broek, **bruine laarzen**.
+  Kleine, gedrongen 16-bit verhoudingen (groot hoofd). Kijkt standaard naar rechts.
+- **Maanhoef** (het paard): **kastanjebruin** pony/paard met een **lichte bles** op de neus,
+  **donkere (bijna zwarte) manen en staart**, vriendelijke ogen. Hoofdstel-variant = exact hetzelfde
+  paard mét bruin leren hoofdstel.
+- **De uil** (raadselgever): bruine bosuil met grote ronde gele ogen, zit op een houten paaltje.
+- **Het hondje** (beagle): kleine beagle, wit-bruin-zwart, **rode halsband**, draagt een **gouden
+  sleutel** aan de halsband (versie zónder sleutel ná `dogFriendly`).
+- **De slang** (gevaar): groene gifslang met spleetogen en een ratel; geheven kop, dreigend.
+- **Het muisje**: klein grijs veldmuisje met grote oren, zit pal vóór de tuigkist in de stal/erf.

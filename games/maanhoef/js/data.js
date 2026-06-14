@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '10',
+  assetVer: '11',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -133,17 +133,18 @@ const GAME = {
       },
       walkPoly: [ [28, 232], [430, 232], [430, 214], [560, 214], [560, 302], [28, 302] ],
       obstacles: [],
-      overlays: [],
+      overlays: [
+        { img: 'assets/art/chest-closed.png', x: 50, y: 176, base: 224, notFlag: 'tackSolved' },
+        { img: 'assets/art/chest-open.png',   x: 52, y: 172, base: 224, requiresFlag: 'tackSolved' }
+      ],
       worldItems: [],
       npcs: [
-        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.9, x: 176, y: 274,
+        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.78, x: 188, y: 274,
           altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2' },
-          fleeBox: { x: 70, y: 256, w: 280, h: 36 },
+          fleeBox: { x: 90, y: 256, w: 270, h: 36 },
           fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
         { id: 'owl', sprite: 'owl', x: 511, y: 112 },
-        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.62, x: 96, y: 258,
-          fleeBox: { x: 56, y: 250, w: 110, h: 16 },
-          fleeFrom: 'player', fleeRadius: 56, fleeSpeed: 64, fleeUnlessHas: 'cheese', fleeUntilFlag: 'mouseFed' }
+        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.6, x: 92, y: 236 }
       ],
       hotspots: [
         {
@@ -187,12 +188,12 @@ const GAME = {
             },
             questions: [
               {
-                q: { nl: 'Raadsel 1: “Ik draaf zonder moe te worden, ik draag zonder handen, en in de wei ben ik koning. Wat ben ik?”',
-                     en: 'Riddle 1: “I gallop without tiring, I carry without hands, and in the meadow I am king. What am I?”' },
+                q: { nl: 'Raadsel 1: “In de mist sta ik stil, maar toch lijk ik te gaan. Vier benen dragen mij, maar mijn hoofd kijkt nooit om. Wie mij ziet, denkt aan kracht, vrijheid en een geheim in de nacht. Wat ben ik?”',
+                     en: 'Riddle 1: “In the mist I stand still, yet I seem to move. Four legs carry me, but my head never looks back. Who sees me thinks of strength, freedom and a secret in the night. What am I?”' },
                 answers: [
                   { t: { nl: 'Een paard', en: 'A horse' }, ok: true },
-                  { t: { nl: 'De wind', en: 'The wind' }, ok: false },
-                  { t: { nl: 'Een wolk', en: 'A cloud' }, ok: false }
+                  { t: { nl: 'Een stoel', en: 'A chair' }, ok: false },
+                  { t: { nl: 'Een schaduw', en: 'A shadow' }, ok: false }
                 ]
               },
               {
@@ -231,29 +232,29 @@ const GAME = {
           name: { nl: 'Brutaal Muisje', en: 'Cheeky Mouse' },
           followNpc: 'mouse',
           speaker: true,
-          rect: { x: 78, y: 238, w: 34, h: 30 },
-          walkTo: { x: 108, y: 280 },
+          rect: { x: 74, y: 220, w: 36, h: 32 },
+          walkTo: { x: 104, y: 282 },
           look: (state) => state.flags.mouseFed
-            ? { nl: 'Het muisje knabbelt tevreden aan zijn kaas bij het schuurtje.', en: 'The mouse nibbles its cheese contentedly by the barn.' }
-            : { nl: 'Een brutaal muisje piept en schiet steeds het schuurtje in. Het ruikt vast graag iets lekkers.', en: 'A cheeky mouse squeaks and keeps darting into the barn. It would surely love a treat.' },
+            ? { nl: 'Het muisje knabbelt tevreden aan zijn kaas, opzij van de kist.', en: 'The mouse nibbles its cheese contentedly, off to the side of the chest.' }
+            : { nl: 'Een brutaal muisje zit pal vóór de oude kist en piept naar je. Je durft er niet langs zolang het daar zit... het ruikt vast graag iets lekkers.', en: 'A cheeky mouse sits right in front of the old chest, squeaking at you. You don’t dare get past while it sits there... it would surely love a treat.' },
           use: {
             cheese: {
               consume: 'cheese',
               setFlag: 'mouseFed',
               text: {
-                nl: 'Je legt het stuk kaas voor het muisje neer. Het grijpt de kaas blij en schiet het schuurtje in — en wijst je zo de oude tuigkist aan, waar Maanhoefs hoofdstel in moet liggen. Maar het deksel zit op een vreemd houten slot...',
-                en: 'You set the cheese before the mouse. It grabs the cheese gleefully and darts into the barn — pointing you to the old tack-chest where Moonhoof’s bridle must be. But the lid is held shut by a strange wooden lock...'
+                nl: 'Je legt het stuk kaas voor het muisje neer. Blij grijpt het de kaas en scharrelt opzij van de kist — nu durf je erbij. Maar het deksel zit op een vreemd houten slot...',
+                en: 'You set the cheese before the mouse. It gleefully grabs the cheese and scurries aside from the chest — now you dare approach it. But the lid is held shut by a strange wooden lock...'
               }
             }
           }
         },
         {
           id: 'tackbox',
-          name: { nl: 'Oude Tuigkist', en: 'Old Tack-Chest' },
-          rect: { x: 40, y: 196, w: 64, h: 56 },
-          walkTo: { x: 78, y: 284 },
+          name: { nl: 'Oude Kist', en: 'Old Chest' },
+          rect: { x: 40, y: 176, w: 78, h: 56 },
+          walkTo: { x: 80, y: 284 },
           requiresFlag: 'mouseFed',
-          blockedText: { nl: 'Een oude tuigkist bij het schuurtje, stevig dicht. Misschien weet dat brutale muisje waar Maanhoefs hoofdstel ligt — geef het iets lekkers.', en: 'An old tack-chest by the barn, shut tight. Maybe that cheeky mouse knows where Moonhoof’s bridle is — give it a treat.' },
+          blockedText: { nl: 'Het brutale muisje zit pal vóór de kist en je durft er niet langs. Geef het eerst een stuk kaas, dan kun je de kist openmaken.', en: 'The cheeky mouse sits right in front of the chest and you don’t dare pass. Give it a wedge of cheese first, then you can open the chest.' },
           slidePuzzle: {
             img: 'assets/art/tackbox.png',
             size: 3,
@@ -299,17 +300,13 @@ const GAME = {
       playerStart: { x: 498, y: 286 },
       spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
       walkable: [
-        { x: 148, y: 296, w: 406, h: 16 },  // voorgrond-strook vóór het water (niet ín het water/de beek lopen)
-        { x: 430, y: 236, w: 124, h: 76 },  // rechtergras bij de instap (niets blokkeert rechts)
-        { x: 60, y: 198, w: 174, h: 100 }   // brug + linkerpad omhoog naar de stenen boog
+        { x: 138, y: 288, w: 418, h: 26 },  // bredere voorgrond-strook (meer ruimte om te lopen bij de slang)
+        { x: 418, y: 230, w: 138, h: 84 },  // rechtergras bij de instap
+        { x: 56, y: 196, w: 182, h: 118 }   // brug + linkerpad omhoog naar de grot (verbindt nu ruim met de strook)
       ],
       fx: {
         waterfall: { x: 282, y: 64, w: 44, h: 128, streaks: 14, slant: 0.16, len: 4 },  // kleiner, minder hoog, schuin — alleen op het water
         spray: { x: 305, y: 196, w: 44, h: 20, n: 12, speed: 0.05 },   // opspattende nevel onder de waterval
-        ripples: [
-          { x: 236, y: 250, w: 98, h: 24, n: 12 },   // vijver onder de waterval stroomt
-          { x: 70, y: 288, w: 150, h: 16, n: 8 }      // beek bij de brug
-        ],
         butterfly: [
           { x: 410, y: 150, rx: 54, ry: 30, col: '255,170,210', phase: 0 },   // roze vlinder bij de boom
           { x: 150, y: 168, rx: 40, ry: 24, col: '250,225,120', phase: 3 }     // gele vlinder bij de boog
@@ -318,8 +315,8 @@ const GAME = {
         zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
       obstacles: [
-        { x: 270, y: 294, w: 90, h: 20, notFlag: 'snakeCharmed' },   // de wakkere slang verspert het pad
-        { x: 132, y: 196, w: 104, h: 118, notFlag: 'bridgeFixed' }   // kapotte brug: geen oversteek (ook niet erlangs/over water) zonder plank
+        { x: 266, y: 288, w: 96, h: 26, notFlag: 'snakeCharmed' },   // de wakkere slang verspert het pad
+        { x: 132, y: 196, w: 106, h: 120, notFlag: 'bridgeFixed' }   // kapotte brug: geen oversteek zonder plank
       ],
       overlays: [],
       worldItems: [],
@@ -537,12 +534,12 @@ const GAME = {
       walkPoly: [ [70, 210], [474, 210], [474, 304], [70, 304] ],
       obstacles: [],
       overlays: [
-        { img: 'assets/art/horse-free.png',    x: 168, y: 126, base: 208, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
-        { img: 'assets/art/horse-bridled.png', x: 170, y: 126, base: 208, requiresFlag: 'bridleOn' }
+        { img: 'assets/art/horse-free.png',    x: 164, y: 118, base: 208, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
+        { img: 'assets/art/horse-bridled.png', x: 166, y: 118, base: 208, requiresFlag: 'bridleOn' }
       ],
       worldItems: [
         { item: 'bucket', hotspot: 'bucket', x: 196, y: 244, h: 28 },
-        { item: 'plank', hotspot: 'plank', x: 432, y: 250, h: 22 }
+        { item: 'plank', hotspot: 'plank', x: 432, y: 252, h: 28 }
       ],
       npcs: [],
       hotspots: [
@@ -669,13 +666,6 @@ const GAME = {
           rect: { x: 128, y: 280, w: 84, h: 24 },
           walkTo: { x: 162, y: 298 },
           look: { nl: 'De oude vloertegels zijn helemaal gebarsten en kapot. Hier valt niets mee te beginnen.', en: 'The old floor tiles are all cracked and broken. Nothing to be done with these.' }
-        },
-        {
-          id: 'bridlesBroken',
-          name: { nl: 'Oude Hoofdstellen', en: 'Old Bridles' },
-          rect: { x: 296, y: 220, w: 44, h: 42 },
-          walkTo: { x: 316, y: 286 },
-          look: { nl: 'Een paar oude hoofdstellen hangen aan de muur, maar het leer is verrot en de gespen kapot. Hier heeft Maanhoef niets aan.', en: 'A couple of old bridles hang on the wall, but the leather is rotten and the buckles broken. No use to Moonhoof.' }
         },
         {
           id: 'fountain',
