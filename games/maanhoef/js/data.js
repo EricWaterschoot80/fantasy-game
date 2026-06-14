@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '22',
+  assetVer: '23',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -81,7 +81,7 @@ const GAME = {
 
   items: {
     flute:   { name: { nl: 'Wilgenfluit', en: 'Willow Flute' }, icon: '🪈', img: 'assets/art/item-flute.png',
-               tapAnim: 'flute', tapAnimDur: 4200, tapSound: 'willow-flute' },
+               tapAnim: 'flute', tapAnimDur: 6000, tapSound: 'willow-flute' },
     bone:    { name: { nl: 'Kaal Bot', en: 'Bare Bone' }, icon: '🦴', img: 'assets/art/item-bone.png' },
     key:     { name: { nl: 'Stalsleutel', en: 'Stable Key' }, icon: '🗝️', img: 'assets/art/item-key.png' },
     crystal: { name: { nl: 'Kristal', en: 'Crystal' }, icon: '🔷', img: 'assets/art/item-crystal.png' },
@@ -380,7 +380,7 @@ const GAME = {
           use: {
             flute: {
               anim: 'flute',
-              animDur: 4200,
+              animDur: 6000,
               sound: 'willow-flute',
               setFlag: 'snakeCharmed',
               text: {

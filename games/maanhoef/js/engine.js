@@ -1373,7 +1373,7 @@
         return;
       }
       /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
-      const g = gestureState('hero', now, 1300, 5000, 9000);
+      const g = gestureState('hero', now, 1100, 15000, 28000);   // veel minder vaak zwaaien
       const wave = art.sprites.heroWave;
       if (g > 0 && ready(wave)) {
         const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2);
