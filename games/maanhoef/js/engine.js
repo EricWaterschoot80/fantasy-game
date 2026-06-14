@@ -776,6 +776,8 @@
     if (follower.active) ents.push({ y: follower.y, draw: () => drawFollower(now) });
     if (scene.overlays) {
       for (const o of scene.overlays) {
+        if (o.requiresFlag && !state.flags[o.requiresFlag]) continue;
+        if (o.notFlag && state.flags[o.notFlag]) continue;
         ents.push({ y: o.base, draw: () => {
           const img = o.img && overlayImg(o.img);
           if (img && ready(img)) fctx.drawImage(img, o.x, o.y);
@@ -789,7 +791,11 @@
     /* Doorzichtige pulserende pijlen bij uitgangen — bovenop alles */
     for (const hs of scene.hotspots) {
       if (!hs.exit || !hs.arrow) continue;
-      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
+      if (hs.requiresFlag) {
+        const need = hs.requiresFlag;
+        const unmet = Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need];
+        if (unmet) continue;
+      }
       const a = hs.arrow;
       const pulse = 0.34 + 0.2 * Math.sin(now / 350);
       const f = Math.sin(now / 350) * 2;
@@ -1186,7 +1192,7 @@
       if (wi.requiresFlag && !state.flags[wi.requiresFlag]) continue;
       const img = art.items[wi.item];
       if (!ready(img)) continue;
-      const hgt = 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+      const hgt = wi.h || 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
       const bob = Math.round(Math.sin(now / 650 + wi.x) * 1.5);
       const glow = 0.14 + 0.08 * Math.sin(now / 500 + wi.x);
       const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, 13);

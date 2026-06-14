@@ -817,3 +817,17 @@ html, body {
 
   #toast { bottom: auto; top: 54px; }
 }
+
+/* Win-scherm: afbeelding van Loïs die op Maanhoef wegrijdt */
+.win-banner {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  image-rendering: pixelated;
+  border: 2px solid var(--gold);
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #1f1410, 0 6px 16px rgba(0,0,0,.5);
+  margin: 0 auto 12px;
+}

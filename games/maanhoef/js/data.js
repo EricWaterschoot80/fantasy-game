@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '7',
+  assetVer: '8',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -20,12 +20,13 @@ const GAME = {
     heroFace:  'assets/art/hero-face.png',
     pup:       'assets/art/pup.png',
     pup2:      'assets/art/pup2.png',
-    owl:       'assets/art/owl.png'
+    owl:       'assets/art/owl.png',
+    mouse:     'assets/art/mouse.png'
   },
 
   winText: {
-    nl: 'De poort zwaait open en Maanhoef stapt vrij de ochtend in. Het paard drukt zijn warme neus tegen Loïs’ wang en hinnikt zacht. Met de trouwe hond aan haar zij en de uil hoog in de lucht brengt Loïs haar Maanhoef naar huis. Ze heeft haar vriend gered.',
-    en: 'The gate swings open and Moonhoof steps free into the morning. The horse presses his warm muzzle to Loïs’ cheek and softly whinnies. With the loyal dog at her side and the owl high above, Loïs leads her Moonhoof home. She has saved her friend.'
+    nl: 'Met het hoofdstel om klimt Loïs op Maanhoefs warme rug. Het paard hinnikt blij en draaft de gouden ochtend in. Samen galopperen ze door de vallei, vrij en gelukkig — Loïs heeft haar liefste vriend gered.',
+    en: 'With the bridle on, Loïs climbs onto Moonhoof’s warm back. The horse whinnies happily and trots into the golden morning. Together they gallop through the valley, free and happy — Loïs has saved her dearest friend.'
   },
 
   strings: {
@@ -61,7 +62,10 @@ const GAME = {
     q_bucket: { nl: 'Maanhoef heeft dorst — pak de houten emmer bij de stal', en: 'Moonhoof is thirsty — grab the wooden bucket by the stable' },
     q_fill:   { nl: 'Vul de emmer met water bij het beeld in de grot', en: 'Fill the bucket with water at the statue in the cave' },
     q_freehorse:{ nl: 'Geef Maanhoef éérst water over de poort — anders werkt de sleutel niet', en: 'Give Moonhoof water over the gate first — otherwise the key won’t work' },
-    q_gate:   { nl: 'Maanhoef is gekalmeerd — open nu de stalpoort met de sleutel', en: 'Moonhoof is calm now — open the stable gate with the key' }
+    q_gate:   { nl: 'Maanhoef is gekalmeerd — haal nu het slot van de stalpoort met de sleutel', en: 'Moonhoof is calm now — unlock the stable gate with the key' },
+    q_bridle_search: { nl: 'Maanhoef is vrij! Hij heeft een hoofdstel nodig — doorzoek de stal', en: 'Moonhoof is free! He needs a bridle — search the stable' },
+    q_bridle_cheese: { nl: 'Geef het stuk kaas aan het brutale muisje in de stal', en: 'Give the wedge of cheese to the cheeky mouse in the stable' },
+    q_bridle_on:     { nl: 'Doe Maanhoef het hoofdstel om en rijd samen weg', en: 'Put the bridle on Moonhoof and ride off together' }
   },
 
   items: {
@@ -78,13 +82,20 @@ const GAME = {
     diamond: { name: { nl: 'Diamant', en: 'Diamond' }, icon: '💎', img: 'assets/art/item-diamond.png',
                noUseText: { nl: 'Dit hoort hier niet.', en: 'This doesn’t belong here.' } },
     plank:   { name: { nl: 'Houten Plank', en: 'Wooden Plank' }, icon: '🪵', img: 'assets/art/item-plank.png',
-               noUseText: { nl: 'Daar heb ik die plank niet voor nodig.', en: 'No need for the plank here.' } }
+               noUseText: { nl: 'Daar heb ik die plank niet voor nodig.', en: 'No need for the plank here.' } },
+    cheese:  { name: { nl: 'Stuk Kaas', en: 'Wedge of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
+               noUseText: { nl: 'Ik ga dat lekkere stuk kaas niet zomaar weggeven.', en: 'I won’t just give away that tasty cheese.' } },
+    bridle:  { name: { nl: 'Hoofdstel', en: 'Bridle' }, icon: '🐴', img: 'assets/art/item-bridle.png',
+               noUseText: { nl: 'Het hoofdstel is voor Maanhoef.', en: 'The bridle is for Moonhoof.' } }
   },
 
   recipes: [],
 
   /* Questhint-regels — eerste match wint; quest:null verbergt de hint. */
   questRules: [
+    { when: { flag: 'gateOpen', has: 'bridle' },           quest: 'q_bridle_on' },
+    { when: { flag: 'gateOpen', has: 'cheese' },           quest: 'q_bridle_cheese' },
+    { when: { flag: 'gateOpen' },                          quest: 'q_bridle_search' },
     { when: { flag: 'horseWatered', has: 'key' },          quest: 'q_gate' },
     { when: { has: 'bucketWater' },                        quest: 'q_freehorse' },
     { when: { flag: 'waterFlowing', has: 'bucket' },       quest: 'q_fill' },
@@ -113,7 +124,7 @@ const GAME = {
         grove: { x: 70, y: 262 },
         stable: { x: 498, y: 262 }
       },
-      walkPoly: [ [28, 232], [540, 232], [540, 300], [28, 300] ],
+      walkPoly: [ [28, 232], [430, 232], [430, 214], [560, 214], [560, 302], [28, 302] ],
       obstacles: [],
       overlays: [],
       worldItems: [],
@@ -253,8 +264,8 @@ const GAME = {
         zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
       obstacles: [
-        { x: 270, y: 294, w: 86, h: 20, notFlag: 'snakeCharmed' },  // de wakkere slang verspert het pad
-        { x: 132, y: 248, w: 82, h: 64, notFlag: 'bridgeFixed' }    // het gat in de brug — niet oversteken zonder plank
+        { x: 270, y: 294, w: 90, h: 20, notFlag: 'snakeCharmed' },   // de wakkere slang verspert het pad
+        { x: 132, y: 196, w: 104, h: 118, notFlag: 'bridgeFixed' }   // kapotte brug: geen oversteek (ook niet erlangs/over water) zonder plank
       ],
       overlays: [],
       worldItems: [],
@@ -438,18 +449,25 @@ const GAME = {
     stable: {
       name: { nl: 'De Oude Stal', en: 'The Old Stable' },
       bg: 'assets/art/scene-stable.png',
+      bgVariants: [ { img: 'assets/art/scene-stable-open.png', flag: 'gateOpen' } ],
       entryText: {
         nl: 'De oude stal in het avondrood. Achter de vergrendelde paddockpoort staat Maanhoef, die je hoopvol aankijkt.',
         en: 'The old stable in the evening glow. Behind the bolted paddock gate stands Moonhoof, looking at you with hope.'
       },
       playerStart: { x: 120, y: 266 },
       spawnFrom: { farm: { x: 110, y: 266 } },
-      walkPoly: [ [78, 232], [472, 232], [472, 302], [78, 302] ],
+      walkPoly: [ [70, 210], [474, 210], [474, 304], [70, 304] ],
       obstacles: [],
-      overlays: [],
+      overlays: [
+        { img: 'assets/art/horse-free.png', x: 197, y: 168, base: 248, requiresFlag: 'gateOpen' }
+      ],
       worldItems: [
-        { item: 'bucket', hotspot: 'bucket', x: 196, y: 244 },
+        { item: 'bucket', hotspot: 'bucket', x: 196, y: 244, h: 28 },
         { item: 'plank', hotspot: 'plank', x: 430, y: 236 }
+      ],
+      npcs: [
+        { id: 'mouse', sprite: 'mouse', x: 132, y: 262,
+          wander: { x: 96, y: 256, w: 92, h: 16, speed: 16, pauseMin: 1400, pauseMax: 4200 } }
       ],
       hotspots: [
         {
@@ -466,51 +484,114 @@ const GAME = {
         {
           id: 'horse',
           name: { nl: 'Maanhoef', en: 'Moonhoof' },
-          rect: { x: 300, y: 66, w: 130, h: 96 },
-          walkTo: { x: 300, y: 268 },
-          look: (state) => state.flags.horseWatered
-            ? { nl: 'Maanhoef is gekalmeerd en staat rustig achter de poort. Nu hij je vertrouwt, kun je de poort openen.', en: 'Moonhoof is calm and stands quietly behind the gate. Now that he trusts you, you can open the gate.' }
-            : { nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, deinst angstig achteruit en kijkt je wantrouwend aan. "Ik vertrouw je nog niet," lijkt hij te zeggen. Geef hem eerst water om zijn vertrouwen te winnen.', en: 'Moonhoof, a warm chestnut horse with a pale blaze, shies back fearfully and eyes you with mistrust. "I don’t trust you yet," he seems to say. Give him water first to earn his trust.' },
+          rect: { x: 296, y: 66, w: 132, h: 120 },
+          walkTo: { x: 344, y: 268 },
+          look: (state) => state.flags.gateOpen
+            ? { nl: 'De stal is leeg — Maanhoef staat nu vrij op de binnenplaats.', en: 'The stall is empty — Moonhoof now stands free in the yard.' }
+            : state.flags.horseWatered
+              ? { nl: 'Maanhoef is gekalmeerd en staat rustig achter de poort. Nu hij je vertrouwt, kun je de poort van het slot halen.', en: 'Moonhoof is calm and stands quietly behind the gate. Now that he trusts you, you can unlock the gate.' }
+              : { nl: 'Maanhoef, een warm kastanjebruin paard met een lichte bles, deinst angstig achteruit en kijkt je wantrouwend aan. "Ik vertrouw je nog niet," lijkt hij te zeggen. Geef hem eerst water om zijn vertrouwen te winnen.', en: 'Moonhoof, a warm chestnut horse with a pale blaze, shies back fearfully and eyes you with mistrust. "I don’t trust you yet," he seems to say. Give him water first to earn his trust.' },
           use: {
             bucketWater: {
               consume: 'bucketWater',
               setFlag: 'horseWatered',
               text: {
-                nl: 'Je houdt Maanhoef de emmer over de stalrand voor. Hij drinkt gulzig, zijn oren ontspannen en hij drukt dankbaar zijn neus in je hand. Nu vertrouwt hij je — je kunt de poort openen.',
-                en: 'You offer Moonhoof the bucket over the stall rail. He drinks deeply, his ears relax and he gratefully presses his nose into your hand. Now he trusts you — you can open the gate.'
+                nl: 'Je houdt Maanhoef de emmer over de stalrand voor. Hij drinkt gulzig, zijn oren ontspannen en hij drukt dankbaar zijn neus in je hand. Nu vertrouwt hij je — je kunt het slot van de poort halen.',
+                en: 'You offer Moonhoof the bucket over the stall rail. He drinks deeply, his ears relax and he gratefully presses his nose into your hand. Now he trusts you — you can unlock the gate.'
+              }
+            }
+          }
+        },
+        {
+          id: 'horsefree',
+          name: { nl: 'Maanhoef', en: 'Moonhoof' },
+          rect: { x: 196, y: 172, w: 120, h: 110 },
+          walkTo: { x: 244, y: 286 },
+          look: (state) => state.flags.gateOpen
+            ? { nl: 'Maanhoef staat vrij en blij op de binnenplaats, maar zonder hoofdstel kun je niet op hem rijden. Waar zou zijn hoofdstel zijn? Doorzoek de stal.', en: 'Moonhoof stands free and happy in the yard, but without a bridle you can’t ride him. Where could his bridle be? Search the stable.' }
+            : { nl: 'De lege binnenplaats van de stal.', en: 'The empty stable yard.' },
+          use: {
+            bridle: {
+              requiresFlag: 'gateOpen',
+              consume: 'bridle',
+              win: true,
+              text: {
+                nl: 'Je doet Maanhoef voorzichtig het hoofdstel om. Hij snuift blij, en je klimt op zijn warme rug. Samen galopperen jullie de gouden ochtend tegemoet — vrij!',
+                en: 'You gently slip the bridle onto Moonhoof. He snorts happily, and you climb onto his warm back. Together you gallop into the golden morning — free!'
               }
             }
           }
         },
         {
           id: 'bucket',
-          name: { nl: 'Houten Emmer', en: 'Wooden Bucket' },
-          rect: { x: 168, y: 214, w: 70, h: 64 },
-          walkTo: { x: 200, y: 280 },
+          name: { nl: 'Grote Emmer', en: 'Large Bucket' },
+          rect: { x: 162, y: 206, w: 80, h: 74 },
+          walkTo: { x: 200, y: 286 },
           gives: {
             item: 'bucket',
-            giveText: { nl: 'Je pakt een stevige houten emmer op die naast de stal staat. Misschien handig om water mee te halen.', en: 'You pick up a sturdy wooden bucket standing by the stable. Handy for fetching water, perhaps.' },
-            emptyText: { nl: 'Verder geen emmers meer.', en: 'No more buckets here.' }
+            giveText: { nl: 'Je pakt de grote, stevige houten emmer op die naast de stal staat. Deze is nog heel — handig om water mee te halen.', en: 'You pick up the big, sturdy wooden bucket by the stable. This one is still whole — handy for fetching water.' },
+            emptyText: { nl: 'Verder geen hele emmers meer.', en: 'No more whole buckets here.' }
           }
+        },
+        {
+          id: 'bucketsBroken',
+          name: { nl: 'Kapotte Emmers', en: 'Broken Buckets' },
+          rect: { x: 330, y: 226, w: 64, h: 50 },
+          walkTo: { x: 360, y: 288 },
+          look: { nl: 'Een stapeltje oude emmers, maar ze zijn allemaal kapot — de bodems zijn eruit gerot. Hier kun je geen water mee halen.', en: 'A little pile of old buckets, but they’re all broken — the bottoms have rotted out. No fetching water with these.' }
         },
         {
           id: 'gate',
           name: { nl: 'Vergrendelde Poort', en: 'Bolted Gate' },
-          rect: { x: 236, y: 150, w: 132, h: 84 },
-          walkTo: { x: 288, y: 272 },
+          rect: { x: 300, y: 150, w: 60, h: 56 },
+          walkTo: { x: 320, y: 272 },
           look: (state) => state.flags.gateOpen
-            ? { nl: 'De poort staat open; de weg naar Maanhoef is vrij.', en: 'The gate stands open; the way to Moonhoof is clear.' }
-            : { nl: 'Een zware houten paddockpoort met een ijzeren slot. Maanhoef wacht erachter — maar zo angstig als hij nu is, krijg je het slot niet rustig open.', en: 'A heavy wooden paddock gate with an iron lock. Moonhoof waits beyond — but as frightened as he is now, you can’t work the lock calmly.' },
+            ? { nl: 'De poort staat wijd open; Maanhoef is vrij.', en: 'The gate stands wide open; Moonhoof is free.' }
+            : { nl: 'Een zwaar ijzeren slot op de paddockpoort. Maanhoef wacht erachter — maar zo angstig als hij nu is, krijg je het slot niet rustig open.', en: 'A heavy iron lock on the paddock gate. Moonhoof waits beyond — but as frightened as he is now, you can’t work the lock calmly.' },
           use: {
             key: {
               requiresFlag: 'horseWatered',
               requiresText: { nl: 'Maanhoef is doodsbang en deinst tegen de poort; zo krijg je het slot niet open. Geef hem éérst water om hem te kalmeren.', en: 'Moonhoof is terrified and shoves against the gate; you can’t work the lock like this. Give him water first to calm him.' },
               consume: 'key',
               setFlag: 'gateOpen',
-              win: true,
               text: {
-                nl: 'Nu Maanhoef rustig is, past de Stalsleutel precies. Met een klik draait het slot om en de poort zwaait open. Maanhoef stapt vrij naar je toe — je hebt hem gered!',
-                en: 'Now that Moonhoof is calm, the Stable Key fits perfectly. With a click the lock turns and the gate swings open. Moonhoof steps free toward you — you have saved him!'
+                nl: 'Nu Maanhoef rustig is, past de Stalsleutel precies. Met een klik draait het slot om en de poort zwaait open. Maanhoef stapt vrij de binnenplaats op — maar om hem te berijden heb je zijn hoofdstel nodig. Zoek het in de stal!',
+                en: 'Now that Moonhoof is calm, the Stable Key fits perfectly. With a click the lock turns and the gate swings open. Moonhoof steps free into the yard — but to ride him you’ll need his bridle. Search the stable for it!'
+              }
+            }
+          }
+        },
+        {
+          id: 'haysearch',
+          name: { nl: 'Hoop Stro', en: 'Pile of Straw' },
+          rect: { x: 116, y: 178, w: 64, h: 56 },
+          walkTo: { x: 148, y: 284 },
+          requiresFlag: 'gateOpen',
+          blockedText: { nl: 'Er is nu niets om te doorzoeken — bevrijd eerst Maanhoef.', en: 'Nothing to search through right now — free Moonhoof first.' },
+          gives: {
+            item: 'cheese',
+            giveText: { nl: 'Je doorzoekt de oude hoop stro bij de muur... en vindt er een vergeten stuk kaas in! Iemand zou daar blij mee zijn.', en: 'You rummage through the old pile of straw by the wall... and find a forgotten wedge of cheese in it! Someone would be glad to have that.' },
+            emptyText: { nl: 'Alleen nog wat stoffig stro.', en: 'Just some dusty straw now.' }
+          }
+        },
+        {
+          id: 'mouse',
+          name: { nl: 'Brutaal Muisje', en: 'Cheeky Mouse' },
+          followNpc: 'mouse',
+          speaker: true,
+          rect: { x: 118, y: 240, w: 36, h: 34 },
+          walkTo: { x: 132, y: 282 },
+          look: (state) => state.flags.mouseFed
+            ? { nl: 'Het muisje knabbelt tevreden aan zijn kaas in het holletje.', en: 'The mouse nibbles its cheese contentedly in its hole.' }
+            : { nl: 'Een brutaal muisje piept en snuffelt rond een muizenholletje. Het ruikt vast graag iets lekkers.', en: 'A cheeky mouse squeaks and sniffs around a mouse hole. It would surely love a treat.' },
+          use: {
+            cheese: {
+              consume: 'cheese',
+              setFlag: 'mouseFed',
+              give: 'bridle',
+              text: {
+                nl: 'Je legt het stuk kaas voor het muisje neer. Het grijpt de kaas blij en schiet zijn holletje in — en daar, waar het muisje op zat te knagen, ligt Maanhoefs leren hoofdstel! Je raapt het op.',
+                en: 'You set the cheese before the mouse. It grabs the cheese gleefully and darts into its hole — and there, where the mouse had been gnawing, lies Moonhoof’s leather bridle! You pick it up.'
               }
             }
           }
