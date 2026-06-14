@@ -287,7 +287,7 @@
       if (bgMusic) { try { bgMusic.pause(); } catch (e) {} }
       bgMusic = new Audio(src + AV_AUDIO);
       bgMusic.loop = true;
-      bgMusic.volume = soundOn ? 0.10 : 0;
+      bgMusic.volume = soundOn ? 0.06 : 0;
       bgMusic.play().catch(() => {});
     } catch (e) { /* nooit het spel breken */ }
   }
@@ -307,7 +307,7 @@
     const icon = document.getElementById('soundIcon');
     if (icon) icon.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png';
     if (music.master) music.master.gain.value = soundOn ? 1 : 0;
-    if (bgMusic) { bgMusic.volume = soundOn ? 0.10 : 0; if (soundOn) bgMusic.play().catch(() => {}); }
+    if (bgMusic) { bgMusic.volume = soundOn ? 0.06 : 0; if (soundOn) bgMusic.play().catch(() => {}); }
     if (soundOn) sfx('tap');
   });
 

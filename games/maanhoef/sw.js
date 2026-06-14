@@ -1,6 +1,6 @@
 /* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet. */
 
-const CACHE = 'maanhoef-v31';
+const CACHE = 'maanhoef-v32';
 
 const PRECACHE = [
   './',

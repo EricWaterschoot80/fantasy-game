@@ -243,6 +243,12 @@ html, body {
   image-rendering: pixelated;
 }
 .round-btn:active { transform: scale(.92); }
+.round-btn.home {
+  right: 62px;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; font-size: 26px; font-weight: bold;
+  padding-bottom: 2px;
+}
 
 /* ---------- Onderkant: tekstvenster + inventaris ---------- */
 

@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '29',
+  assetVer: '30',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -425,7 +425,6 @@ const GAME = {
           rect: { x: 184, y: 48, w: 92, h: 100 },
           walkTo: { x: 176, y: 214 },
           arrow: { x: 228, y: 70, dir: 'up' },
-          noAutoEnter: true,                 // alleen de grot in via klik op de pijl/boog, niet door langslopen
           requiresFlag: [ 'snakeCharmed', 'bridgeFixed' ],
           blockedText: (state) => state.flags.snakeCharmed
             ? { nl: 'De brug over de beek is kapot — je komt zo niet bij de boog. Repareer hem eerst met een plank.', en: 'The bridge over the brook is broken — you can’t reach the arch like this. Repair it with a plank first.' }
@@ -559,7 +558,7 @@ const GAME = {
       },
       playerStart: { x: 120, y: 266 },
       spawnFrom: { farm: { x: 110, y: 266 } },
-      walkPoly: [ [58, 202], [486, 202], [486, 308], [58, 308] ],
+      walkPoly: [ [60, 274], [120, 256], [300, 250], [432, 262], [486, 288], [486, 308], [60, 308] ],  // alleen de open binnenplaats (paars), niet in de stal/manger lopen
       obstacles: [],
       overlays: [
         { img: 'assets/art/horse-free.png',    x: 164, y: 120, base: 214, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
