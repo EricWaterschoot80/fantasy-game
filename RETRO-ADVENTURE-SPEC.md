@@ -508,9 +508,9 @@ elk personage er in élk beeld identiek uitziet. Per nieuwe game vul je hier een
 - **Loïs** (de heldin, ~10 jaar): meisje met **auburn/roodbruin haar** in een eenvoudige bos/staart,
   ronde vriendelijke gezicht, **groen vestje** over een lichte top, bruine broek, **bruine laarzen**.
   Kleine, gedrongen 16-bit verhoudingen (groot hoofd). Kijkt standaard naar rechts.
-- **Maanhoef** (het paard): **kastanjebruin** pony/paard met een **lichte bles** op de neus,
-  **donkere (bijna zwarte) manen en staart**, vriendelijke ogen. Hoofdstel-variant = exact hetzelfde
-  paard mét bruin leren hoofdstel.
+- **Maanhoef** (het paard): warm **kastanjebruin** pony/paard met een **lichte bles** op de neus,
+  **lichtere auburn/tan manen en staart (NIET zwart)** — zoals het paard in de stal-art, vriendelijke
+  ogen. Hoofdstel-variant = exact hetzelfde paard mét bruin leren hoofdstel.
 - **De uil** (raadselgever): bruine bosuil met grote ronde gele ogen, zit op een houten paaltje.
 - **Het hondje** (beagle): kleine beagle, wit-bruin-zwart, **rode halsband**, draagt een **gouden
   sleutel** aan de halsband (versie zónder sleutel ná `dogFriendly`).

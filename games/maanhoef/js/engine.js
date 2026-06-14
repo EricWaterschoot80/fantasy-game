@@ -1998,7 +1998,7 @@
      (bv. de slang die je iets in je oor wil fluisteren — luister = dood). */
   function openChoice(hs) {
     const c = hs.choice;
-    if (c.sound) playFile(c.sound, { vol: 0.6 });
+    if (c.sound) playFile(c.sound, { vol: c.soundBoost ? 1.0 : 0.6, boost: c.soundBoost || 1 });
     if (c.firstSound && !state.flags['heard_' + hs.id]) {
       state.flags['heard_' + hs.id] = true;
       playFile(c.firstSound, { vol: 1.0, boost: 8 });
@@ -2294,7 +2294,7 @@
 
     /* Klik-geluiden bij dit object (bv. paard hinnikt, slang ratelt) — alleen bij gewone klik. */
     if (!sel) {
-      if (hs.clickSound) playFile(hs.clickSound, { vol: 0.6 });
+      if (hs.clickSound) playFile(hs.clickSound, { vol: hs.clickVol || 0.6, boost: hs.clickBoost || 1 });
       if (hs.clickVoice) playFile(hs.clickVoice, { vol: 1.0, boost: 8 });
     }
 

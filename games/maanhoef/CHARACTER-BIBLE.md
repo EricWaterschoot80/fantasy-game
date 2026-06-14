@@ -14,9 +14,9 @@ bestaande sprite als referentie (`media_import_url` → `media_id`) en de vaste 
 - **Loïs** — de heldin (~10 jaar). Auburn/roodbruin haar in een eenvoudige bos/staart, rond
   vriendelijk gezicht, **groen vestje** over een lichte top, bruine broek, **bruine laarzen**.
   Gedrongen 16-bit verhoudingen (relatief groot hoofd). Kijkt standaard naar rechts.
-- **Maanhoef** — het paard. **Kastanjebruin** pony met een **lichte bles** op de neus, **donkere
-  manen en staart**, vriendelijke ogen. Hoofdstel-variant = exact hetzelfde paard mét bruin leren
-  hoofdstel (verder niets veranderd).
+- **Maanhoef** — het paard. Warm **kastanjebruin** pony met een **lichte bles** op de neus,
+  **lichtere auburn/tan manen en staart (NIET zwart)** — zoals het paard in de stal-art. Vriendelijke
+  ogen. Hoofdstel-variant = exact hetzelfde paard mét bruin leren hoofdstel (verder niets veranderd).
 - **De uil** — bruine bosuil, grote ronde gele ogen, zit op een houten paaltje op het erf.
 - **Het hondje** — kleine beagle (wit-bruin-zwart), **rode halsband**, draagt een **gouden sleutel**;
   na vriendschap (`dogFriendly`) dezelfde beagle **zonder** sleutel.

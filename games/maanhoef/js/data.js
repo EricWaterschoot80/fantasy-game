@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '16',
+  assetVer: '17',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -148,10 +148,10 @@ const GAME = {
         { img: 'assets/art/chest-open.png',   x: 52, y: 172, base: 224, requiresFlag: 'tackSolved' }
       ],
       worldItems: [
-        { item: 'carrot', hotspot: 'moestuin', x: 206, y: 130, h: 17 }   // zichtbare wortel in de moestuin (rechter, lager, kleiner)
+        { item: 'carrot', hotspot: 'moestuin', x: 240, y: 150, h: 17 }   // zichtbare wortel in de moestuin (nog meer naar rechts + onder)
       ],
       npcs: [
-        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.72, x: 188, y: 274,
+        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.66, x: 188, y: 274,
           altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2', idleSprite: 'pupSitNoKey' },
           fleeBox: { x: 90, y: 256, w: 270, h: 36 },
           fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
@@ -243,8 +243,8 @@ const GAME = {
         {
           id: 'moestuin',
           name: { nl: 'Moestuin', en: 'Vegetable Garden' },
-          rect: { x: 120, y: 80, w: 88, h: 42 },
-          walkTo: { x: 168, y: 240 },
+          rect: { x: 126, y: 86, w: 142, h: 78 },
+          walkTo: { x: 214, y: 244 },
           gives: {
             item: 'carrot',
             giveText: { nl: 'In de moestuin groeien rijen groenten. Je trekt een mooie verse wortel uit de grond — een echte lekkernij voor een paard.', en: 'Rows of vegetables grow in the garden. You pull a fine fresh carrot from the soil — a real treat for a horse.' },
@@ -352,9 +352,12 @@ const GAME = {
           speaker: true,
           face: 'assets/art/face-snake.png',
           clickSound: 'snake-rattle',
+          clickVol: 1.0,
+          clickBoost: 3.5,
           choice: {
             skipFlag: 'snakeCharmed',
             sound: 'snake-rattle',
+            soundBoost: 3.5,
             firstSound: 'snake-grot',
             image: 'assets/art/face-snake.png',
             title: { nl: 'De Sissende Slang', en: 'The Hissing Snake' },
