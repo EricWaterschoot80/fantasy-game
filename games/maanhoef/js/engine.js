@@ -1476,11 +1476,13 @@
         drawArtSprite(fimg, rt.x, rt.y, { flip: fl, bob: hop, rot: rock, scale: npc.scale || 1 });
       } else {
         /* stilzittend (bv. het hondje zit tot je nadert) of rustig deinen */
-        const idleImg = (idleName && ready(art.sprites[idleName])) ? art.sprites[idleName] : img;
+        const usingIdle = (idleName && ready(art.sprites[idleName]));
+        const idleImg = usingIdle ? art.sprites[idleName] : img;
         const g = gestureState(npc.id, now, 650, 3500, 7500);
         const flap = g > 0 ? -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 2)) * 2) : 0;
         const breathe = Math.round(Math.sin(now / 700 + (npc.x || 0)));
-        drawArtSprite(idleImg, rt.x, rt.y, { flip: fl, bob: breathe + flap, scale: npc.scale || 1 });
+        const idleSc = (usingIdle && npc.idleScale) ? npc.idleScale : (npc.scale || 1);
+        drawArtSprite(idleImg, rt.x, rt.y, { flip: fl, bob: breathe + flap, scale: idleSc });
       }
     }
   }
@@ -1586,7 +1588,10 @@
        toont de hoofdpersoon haar eigen gezicht in het rondje. */
     const face = m.face || (!m.anchor ? (GAME.sprites.heroFace || 'assets/art/hero-face.png') : null);
     const mobile = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-    if (m.anchor && view.scale && !mobile) {
+    /* Lange teksten passen niet netjes in een aangeprikte ballon → gebruik altijd het brede
+       onderpaneel (voorkomt smalle, te hoge popups, m.n. op mobiel). */
+    const longText = L(m.text).length > 80;
+    if (m.anchor && view.scale && !mobile && !longText) {
       elBubbleTxt.textContent = L(m.text);
       if (face) { elBubbleFace.src = face; elBubbleFace.hidden = false; }
       else elBubbleFace.hidden = true;
@@ -1675,10 +1680,20 @@
 
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
-    /* speelse items (bv. de fluit): elke tik laat de held het deuntje spelen */
+    /* speelse items (bv. de fluit): elke tik laat de held het deuntje spelen.
+       Speel je de fluit in een ruimte met een nog-niet-bedaarde slang? Dan valt die in slaap. */
     const def = GAME.items[itemId];
     if (def && def.tapAnim) {
       player.target = null; player.pending = null;   // even stilstaan om te spelen
+      const scene = GAME.scenes[state.currentScene];
+      const snakeHs = (scene.hotspots || []).find(
+        (h) => h.use && h.use[itemId] && h.use[itemId].setFlag && !state.flags[h.use[itemId].setFlag]);
+      if (snakeHs) {
+        state.selectedItem = null;
+        runAction(snakeHs.use[itemId], hsSpeaker(snakeHs), hsFace(snakeHs));  // betovert de slang (anim+geluid+slaap)
+        renderInventory();
+        return;
+      }
       startHeroAnim(def.tapAnim, def.tapAnimDur || 1800);
       if (def.tapSound) playFile(def.tapSound, { vol: 0.9 });
     }

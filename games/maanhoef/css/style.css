@@ -135,7 +135,8 @@ html, body {
 .speech {
   position: fixed;
   z-index: 12;
-  max-width: 64vw;
+  max-width: min(68vw, 440px);
+  min-width: 180px;
   display: flex;
   align-items: flex-start;
   gap: 9px;

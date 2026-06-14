@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '17',
+  assetVer: '18',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -148,10 +148,10 @@ const GAME = {
         { img: 'assets/art/chest-open.png',   x: 52, y: 172, base: 224, requiresFlag: 'tackSolved' }
       ],
       worldItems: [
-        { item: 'carrot', hotspot: 'moestuin', x: 240, y: 150, h: 17 }   // zichtbare wortel in de moestuin (nog meer naar rechts + onder)
+        { item: 'carrot', hotspot: 'moestuin', x: 245, y: 150, h: 17 }   // zichtbare wortel in de moestuin
       ],
       npcs: [
-        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.66, x: 188, y: 274,
+        { id: 'dog', sprite: 'pup', sprite2: 'pup2', idleSprite: 'pupSit', scale: 0.66, idleScale: 0.74, x: 188, y: 274,
           altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2', idleSprite: 'pupSitNoKey' },
           fleeBox: { x: 90, y: 256, w: 270, h: 36 },
           fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
@@ -196,8 +196,8 @@ const GAME = {
             reward: 'flute',
             title: { nl: 'Het Raadsel van de Uil', en: 'The Owl’s Riddle' },
             intro: {
-              nl: '“Oehoe. Het paard Maanhoef, zeg je? De hond bewaart de sleutel, maar hij heeft honger. In het bos ligt een bot — bewaakt door een slang. Beantwoord eerst mijn raadsels, dan geef ik je iets om haar te bedaren.”',
-              en: '“Hoo. The horse Moonhoof, you say? The dog keeps the key, but it is hungry. In the forest lies a bone — guarded by a snake. Answer my riddles first, and I shall give you something to calm her.”'
+              nl: '“Oehoe. Maanhoef? Los eerst mijn raadsels op, dan krijg je iets om de slang te bedaren.”',
+              en: '“Hoo. Moonhoof? Solve my riddles first, and I’ll give you something to calm the snake.”'
             },
             questions: [
               {
@@ -393,8 +393,8 @@ const GAME = {
         {
           id: 'bridge',
           name: { nl: 'Houten Brug', en: 'Wooden Bridge' },
-          rect: { x: 44, y: 232, w: 200, h: 78 },
-          walkTo: { x: 250, y: 302 },
+          rect: { x: 50, y: 244, w: 120, h: 60 },
+          walkTo: { x: 196, y: 300 },
           look: (state) => state.flags.bridgeFixed
             ? { nl: 'De brug ligt er weer stevig bij; je kunt de beek oversteken naar de stenen boog.', en: 'The bridge is sturdy again; you can cross the brook to the stone arch.' }
             : { nl: 'De houten brug over de beek mist een paar planken — zo waag je je er niet overheen. Klik op de brug met een stevige plank in je tas om hem te maken.', en: 'The wooden bridge over the brook is missing a few planks — you won’t risk crossing like this. Click the bridge with a sturdy plank in your bag to fix it.' },
@@ -416,7 +416,13 @@ const GAME = {
                 en: 'You lay the wooden plank over the gap in the bridge and stamp it down. The bridge is whole again — you can cross to the cave now.'
               }
             }
-          }
+          },
+          /* eenmaal gerepareerd (en de slang bedaard): op de brug klikken steekt over naar de grot */
+          requiresFlag: [ 'bridgeFixed', 'snakeCharmed' ],
+          blockedText: (state) => state.flags.bridgeFixed
+            ? { nl: 'De sissende slang verspert nog de weg. Bedaar haar eerst met de fluit.', en: 'The hissing snake still blocks the way. Calm her first with the flute.' }
+            : { nl: 'De brug mist nog planken — repareer hem eerst met een houten plank.', en: 'The bridge is still missing planks — repair it first with a wooden plank.' },
+          exit: { to: 'cave', travelText: { nl: 'Je steekt de stevige brug over en glipt de koele grot in...', en: 'You cross the sturdy bridge and slip into the cool cave...' } }
         },
         {
           id: 'toCave',
@@ -560,13 +566,13 @@ const GAME = {
       walkPoly: [ [58, 202], [486, 202], [486, 308], [58, 308] ],
       obstacles: [],
       overlays: [
-        { img: 'assets/art/horse-free.png',    x: 164, y: 118, base: 208, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
-        { img: 'assets/art/horse-bridled.png', x: 166, y: 118, base: 208, requiresFlag: 'bridleOn' }
+        { img: 'assets/art/horse-free.png',    x: 168, y: 104, base: 202, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
+        { img: 'assets/art/horse-bridled.png', x: 168, y: 104, base: 202, requiresFlag: 'bridleOn' }
       ],
       worldItems: [
         { item: 'bucket', hotspot: 'bucket', x: 196, y: 244, h: 28 },
         { item: 'plank', hotspot: 'plank', x: 430, y: 282, h: 44 },             // groter + lager, beter zichtbaar
-        { item: 'cheese', hotspot: 'haysearch', x: 150, y: 214, h: 24, requiresFlag: 'gateOpen' }  // zichtbaar stuk kaas in de stal
+        { item: 'cheese', hotspot: 'haysearch', x: 442, y: 168, h: 20, requiresFlag: 'gateOpen' }  // kaas in het stro van het hok
       ],
       npcs: [],
       hotspots: [
@@ -689,13 +695,13 @@ const GAME = {
         {
           id: 'haysearch',
           name: { nl: 'Stuk Kaas', en: 'Wedge of Cheese' },
-          rect: { x: 120, y: 196, w: 64, h: 44 },
-          walkTo: { x: 150, y: 284 },
+          rect: { x: 404, y: 140, w: 84, h: 60 },
+          walkTo: { x: 432, y: 296 },
           requiresFlag: 'gateOpen',
           blockedText: { nl: 'Er ligt nu niets — bevrijd eerst Maanhoef.', en: 'There’s nothing here yet — free Moonhoof first.' },
           gives: {
             item: 'cheese',
-            giveText: { nl: 'Je pakt het stuk kaas op dat naast de hoop stro ligt. Iemand zou daar vast blij mee zijn.', en: 'You pick up the wedge of cheese lying beside the pile of straw. Someone would surely be glad to have it.' },
+            giveText: { nl: 'Je pakt het stuk kaas op dat in het stro van het hok ligt. Iemand zou daar vast blij mee zijn.', en: 'You pick up the wedge of cheese lying in the straw of the stall. Someone would surely be glad to have it.' },
             emptyText: { nl: 'Het stuk kaas heb je al opgepakt.', en: 'You’ve already picked up the cheese.' }
           }
         },
