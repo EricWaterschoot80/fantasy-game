@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '21',
+  assetVer: '22',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -329,7 +329,7 @@ const GAME = {
         { x: 50, y: 190, w: 196, h: 124 }   // brug + linkerpad omhoog naar de grot (ruimer)
       ],
       fx: {
-        waterfall: { x: 282, y: 64, w: 44, h: 128, streaks: 14, slant: 0.16, len: 4 },  // alleen verticale val, geen horizontale lijn
+        waterfall: { x: 282, y: 64, w: 44, h: 82, streaks: 14, slant: 0.16, len: 4 },  // stopt bij de tak/slang (niet er doorheen)
         butterfly: [
           { x: 410, y: 150, rx: 54, ry: 30, col: '255,170,210', phase: 0 },   // roze vlinder bij de boom
           { x: 150, y: 168, rx: 40, ry: 24, col: '250,225,120', phase: 3 }     // gele vlinder bij de boog
@@ -338,7 +338,7 @@ const GAME = {
         zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
       obstacles: [
-        { x: 266, y: 288, w: 96, h: 26, notFlag: 'snakeCharmed' },   // de wakkere slang verspert het pad
+        { x: 244, y: 274, w: 142, h: 46, notFlag: 'snakeCharmed' },   // wakkere slang blokkeert de HELE strook (geen langsglippen)
         { x: 132, y: 196, w: 106, h: 120, notFlag: 'bridgeFixed' }   // kapotte brug: geen oversteek zonder plank
       ],
       overlays: [],
@@ -394,7 +394,8 @@ const GAME = {
           id: 'bridge',
           name: { nl: 'Houten Brug', en: 'Wooden Bridge' },
           rect: { x: 50, y: 244, w: 120, h: 60 },
-          walkTo: { x: 196, y: 300 },
+          // vóór reparatie: sta beneden bij de brug; ná reparatie: loop éérst omhoog naar de grot
+          walkTo: (state) => state.flags.bridgeFixed ? { x: 168, y: 224 } : { x: 196, y: 300 },
           look: (state) => state.flags.bridgeFixed
             ? { nl: 'De brug ligt er weer stevig bij; je kunt de beek oversteken naar de stenen boog.', en: 'The bridge is sturdy again; you can cross the brook to the stone arch.' }
             : { nl: 'De houten brug over de beek mist een paar planken — zo waag je je er niet overheen. Klik op de brug met een stevige plank in je tas om hem te maken.', en: 'The wooden bridge over the brook is missing a few planks — you won’t risk crossing like this. Click the bridge with a sturdy plank in your bag to fix it.' },

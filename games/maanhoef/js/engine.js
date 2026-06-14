@@ -464,7 +464,7 @@
   function hsWalkTo(hs) {
     const rt = hs.followNpc && npcPos(hs.followNpc);
     if (rt) return clampToWalkable(rt.x, rt.y + 38);
-    return hs.walkTo;
+    return typeof hs.walkTo === 'function' ? hs.walkTo(state) : hs.walkTo;
   }
   function hsSpeaker(hs) {
     if (!hs.speaker) return null;
@@ -769,9 +769,14 @@
   function checkExitProximity(scene) {
     if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden) return;
     for (const hs of scene.hotspots) {
-      if (!hs.exit || !hs.walkTo) continue;
-      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
-      const d = Math.hypot(player.x - hs.walkTo.x, player.y - hs.walkTo.y);
+      if (!hs.exit || !hs.arrow || !hs.walkTo) continue;   // alleen pijl-uitgangen krijgen 'inloop'-reizen
+      if (hs.requiresFlag) {
+        const need = hs.requiresFlag;
+        const unmet = Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need];
+        if (unmet) continue;
+      }
+      const wt = hsWalkTo(hs);
+      const d = Math.hypot(player.x - wt.x, player.y - wt.y);
       if (!exitArm[hs.id]) {
         if (d > 30) exitArm[hs.id] = true;
       } else if (d < 13) {
