@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '31',
+  assetVer: '32',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -58,6 +58,7 @@ const GAME = {
                   en: 'This adventure plays in landscape. Turn your screen sideways.' },
     tapContinue:{ nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
     selected:   { nl: 'geselecteerd', en: 'selected' },
+    homeConfirm:{ nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
 
     q_owl:    { nl: 'Vraag de wijze uil om raad', en: 'Ask the wise owl for advice' },
     q_snake:  { nl: 'Een slang verspert het bospad — betover haar met de fluit', en: 'A snake blocks the forest path — charm it with the flute' },

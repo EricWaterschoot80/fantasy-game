@@ -629,18 +629,8 @@
         player.kbMoving = true;
         const len = Math.hypot(vx, vy);
         movePlayer(vx * 50, vy * 50, len * 50, dt);
-        /* met het toetsenbord naar een uitgangspijl lopen = doorgaan naar de volgende ruimte */
-        if (!fade.mode) {
-          for (const hs of scene.hotspots) {
-            if (!hs.exit || !hs.arrow) continue;
-            if (hs.requiresFlag) {
-              const need = hs.requiresFlag;
-              if (Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need]) continue;
-            }
-            const wt = hsWalkTo(hs);
-            if (Math.hypot(wt.x - player.x, wt.y - player.y) < 16) { travelTo(hs.exit.to, hs.exit.travelText); break; }
-          }
-        }
+        /* Naar een andere ruimte ga je alléén door op de pijl te KLIKKEN — met het toetsenbord
+           naar een pijl lopen verandert dus niet meer van ruimte. */
       }
     }
 
@@ -799,8 +789,9 @@
     }
 
     /* Partikels */
-    /* Uitgangen triggeren door ernaartoe te lopen (eerst even weg zijn) */
-    checkExitProximity(scene);
+    /* Naar een andere ruimte ga je alléén door op de pijl te KLIKKEN — niet door ernaartoe te
+       lopen (toetsenbord/klik). De inloop-reizen staan daarom uit. */
+    /* checkExitProximity(scene); */
 
     for (const Lf of leaves) {
       Lf.y += Lf.speed * dt;
@@ -2801,6 +2792,14 @@
   });
 
   elReplayBtn.addEventListener('click', resetGame);
+
+  /* Home-knop: tijdens het spel eerst bevestigen (ja/nee) voor je het spel verlaat. */
+  const elHomeBtn = document.getElementById('homeBtn');
+  if (elHomeBtn) {
+    elHomeBtn.addEventListener('click', (e) => {
+      if (started && !window.confirm(L(GAME.ui.homeConfirm))) e.preventDefault();
+    });
+  }
 
   /* ---------- Test-API ---------- */
   window.__game = {

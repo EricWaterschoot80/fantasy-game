@@ -244,10 +244,12 @@ html, body {
 }
 .round-btn:active { transform: scale(.92); }
 .round-btn.home {
-  right: 62px;
+  top: auto; right: auto;
+  left: 10px; bottom: max(10px, var(--safe-bottom));
+  width: 34px; height: 34px;
   display: flex; align-items: center; justify-content: center;
-  text-decoration: none; font-size: 26px; font-weight: bold;
-  padding-bottom: 2px;
+  text-decoration: none; font-size: 19px; font-weight: bold;
+  padding-bottom: 2px; z-index: 16; opacity: .9;
 }
 
 /* ---------- Onderkant: tekstvenster + inventaris ---------- */
@@ -796,7 +798,7 @@ html, body {
   .round-btn.sound { left: 12px; }
   .round-btn.lang  { left: 60px; }
   #hintBtn { left: 108px; right: auto; }
-  #homeBtn { left: 156px; right: auto; }
+  #homeBtn { left: 10px; right: auto; }
 
   #invbar {
     position: fixed;
@@ -813,13 +815,13 @@ html, body {
   #invbar::before, #invbar::after { display: none; }
   .inv-slot { width: 40px; height: 40px; font-size: 20px; }
 
-  /* tekst links onderaan, weg van de inventory */
+  /* tekst links onderaan, weg van de inventory en de home-knop (linksonder) */
   #msg {
     position: fixed;
-    left: 8px;
+    left: 52px;
     right: auto;
     bottom: 8px;
-    max-width: 62vw;
+    max-width: 58vw;
     width: auto;
     margin: 0;
     padding: 7px 12px 5px;
