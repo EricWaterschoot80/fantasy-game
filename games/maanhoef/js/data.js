@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '18',
+  assetVer: '19',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -156,7 +156,7 @@ const GAME = {
           fleeBox: { x: 90, y: 256, w: 270, h: 36 },
           fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
         { id: 'owl', sprite: 'owl', x: 511, y: 112 },
-        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.62, x: 92, y: 236,
+        { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.62, x: 92, y: 236, hideFlag: 'mouseFed',
           wander: { x: 66, y: 228, w: 64, h: 24, speed: 16, pauseMin: 500, pauseMax: 2200, anywhere: true } }
       ],
       hotspots: [
@@ -256,18 +256,17 @@ const GAME = {
           name: { nl: 'Brutaal Muisje', en: 'Cheeky Mouse' },
           followNpc: 'mouse',
           speaker: true,
+          notFlag: 'mouseFed',                       // muis (en hotspot) verdwijnt zodra hij gevoerd is
           rect: { x: 74, y: 220, w: 36, h: 32 },
           walkTo: { x: 104, y: 282 },
-          look: (state) => state.flags.mouseFed
-            ? { nl: 'Het muisje knabbelt tevreden aan zijn kaas, opzij van de kist.', en: 'The mouse nibbles its cheese contentedly, off to the side of the chest.' }
-            : { nl: 'Een brutaal muisje zit pal vóór de oude kist en piept naar je. Je durft er niet langs zolang het daar zit... het ruikt vast graag iets lekkers.', en: 'A cheeky mouse sits right in front of the old chest, squeaking at you. You don’t dare get past while it sits there... it would surely love a treat.' },
+          look: { nl: 'Een brutaal muisje zit pal vóór de oude kist en piept naar je. Je durft er niet langs zolang het daar zit... het ruikt vast graag iets lekkers.', en: 'A cheeky mouse sits right in front of the old chest, squeaking at you. You don’t dare get past while it sits there... it would surely love a treat.' },
           use: {
             cheese: {
               consume: 'cheese',
               setFlag: 'mouseFed',
               text: {
-                nl: 'Je legt het stuk kaas voor het muisje neer. Blij grijpt het de kaas en scharrelt opzij van de kist — nu durf je erbij. Maar het deksel zit op een vreemd houten slot...',
-                en: 'You set the cheese before the mouse. It gleefully grabs the cheese and scurries aside from the chest — now you dare approach it. But the lid is held shut by a strange wooden lock...'
+                nl: 'Je legt het stuk kaas voor het muisje neer. Blij grijpt het de kaas en ritselt ermee weg, de struiken in — de kist is nu vrij. Maar het deksel zit op een vreemd houten slot...',
+                en: 'You set the cheese before the mouse. It gleefully grabs the cheese and scurries off into the bushes — the chest is free now. But the lid is held shut by a strange wooden lock...'
               }
             }
           }

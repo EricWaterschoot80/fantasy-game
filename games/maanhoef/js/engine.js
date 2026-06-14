@@ -616,6 +616,7 @@
     for (const npc of (scene.npcs || [])) {
       const rt = npcRt[npc.id];
       if (!rt) continue;
+      if (npc.hideFlag && state.flags[npc.hideFlag]) continue;   // weg na bv. mouseFed
       /* Schichtig wegrennen voor de speler (bv. het bange hondje) — tot het bevriend is
          of je het lokvoer draagt, dan laat het je dichtbij komen. */
       let fleeing = false;
@@ -822,6 +823,7 @@
     /* Entiteiten + voorgrond-overlays op diepte gesorteerd */
     const ents = [];
     for (const npc of (scene.npcs || [])) {
+      if (npc.hideFlag && state.flags[npc.hideFlag]) continue;   // weg na bv. mouseFed
       const rt = npcRt[npc.id] || npc;
       ents.push({ y: rt.y, draw: () => drawNpc(npc, now) });
     }
@@ -863,7 +865,7 @@
       if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
       else if (a.dir === 'right') { fctx.rotate(Math.PI / 2); fctx.translate(f, 0); }
       else if (a.dir === 'down') fctx.rotate(Math.PI);
-      fctx.scale(1.6, 1.6);   // groter en beter zichtbaar
+      fctx.scale(1.25, 1.25);   // iets kleiner
       fctx.fillStyle = `rgba(244,222,150,${Math.min(1, pulse)})`;
       fctx.strokeStyle = `rgba(31,20,16,0.95)`;
       fctx.lineWidth = 1.4;
@@ -2350,6 +2352,19 @@
       if (itemOk && flagOk) { runAction(a, hsSpeaker(hs), hsFace(hs)); return; }
     }
 
+    /* Vereiste-flag op de hotspot zelf (bv. tuigkist pas ná mouseFed, kaas pas ná gateOpen):
+       blokkeer puzzels/gives/look tot de voorwaarde klopt. Exits regelen dit in hun eigen tak. */
+    if (hs.requiresFlag && !hs.exit) {
+      const need = hs.requiresFlag;
+      const unmet = Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need];
+      if (unmet) {
+        sfx('error');
+        const bt = typeof hs.blockedText === 'function' ? hs.blockedText(state) : hs.blockedText;
+        say(bt || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
+        return;
+      }
+    }
+
     if (hs.choice && !(hs.choice.skipFlag && state.flags[hs.choice.skipFlag])) {
       openChoice(hs);
       return;
@@ -2546,6 +2561,7 @@
     const scene = GAME.scenes[state.currentScene];
     let best = null, bestArea = Infinity;
     for (const hs of scene.hotspots) {
+      if (hs.notFlag && state.flags[hs.notFlag]) continue;   // bv. muis-hotspot weg na mouseFed
       const r = hsRect(hs);
       if (sx >= r.x && sx <= r.x + r.w && sy >= r.y && sy <= r.y + r.h) {
         const area = r.w * r.h;
