@@ -37,7 +37,7 @@
   const elReplayBtn = document.getElementById('replayBtn');
   const elRetryBtn  = document.getElementById('retryBtn');
 
-  const MIN_SLOTS = 5;
+  const MIN_SLOTS = 6;
   const WALK_SPEED = 95;
   const ARRIVE_DIST = 4;
 
@@ -2022,7 +2022,7 @@
   function openChoice(hs) {
     const c = hs.choice;
     if (c.sound) playFile(c.sound, { vol: c.soundBoost ? 1.0 : 0.6, boost: c.soundBoost || 1 });
-    if (c.firstSound && !state.flags['heard_' + hs.id]) {
+    if (c.firstSound && lang === 'nl' && !state.flags['heard_' + hs.id]) {   // NL-stemclip alleen in het Nederlands
       state.flags['heard_' + hs.id] = true;
       playFile(c.firstSound, { vol: 1.0, boost: 8 });
     }
@@ -2318,7 +2318,7 @@
     /* Klik-geluiden bij dit object (bv. paard hinnikt, slang ratelt) — alleen bij gewone klik. */
     if (!sel) {
       if (hs.clickSound) playFile(hs.clickSound, { vol: hs.clickVol || 0.6, boost: hs.clickBoost || 1 });
-      if (hs.clickVoice) playFile(hs.clickVoice, { vol: 1.0, boost: 8 });
+      if (hs.clickVoice && lang === 'nl') playFile(hs.clickVoice, { vol: 1.0, boost: 8 });  // NL-stemclips alleen in het Nederlands
     }
 
     /* Aaien: hondje met vest dat je volgt */

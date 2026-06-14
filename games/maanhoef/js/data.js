@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '20',
+  assetVer: '21',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -566,13 +566,13 @@ const GAME = {
       walkPoly: [ [58, 202], [486, 202], [486, 308], [58, 308] ],
       obstacles: [],
       overlays: [
-        { img: 'assets/art/horse-free.png',    x: 168, y: 104, base: 202, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
-        { img: 'assets/art/horse-bridled.png', x: 168, y: 104, base: 202, requiresFlag: 'bridleOn' }
+        { img: 'assets/art/horse-free.png',    x: 164, y: 112, base: 210, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
+        { img: 'assets/art/horse-bridled.png', x: 164, y: 112, base: 210, requiresFlag: 'bridleOn' }
       ],
       worldItems: [
         { item: 'bucket', hotspot: 'bucket', x: 196, y: 244, h: 28 },
         { item: 'plank', hotspot: 'plank', x: 430, y: 282, h: 44 },             // groter + lager, beter zichtbaar
-        { item: 'cheese', hotspot: 'haysearch', x: 442, y: 168, h: 20, requiresFlag: 'gateOpen' }  // kaas in het stro van het hok
+        { item: 'cheese', hotspot: 'haysearch', x: 427, y: 168, h: 20, requiresFlag: 'gateOpen' }  // kaas in het stro van het hok (15px naar links)
       ],
       npcs: [],
       hotspots: [
