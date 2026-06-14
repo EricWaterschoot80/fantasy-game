@@ -1946,6 +1946,8 @@
     const cfg = hs.slidePuzzle;
     const px = 240 / n;
     if (elPuzTip) elPuzTip.hidden = true;   // strategie-tip vervalt na elke zet
+    elPuzGrid.className = '';                // reset eventuele legpuzzel-layout
+    elPuzGrid.style.width = ''; elPuzGrid.style.height = '';
     elPuzGrid.innerHTML = '';
     tiles.forEach((tile, pos) => {
       if (tile === n * n - 1) return;            // leeg vak
@@ -1994,62 +1996,133 @@
 
   function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; }
 
-  /* ---------- Legpuzzel: 8 stukken die in elkaar passen (tik twee stukken om te wisselen) ---------- */
-  let jig = null;   // { hs, cols, rows, order[], sel }
+  /* ---------- Legpuzzel: sleep de losse stukken vanuit de bak naar het kader ---------- */
+  let jig = null;   // { hs, cols, rows, n, cell, frameH, stageH, locked[], drag, pieces[] }
+  const JIG_W = 280;            // logische breedte van het speelveld (px)
+  const JIG_TIP = { nl: 'Sleep elk stuk naar de juiste plek in het kader.', en: 'Drag each piece into its spot in the frame.' };
   function openJigsaw(hs) {
     const cfg = hs.jigsaw;
     const cols = cfg.cols || 4, rows = cfg.rows || 2, n = cols * rows;
-    const order = Array.from({ length: n }, (_, i) => i);
-    let guard = 0;
-    do {
-      for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; const t = order[i]; order[i] = order[j]; order[j] = t; }
-    } while (order.every((v, i) => v === i) && ++guard < 20);
-    jig = { hs, cols, rows, order, sel: -1 };
+    const cell = JIG_W / cols, frameH = cell * rows;
+    jig = { hs, cols, rows, n, cell, frameH, stageH: frameH * 2 + 20, locked: new Array(n).fill(false), drag: null };
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) elPuzHintBtn.style.display = 'none';
-    if (elPuzTip) elPuzTip.hidden = true;
-    renderJigsaw();
+    if (elPuzTip) { elPuzTip.hidden = false; elPuzTip.textContent = L(JIG_TIP); }
+    buildJigsaw();
     elPuzzle.hidden = false;
     sfx('tap');
   }
-  function renderJigsaw() {
-    const { hs, cols, rows, order, sel } = jig;
-    const cfg = hs.jigsaw;
-    const pw = 240 / cols, ph = 240 / rows;
+  function buildJigsaw() {
+    const j = jig, cfg = j.hs.jigsaw;
+    const img = 'url(' + cfg.img + AV + ')';
+    const { cols, rows, n, cell, frameH, stageH } = j;
+    elPuzGrid.className = 'jig-stage';
+    elPuzGrid.style.width = JIG_W + 'px';
+    elPuzGrid.style.height = stageH + 'px';
     elPuzGrid.innerHTML = '';
-    order.forEach((piece, slot) => {
-      const d = document.createElement('div');
-      d.className = 'puz-tile jig-tile' + (slot === sel ? ' jig-sel' : '');
-      d.style.width = pw + 'px'; d.style.height = ph + 'px';
-      d.style.left = (slot % cols) * pw + 'px';
-      d.style.top = ((slot / cols) | 0) * ph + 'px';
-      d.style.backgroundImage = 'url(' + cfg.img + AV + ')';
-      d.style.backgroundSize = '240px 240px';
-      d.style.backgroundPosition = '-' + (piece % cols) * pw + 'px -' + ((piece / cols) | 0) * ph + 'px';
-      d.addEventListener('touchend', (e) => { e.preventDefault(); tapJig(slot); }, { passive: false });
-      d.addEventListener('click', () => tapJig(slot));
-      elPuzGrid.appendChild(d);
+    // Kader met spookbeeld + lege sleuven
+    const frame = document.createElement('div');
+    frame.className = 'jig-frame';
+    frame.style.width = JIG_W + 'px';
+    frame.style.height = frameH + 'px';
+    frame.style.backgroundImage = img;
+    frame.style.backgroundSize = JIG_W + 'px ' + frameH + 'px';
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const s = document.createElement('div');
+      s.className = 'jig-slot';
+      s.style.left = c * cell + 'px'; s.style.top = r * cell + 'px';
+      s.style.width = cell + 'px'; s.style.height = cell + 'px';
+      frame.appendChild(s);
+    }
+    j.frameEl = frame;
+    elPuzGrid.appendChild(frame);
+    // De stukken door elkaar in de bak eronder
+    const idx = Array.from({ length: n }, (_, i) => i);
+    for (let i = n - 1; i > 0; i--) { const k = (Math.random() * (i + 1)) | 0; const t = idx[i]; idx[i] = idx[k]; idx[k] = t; }
+    j.pieces = [];
+    idx.forEach((piece, slot) => {
+      const c = piece % cols, r = (piece / cols) | 0;
+      const tcol = slot % cols, trow = (slot / cols) | 0;
+      const rot = ((piece * 37) % 13) - 6;                 // vaste lichte rotatie ±6°
+      const hx = tcol * cell + ((piece * 17) % 9) - 4;
+      const hy = frameH + 16 + trow * cell + ((piece * 23) % 9) - 4;
+      const el = document.createElement('div');
+      el.className = 'jig-piece';
+      el.style.width = cell + 'px'; el.style.height = cell + 'px';
+      el.style.backgroundImage = img;
+      el.style.backgroundSize = JIG_W + 'px ' + frameH + 'px';
+      el.style.backgroundPosition = '-' + c * cell + 'px -' + r * cell + 'px';
+      el.style.left = hx + 'px'; el.style.top = hy + 'px';
+      el.style.transform = 'rotate(' + rot + 'deg)';
+      el._home = { x: hx, y: hy, rot };
+      el._piece = piece;
+      el.addEventListener('pointerdown', (e) => jigDown(e, el));
+      elPuzGrid.appendChild(el);
+      j.pieces.push(el);
     });
   }
-  function tapJig(slot) {
-    const j = jig; if (!j) return;
-    if (j.sel === -1) { j.sel = slot; sfx('tap'); renderJigsaw(); return; }
-    if (j.sel === slot) { j.sel = -1; renderJigsaw(); return; }
-    const t = j.order[j.sel]; j.order[j.sel] = j.order[slot]; j.order[slot] = t;
-    j.sel = -1; sfx('tap'); renderJigsaw();
-    if (j.order.every((v, i) => v === i)) {
-      const cfg = j.hs.jigsaw;
-      if (cfg.setFlag) state.flags[cfg.setFlag] = true;
-      if (cfg.give) addItem(cfg.give);
-      sfx('gate'); paintBackground();
-      setTimeout(() => {
-        elPuzzle.hidden = true; jig = null;
-        if (cfg.win) { pendingWin = true; sfx('win'); }
-        say(cfg.solvedText);
-        updateQuest();
-        if (cfg.burst) burstAt(cfg.burst.x, cfg.burst.y);
-      }, 450);
+  function jigLocalXY(e) {
+    const rect = elPuzGrid.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) / rect.width * JIG_W,
+      y: (e.clientY - rect.top) / rect.height * jig.stageH
+    };
+  }
+  function jigDown(e, el) {
+    const j = jig; if (!j || j.locked[el._piece]) return;
+    e.preventDefault();
+    const p = jigLocalXY(e);
+    j.drag = { el, grabX: p.x - parseFloat(el.style.left), grabY: p.y - parseFloat(el.style.top) };
+    el.classList.add('jig-drag');
+    el.style.transform = 'rotate(0deg)';
+    el.style.zIndex = 60;
+    try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    el.addEventListener('pointermove', jigMove);
+    el.addEventListener('pointerup', jigUp);
+    el.addEventListener('pointercancel', jigUp);
+  }
+  function jigMove(e) {
+    const d = jig && jig.drag; if (!d) return;
+    const p = jigLocalXY(e);
+    d.el.style.left = (p.x - d.grabX) + 'px';
+    d.el.style.top = (p.y - d.grabY) + 'px';
+  }
+  function jigUp(e) {
+    const j = jig, d = j && j.drag; if (!d) return;
+    const el = d.el;
+    el.removeEventListener('pointermove', jigMove);
+    el.removeEventListener('pointerup', jigUp);
+    el.removeEventListener('pointercancel', jigUp);
+    j.drag = null;
+    el.classList.remove('jig-drag');
+    const { cols, cell } = j;
+    const piece = el._piece, c = piece % cols, r = (piece / cols) | 0;
+    const cx = parseFloat(el.style.left) + cell / 2, cy = parseFloat(el.style.top) + cell / 2;
+    const tcx = c * cell + cell / 2, tcy = r * cell + cell / 2;
+    if (Math.abs(cx - tcx) < cell * 0.55 && Math.abs(cy - tcy) < cell * 0.55) {
+      el.style.left = c * cell + 'px'; el.style.top = r * cell + 'px';
+      el.style.transform = 'rotate(0deg)'; el.style.zIndex = 1;
+      el.classList.add('jig-locked');
+      j.locked[piece] = true; sfx('tap');
+      if (j.locked.every(Boolean)) solveJigsaw();
+    } else {
+      el.style.left = el._home.x + 'px'; el.style.top = el._home.y + 'px';
+      el.style.transform = 'rotate(' + el._home.rot + 'deg)'; el.style.zIndex = '';
     }
+  }
+  function solveJigsaw() {
+    const cfg = jig.hs.jigsaw;
+    if (jig.frameEl) jig.frameEl.classList.add('jig-done');
+    if (cfg.setFlag) state.flags[cfg.setFlag] = true;
+    if (cfg.give) addItem(cfg.give);
+    sfx('gate'); paintBackground();
+    setTimeout(() => {
+      elPuzzle.hidden = true; jig = null;
+      if (cfg.win) { pendingWin = true; sfx('win'); }
+      say(cfg.solvedText);
+      updateQuest();
+      if (cfg.burst) burstAt(cfg.burst.x, cfg.burst.y);
+    }, 650);
   }
 
   elPuzClose.addEventListener('click', closePuzzle);
