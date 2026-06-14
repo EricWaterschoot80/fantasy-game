@@ -585,6 +585,7 @@
           rt.pauseUntil = now + 400;
         }
       }
+      rt.fleeing = fleeing;
       if (!fleeing && npc.wander && !(npc.wanderRequiresFlag && !state.flags[npc.wanderRequiresFlag])) {
         if (rt.target) {
           const dx = rt.target.x - rt.x, dy = rt.target.y - rt.y;
@@ -1342,11 +1343,14 @@
       const img = art.sprites[npc.sprite];
       if (!ready(img)) return;
       const fl = npc.facesLeft ? !rt.flip : rt.flip;
-      if (rt.target) {
-        /* levendige draf: bounce + zacht wiegen, leest als natuurlijk lopen */
+      const moving = rt.target || rt.fleeing;
+      if (moving) {
+        /* levendige draf: wissel tussen 2 loopframes (indien aanwezig) + bounce + wiegen */
+        const alt = npc.sprite2 && ready(art.sprites[npc.sprite2]);
+        const fimg = (alt && (Math.floor(rt.phase * 0.6) % 2)) ? art.sprites[npc.sprite2] : img;
         const hop = -Math.round(Math.abs(Math.sin(rt.phase * 1.6)) * 3);
         const rock = Math.sin(rt.phase * 1.6) * 0.06;
-        drawArtSprite(img, rt.x, rt.y, { flip: fl, bob: hop, rot: rock });
+        drawArtSprite(fimg, rt.x, rt.y, { flip: fl, bob: hop, rot: rock });
       } else {
         const g = gestureState(npc.id, now, 650, 3500, 7500);
         const flap = g > 0 ? -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 2)) * 2) : 0;
@@ -1453,10 +1457,13 @@
       return;
     }
     const m = msgQueue.shift();
+    /* NPC-gezicht indien aanwezig; anders, als het Loïs’ eigen tekst is (geen spreker-anker),
+       toont de hoofdpersoon haar eigen gezicht in het rondje. */
+    const face = m.face || (!m.anchor ? (GAME.sprites.heroFace || 'assets/art/hero-face.png') : null);
     const mobile = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     if (m.anchor && view.scale && !mobile) {
       elBubbleTxt.textContent = L(m.text);
-      if (m.face) { elBubbleFace.src = m.face; elBubbleFace.hidden = false; }
+      if (face) { elBubbleFace.src = face; elBubbleFace.hidden = false; }
       else elBubbleFace.hidden = true;
       const bx = view.ox + m.anchor.x * view.scale;
       const by = view.oy + m.anchor.y * view.scale;
@@ -1467,7 +1474,7 @@
     } else {
       /* paneel (op mobiel ook voor personages — met gezicht) */
       elMsgText.textContent = L(m.text);
-      if (m.face) { elMsgFace.src = m.face; elMsgFace.hidden = false; }
+      if (face) { elMsgFace.src = face; elMsgFace.hidden = false; }
       else elMsgFace.hidden = true;
       elMsg.hidden = false;
       elMsg.style.animation = 'none';

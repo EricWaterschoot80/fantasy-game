@@ -10,20 +10,22 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '6',
+  assetVer: '7',
 
   sprites: {
     hero:      'assets/art/hero.png',
     heroWalk:  'assets/art/hero-walk.png',
     heroWalk2: 'assets/art/hero-walk2.png',
     heroWave:  'assets/art/hero-wave.png',
+    heroFace:  'assets/art/hero-face.png',
     pup:       'assets/art/pup.png',
+    pup2:      'assets/art/pup2.png',
     owl:       'assets/art/owl.png'
   },
 
   winText: {
-    nl: 'De poort zwaait open en Maanhoef stapt vrij de ochtend in. Het paard drukt zijn warme neus tegen je wang en hinnikt zacht. Met de trouwe hond aan je zij en de uil hoog in de lucht breng je Maanhoef naar huis. Je hebt je vriend gered.',
-    en: 'The gate swings open and Moonhoof steps free into the morning. The horse presses his warm muzzle to your cheek and softly whinnies. With the loyal dog at your side and the owl high above, you lead Moonhoof home. You have saved your friend.'
+    nl: 'De poort zwaait open en Maanhoef stapt vrij de ochtend in. Het paard drukt zijn warme neus tegen Loïs’ wang en hinnikt zacht. Met de trouwe hond aan haar zij en de uil hoog in de lucht brengt Loïs haar Maanhoef naar huis. Ze heeft haar vriend gered.',
+    en: 'The gate swings open and Moonhoof steps free into the morning. The horse presses his warm muzzle to Loïs’ cheek and softly whinnies. With the loyal dog at her side and the owl high above, Loïs leads her Moonhoof home. She has saved her friend.'
   },
 
   strings: {
@@ -33,9 +35,9 @@ const GAME = {
   },
 
   ui: {
-    subtitle:   { nl: 'Een meisje en haar paard', en: 'A girl and her horse' },
-    intro:      { nl: 'Maanhoef, het mooiste paard van de vallei, is opgesloten achter een vergrendelde stalpoort. De sleutel hangt aan de halsband van een schichtige hond. Een wijze uil en een sissende slang kruisen je pad. Red Maanhoef!',
-                  en: 'Moonhoof, the finest horse in the valley, is locked behind a bolted stable gate. The key hangs from the collar of a skittish dog. A wise owl and a hissing snake cross your path. Save Moonhoof!' },
+    subtitle:   { nl: 'Loïs en haar paard Maanhoef', en: 'Loïs and her horse Moonhoof' },
+    intro:      { nl: 'Loïs’ liefste paard, Maanhoef, het mooiste van de vallei, is opgesloten achter een vergrendelde stalpoort. De sleutel hangt aan de halsband van een schichtig hondje. Een wijze uil en een sissende slang kruisen Loïs’ pad. Help Loïs en red Maanhoef!',
+                  en: 'Loïs’ dearest horse, Moonhoof, the finest in the valley, is locked behind a bolted stable gate. The key hangs from the collar of a skittish dog. A wise owl and a hissing snake cross Loïs’ path. Help Loïs and save Moonhoof!' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het avontuur', en: 'Begin the adventure' },
     winTitle:   { nl: 'Maanhoef is Vrij', en: 'Moonhoof is Free' },
@@ -116,7 +118,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'dog', sprite: 'pup', x: 168, y: 274,
+        { id: 'dog', sprite: 'pup', sprite2: 'pup2', x: 168, y: 274,
           wander: { x: 90, y: 256, w: 210, h: 34, speed: 24, pauseMin: 1800, pauseMax: 5200 },
           fleeFrom: 'player', fleeRadius: 76, fleeSpeed: 84, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
         { id: 'owl', sprite: 'owl', x: 511, y: 112 }
