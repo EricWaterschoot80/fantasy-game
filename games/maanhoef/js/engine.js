@@ -2780,8 +2780,17 @@
     say(GAME.scenes[state.currentScene].entryText);
   }
 
+  /* Volledig scherm zoals een app: vraag fullscreen aan bij de eerste tik (browser-spel). */
+  function goFullscreen() {
+    const el = document.documentElement;
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (fn) { try { fn.call(el, { navigationUI: 'hide' }); } catch (e) { try { fn.call(el); } catch (e2) {} } }
+    if (screen.orientation && screen.orientation.lock) { try { screen.orientation.lock('landscape'); } catch (e) {} }
+  }
+
   elStartBtn.addEventListener('click', () => {
     ac();
+    goFullscreen();
     startMusic();
     sfx('tap');
     elTitle.hidden = true;

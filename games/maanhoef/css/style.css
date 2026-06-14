@@ -404,11 +404,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: max(10px, var(--safe-top)) max(12px, var(--safe-right, 0px)) max(10px, var(--safe-bottom)) max(12px, var(--safe-left, 0px));
   background:
     radial-gradient(ellipse at 50% 30%, rgba(201,162,75,.10), transparent 60%),
     rgba(15, 11, 8, .88);
   z-index: 20;
+  overflow: auto;
   animation: overlayIn .4s ease-out;
 }
 
@@ -420,6 +421,9 @@ html, body {
 .overlay-card {
   max-width: 420px;
   width: 100%;
+  max-height: calc(100dvh - 20px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 28px 24px;
   text-align: center;
 }
@@ -792,6 +796,7 @@ html, body {
   .round-btn.sound { left: 12px; }
   .round-btn.lang  { left: 60px; }
   #hintBtn { left: 108px; right: auto; }
+  #homeBtn { left: 156px; right: auto; }
 
   #invbar {
     position: fixed;
@@ -837,4 +842,20 @@ html, body {
   border-radius: 3px;
   box-shadow: 0 0 0 2px #1f1410, 0 6px 16px rgba(0,0,0,.5);
   margin: 0 auto 12px;
+}
+
+/* Korte schermen (landscape-telefoon): houd popups compact zodat er niets afvalt */
+@media (max-height: 540px) {
+  .overlay-card { padding: 14px 18px; }
+  .overlay-card h1 { font-size: clamp(18px, 5vw, 26px); margin: 4px 0 4px; }
+  .overlay-card .subtitle { margin-bottom: 6px; }
+  .overlay-card .intro { font-size: 13px; line-height: 1.4; margin-bottom: 10px; }
+  .puzzle-card { padding: 12px 16px 14px; }
+  .puzzle-card h2, #riddle-title, #rune-title, #maze-title { font-size: 14px; margin-bottom: 6px; }
+  .riddle-q { font-size: 13px; min-height: 0; margin-bottom: 10px; }
+  #riddle-answers { gap: 7px; }
+  .gold-btn.riddle-ans { font-size: 13px; padding: 7px 14px; }
+  #riddle-face { width: 36px; height: 36px; }
+  .ornament { font-size: 30px; }
+  .win-banner { max-height: 34vh; }
 }
