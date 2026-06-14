@@ -451,6 +451,77 @@
     return best || { x, y };
   }
 
+  /* ---------- Pathfinding (A* over een raster) zodat de speler netjes om water/obstakels
+       heen loopt (bv. via de brug) in plaats van er recht doorheen te willen. ---------- */
+  function lineClear(x1, y1, x2, y2) {
+    const d = Math.hypot(x2 - x1, y2 - y1);
+    const n = Math.max(1, Math.ceil(d / 4));
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      if (!inWalkable(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t)) return false;
+    }
+    return true;
+  }
+  function findPath(sx, sy, tx, ty) {
+    const scene = GAME.scenes[state.currentScene];
+    if (lineClear(sx, sy, tx, ty)) return [{ x: tx, y: ty }];   // rechte lijn vrij → niets te routen
+    const C = 8;
+    const cols = Math.ceil(SCENE_W / C), rows = Math.ceil(SCENE_H / C);
+    const ok = (cx, cy) => cx >= 0 && cy >= 0 && cx < cols && cy < rows &&
+      inWalkableScene(scene, cx * C + C / 2, cy * C + C / 2);
+    const nearestOk = (cx, cy) => {
+      if (ok(cx, cy)) return { x: cx, y: cy };
+      for (let r = 1; r < 30; r++) {
+        for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
+          if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+          if (ok(cx + dx, cy + dy)) return { x: cx + dx, y: cy + dy };
+        }
+      }
+      return null;
+    };
+    const s = nearestOk(Math.floor(sx / C), Math.floor(sy / C));
+    const g = nearestOk(Math.floor(tx / C), Math.floor(ty / C));
+    if (!s || !g) return null;
+    const key = (x, y) => y * cols + x;
+    const open = [s], gScore = {}, came = {};
+    gScore[key(s.x, s.y)] = 0;
+    const h = (a) => Math.abs(a.x - g.x) + Math.abs(a.y - g.y);
+    let guard = 0;
+    while (open.length && guard++ < 6000) {
+      let bi = 0;
+      for (let i = 1; i < open.length; i++)
+        if ((gScore[key(open[i].x, open[i].y)] + h(open[i])) < (gScore[key(open[bi].x, open[bi].y)] + h(open[bi]))) bi = i;
+      const cur = open.splice(bi, 1)[0];
+      if (cur.x === g.x && cur.y === g.y) {
+        const cells = [];
+        let k = key(cur.x, cur.y), c = cur;
+        while (c) { cells.unshift(c); c = came[key(c.x, c.y)]; }
+        // raster-cellen → wereld-waypoints, daarna string-pulling
+        let pts = cells.map((c) => ({ x: c.x * C + C / 2, y: c.y * C + C / 2 }));
+        pts.push({ x: tx, y: ty });
+        const simp = [pts[0]];
+        let i = 0;
+        while (i < pts.length - 1) {
+          let j = pts.length - 1;
+          while (j > i + 1 && !lineClear(pts[i].x, pts[i].y, pts[j].x, pts[j].y)) j--;
+          simp.push(pts[j]); i = j;
+        }
+        simp.shift();
+        return simp.length ? simp : [{ x: tx, y: ty }];
+      }
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = cur.x + dx, ny = cur.y + dy;
+        if (!ok(nx, ny)) continue;
+        const t = gScore[key(cur.x, cur.y)] + 1;
+        if (gScore[key(nx, ny)] === undefined || t < gScore[key(nx, ny)]) {
+          gScore[key(nx, ny)] = t; came[key(nx, ny)] = cur;
+          if (!open.some((o) => o.x === nx && o.y === ny)) open.push({ x: nx, y: ny });
+        }
+      }
+    }
+    return null;
+  }
+
   /* ---------- Dynamische hotspots (volgen een NPC) ---------- */
   function npcPos(id) {
     if (id === 'dog' && follower.active) return follower;   // volgt nu de speler
@@ -575,13 +646,20 @@
 
     /* Speler */
     if (player.target) {
-      const dx = player.target.x - player.x;
-      const dy = player.target.y - player.y;
+      /* bereken (en cache) een route die om water/obstakels heen loopt */
+      if (player._pathFor !== player.target) {
+        player._pathFor = player.target;
+        player.path = findPath(player.x, player.y, player.target.x, player.target.y) || [player.target];
+      }
+      const wp = (player.path && player.path[0]) || player.target;
+      const dx = wp.x - player.x;
+      const dy = wp.y - player.y;
       const dist = Math.hypot(dx, dy);
       if (dist <= ARRIVE_DIST) {
-        player.x = player.target.x;
-        player.y = player.target.y;
-        arrive();
+        player.x = wp.x;
+        player.y = wp.y;
+        if (player.path && player.path.length) player.path.shift();
+        if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
       } else {
         const step = Math.min(WALK_SPEED * dt, dist);
         let nx = player.x + (dx / dist) * step;
@@ -589,13 +667,12 @@
         if (!inWalkable(nx, ny)) {
           if (inWalkable(nx, player.y)) ny = player.y;
           else if (inWalkable(player.x, ny)) nx = player.x;
-          else { player.target = null; arrive(); return; }
+          else { player.target = null; player.path = null; arrive(); return; }
         }
-        /* klem tegen een obstakel: stop in plaats van eeuwig doorlopen */
+        /* klem tegen een obstakel: probeer het volgende waypoint, anders stop */
         if (Math.abs(nx - player.x) < 0.05 && Math.abs(ny - player.y) < 0.05) {
-          player.target = null;
-          arrive();
-          return;
+          if (player.path && player.path.length > 1) { player.path.shift(); }
+          else { player.target = null; player.path = null; arrive(); return; }
         }
         player.x = nx; player.y = ny;
         player.phase += step * 0.14;
@@ -771,6 +848,7 @@
     if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden) return;
     for (const hs of scene.hotspots) {
       if (!hs.exit || !hs.arrow || !hs.walkTo) continue;   // alleen pijl-uitgangen krijgen 'inloop'-reizen
+      if (hs.noAutoEnter) continue;                        // bv. de grot: alleen via klik op de pijl
       if (hs.requiresFlag) {
         const need = hs.requiresFlag;
         const unmet = Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need];
@@ -1482,20 +1560,15 @@
       if (!ready(img)) return;
       const fl = npc.facesLeft ? !rt.flip : rt.flip;
       const moving = rt.target || rt.fleeing;
-      /* Dansen op de fluit: hond/muis/uil hupsen en wiebelen, met muzieknootjes erboven. */
+      /* Dansen op de fluit: hond/muis/uil wiebelen rustig mee (geen muzieknoten). */
       if (now < flutePartyUntil) {
-        const ph = now / 110 + (npc.x || 0);
-        const hop = -Math.round(Math.abs(Math.sin(ph)) * 5);
-        const rock = Math.sin(ph * 1.3) * 0.20;
+        const ph = now / 170 + (npc.x || 0);
+        const hop = -Math.round(Math.abs(Math.sin(ph)) * 3);
+        const rock = Math.sin(ph * 1.1) * 0.12;
         const alt = s2Name && ready(art.sprites[s2Name]);
-        const dimg = (alt && (Math.floor(ph * 0.5) % 2)) ? art.sprites[s2Name] : img;
+        const dimg = (alt && (Math.floor(ph * 0.4) % 2)) ? art.sprites[s2Name] : img;
         const dsc = (idleName && npc.idleScale) ? npc.idleScale : (npc.scale || 1);
-        drawArtSprite(dimg, rt.x, rt.y, { flip: (Math.floor(ph * 0.5) % 2) ? !fl : fl, bob: hop, rot: rock, scale: dsc });
-        const top = rt.y - 30 * dsc - 14;
-        for (let k = 0; k < 2; k++) {
-          const tt = ((now / 600) + k * 0.5) % 1;
-          drawMusicNote(rt.x + (k ? 8 : -8) + Math.sin(now / 180 + k) * 4, top - tt * 18, tt < 0.5 ? 1 : 2);
-        }
+        drawArtSprite(dimg, rt.x, rt.y, { flip: fl, bob: hop, rot: rock, scale: dsc });
         return;
       }
       if (moving) {
@@ -2048,7 +2121,7 @@
     if (c.sound) playFile(c.sound, { vol: c.soundBoost ? 1.0 : 0.6, boost: c.soundBoost || 1 });
     if (c.firstSound && lang === 'nl' && !state.flags['heard_' + hs.id]) {   // NL-stemclip alleen in het Nederlands
       state.flags['heard_' + hs.id] = true;
-      playFile(c.firstSound, { vol: 1.0, boost: 8 });
+      playFile(c.firstSound, { vol: 1.0, boost: c.firstSoundBoost || 8 });
     }
     elRiddleTitle.textContent = L(c.title);
     const rf = document.getElementById('riddle-face');

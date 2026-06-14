@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '25',
+  assetVer: '29',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -322,11 +322,11 @@ const GAME = {
         en: 'A clearing with a rushing waterfall. A great snake coils in the tree, hissing at you in warning. To the left, by a stone arch, yawns a dark hollow — but the bridge over the brook to it is missing planks.'
       },
       playerStart: { x: 498, y: 286 },
-      spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 140, y: 286 } },
+      spawnFrom: { farm: { x: 498, y: 286 }, cave: { x: 178, y: 208 } },   // uit de grot: sta bovenin bij de grot
       walkable: [
-        { x: 112, y: 282, w: 448, h: 32 },  // bredere voorgrond-strook (meer ruimte om te lopen bij de slang)
-        { x: 408, y: 224, w: 152, h: 90 },  // rechtergras bij de instap (ruimer)
-        { x: 50, y: 190, w: 196, h: 124 }   // brug + linkerpad omhoog naar de grot (ruimer)
+        { x: 112, y: 290, w: 452, h: 26 },  // voorgrond-bank, onder de waterpoel (verbindt links↔rechts; meer ruimte tussen brug en slang)
+        { x: 396, y: 206, w: 168, h: 108 }, // rechtergras + het trapje (ruimer)
+        { x: 44, y: 180, w: 164, h: 130 }   // brug + linkerpad omhoog naar de grot (ruimer, tot bij de boog)
       ],
       fx: {
         waterfall: { x: 282, y: 64, w: 44, h: 82, streaks: 14, slant: 0.16, len: 4 },  // stopt bij de tak/slang (niet er doorheen)
@@ -334,7 +334,7 @@ const GAME = {
           { x: 410, y: 150, rx: 54, ry: 30, col: '255,170,210', phase: 0 },   // roze vlinder bij de boom
           { x: 150, y: 168, rx: 40, ry: 24, col: '250,225,120', phase: 3 }     // gele vlinder bij de boog
         ],
-        snakeTongue: { x: 317, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
+        snakeTongue: { x: 316, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
         zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
       obstacles: [
@@ -352,13 +352,14 @@ const GAME = {
           speaker: true,
           face: 'assets/art/face-snake.png',
           clickSound: 'snake-rattle',
-          clickVol: 1.0,
-          clickBoost: 3.5,
+          clickVol: 0.7,
+          clickBoost: 1.7,            // ratel zachter
           choice: {
             skipFlag: 'snakeCharmed',
             sound: 'snake-rattle',
-            soundBoost: 3.5,
+            soundBoost: 1.7,          // ratel zachter
             firstSound: 'snake-grot',
+            firstSoundBoost: 12,      // slang-stem harder
             image: 'assets/art/face-snake.png',
             title: { nl: 'De Sissende Slang', en: 'The Hissing Snake' },
             question: { nl: 'Ssss... kom is dichterbij, ik wil je iets vertellen over de geheime grot. De giftanden van de slang glinsteren vlak bij je oor. Wat doe je?',
@@ -394,18 +395,17 @@ const GAME = {
           id: 'bridge',
           name: { nl: 'Houten Brug', en: 'Wooden Bridge' },
           rect: { x: 50, y: 244, w: 120, h: 60 },
-          // vóór reparatie: sta beneden bij de brug; ná reparatie: loop éérst omhoog naar de grot
-          walkTo: (state) => state.flags.bridgeFixed ? { x: 168, y: 224 } : { x: 196, y: 300 },
+          walkTo: { x: 196, y: 300 },
           look: (state) => state.flags.bridgeFixed
-            ? { nl: 'De brug ligt er weer stevig bij; je kunt de beek oversteken naar de stenen boog.', en: 'The bridge is sturdy again; you can cross the brook to the stone arch.' }
+            ? { nl: 'De brug ligt er weer stevig bij; loop omhoog en ga via de stenen boog de grot in.', en: 'The bridge is sturdy again; head up and enter the cave through the stone arch.' }
             : { nl: 'De houten brug over de beek mist een paar planken — zo waag je je er niet overheen. Klik op de brug met een stevige plank in je tas om hem te maken.', en: 'The wooden bridge over the brook is missing a few planks — you won’t risk crossing like this. Click the bridge with a sturdy plank in your bag to fix it.' },
           onTap: {
             needsItem: 'plank',
             consume: 'plank',
             setFlag: 'bridgeFixed',
             text: {
-              nl: 'Je legt de houten plank over het gat in de brug en stampt hem vast. De brug is weer heel — je kunt nu oversteken naar de grot.',
-              en: 'You lay the wooden plank over the gap in the bridge and stamp it down. The bridge is whole again — you can cross to the cave now.'
+              nl: 'Je legt de houten plank over het gat in de brug en stampt hem vast. De brug is weer heel — loop nu omhoog en klik op de stenen boog om de grot in te gaan.',
+              en: 'You lay the wooden plank over the gap in the bridge and stamp it down. The bridge is whole again — now head up and click the stone arch to enter the cave.'
             }
           },
           use: {
@@ -413,17 +413,11 @@ const GAME = {
               consume: 'plank',
               setFlag: 'bridgeFixed',
               text: {
-                nl: 'Je legt de houten plank over het gat in de brug en stampt hem vast. De brug is weer heel — je kunt nu oversteken naar de grot.',
-                en: 'You lay the wooden plank over the gap in the bridge and stamp it down. The bridge is whole again — you can cross to the cave now.'
+                nl: 'Je legt de houten plank over het gat in de brug en stampt hem vast. De brug is weer heel — loop nu omhoog en klik op de stenen boog om de grot in te gaan.',
+                en: 'You lay the wooden plank over the gap in the bridge and stamp it down. The bridge is whole again — now head up and click the stone arch to enter the cave.'
               }
             }
-          },
-          /* eenmaal gerepareerd (en de slang bedaard): op de brug klikken steekt over naar de grot */
-          requiresFlag: [ 'bridgeFixed', 'snakeCharmed' ],
-          blockedText: (state) => state.flags.bridgeFixed
-            ? { nl: 'De sissende slang verspert nog de weg. Bedaar haar eerst met de fluit.', en: 'The hissing snake still blocks the way. Calm her first with the flute.' }
-            : { nl: 'De brug mist nog planken — repareer hem eerst met een houten plank.', en: 'The bridge is still missing planks — repair it first with a wooden plank.' },
-          exit: { to: 'cave', travelText: { nl: 'Je steekt de stevige brug over en glipt de koele grot in...', en: 'You cross the sturdy bridge and slip into the cool cave...' } }
+          }
         },
         {
           id: 'toCave',
@@ -431,6 +425,7 @@ const GAME = {
           rect: { x: 184, y: 48, w: 92, h: 100 },
           walkTo: { x: 176, y: 214 },
           arrow: { x: 228, y: 70, dir: 'up' },
+          noAutoEnter: true,                 // alleen de grot in via klik op de pijl/boog, niet door langslopen
           requiresFlag: [ 'snakeCharmed', 'bridgeFixed' ],
           blockedText: (state) => state.flags.snakeCharmed
             ? { nl: 'De brug over de beek is kapot — je komt zo niet bij de boog. Repareer hem eerst met een plank.', en: 'The bridge over the brook is broken — you can’t reach the arch like this. Repair it with a plank first.' }
@@ -567,13 +562,13 @@ const GAME = {
       walkPoly: [ [58, 202], [486, 202], [486, 308], [58, 308] ],
       obstacles: [],
       overlays: [
-        { img: 'assets/art/horse-free.png',    x: 164, y: 112, base: 210, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
-        { img: 'assets/art/horse-bridled.png', x: 164, y: 112, base: 210, requiresFlag: 'bridleOn' }
+        { img: 'assets/art/horse-free.png',    x: 164, y: 120, base: 214, requiresFlag: 'gateOpen', notFlag: 'bridleOn' },
+        { img: 'assets/art/horse-bridled.png', x: 164, y: 120, base: 214, requiresFlag: 'bridleOn' }
       ],
       worldItems: [
         { item: 'bucket', hotspot: 'bucket', x: 196, y: 244, h: 28 },
         { item: 'plank', hotspot: 'plank', x: 430, y: 282, h: 44 },             // groter + lager, beter zichtbaar
-        { item: 'cheese', hotspot: 'haysearch', x: 427, y: 168, h: 20, requiresFlag: 'gateOpen' }  // kaas in het stro van het hok (15px naar links)
+        { item: 'cheese', hotspot: 'haysearch', x: 417, y: 160, h: 20, requiresFlag: 'gateOpen' }  // kaas in het stro (10px naar links + iets omhoog)
       ],
       npcs: [],
       hotspots: [
