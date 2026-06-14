@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '24',
+  assetVer: '25',
 
   sprites: {
     hero:      'assets/art/hero.png',

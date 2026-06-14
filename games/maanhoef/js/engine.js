@@ -617,6 +617,7 @@
       const rt = npcRt[npc.id];
       if (!rt) continue;
       if (npc.hideFlag && state.flags[npc.hideFlag]) continue;   // weg na bv. mouseFed
+      if (now < flutePartyUntil) { rt.target = null; rt.fleeing = false; continue; }  // dansen op de fluit: blijf staan
       /* Schichtig wegrennen voor de speler (bv. het bange hondje) — tot het bevriend is
          of je het lokvoer draagt, dan laat het je dichtbij komen. */
       let fleeing = false;
@@ -1295,6 +1296,7 @@
 
   /* Korte scripted held-animatie (bv. fluitspelen): toont een pose + muzieknoten. */
   let heroAnim = null;   // { kind, t0, dur }
+  let flutePartyUntil = 0;   // dieren (hond/muis/uil) dansen mee zolang de fluit speelt
   function startHeroAnim(kind, dur) { heroAnim = { kind, t0: performance.now(), dur }; }
   function drawMusicNote(cx, cy, scale) {
     fctx.fillStyle = '#2b2440';
@@ -1480,6 +1482,22 @@
       if (!ready(img)) return;
       const fl = npc.facesLeft ? !rt.flip : rt.flip;
       const moving = rt.target || rt.fleeing;
+      /* Dansen op de fluit: hond/muis/uil hupsen en wiebelen, met muzieknootjes erboven. */
+      if (now < flutePartyUntil) {
+        const ph = now / 110 + (npc.x || 0);
+        const hop = -Math.round(Math.abs(Math.sin(ph)) * 5);
+        const rock = Math.sin(ph * 1.3) * 0.20;
+        const alt = s2Name && ready(art.sprites[s2Name]);
+        const dimg = (alt && (Math.floor(ph * 0.5) % 2)) ? art.sprites[s2Name] : img;
+        const dsc = (idleName && npc.idleScale) ? npc.idleScale : (npc.scale || 1);
+        drawArtSprite(dimg, rt.x, rt.y, { flip: (Math.floor(ph * 0.5) % 2) ? !fl : fl, bob: hop, rot: rock, scale: dsc });
+        const top = rt.y - 30 * dsc - 14;
+        for (let k = 0; k < 2; k++) {
+          const tt = ((now / 600) + k * 0.5) % 1;
+          drawMusicNote(rt.x + (k ? 8 : -8) + Math.sin(now / 180 + k) * 4, top - tt * 18, tt < 0.5 ? 1 : 2);
+        }
+        return;
+      }
       if (moving) {
         /* levendige draf: wissel tussen 2 loopframes (indien aanwezig) + bounce + wiegen */
         const alt = s2Name && ready(art.sprites[s2Name]);
@@ -1698,6 +1716,7 @@
     const def = GAME.items[itemId];
     if (def && def.tapAnim) {
       player.target = null; player.pending = null;   // even stilstaan om te spelen
+      if (def.tapAnim === 'flute') flutePartyUntil = performance.now() + (def.tapAnimDur || 1800);  // dieren dansen mee
       const scene = GAME.scenes[state.currentScene];
       const snakeHs = (scene.hotspots || []).find(
         (h) => h.use && h.use[itemId] && h.use[itemId].setFlag && !state.flags[h.use[itemId].setFlag]);
