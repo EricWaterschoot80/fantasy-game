@@ -1030,25 +1030,38 @@
           fctx.fillRect((tx + dy) | 0, (ty - dx) | 0, 1, 1); }
       }
     }
-    /* Vogels die langzaam door de lucht overvliegen (sfeer-effect buiten) */
+    /* Een of twee grotere vogels die af en toe willekeurig overvliegen */
     if (fx.birds && !dark) {
-      const bd = fx.birds, n = bd.n || 4, span = bd.span || 26;
-      const speed = (bd.speed || 13) * (bd.dir || 1), range = SCENE_W + 40;
-      const col = bd.col || '38,30,44', alpha = bd.alpha == null ? 0.8 : bd.alpha;
-      const t = now / 1000;
+      const bd = fx.birds;
+      const n = bd.n || 2;                          // 1 à 2 vogels
+      const s = bd.scale || 2;                      // grotere vogel
+      const col = bd.col || '36,28,42';
+      const frac = bd.frac || 0.32;                 // deel van de cyclus dat hij in beeld is
+      const range = SCENE_W + 60;
       for (let i = 0; i < n; i++) {
-        let x = (bd.x0 || 0) + i * span + t * speed;
-        x = ((x % range) + range) % range - 20;
-        const y = (bd.y || 52) + Math.sin(t * 0.7 + i * 1.4) * (bd.bob || 6) + (i % 2) * 5;
-        const flap = Math.sin(now / 130 + i * 1.3) > 0;
-        const w = flap ? 3 : 2, dy = flap ? 0 : 1;
+        const period = (bd.period || 15000) + i * 4300;   // lange, gespreide cyclus
+        const tcur = now + i * 6500 + (bd.x0 || 0) * 11;
+        const cyc = Math.floor(tcur / period);
+        const ph = (tcur % period) / period;
+        if (ph > frac) continue;                          // grootste deel: lege lucht
+        const p = ph / frac;                              // 0..1 vlucht over het scherm
+        const hsh = (cyc * 2654435761 + i * 1013904223) >>> 0;
+        const dir = (hsh & 1) ? 1 : -1;                   // willekeurige richting per pass
+        const baseY = (bd.y || 40) + (hsh >>> 1) % (bd.yvar || 30);
+        const x = dir > 0 ? p * range - 30 : SCENE_W + 30 - p * range;
+        const y = baseY + Math.sin(p * Math.PI * 2.4 + i) * (bd.bob || 5);
+        const edge = Math.min(1, Math.sin(p * Math.PI) * 1.6);   // in/uit-faden aan de randen
+        const alpha = (bd.alpha == null ? 0.85 : bd.alpha) * edge;
+        if (alpha < 0.04) continue;
+        const flap = Math.sin(now / 150 + i * 1.7) > 0;
+        const w = (flap ? 3 : 2) * s, dy = flap ? 0 : s;
         const ix = Math.round(x), iy = Math.round(y);
         fctx.fillStyle = `rgba(${col},${alpha})`;
-        fctx.fillRect(ix - w, iy + dy, w, 1);       // linkervleugel
-        fctx.fillRect(ix - w, iy + dy - 1, 1, 1);
-        fctx.fillRect(ix + 1, iy + dy, w, 1);       // rechtervleugel
-        fctx.fillRect(ix + w, iy + dy - 1, 1, 1);
-        fctx.fillRect(ix, iy, 1, 1);                // lijfje
+        fctx.fillRect(ix - w, iy + dy, w, s);             // linkervleugel
+        fctx.fillRect(ix - w, iy + dy - s, s, s);         // linkertip omhoog
+        fctx.fillRect(ix + s, iy + dy, w, s);             // rechtervleugel
+        fctx.fillRect(ix + w, iy + dy - s, s, s);         // rechtertip omhoog
+        fctx.fillRect(ix, iy, s, s * 2);                  // lijfje
       }
     }
     if (fx.flames && !dark) {

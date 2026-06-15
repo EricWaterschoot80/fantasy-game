@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '8',
+  assetVer: '9',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -187,7 +187,7 @@ const GAME = {
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
         fountain: { sx: 227, sy: 117, wx: 230, wy: 138 },
-        birds: { n: 4, y: 46, x0: 60, span: 70, speed: 11, bob: 7 }
+        birds: { n: 2, scale: 2, y: 40, yvar: 30, period: 15000, frac: 0.3, bob: 6 }
       },
       hotspots: [
         {
@@ -402,7 +402,7 @@ const GAME = {
       fx: {
         fireflies: 8,
         chestOpen: { x: 412, y: 168 },
-        birds: { n: 3, y: 40, x0: 30, span: 80, speed: 9, bob: 5, dir: -1 }
+        birds: { n: 1, scale: 2, y: 36, yvar: 26, period: 17000, frac: 0.28, bob: 5, x0: 30 }
       },
       hotspots: [
         {
