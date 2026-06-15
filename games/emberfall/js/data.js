@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '27',
+  assetVer: '28',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -636,20 +636,20 @@ const GAME = {
            useArt:true houdt de fx-poort (vuur/amulet pas zichtbaar bij licht) intact
            zonder een zwart overlay te tekenen. */
         darkness: { until: 'torchLit', useArt: true },
-        /* De muurfakkel naast de deur brandt áltijd (ook in het donker): hij geeft een
-           sprankje licht bij de ingang en is het baken waar je je eigen fakkel aansteekt. */
-        doorFlame: { x: 115, y: 119, r: 17 },
-        /* Vlam-gloed precies op de brandende toortsen in de verlichte tempel-art */
+        /* In het donker alleen een minuscuul vlammetje (1px) bij de deurfakkel — een subtiele hint. */
+        doorFlame: { x: 115, y: 119 },
+        /* Vlam-gloed precies op de brandende toortsen in de verlichte tempel-art (alleen bij licht) */
         flames: [
           { x: 284, y: 146, r: 13 },   // linker brazier op het altaar
           { x: 397, y: 146, r: 13 },   // rechter brazier op het altaar
+          { x: 115, y: 119, r: 12 },   // muurfakkel links (bij de deur)
           { x: 520, y: 119, r: 11 }    // muurfakkel rechts
         ],
         embers: [
           { x: 284, y: 147 },
           { x: 397, y: 147 }
         ],
-        amulet: { x: 302, y: 122 },
+        amulet: { x: 336, y: 122 },
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }

@@ -1088,20 +1088,17 @@
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
     /* Altijd brandende muurfakkel bij de deur — geeft ook in het donker een sprankje licht. */
-    if (fx.doorFlame) {
-      const t = fx.doorFlame, r = (t.r || 16) + 4;
-      const fl = 0.55 + 0.22 * Math.sin(now / 85 + t.x);
-      const g = fctx.createRadialGradient(t.x, t.y, 2, t.x, t.y, r);
-      g.addColorStop(0, `rgba(255,205,100,${0.5 * fl})`);
-      g.addColorStop(0.5, `rgba(255,150,50,${0.28 * fl})`);
-      g.addColorStop(1, 'rgba(255,140,60,0)');
+    /* In het donker: enkel een minuscuul flikkerend vlammetje (1px) als subtiele hint. */
+    if (fx.doorFlame && dark) {
+      const t = fx.doorFlame;
+      const blink = 0.5 + 0.5 * Math.sin(now / 170);
+      const g = fctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, 3);
+      g.addColorStop(0, `rgba(255,180,80,${0.14 * blink})`);
+      g.addColorStop(1, 'rgba(255,150,60,0)');
       fctx.fillStyle = g;
-      fctx.fillRect(t.x - r, t.y - r, r * 2, r * 2);
-      const ff = (Math.sin(now / 70) * 30) | 0;
-      fctx.fillStyle = `rgba(255,${170 + ff},70,0.97)`;
-      fctx.fillRect((t.x - 1) | 0, (t.y - 6) | 0, 2, 8);
-      fctx.fillStyle = 'rgba(255,242,180,0.97)';
-      fctx.fillRect(t.x | 0, (t.y - 4) | 0, 1, 4);
+      fctx.fillRect(t.x - 3, t.y - 3, 6, 6);
+      fctx.fillStyle = `rgba(255,200,90,${0.65 + 0.3 * blink})`;
+      fctx.fillRect(t.x | 0, t.y | 0, 1, 1);
     }
     if (fx.waterfall) {
       const wf = fx.waterfall, n = wf.streaks || 16;
