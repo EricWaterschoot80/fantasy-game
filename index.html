@@ -99,15 +99,14 @@
     header { text-align: center; margin-bottom: clamp(20px, 4vw, 40px); max-width: 1040px; width: 100%; }
     /* Held-banner: geen kader/vierkant — het fantasy-beeld vloeit in de pagina */
     .banner-frame {
-      position: relative; width: 100%; margin-bottom: 6px;
-      -webkit-mask-image: radial-gradient(125% 130% at 50% 38%, #000 60%, transparent 100%);
-              mask-image: radial-gradient(125% 130% at 50% 38%, #000 60%, transparent 100%);
+      position: relative; width: 100%; margin-bottom: 10px;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+              mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
     }
-    .banner-frame img { display: block; width: 100%; aspect-ratio: 16 / 7; object-fit: cover; image-rendering: pixelated; }
+    .banner-frame img { display: block; width: 100%; aspect-ratio: 16 / 8.2; object-fit: cover; object-position: center 42%; image-rendering: pixelated; }
     .banner-frame::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(120% 90% at 50% 30%, transparent 45%, rgba(20,16,11,.55) 100%),
-                  linear-gradient(180deg, transparent 52%, rgba(20,16,11,.94) 100%); }
-    .banner-title { position: absolute; left: 0; right: 0; bottom: clamp(14px, 4vw, 40px); text-align: center; pointer-events: none; padding: 0 10px; }
+      background: linear-gradient(180deg, rgba(20,16,11,.45) 0%, transparent 22%, transparent 78%, rgba(20,16,11,.55) 100%); }
+    .banner-title { text-align: center; padding: 4px 10px 0; }
     h1 {
       font-family: var(--pixel); font-weight: 400;
       font-size: clamp(15px, 4vw, 33px); letter-spacing: 1px; line-height: 1.1;
@@ -174,11 +173,11 @@
 
   <header>
     <div class="banner-frame">
-      <img src="assets/banner.png?v=2" alt="A fantasy world of retro point-and-click pixel adventures" onerror="this.onerror=null;this.src='games/emberfall/assets/art/title.png'">
-      <div class="banner-title">
-        <div class="crest">⚜</div>
-        <h1>RetroAdventureWorld</h1>
-      </div>
+      <img src="assets/banner.png?v=3" alt="Five fantasy heroes and a globe of worlds, a fantasy world of retro point-and-click pixel adventures" onerror="this.onerror=null;this.src='games/emberfall/assets/art/title.png'">
+    </div>
+    <div class="banner-title">
+      <div class="crest">⚜</div>
+      <h1>RetroAdventureWorld</h1>
     </div>
     <div class="flourish"><span data-en="FREE RETRO POINT-AND-CLICK ADVENTURES" data-nl="GRATIS RETRO POINT-AND-CLICK SPELLETJES">FREE RETRO POINT-AND-CLICK ADVENTURES</span></div>
     <p class="lead" data-en="Free 16-bit pixel-art adventure games you can play right in your browser, on phone or desktop, no download. Explore, collect, solve puzzles and uncover the story."

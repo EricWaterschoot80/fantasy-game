@@ -1082,36 +1082,43 @@
         const baseY = (bd.y || 40) + (hsh >>> 1) % (bd.yvar || 30);
         const pe = p * p * (3 - 2 * p);                          // smoothstep: rustig in/uit
         const x = dir > 0 ? pe * range - 30 : SCENE_W + 30 - pe * range;
-        // natuurlijke baan: zachte boog over de oversteek + onregelmatige fladdering (geen rechte lijn)
-        const arc = Math.sin(p * Math.PI) * -18;
-        const flutter = Math.sin(p * Math.PI * 5.3 + i) * (bd.bob || 6)
-                      + Math.sin(p * Math.PI * 2.1 + i * 2.0) * (bd.bob || 6) * 0.7
-                      + Math.sin(p * Math.PI * 11 + i) * 1.6;
-        const y = baseY + arc + flutter;
+        // Realistische 'bounding' vlucht: duidelijke op/neer-zwiepen i.p.v. een rechte lijn
+        const amp = bd.bob || 8;
+        const yAt = (pp) => Math.sin(pp * Math.PI) * -9                 // lichte algehele boog
+                          + Math.sin(pp * Math.PI * 3.2 + i) * amp * 1.9 // grote op/neer-zwiepen
+                          + Math.sin(pp * Math.PI * 6.7 + i * 2) * amp * 0.5;
+        const y = baseY + yAt(p);
         const edge = Math.min(1, Math.sin(p * Math.PI) * 1.6);   // in/uit-faden aan de randen
         const alpha = (bd.alpha == null ? 0.85 : bd.alpha) * edge;
         if (alpha < 0.04) continue;
+        // het lijfje kantelt mee met de baan (neus omhoog bij stijgen, omlaag bij dalen)
+        const slope = (yAt(p + 0.014) - yAt(p - 0.014)) / (0.028 * range);
+        const pitch = Math.max(-0.5, Math.min(0.5, Math.atan(slope))) * (dir > 0 ? 1 : -1);
         /* Klein roodborstje: bruine rug, oranje-rode borst, klapperende vleugel */
-        const flapPhase = Math.sin(now / 130 + i * 1.7);        // -1..1 vleugelslag
-        const ix = Math.round(x), iy = Math.round(y), d2 = dir;
+        const flapPhase = Math.sin(now / 110 + i * 1.7);        // -1..1 vleugelslag (sneller)
+        const d2 = dir;
         const back = bd.body || '96,74,56', breast = bd.breast || '210,88,44', dark2 = bd.head || '70,54,42';
+        fctx.save();
+        fctx.translate(Math.round(x), Math.round(y));
+        fctx.rotate(pitch);
         fctx.fillStyle = `rgba(${back},${alpha})`;              // lijf (rug)
-        fctx.beginPath(); fctx.ellipse(ix, iy, 3.2 * s, 2.3 * s, 0, 0, 6.3); fctx.fill();
+        fctx.beginPath(); fctx.ellipse(0, 0, 3.2 * s, 2.3 * s, 0, 0, 6.3); fctx.fill();
         fctx.fillStyle = `rgba(${breast},${alpha})`;            // rode borst vooraan-onder
-        fctx.beginPath(); fctx.ellipse(ix + d2 * 1.7 * s, iy + 0.7 * s, 2 * s, 1.7 * s, 0, 0, 6.3); fctx.fill();
+        fctx.beginPath(); fctx.ellipse(d2 * 1.7 * s, 0.7 * s, 2 * s, 1.7 * s, 0, 0, 6.3); fctx.fill();
         fctx.fillStyle = `rgba(${dark2},${alpha})`;             // kopje
-        fctx.beginPath(); fctx.ellipse(ix + d2 * 3.1 * s, iy - 0.9 * s, 1.4 * s, 1.4 * s, 0, 0, 6.3); fctx.fill();
+        fctx.beginPath(); fctx.ellipse(d2 * 3.1 * s, -0.9 * s, 1.4 * s, 1.4 * s, 0, 0, 6.3); fctx.fill();
         fctx.fillStyle = `rgba(40,30,24,${alpha})`;             // snaveltje
-        fctx.fillRect(ix + d2 * 4 * s, Math.round(iy - 1.2 * s), Math.max(1, Math.round(d2 * 1.4 * s)), Math.max(1, Math.round(s * 0.5)));
+        fctx.fillRect(d2 * 4 * s, -1.2 * s, d2 * Math.max(1, 1.4 * s), Math.max(1, s * 0.5));
         fctx.fillStyle = `rgba(${dark2},${alpha})`;             // staart
-        fctx.fillRect(Math.round(ix - d2 * 5 * s), iy - 1, Math.round(d2 * 2.4 * s), Math.max(1, Math.round(s)));
-        const wy = iy - (1.6 + flapPhase * 1.3) * s;            // vleugel klappert
+        fctx.fillRect(-d2 * 5 * s, -0.5, d2 * Math.max(1, 2.4 * s), Math.max(1, s));
+        const wlift = (1.5 + flapPhase * 2.1) * s;              // sterkere vleugelslag
         fctx.strokeStyle = `rgba(${dark2},${alpha})`;
         fctx.lineWidth = Math.max(1, s * 1.1); fctx.lineCap = 'round'; fctx.lineJoin = 'round';
         fctx.beginPath();
-        fctx.moveTo(ix - 1.8 * s, iy - 0.3 * s);
-        fctx.quadraticCurveTo(ix + d2 * 0.3 * s, wy, ix + 2 * s, iy - 0.3 * s);
+        fctx.moveTo(-1.8 * s, -0.3 * s);
+        fctx.quadraticCurveTo(d2 * 0.3 * s, -wlift, 2 * s, -0.3 * s);
         fctx.stroke();
+        fctx.restore();
       }
     }
     if (fx.flames && !dark) {
