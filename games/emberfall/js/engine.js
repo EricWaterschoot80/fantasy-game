@@ -944,7 +944,7 @@
 
     /* Duisternis: dekt de hele scene tot de licht-flag gezet is; laat alleen
        een zacht kijkveld rond de speler, gloeiende ogen en glimmers (bv. kolen) zien. */
-    if (dark) {
+    if (dark && !_fx.darkness.useArt) {
       const dk = _fx.darkness;
       fctx.save();
       fctx.fillStyle = 'rgba(5,4,12,0.94)';

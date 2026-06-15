@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '20',
+  assetVer: '21',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -540,6 +540,9 @@ const GAME = {
     temple: {
       name: { nl: 'De Tempel van de Minotaur', en: 'The Minotaur’s Temple' },
       bg: 'assets/art/scene-temple.png',
+      bgVariants: [
+        { img: 'assets/art/scene-temple-lit.png', flag: 'torchLit' }   // verlichte tempel zodra de toortsen branden
+      ],
       entryText: {
         nl: 'Verweerde zuilen torenen boven je uit. Iets groots beweegt in de schaduw.',
         en: 'Weathered columns tower above you. Something large stirs in the shadows.'
@@ -562,17 +565,11 @@ const GAME = {
         { id: 'minotaur', sprite: 'minotaur', x: 265, y: 255 }
       ],
       fx: {
-        /* Tempel begint aardedonker; aansteken van de fakkel (torchLit) verdrijft het.
-           Alleen een kijkveld rond de speler, de gloeiende kolen en de ogen
-           van de minotaur zijn dan zichtbaar. */
-        darkness: {
-          until: 'torchLit',
-          peekR: 54,
-          motes: 16,
-          eyes: [ { x: 255, y: 185 }, { x: 270, y: 185 } ],
-          /* koud maanlicht dat zwak op de gedoofde toortsen bij het altaar valt */
-          glimmers: [ { x: 300, y: 136, r: 28, col: '150,180,225', base: 0.16, speed: 900 } ]
-        },
+        /* De donkere tempel-art (scene-temple.png) toont zelf het 'licht uit'; zodra de
+           toortsen branden (torchLit) wisselt de achtergrond naar de verlichte variant.
+           useArt:true houdt de fx-poort (vuur/amulet pas zichtbaar bij licht) intact
+           zonder een zwart overlay te tekenen. */
+        darkness: { until: 'torchLit', useArt: true },
         wallTorch: { x: 135, y: 150, h: 46 },
         flames: [
           { x: 307, y: 148, r: 14 },
