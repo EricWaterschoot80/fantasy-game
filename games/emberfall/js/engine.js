@@ -1080,8 +1080,14 @@
         const hsh = (cyc * 2654435761 + i * 1013904223) >>> 0;
         const dir = (hsh & 1) ? 1 : -1;                   // willekeurige richting per pass
         const baseY = (bd.y || 40) + (hsh >>> 1) % (bd.yvar || 30);
-        const x = dir > 0 ? p * range - 30 : SCENE_W + 30 - p * range;
-        const y = baseY + Math.sin(p * Math.PI * 2.4 + i) * (bd.bob || 5);
+        const pe = p * p * (3 - 2 * p);                          // smoothstep: rustig in/uit
+        const x = dir > 0 ? pe * range - 30 : SCENE_W + 30 - pe * range;
+        // natuurlijke baan: zachte boog over de oversteek + onregelmatige fladdering (geen rechte lijn)
+        const arc = Math.sin(p * Math.PI) * -18;
+        const flutter = Math.sin(p * Math.PI * 5.3 + i) * (bd.bob || 6)
+                      + Math.sin(p * Math.PI * 2.1 + i * 2.0) * (bd.bob || 6) * 0.7
+                      + Math.sin(p * Math.PI * 11 + i) * 1.6;
+        const y = baseY + arc + flutter;
         const edge = Math.min(1, Math.sin(p * Math.PI) * 1.6);   // in/uit-faden aan de randen
         const alpha = (bd.alpha == null ? 0.85 : bd.alpha) * edge;
         if (alpha < 0.04) continue;
