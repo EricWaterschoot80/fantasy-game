@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '11',
+  assetVer: '12',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -173,10 +173,9 @@ const GAME = {
       obstacles: [
         { x: 172, y: 100, w: 122, h: 86 }   // fontein/altaartrog (basis op ~y186)
       ],
-      overlays: [
-        { img: 'assets/art/ov-courtyard-bushes.png', x: 0, y: 196, w: 128, h: 124, base: 330 },
-        { img: 'assets/art/ov-courtyard-rubble.png', x: 384, y: 206, w: 184, h: 114, base: 332 }
-      ],
+      /* Geen losse voorgrond-overlays meer: de gedetailleerde achtergrond bevat de
+         struiken/puin al, en de hoeken zijn niet-beloopbaar (voorkomt naad/dubbeling). */
+      overlays: [],
       worldItems: [
         { item: 'berries', hotspot: 'bushes', x: 140, y: 262 }
       ],

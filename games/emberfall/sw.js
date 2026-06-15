@@ -1,7 +1,7 @@
 /* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet.
    (Eerder: cache-first met ignoreSearch, waardoor updates niet doorkwamen.) */
 
-const CACHE = 'emberfall-v39';
+const CACHE = 'emberfall-v40';
 
 const PRECACHE = [
   './',
@@ -43,8 +43,6 @@ const PRECACHE = [
   './assets/art/item-wood.png',
   './assets/art/torch-lit.png',
   './assets/art/maze-water.png',
-  './assets/art/ov-courtyard-bushes.png',
-  './assets/art/ov-courtyard-rubble.png',
   './assets/art/ov-grove-left.png',
   './assets/art/ov-grove-right.png',
   './assets/icons/ui-eye.png',

@@ -1059,15 +1059,20 @@
         const edge = Math.min(1, Math.sin(p * Math.PI) * 1.6);   // in/uit-faden aan de randen
         const alpha = (bd.alpha == null ? 0.85 : bd.alpha) * edge;
         if (alpha < 0.04) continue;
-        const flap = Math.sin(now / 150 + i * 1.7) > 0;
-        const w = (flap ? 3 : 2) * s, dy = flap ? 0 : s;
+        const flapPhase = Math.sin(now / 160 + i * 1.7);        // -1..1 vleugelslag
         const ix = Math.round(x), iy = Math.round(y);
+        const span = 5.5 * s, lift = (1 + flapPhase) * 1.4 * s; // tippen omhoog bij opslag
+        const droop = (1 - flapPhase) * 0.5 * s;                // lichte knik bij neerslag
+        fctx.strokeStyle = `rgba(${col},${alpha})`;
+        fctx.lineWidth = Math.max(1, s * 0.85);
+        fctx.lineCap = 'round'; fctx.lineJoin = 'round';
+        fctx.beginPath();
+        fctx.moveTo(ix - span, iy - lift);                                          // linkertip
+        fctx.quadraticCurveTo(ix - span * 0.45, iy + droop, ix, iy);                // soepele boog naar lijf
+        fctx.quadraticCurveTo(ix + span * 0.45, iy + droop, ix + span, iy - lift);  // rechtertip
+        fctx.stroke();
         fctx.fillStyle = `rgba(${col},${alpha})`;
-        fctx.fillRect(ix - w, iy + dy, w, s);             // linkervleugel
-        fctx.fillRect(ix - w, iy + dy - s, s, s);         // linkertip omhoog
-        fctx.fillRect(ix + s, iy + dy, w, s);             // rechtervleugel
-        fctx.fillRect(ix + w, iy + dy - s, s, s);         // rechtertip omhoog
-        fctx.fillRect(ix, iy, s, s * 2);                  // lijfje
+        fctx.fillRect(ix - 1, iy - 1, Math.max(2, s), Math.max(2, Math.round(s * 1.5)));  // lijfje
       }
     }
     if (fx.flames && !dark) {
