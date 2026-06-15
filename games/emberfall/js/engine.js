@@ -245,14 +245,16 @@
       tone(n, 1.0, { delay: dt + 0.32, vol: 0.006, dest: music.master });
     }
   }
-  function startMusic() {
-    const a = ac(); if (!a || music.started) return;
-    music.started = true;
+  /* Achtergrondmuziek: 'Cistern Syntax' in een lus; valt terug op de generatieve
+     ambient-synth als het mp3-bestand (nog) ontbreekt. */
+  let bgMusic = null;
+  const DEFAULT_MUSIC = 'assets/audio/cistern-syntax.mp3';
+  function startSynthFallback() {
+    const a = ac(); if (!a || music.master) return;
     music.master = a.createGain();
     music.master.gain.value = soundOn ? 1 : 0;
     music.master.connect(a.destination);
-    // constante donkere drone, licht ontstemd
-    for (const f of [55, 55.35, 82.5]) {
+    for (const f of [55, 55.35, 82.5]) {        // donkere drone, licht ontstemd
       const o = a.createOscillator(), g = a.createGain();
       o.type = 'sine'; o.frequency.value = f;
       g.gain.value = 0.011;
@@ -262,12 +264,24 @@
     playChord();
     music.timer = setInterval(playChord, 8000);
   }
+  function startMusic() {
+    if (music.started) return;
+    music.started = true;
+    try {
+      bgMusic = new Audio(DEFAULT_MUSIC + AV);
+      bgMusic.loop = true;
+      bgMusic.volume = soundOn ? 0.07 : 0;
+      bgMusic.addEventListener('error', startSynthFallback, { once: true });
+      bgMusic.play().catch(() => {});
+    } catch (e) { startSynthFallback(); }
+  }
 
   elSoundBtn.addEventListener('click', () => {
     soundOn = !soundOn;
     const icon = document.getElementById('soundIcon');
     if (icon) icon.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png';
     if (music.master) music.master.gain.value = soundOn ? 1 : 0;
+    if (bgMusic) { bgMusic.volume = soundOn ? 0.07 : 0; if (soundOn) bgMusic.play().catch(() => {}); }
     if (soundOn) sfx('tap');
   });
 
