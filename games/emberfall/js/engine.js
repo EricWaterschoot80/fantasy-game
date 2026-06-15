@@ -277,18 +277,19 @@
     applyLang();
   });
 
-  /* ---------- Low-res buffers ---------- */
+  /* ---------- Render-buffers (2× supersampled voor scherpere, gedetailleerde art) ---------- */
+  const SS = 2;                       // supersample-factor: interne buffers op 2× detail
   const bgCanvas = document.createElement('canvas');
-  bgCanvas.width = SCENE_W; bgCanvas.height = SCENE_H;
+  bgCanvas.width = SCENE_W * SS; bgCanvas.height = SCENE_H * SS;
   const bgCtx = bgCanvas.getContext('2d');
 
   const frameCanvas = document.createElement('canvas');
-  frameCanvas.width = SCENE_W; frameCanvas.height = SCENE_H;
+  frameCanvas.width = SCENE_W * SS; frameCanvas.height = SCENE_H * SS;
   const fctx = frameCanvas.getContext('2d');
-  fctx.imageSmoothingEnabled = false;
 
   function paintBackground() {
-    bgCtx.clearRect(0, 0, SCENE_W, SCENE_H);
+    bgCtx.setTransform(1, 0, 0, 1, 0, 0);
+    bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
     let img = art.scenes[state.currentScene];
     /* wissel-achtergrond: eerste variant waarvan de flag-conditie klopt */
     const sc = GAME.scenes[state.currentScene];
@@ -300,10 +301,12 @@
       }
     }
     if (ready(img)) {
-      bgCtx.imageSmoothingEnabled = false;
-      bgCtx.drawImage(img, 0, 0, SCENE_W, SCENE_H);
+      bgCtx.imageSmoothingEnabled = true;
+      bgCtx.drawImage(img, 0, 0, bgCanvas.width, bgCanvas.height);
     } else {
+      bgCtx.save(); bgCtx.scale(SS, SS);
       SCENE_PAINTERS[state.currentScene](bgCtx, state.currentScene);
+      bgCtx.restore();
     }
   }
 
@@ -815,8 +818,11 @@
 
   /* ---------- Tekenen ---------- */
   function draw(now) {
-    fctx.clearRect(0, 0, SCENE_W, SCENE_H);
-    fctx.drawImage(bgCanvas, 0, 0);
+    fctx.setTransform(1, 0, 0, 1, 0, 0);
+    fctx.imageSmoothingEnabled = false;
+    fctx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
+    fctx.drawImage(bgCanvas, 0, 0);                 // achtergrond 1:1 (scherp)
+    fctx.setTransform(SS, 0, 0, SS, 0, 0);          // verder in 568×320-coördinaten
 
     const scene = GAME.scenes[state.currentScene];
     const _fx = scene.fx || {};
@@ -851,7 +857,7 @@
         ents.push({ y: o.base, draw: () => {
           const img = o.img && overlayImg(o.img);
           if (img && ready(img)) fctx.drawImage(img, o.x, o.y);
-          else fctx.drawImage(bgCanvas, o.x, o.y, o.w, o.h, o.x, o.y, o.w, o.h);
+          else fctx.drawImage(bgCanvas, o.x * SS, o.y * SS, o.w * SS, o.h * SS, o.x, o.y, o.w, o.h);
         } });
       }
     }
@@ -985,7 +991,7 @@
     view.scale = scale;
     view.ox = (w - SCENE_W * scale) / 2;
     view.oy = (h - SCENE_H * scale) / 2;
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
     ctx.drawImage(frameCanvas, view.ox, view.oy, SCENE_W * scale, SCENE_H * scale);
 
     drawHints(now, scale);
