@@ -895,8 +895,20 @@
     }
     for (const f of fireflies) {
       const a = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(f.ph));
-      fctx.fillStyle = `rgba(255,233,160,${a})`;
-      fctx.fillRect(f.x | 0, f.y | 0, 2, 2);
+      const fx2 = f.x | 0, fy2 = f.y | 0;
+      // zachte gloed eromheen (geeft licht)
+      const r = 9 + 3 * Math.sin(f.ph);
+      const g = fctx.createRadialGradient(fx2, fy2, 0, fx2, fy2, r);
+      g.addColorStop(0, `rgba(186,255,150,${a * 0.42})`);
+      g.addColorStop(0.5, `rgba(150,230,120,${a * 0.16})`);
+      g.addColorStop(1, 'rgba(150,230,120,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(fx2 - r, fy2 - r, r * 2, r * 2);
+      // heldere kern
+      fctx.fillStyle = `rgba(236,255,196,${Math.min(1, a + 0.25)})`;
+      fctx.fillRect(fx2, fy2, 2, 2);
+      fctx.fillStyle = `rgba(255,255,235,${a})`;
+      fctx.fillRect(fx2, fy2, 1, 1);
     }
     for (const s of sparks) {
       const al = Math.max(0, Math.min(1, s.life / (s.max || 1)));
@@ -1059,20 +1071,27 @@
         const edge = Math.min(1, Math.sin(p * Math.PI) * 1.6);   // in/uit-faden aan de randen
         const alpha = (bd.alpha == null ? 0.85 : bd.alpha) * edge;
         if (alpha < 0.04) continue;
-        const flapPhase = Math.sin(now / 160 + i * 1.7);        // -1..1 vleugelslag
-        const ix = Math.round(x), iy = Math.round(y);
-        const span = 5.5 * s, lift = (1 + flapPhase) * 1.4 * s; // tippen omhoog bij opslag
-        const droop = (1 - flapPhase) * 0.5 * s;                // lichte knik bij neerslag
-        fctx.strokeStyle = `rgba(${col},${alpha})`;
-        fctx.lineWidth = Math.max(1, s * 0.85);
-        fctx.lineCap = 'round'; fctx.lineJoin = 'round';
+        /* Klein roodborstje: bruine rug, oranje-rode borst, klapperende vleugel */
+        const flapPhase = Math.sin(now / 130 + i * 1.7);        // -1..1 vleugelslag
+        const ix = Math.round(x), iy = Math.round(y), d2 = dir;
+        const back = bd.body || '96,74,56', breast = bd.breast || '210,88,44', dark2 = bd.head || '70,54,42';
+        fctx.fillStyle = `rgba(${back},${alpha})`;              // lijf (rug)
+        fctx.beginPath(); fctx.ellipse(ix, iy, 3.2 * s, 2.3 * s, 0, 0, 6.3); fctx.fill();
+        fctx.fillStyle = `rgba(${breast},${alpha})`;            // rode borst vooraan-onder
+        fctx.beginPath(); fctx.ellipse(ix + d2 * 1.7 * s, iy + 0.7 * s, 2 * s, 1.7 * s, 0, 0, 6.3); fctx.fill();
+        fctx.fillStyle = `rgba(${dark2},${alpha})`;             // kopje
+        fctx.beginPath(); fctx.ellipse(ix + d2 * 3.1 * s, iy - 0.9 * s, 1.4 * s, 1.4 * s, 0, 0, 6.3); fctx.fill();
+        fctx.fillStyle = `rgba(40,30,24,${alpha})`;             // snaveltje
+        fctx.fillRect(ix + d2 * 4 * s, Math.round(iy - 1.2 * s), Math.max(1, Math.round(d2 * 1.4 * s)), Math.max(1, Math.round(s * 0.5)));
+        fctx.fillStyle = `rgba(${dark2},${alpha})`;             // staart
+        fctx.fillRect(Math.round(ix - d2 * 5 * s), iy - 1, Math.round(d2 * 2.4 * s), Math.max(1, Math.round(s)));
+        const wy = iy - (1.6 + flapPhase * 1.3) * s;            // vleugel klappert
+        fctx.strokeStyle = `rgba(${dark2},${alpha})`;
+        fctx.lineWidth = Math.max(1, s * 1.1); fctx.lineCap = 'round'; fctx.lineJoin = 'round';
         fctx.beginPath();
-        fctx.moveTo(ix - span, iy - lift);                                          // linkertip
-        fctx.quadraticCurveTo(ix - span * 0.45, iy + droop, ix, iy);                // soepele boog naar lijf
-        fctx.quadraticCurveTo(ix + span * 0.45, iy + droop, ix + span, iy - lift);  // rechtertip
+        fctx.moveTo(ix - 1.8 * s, iy - 0.3 * s);
+        fctx.quadraticCurveTo(ix + d2 * 0.3 * s, wy, ix + 2 * s, iy - 0.3 * s);
         fctx.stroke();
-        fctx.fillStyle = `rgba(${col},${alpha})`;
-        fctx.fillRect(ix - 1, iy - 1, Math.max(2, s), Math.max(2, Math.round(s * 1.5)));  // lijfje
       }
     }
     if (fx.flames && !dark) {
@@ -1751,11 +1770,15 @@
 
   function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; }
 
-  /* ---------- Legpuzzel: sleep de losse stukken vanuit de bak naar het kader ---------- */
-  let jig = null;   // { hs, cols, rows, n, cell, frameH, stageH, locked[], drag, pieces[] }
-  const JIG_W = 300;            // logische breedte van het speelveld (px)
-  const JIG_TIP = { nl: 'Sleep elk stuk naar de juiste plek in het kader.', en: 'Drag each piece into its spot in the frame.' };
+  /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader ---------- */
+  let jig = null;   // { hs, n, frameW, frameH, stageH, locked[], drag, pieces[] }
+  const JIG_W = 300;            // kaderbreedte (logische px)
+  const JIG_TIP = { nl: 'Sleep elke scherf naar de juiste plek in het kader.', en: 'Drag each shard into its place in the frame.' };
   const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
+  // 10 onregelmatige scherven: waaier van driehoeken vanuit een punt naar randpunten (fracties)
+  const JIG_PERIM = [[0,0],[0.37,0],[0.71,0],[1,0],[1,0.57],[1,1],[0.59,1],[0.25,1],[0,1],[0,0.43]];
+  const JIG_CENTER = [0.47,0.49];
+  const JIG_SHARDS = JIG_PERIM.map((p, i) => [JIG_CENTER, p, JIG_PERIM[(i + 1) % JIG_PERIM.length]]);
   function jigHint() {
     if (!jig || !jig.frameEl) return;
     sfx('tap');
@@ -1765,9 +1788,9 @@
   }
   function openJigsaw(hs) {
     const cfg = hs.jigsaw;
-    const cols = cfg.cols || 4, rows = cfg.rows || 2, n = cols * rows;
-    const cell = JIG_W / cols, frameH = cell * rows;
-    jig = { hs, cols, rows, n, cell, frameH, stageH: frameH * 2 + 20, locked: new Array(n).fill(false), drag: null };
+    const frameH = Math.round(JIG_W * 3 / 4);          // 4:3 kader
+    const n = JIG_SHARDS.length;
+    jig = { hs, n, frameW: JIG_W, frameH, stageH: frameH + Math.round(frameH * 1.0) + 18, locked: new Array(n).fill(false), drag: null };
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) { elPuzHintBtn.style.display = ''; elPuzHintBtn.textContent = L(JIG_HINT_LABEL); }
     if (elPuzTip) { elPuzTip.hidden = false; elPuzTip.textContent = L(JIG_TIP); }
@@ -1778,52 +1801,47 @@
   function buildJigsaw() {
     const j = jig, cfg = j.hs.jigsaw;
     const img = 'url(' + cfg.img + AV + ')';
-    const { cols, rows, n, cell, frameH, stageH } = j;
+    const { frameW, frameH, stageH, n } = j;
     elPuzGrid.className = 'jig-stage';
-    elPuzGrid.style.width = JIG_W + 'px';
+    elPuzGrid.style.width = frameW + 'px';
     elPuzGrid.style.height = stageH + 'px';
     elPuzGrid.innerHTML = '';
-    // Kader met spookbeeld + lege sleuven
+    // Kader met verborgen voorbeeld-laag (alleen bij Hint)
     const frame = document.createElement('div');
     frame.className = 'jig-frame';
-    frame.style.width = JIG_W + 'px';
+    frame.style.width = frameW + 'px';
     frame.style.height = frameH + 'px';
-    // Voorbeeld-laag: standaard verborgen, alleen zichtbaar bij Hint
     const ghost = document.createElement('div');
     ghost.className = 'jig-ghost';
     ghost.style.backgroundImage = img;
     ghost.style.backgroundSize = '100% 100%';
     frame.appendChild(ghost);
-    j.ghostEl = ghost;
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      const s = document.createElement('div');
-      s.className = 'jig-slot';
-      s.style.left = c * cell + 'px'; s.style.top = r * cell + 'px';
-      s.style.width = cell + 'px'; s.style.height = cell + 'px';
-      frame.appendChild(s);
-    }
-    j.frameEl = frame;
+    j.frameEl = frame; j.ghostEl = ghost;
     elPuzGrid.appendChild(frame);
-    // De stukken door elkaar in de bak eronder
-    const idx = Array.from({ length: n }, (_, i) => i);
-    for (let i = n - 1; i > 0; i--) { const k = (Math.random() * (i + 1)) | 0; const t = idx[i]; idx[i] = idx[k]; idx[k] = t; }
+    // Scherven in willekeurige volgorde, jumbled in de bak eronder
+    const order = Array.from({ length: n }, (_, k) => k);
+    for (let k = n - 1; k > 0; k--) { const m = (Math.random() * (k + 1)) | 0; const t = order[k]; order[k] = order[m]; order[m] = t; }
+    const cols = 5, rows = Math.ceil(n / cols);
+    const trayTop = frameH + 16, trayH = stageH - trayTop - 4;
     j.pieces = [];
-    idx.forEach((piece, slot) => {
-      const c = piece % cols, r = (piece / cols) | 0;
-      const tcol = slot % cols, trow = (slot / cols) | 0;
-      const rot = ((piece * 37) % 13) - 6;                 // vaste lichte rotatie ±6°
-      const hx = tcol * cell + ((piece * 17) % 9) - 4;
-      const hy = frameH + 16 + trow * cell + ((piece * 23) % 9) - 4;
+    order.forEach((sh, slot) => {
+      const tri = JIG_SHARDS[sh].map(([fx, fy]) => [fx * frameW, fy * frameH]);
+      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
       const el = document.createElement('div');
-      el.className = 'jig-piece';
-      el.style.width = cell + 'px'; el.style.height = cell + 'px';
+      el.className = 'jig-shard';
+      el.style.width = frameW + 'px'; el.style.height = frameH + 'px';
       el.style.backgroundImage = img;
-      el.style.backgroundSize = JIG_W + 'px ' + frameH + 'px';
-      el.style.backgroundPosition = '-' + c * cell + 'px -' + r * cell + 'px';
-      el.style.left = hx + 'px'; el.style.top = hy + 'px';
+      el.style.backgroundSize = frameW + 'px ' + frameH + 'px';
+      el.style.clipPath = 'polygon(' + tri.map(p => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')';
+      el.style.transformOrigin = cx.toFixed(1) + 'px ' + cy.toFixed(1) + 'px';
+      const col = slot % cols, row = (slot / cols) | 0;
+      const sx = (col + 0.5) * (frameW / cols), sy = trayTop + (row + 0.5) * (trayH / rows);
+      const tx = sx - cx + ((sh * 53) % 22) - 11, ty = sy - cy + ((sh * 31) % 16) - 8;
+      const rot = ((sh * 47) % 27) - 13;
+      el._tray = { x: tx, y: ty, rot };
+      el._shard = sh;
+      el.style.left = tx + 'px'; el.style.top = ty + 'px';
       el.style.transform = 'rotate(' + rot + 'deg)';
-      el._home = { x: hx, y: hy, rot };
-      el._piece = piece;
       el.addEventListener('pointerdown', (e) => jigDown(e, el));
       elPuzGrid.appendChild(el);
       j.pieces.push(el);
@@ -1832,17 +1850,17 @@
   function jigLocalXY(e) {
     const rect = elPuzGrid.getBoundingClientRect();
     return {
-      x: (e.clientX - rect.left) / rect.width * JIG_W,
+      x: (e.clientX - rect.left) / rect.width * jig.frameW,
       y: (e.clientY - rect.top) / rect.height * jig.stageH
     };
   }
   function jigDown(e, el) {
-    const j = jig; if (!j || j.locked[el._piece]) return;
+    const j = jig; if (!j || j.locked[el._shard]) return;
     e.preventDefault();
     const p = jigLocalXY(e);
     j.drag = { el, grabX: p.x - parseFloat(el.style.left), grabY: p.y - parseFloat(el.style.top) };
     el.classList.add('jig-drag');
-    el.style.transform = 'rotate(0deg)';
+    el.style.transform = 'rotate(0deg)';     // recht tijdens slepen
     el.style.zIndex = 60;
     try { el.setPointerCapture(e.pointerId); } catch (_) {}
     el.addEventListener('pointermove', jigMove);
@@ -1863,19 +1881,15 @@
     el.removeEventListener('pointercancel', jigUp);
     j.drag = null;
     el.classList.remove('jig-drag');
-    const { cols, cell } = j;
-    const piece = el._piece, c = piece % cols, r = (piece / cols) | 0;
-    const cx = parseFloat(el.style.left) + cell / 2, cy = parseFloat(el.style.top) + cell / 2;
-    const tcx = c * cell + cell / 2, tcy = r * cell + cell / 2;
-    if (Math.abs(cx - tcx) < cell * 0.55 && Math.abs(cy - tcy) < cell * 0.55) {
-      el.style.left = c * cell + 'px'; el.style.top = r * cell + 'px';
-      el.style.transform = 'rotate(0deg)'; el.style.zIndex = 1;
+    const lx = parseFloat(el.style.left), ly = parseFloat(el.style.top);
+    if (Math.abs(lx) < 30 && Math.abs(ly) < 30) {          // dicht bij thuis (offset 0) -> vastklikken
+      el.style.left = '0px'; el.style.top = '0px'; el.style.transform = 'rotate(0deg)'; el.style.zIndex = 1;
       el.classList.add('jig-locked');
-      j.locked[piece] = true; sfx('tap');
+      j.locked[el._shard] = true; sfx('tap');
       if (j.locked.every(Boolean)) solveJigsaw();
     } else {
-      el.style.left = el._home.x + 'px'; el.style.top = el._home.y + 'px';
-      el.style.transform = 'rotate(' + el._home.rot + 'deg)'; el.style.zIndex = '';
+      el.style.left = el._tray.x + 'px'; el.style.top = el._tray.y + 'px';
+      el.style.transform = 'rotate(' + el._tray.rot + 'deg)'; el.style.zIndex = '';
     }
   }
   function solveJigsaw() {

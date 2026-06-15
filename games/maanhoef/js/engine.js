@@ -1996,11 +1996,15 @@
 
   function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; }
 
-  /* ---------- Legpuzzel: sleep de losse stukken vanuit de bak naar het kader ---------- */
-  let jig = null;   // { hs, cols, rows, n, cell, frameH, stageH, locked[], drag, pieces[] }
-  const JIG_W = 300;            // logische breedte van het speelveld (px)
-  const JIG_TIP = { nl: 'Sleep elk stuk naar de juiste plek in het kader.', en: 'Drag each piece into its spot in the frame.' };
+  /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader ---------- */
+  let jig = null;   // { hs, n, frameW, frameH, stageH, locked[], drag, pieces[] }
+  const JIG_W = 300;            // kaderbreedte (logische px)
+  const JIG_TIP = { nl: 'Sleep elke scherf naar de juiste plek in het kader.', en: 'Drag each shard into its place in the frame.' };
   const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
+  // 10 onregelmatige scherven: waaier van driehoeken vanuit een punt naar randpunten (fracties)
+  const JIG_PERIM = [[0,0],[0.37,0],[0.71,0],[1,0],[1,0.57],[1,1],[0.59,1],[0.25,1],[0,1],[0,0.43]];
+  const JIG_CENTER = [0.47,0.49];
+  const JIG_SHARDS = JIG_PERIM.map((p, i) => [JIG_CENTER, p, JIG_PERIM[(i + 1) % JIG_PERIM.length]]);
   function jigHint() {
     if (!jig || !jig.frameEl) return;
     sfx('tap');
@@ -2010,9 +2014,9 @@
   }
   function openJigsaw(hs) {
     const cfg = hs.jigsaw;
-    const cols = cfg.cols || 4, rows = cfg.rows || 2, n = cols * rows;
-    const cell = JIG_W / cols, frameH = cell * rows;
-    jig = { hs, cols, rows, n, cell, frameH, stageH: frameH * 2 + 20, locked: new Array(n).fill(false), drag: null };
+    const frameH = Math.round(JIG_W * 3 / 4);          // 4:3 kader
+    const n = JIG_SHARDS.length;
+    jig = { hs, n, frameW: JIG_W, frameH, stageH: frameH + Math.round(frameH * 1.0) + 18, locked: new Array(n).fill(false), drag: null };
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) { elPuzHintBtn.style.display = ''; elPuzHintBtn.textContent = L(JIG_HINT_LABEL); }
     if (elPuzTip) { elPuzTip.hidden = false; elPuzTip.textContent = L(JIG_TIP); }
@@ -2023,52 +2027,47 @@
   function buildJigsaw() {
     const j = jig, cfg = j.hs.jigsaw;
     const img = 'url(' + cfg.img + AV + ')';
-    const { cols, rows, n, cell, frameH, stageH } = j;
+    const { frameW, frameH, stageH, n } = j;
     elPuzGrid.className = 'jig-stage';
-    elPuzGrid.style.width = JIG_W + 'px';
+    elPuzGrid.style.width = frameW + 'px';
     elPuzGrid.style.height = stageH + 'px';
     elPuzGrid.innerHTML = '';
-    // Kader met spookbeeld + lege sleuven
+    // Kader met verborgen voorbeeld-laag (alleen bij Hint)
     const frame = document.createElement('div');
     frame.className = 'jig-frame';
-    frame.style.width = JIG_W + 'px';
+    frame.style.width = frameW + 'px';
     frame.style.height = frameH + 'px';
-    // Voorbeeld-laag: standaard verborgen, alleen zichtbaar bij Hint
     const ghost = document.createElement('div');
     ghost.className = 'jig-ghost';
     ghost.style.backgroundImage = img;
     ghost.style.backgroundSize = '100% 100%';
     frame.appendChild(ghost);
-    j.ghostEl = ghost;
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      const s = document.createElement('div');
-      s.className = 'jig-slot';
-      s.style.left = c * cell + 'px'; s.style.top = r * cell + 'px';
-      s.style.width = cell + 'px'; s.style.height = cell + 'px';
-      frame.appendChild(s);
-    }
-    j.frameEl = frame;
+    j.frameEl = frame; j.ghostEl = ghost;
     elPuzGrid.appendChild(frame);
-    // De stukken door elkaar in de bak eronder
-    const idx = Array.from({ length: n }, (_, i) => i);
-    for (let i = n - 1; i > 0; i--) { const k = (Math.random() * (i + 1)) | 0; const t = idx[i]; idx[i] = idx[k]; idx[k] = t; }
+    // Scherven in willekeurige volgorde, jumbled in de bak eronder
+    const order = Array.from({ length: n }, (_, k) => k);
+    for (let k = n - 1; k > 0; k--) { const m = (Math.random() * (k + 1)) | 0; const t = order[k]; order[k] = order[m]; order[m] = t; }
+    const cols = 5, rows = Math.ceil(n / cols);
+    const trayTop = frameH + 16, trayH = stageH - trayTop - 4;
     j.pieces = [];
-    idx.forEach((piece, slot) => {
-      const c = piece % cols, r = (piece / cols) | 0;
-      const tcol = slot % cols, trow = (slot / cols) | 0;
-      const rot = ((piece * 37) % 13) - 6;                 // vaste lichte rotatie ±6°
-      const hx = tcol * cell + ((piece * 17) % 9) - 4;
-      const hy = frameH + 16 + trow * cell + ((piece * 23) % 9) - 4;
+    order.forEach((sh, slot) => {
+      const tri = JIG_SHARDS[sh].map(([fx, fy]) => [fx * frameW, fy * frameH]);
+      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
       const el = document.createElement('div');
-      el.className = 'jig-piece';
-      el.style.width = cell + 'px'; el.style.height = cell + 'px';
+      el.className = 'jig-shard';
+      el.style.width = frameW + 'px'; el.style.height = frameH + 'px';
       el.style.backgroundImage = img;
-      el.style.backgroundSize = JIG_W + 'px ' + frameH + 'px';
-      el.style.backgroundPosition = '-' + c * cell + 'px -' + r * cell + 'px';
-      el.style.left = hx + 'px'; el.style.top = hy + 'px';
+      el.style.backgroundSize = frameW + 'px ' + frameH + 'px';
+      el.style.clipPath = 'polygon(' + tri.map(p => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')';
+      el.style.transformOrigin = cx.toFixed(1) + 'px ' + cy.toFixed(1) + 'px';
+      const col = slot % cols, row = (slot / cols) | 0;
+      const sx = (col + 0.5) * (frameW / cols), sy = trayTop + (row + 0.5) * (trayH / rows);
+      const tx = sx - cx + ((sh * 53) % 22) - 11, ty = sy - cy + ((sh * 31) % 16) - 8;
+      const rot = ((sh * 47) % 27) - 13;
+      el._tray = { x: tx, y: ty, rot };
+      el._shard = sh;
+      el.style.left = tx + 'px'; el.style.top = ty + 'px';
       el.style.transform = 'rotate(' + rot + 'deg)';
-      el._home = { x: hx, y: hy, rot };
-      el._piece = piece;
       el.addEventListener('pointerdown', (e) => jigDown(e, el));
       elPuzGrid.appendChild(el);
       j.pieces.push(el);
@@ -2077,17 +2076,17 @@
   function jigLocalXY(e) {
     const rect = elPuzGrid.getBoundingClientRect();
     return {
-      x: (e.clientX - rect.left) / rect.width * JIG_W,
+      x: (e.clientX - rect.left) / rect.width * jig.frameW,
       y: (e.clientY - rect.top) / rect.height * jig.stageH
     };
   }
   function jigDown(e, el) {
-    const j = jig; if (!j || j.locked[el._piece]) return;
+    const j = jig; if (!j || j.locked[el._shard]) return;
     e.preventDefault();
     const p = jigLocalXY(e);
     j.drag = { el, grabX: p.x - parseFloat(el.style.left), grabY: p.y - parseFloat(el.style.top) };
     el.classList.add('jig-drag');
-    el.style.transform = 'rotate(0deg)';
+    el.style.transform = 'rotate(0deg)';     // recht tijdens slepen
     el.style.zIndex = 60;
     try { el.setPointerCapture(e.pointerId); } catch (_) {}
     el.addEventListener('pointermove', jigMove);
@@ -2108,19 +2107,15 @@
     el.removeEventListener('pointercancel', jigUp);
     j.drag = null;
     el.classList.remove('jig-drag');
-    const { cols, cell } = j;
-    const piece = el._piece, c = piece % cols, r = (piece / cols) | 0;
-    const cx = parseFloat(el.style.left) + cell / 2, cy = parseFloat(el.style.top) + cell / 2;
-    const tcx = c * cell + cell / 2, tcy = r * cell + cell / 2;
-    if (Math.abs(cx - tcx) < cell * 0.55 && Math.abs(cy - tcy) < cell * 0.55) {
-      el.style.left = c * cell + 'px'; el.style.top = r * cell + 'px';
-      el.style.transform = 'rotate(0deg)'; el.style.zIndex = 1;
+    const lx = parseFloat(el.style.left), ly = parseFloat(el.style.top);
+    if (Math.abs(lx) < 30 && Math.abs(ly) < 30) {          // dicht bij thuis (offset 0) -> vastklikken
+      el.style.left = '0px'; el.style.top = '0px'; el.style.transform = 'rotate(0deg)'; el.style.zIndex = 1;
       el.classList.add('jig-locked');
-      j.locked[piece] = true; sfx('tap');
+      j.locked[el._shard] = true; sfx('tap');
       if (j.locked.every(Boolean)) solveJigsaw();
     } else {
-      el.style.left = el._home.x + 'px'; el.style.top = el._home.y + 'px';
-      el.style.transform = 'rotate(' + el._home.rot + 'deg)'; el.style.zIndex = '';
+      el.style.left = el._tray.x + 'px'; el.style.top = el._tray.y + 'px';
+      el.style.transform = 'rotate(' + el._tray.rot + 'deg)'; el.style.zIndex = '';
     }
   }
   function solveJigsaw() {
