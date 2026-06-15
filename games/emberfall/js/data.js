@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '16',
+  assetVer: '17',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
