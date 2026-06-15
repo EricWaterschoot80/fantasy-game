@@ -18,13 +18,13 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '26',
+  assetVer: '27',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
     hero:           'assets/art/hero.png',
     heroWalk:       'assets/art/hero-walk.png',
-    heroWalkSheet:  'assets/art/hero-walk-sheet.png',   /* 8-frame loopcyclus (Higgsfield AutoSprite) */
+    heroWalkSheet:  'assets/art/hero-walk-sheet.png',   /* 8-frame zijwaartse loopcyclus (Higgsfield AutoSprite) */
     heroWave:       'assets/art/hero-wave.png',
     seer:           'assets/art/seer.png',
     minotaur:       'assets/art/minotaur.png',
@@ -649,7 +649,7 @@ const GAME = {
           { x: 284, y: 147 },
           { x: 397, y: 147 }
         ],
-        amulet: { x: 332, y: 122 },
+        amulet: { x: 302, y: 122 },
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }
