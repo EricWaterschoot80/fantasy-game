@@ -151,6 +151,7 @@
   let started    = false;
   let msgQueue   = [];
   let pendingWin = false;
+  let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
   let labelTimer = null;
   let lastPopItem = null;
@@ -1004,6 +1005,33 @@
       fctx.restore();
     }
 
+    /* Win-viering: de eeuwige herfst wijkt — bladeren komen tot leven, groen licht
+       en opstijgende blaadjes/sprankels vullen het bos; daarna het win-scherm. */
+    if (revive) {
+      const rt = Math.min(1, (now - revive.t0) / 3500);
+      const ga = Math.sin(rt * Math.PI);
+      fctx.fillStyle = `rgba(120,210,100,${ga * 0.42})`;         // groene levensgloed (sterker)
+      fctx.fillRect(0, 0, SCENE_W, SCENE_H);
+      for (let k = 0; k < 64; k++) {                             // opstijgende groene blaadjes die tot leven komen
+        const tt = (rt * 1.5 + k * 0.111) % 1;
+        const a = Math.sin(tt * Math.PI);
+        if (a <= 0.05) continue;
+        const bx = (k * 71) % SCENE_W + Math.sin(now / 300 + k) * 16;
+        const by = SCENE_H + 10 - tt * (SCENE_H + 28);
+        fctx.fillStyle = `rgba(${80 + (k % 50)},${165 + (k * 53) % 70},${70 + (k % 30)},${a})`;
+        const sz = 3 + (k % 3);
+        fctx.fillRect((bx - sz / 2) | 0, by | 0, sz, sz);        // blaadje
+        fctx.fillRect((bx + 1) | 0, (by - 2) | 0, 1, 2);         // steeltje
+      }
+      for (let k = 0; k < 26; k++) {                             // gouden sprankels van leven
+        const tt = (rt * 2 + k * 0.16) % 1, a = Math.sin(tt * Math.PI);
+        const sxp = (k * 131) % SCENE_W, syp = 24 + (k * 71) % 220 - tt * 30;
+        fctx.fillStyle = `rgba(255,250,210,${a})`;
+        fctx.fillRect(sxp | 0, syp | 0, 2, 2);
+      }
+      if (now - revive.t0 > 3500) { revive = null; showWin(); }
+    }
+
     const fa = fadeAlpha(now);
     if (fa > 0) {
       fctx.fillStyle = `rgba(16,11,7,${fa})`;
@@ -1093,31 +1121,28 @@
         if (alpha < 0.04) continue;
         // het lijfje kantelt mee met de baan (neus omhoog bij stijgen, omlaag bij dalen)
         const slope = (yAt(p + 0.014) - yAt(p - 0.014)) / (0.028 * range);
-        const pitch = Math.max(-0.5, Math.min(0.5, Math.atan(slope))) * (dir > 0 ? 1 : -1);
-        /* Klein roodborstje: bruine rug, oranje-rode borst, klapperende vleugel */
-        const flapPhase = Math.sin(now / 62 + i * 1.7);         // -1..1 snelle vleugelslag
-        const d2 = dir;
-        const back = bd.body || '96,74,56', breast = bd.breast || '210,88,44', dark2 = bd.head || '70,54,42';
+        const pitch = Math.max(-0.5, Math.min(0.5, Math.atan(slope)));
+        /* Geanimeerd roodborstje uit de Higgsfield sprite-sheet (4×3 = 12 vlieg-frames) */
+        const sheet = art.sprites.robin;
         fctx.save();
         fctx.translate(Math.round(x), Math.round(y));
         fctx.rotate(pitch);
-        fctx.fillStyle = `rgba(${back},${alpha})`;              // lijf (rug)
-        fctx.beginPath(); fctx.ellipse(0, 0, 3.2 * s, 2.3 * s, 0, 0, 6.3); fctx.fill();
-        fctx.fillStyle = `rgba(${breast},${alpha})`;            // rode borst vooraan-onder
-        fctx.beginPath(); fctx.ellipse(d2 * 1.7 * s, 0.7 * s, 2 * s, 1.7 * s, 0, 0, 6.3); fctx.fill();
-        fctx.fillStyle = `rgba(${dark2},${alpha})`;             // kopje
-        fctx.beginPath(); fctx.ellipse(d2 * 3.1 * s, -0.9 * s, 1.4 * s, 1.4 * s, 0, 0, 6.3); fctx.fill();
-        fctx.fillStyle = `rgba(40,30,24,${alpha})`;             // snaveltje
-        fctx.fillRect(d2 * 4 * s, -1.2 * s, d2 * Math.max(1, 1.4 * s), Math.max(1, s * 0.5));
-        fctx.fillStyle = `rgba(${dark2},${alpha})`;             // staart
-        fctx.fillRect(-d2 * 5 * s, -0.5, d2 * Math.max(1, 2.4 * s), Math.max(1, s));
-        const wlift = (1.5 + flapPhase * 2.1) * s;              // sterkere vleugelslag
-        fctx.strokeStyle = `rgba(${dark2},${alpha})`;
-        fctx.lineWidth = Math.max(1, s * 1.1); fctx.lineCap = 'round'; fctx.lineJoin = 'round';
-        fctx.beginPath();
-        fctx.moveTo(-1.8 * s, -0.3 * s);
-        fctx.quadraticCurveTo(d2 * 0.3 * s, -wlift, 2 * s, -0.3 * s);
-        fctx.stroke();
+        if (dir < 0) fctx.scale(-1, 1);                         // sheet kijkt naar rechts → spiegel naar links
+        fctx.globalAlpha = alpha;
+        if (ready(sheet)) {
+          const FR = 64, COLS = 4;                              // 256×192 sheet, 64px frames
+          const fr = ((now / 80) | 0) % 12;                     // ~12 fps vleugelslag
+          const dw = 18 * s, dh = 18 * s;
+          const sm = fctx.imageSmoothingEnabled; fctx.imageSmoothingEnabled = true;
+          fctx.drawImage(sheet, (fr % COLS) * FR, ((fr / COLS) | 0) * FR, FR, FR, -dw / 2, -dh / 2, dw, dh);
+          fctx.imageSmoothingEnabled = sm;
+        } else {
+          fctx.fillStyle = `rgba(${bd.body || '96,74,56'},1)`;
+          fctx.beginPath(); fctx.ellipse(0, 0, 3.2 * s, 2.3 * s, 0, 0, 6.3); fctx.fill();
+          fctx.fillStyle = `rgba(${bd.breast || '210,88,44'},1)`;
+          fctx.beginPath(); fctx.ellipse(1.6 * s, 0.7 * s, 1.9 * s, 1.6 * s, 0, 0, 6.3); fctx.fill();
+        }
+        fctx.globalAlpha = 1;
         fctx.restore();
       }
     }
@@ -1532,7 +1557,7 @@
     elMsg.hidden = true;
     elBubble.hidden = true;
     if (msgQueue.length === 0) {
-      if (pendingWin) { pendingWin = false; showWin(); }
+      if (pendingWin) { pendingWin = false; revive = { t0: performance.now() }; }
       return;
     }
     const m = msgQueue.shift();
@@ -1714,6 +1739,7 @@
 
   function openSlidePuzzle(hs) {
     const cfg = hs.slidePuzzle;
+    { const c = document.getElementById('puzzle-card'); if (c) c.classList.remove('jig-wide'); }
     const n = cfg.size || 3;
     /* husselen vanaf opgelost met geldige zetten → altijd oplosbaar */
     const tiles = Array.from({ length: n * n }, (_, i) => i);
@@ -1795,14 +1821,14 @@
     }
   }
 
-  function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; }
+  function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; const c = document.getElementById('puzzle-card'); if (c) c.classList.remove('jig-wide'); }
 
   /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader (bak rechts) ---------- */
   let jig = null;   // { hs, n, frameW, frameH, stageW, stageH, scale, locked[], drag, pieces[] }
-  const JIG_FW = 260, JIG_FH = 195;          // kader (4:3), links
-  const JIG_GAP = 16, JIG_TRW = 214;         // bak met scherven, rechts
+  const JIG_FW = 320, JIG_FH = 240;          // kader (4:3), links
+  const JIG_GAP = 18, JIG_TRW = 272;         // bak met scherven, rechts
   const JIG_STAGE_W = JIG_FW + JIG_GAP + JIG_TRW;
-  const JIG_STAGE_H = 200;
+  const JIG_STAGE_H = 250;
   const JIG_TIP = { nl: 'Sleep elke scherf naar de juiste plek in het kader.', en: 'Drag each shard into its place in the frame.' };
   const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
   const JIG_PERIM = [[0,0],[0.37,0],[0.71,0],[1,0],[1,0.57],[1,1],[0.59,1],[0.25,1],[0,1],[0,0.43]];
@@ -1831,6 +1857,7 @@
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) { elPuzHintBtn.style.display = ''; elPuzHintBtn.textContent = L(JIG_HINT_LABEL); }
     if (elPuzTip) { elPuzTip.hidden = false; elPuzTip.textContent = L(JIG_TIP); }
+    const card = document.getElementById('puzzle-card'); if (card) card.classList.add('jig-wide');
     buildJigsaw();
     elPuzzle.hidden = false;
     requestAnimationFrame(fitJigsaw);
@@ -2586,7 +2613,7 @@
   let lastTapHs = null, lastTapTime = 0;   // voor dubbel-tik op uitgangen
   canvas.addEventListener('pointerdown', (e) => {
     ac();
-    if (!started || fade.mode === 'out' || !elDeath.hidden) return;
+    if (!started || fade.mode === 'out' || !elDeath.hidden || revive) return;
     if (msgOpen()) { showNextMsg(); return; }
     const p = screenToScene(e.clientX, e.clientY);
     if (p.x < 0 || p.x > SCENE_W || p.y < 0 || p.y > SCENE_H) return;
@@ -2656,6 +2683,7 @@
     state = newState();
     msgQueue = [];
     pendingWin = false;
+    revive = null;
     elMsg.hidden = true;
     elBubble.hidden = true;
     elWin.hidden = true;

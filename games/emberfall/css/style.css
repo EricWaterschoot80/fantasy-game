@@ -717,6 +717,8 @@ html, body {
   overflow: visible;
 }
 .jig-inner { position: absolute; left: 0; top: 0; }
+/* Op desktop mag de legpuzzel-kaart breder zijn zodat de puzzel groter is */
+@media (min-width: 720px) { .puzzle-card.jig-wide { max-width: 680px; } }
 .jig-frame {
   position: absolute;
   left: 0; top: 0;

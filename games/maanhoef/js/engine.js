@@ -1913,6 +1913,7 @@
 
   function openSlidePuzzle(hs) {
     const cfg = hs.slidePuzzle;
+    { const c = document.getElementById('puzzle-card'); if (c) c.classList.remove('jig-wide'); }
     const n = cfg.size || 3;
     /* husselen vanaf opgelost met geldige zetten → altijd oplosbaar */
     const tiles = Array.from({ length: n * n }, (_, i) => i);
@@ -1994,14 +1995,14 @@
     }
   }
 
-  function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; }
+  function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; const c = document.getElementById('puzzle-card'); if (c) c.classList.remove('jig-wide'); }
 
   /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader (bak rechts) ---------- */
   let jig = null;   // { hs, n, frameW, frameH, stageW, stageH, scale, locked[], drag, pieces[] }
-  const JIG_FW = 260, JIG_FH = 195;          // kader (4:3), links
-  const JIG_GAP = 16, JIG_TRW = 214;         // bak met scherven, rechts
+  const JIG_FW = 320, JIG_FH = 240;          // kader (4:3), links
+  const JIG_GAP = 18, JIG_TRW = 272;         // bak met scherven, rechts
   const JIG_STAGE_W = JIG_FW + JIG_GAP + JIG_TRW;
-  const JIG_STAGE_H = 200;
+  const JIG_STAGE_H = 250;
   const JIG_TIP = { nl: 'Sleep elke scherf naar de juiste plek in het kader.', en: 'Drag each shard into its place in the frame.' };
   const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
   const JIG_PERIM = [[0,0],[0.37,0],[0.71,0],[1,0],[1,0.57],[1,1],[0.59,1],[0.25,1],[0,1],[0,0.43]];
@@ -2030,6 +2031,7 @@
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) { elPuzHintBtn.style.display = ''; elPuzHintBtn.textContent = L(JIG_HINT_LABEL); }
     if (elPuzTip) { elPuzTip.hidden = false; elPuzTip.textContent = L(JIG_TIP); }
+    const card = document.getElementById('puzzle-card'); if (card) card.classList.add('jig-wide');
     buildJigsaw();
     elPuzzle.hidden = false;
     requestAnimationFrame(fitJigsaw);
