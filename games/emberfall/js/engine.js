@@ -1085,8 +1085,8 @@
         // Realistische 'bounding' vlucht: duidelijke op/neer-zwiepen i.p.v. een rechte lijn
         const amp = bd.bob || 8;
         const yAt = (pp) => Math.sin(pp * Math.PI) * -9                 // lichte algehele boog
-                          + Math.sin(pp * Math.PI * 3.2 + i) * amp * 1.9 // grote op/neer-zwiepen
-                          + Math.sin(pp * Math.PI * 6.7 + i * 2) * amp * 0.5;
+                          + Math.sin(pp * Math.PI * 6.5 + i) * amp * 1.7 // snellere op/neer-zwiepen
+                          + Math.sin(pp * Math.PI * 13 + i * 2) * amp * 0.45;
         const y = baseY + yAt(p);
         const edge = Math.min(1, Math.sin(p * Math.PI) * 1.6);   // in/uit-faden aan de randen
         const alpha = (bd.alpha == null ? 0.85 : bd.alpha) * edge;
@@ -1095,7 +1095,7 @@
         const slope = (yAt(p + 0.014) - yAt(p - 0.014)) / (0.028 * range);
         const pitch = Math.max(-0.5, Math.min(0.5, Math.atan(slope))) * (dir > 0 ? 1 : -1);
         /* Klein roodborstje: bruine rug, oranje-rode borst, klapperende vleugel */
-        const flapPhase = Math.sin(now / 110 + i * 1.7);        // -1..1 vleugelslag (sneller)
+        const flapPhase = Math.sin(now / 62 + i * 1.7);         // -1..1 snelle vleugelslag
         const d2 = dir;
         const back = bd.body || '96,74,56', breast = bd.breast || '210,88,44', dark2 = bd.head || '70,54,42';
         fctx.save();
@@ -1278,7 +1278,7 @@
       const img = art.items[wi.item];
       if (!ready(img)) continue;
       const hgt = 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
-      const bob = Math.round(Math.sin(now / 650 + wi.x) * 1.5);
+      const bob = 0;                                   // items blijven stil staan (geen beweging)
       const glow = 0.14 + 0.08 * Math.sin(now / 500 + wi.x);
       const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, 13);
       g.addColorStop(0, `rgba(231,207,134,${glow})`);
@@ -1797,12 +1797,14 @@
 
   function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; }
 
-  /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader ---------- */
-  let jig = null;   // { hs, n, frameW, frameH, stageH, locked[], drag, pieces[] }
-  const JIG_W = 300;            // kaderbreedte (logische px)
+  /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader (bak rechts) ---------- */
+  let jig = null;   // { hs, n, frameW, frameH, stageW, stageH, scale, locked[], drag, pieces[] }
+  const JIG_FW = 260, JIG_FH = 195;          // kader (4:3), links
+  const JIG_GAP = 16, JIG_TRW = 214;         // bak met scherven, rechts
+  const JIG_STAGE_W = JIG_FW + JIG_GAP + JIG_TRW;
+  const JIG_STAGE_H = 200;
   const JIG_TIP = { nl: 'Sleep elke scherf naar de juiste plek in het kader.', en: 'Drag each shard into its place in the frame.' };
   const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
-  // 10 onregelmatige scherven: waaier van driehoeken vanuit een punt naar randpunten (fracties)
   const JIG_PERIM = [[0,0],[0.37,0],[0.71,0],[1,0],[1,0.57],[1,1],[0.59,1],[0.25,1],[0,1],[0,0.43]];
   const JIG_CENTER = [0.47,0.49];
   const JIG_SHARDS = JIG_PERIM.map((p, i) => [JIG_CENTER, p, JIG_PERIM[(i + 1) % JIG_PERIM.length]]);
@@ -1813,71 +1815,84 @@
     clearTimeout(jig._hintT);
     jig._hintT = setTimeout(() => { if (jig && jig.frameEl) jig.frameEl.classList.remove('jig-hint'); }, 3500);
   }
+  function fitJigsaw() {
+    if (!jig || !jig.innerEl) return;
+    const avail = elPuzGrid.clientWidth || jig.stageW;
+    const sc = Math.min(1, avail / jig.stageW);
+    jig.scale = sc;
+    jig.innerEl.style.transform = 'scale(' + sc + ')';
+    jig.innerEl.style.transformOrigin = 'top left';
+    elPuzGrid.style.height = (jig.stageH * sc) + 'px';
+  }
   function openJigsaw(hs) {
     const cfg = hs.jigsaw;
-    const frameH = Math.round(JIG_W * 3 / 4);          // 4:3 kader
     const n = JIG_SHARDS.length;
-    jig = { hs, n, frameW: JIG_W, frameH, stageH: frameH + Math.round(frameH * 1.0) + 18, locked: new Array(n).fill(false), drag: null };
+    jig = { hs, n, frameW: JIG_FW, frameH: JIG_FH, stageW: JIG_STAGE_W, stageH: JIG_STAGE_H, scale: 1, locked: new Array(n).fill(false), drag: null };
     elPuzTitle.textContent = L(cfg.title);
     if (elPuzHintBtn) { elPuzHintBtn.style.display = ''; elPuzHintBtn.textContent = L(JIG_HINT_LABEL); }
     if (elPuzTip) { elPuzTip.hidden = false; elPuzTip.textContent = L(JIG_TIP); }
     buildJigsaw();
     elPuzzle.hidden = false;
+    requestAnimationFrame(fitJigsaw);
     sfx('tap');
   }
   function buildJigsaw() {
     const j = jig, cfg = j.hs.jigsaw;
     const img = 'url(' + cfg.img + AV + ')';
-    const { frameW, frameH, stageH, n } = j;
+    const FW = j.frameW, FH = j.frameH, SW = j.stageW, SH = j.stageH, n = j.n;
     elPuzGrid.className = 'jig-stage';
-    elPuzGrid.style.width = frameW + 'px';
-    elPuzGrid.style.height = stageH + 'px';
+    elPuzGrid.style.width = '100%';
+    elPuzGrid.style.height = SH + 'px';
     elPuzGrid.innerHTML = '';
-    // Kader met verborgen voorbeeld-laag (alleen bij Hint)
+    const inner = document.createElement('div');
+    inner.className = 'jig-inner';
+    inner.style.width = SW + 'px'; inner.style.height = SH + 'px';
+    elPuzGrid.appendChild(inner);
+    j.innerEl = inner;
+    // Kader links, met verborgen voorbeeld-laag (alleen bij Hint)
     const frame = document.createElement('div');
     frame.className = 'jig-frame';
-    frame.style.width = frameW + 'px';
-    frame.style.height = frameH + 'px';
+    frame.style.width = FW + 'px'; frame.style.height = FH + 'px';
     const ghost = document.createElement('div');
     ghost.className = 'jig-ghost';
-    ghost.style.backgroundImage = img;
-    ghost.style.backgroundSize = '100% 100%';
+    ghost.style.backgroundImage = img; ghost.style.backgroundSize = '100% 100%';
     frame.appendChild(ghost);
     j.frameEl = frame; j.ghostEl = ghost;
-    elPuzGrid.appendChild(frame);
-    // Scherven in willekeurige volgorde, jumbled in de bak eronder
+    inner.appendChild(frame);
+    // Scherven jumbled in de bak rechts van het kader
     const order = Array.from({ length: n }, (_, k) => k);
     for (let k = n - 1; k > 0; k--) { const m = (Math.random() * (k + 1)) | 0; const t = order[k]; order[k] = order[m]; order[m] = t; }
-    const cols = 5, rows = Math.ceil(n / cols);
-    const trayTop = frameH + 16, trayH = stageH - trayTop - 4;
+    const cols = 2, rows = Math.ceil(n / cols);
+    const trayX = FW + JIG_GAP, trayW = SW - trayX;
     j.pieces = [];
     order.forEach((sh, slot) => {
-      const tri = JIG_SHARDS[sh].map(([fx, fy]) => [fx * frameW, fy * frameH]);
+      const tri = JIG_SHARDS[sh].map(([fx, fy]) => [fx * FW, fy * FH]);
       const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
       const el = document.createElement('div');
       el.className = 'jig-shard';
-      el.style.width = frameW + 'px'; el.style.height = frameH + 'px';
+      el.style.width = FW + 'px'; el.style.height = FH + 'px';
       el.style.backgroundImage = img;
-      el.style.backgroundSize = frameW + 'px ' + frameH + 'px';
+      el.style.backgroundSize = FW + 'px ' + FH + 'px';
       el.style.clipPath = 'polygon(' + tri.map(p => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')';
       el.style.transformOrigin = cx.toFixed(1) + 'px ' + cy.toFixed(1) + 'px';
       const col = slot % cols, row = (slot / cols) | 0;
-      const sx = (col + 0.5) * (frameW / cols), sy = trayTop + (row + 0.5) * (trayH / rows);
-      const tx = sx - cx + ((sh * 53) % 22) - 11, ty = sy - cy + ((sh * 31) % 16) - 8;
+      const sx = trayX + (col + 0.5) * (trayW / cols), sy = (row + 0.5) * (SH / rows);
+      const tx = sx - cx + ((sh * 53) % 18) - 9, ty = sy - cy + ((sh * 31) % 14) - 7;
       const rot = ((sh * 47) % 27) - 13;
       el._tray = { x: tx, y: ty, rot };
       el._shard = sh;
       el.style.left = tx + 'px'; el.style.top = ty + 'px';
       el.style.transform = 'rotate(' + rot + 'deg)';
       el.addEventListener('pointerdown', (e) => jigDown(e, el));
-      elPuzGrid.appendChild(el);
+      inner.appendChild(el);
       j.pieces.push(el);
     });
   }
+  window.addEventListener('resize', () => { if (jig && jig.innerEl) fitJigsaw(); });
   function jigLocalXY(e) {
-    const rect = elPuzGrid.getBoundingClientRect();
+    const rect = (jig.innerEl || elPuzGrid).getBoundingClientRect();
     return {
-      x: (e.clientX - rect.left) / rect.width * jig.frameW,
+      x: (e.clientX - rect.left) / rect.width * jig.stageW,
       y: (e.clientY - rect.top) / rect.height * jig.stageH
     };
   }
@@ -2568,6 +2583,7 @@
     return { x: (px_ - view.ox) / view.scale, y: (py_ - view.oy) / view.scale };
   }
 
+  let lastTapHs = null, lastTapTime = 0;   // voor dubbel-tik op uitgangen
   canvas.addEventListener('pointerdown', (e) => {
     ac();
     if (!started || fade.mode === 'out' || !elDeath.hidden) return;
@@ -2594,10 +2610,20 @@
     }
 
     if (hs) {
+      /* Dubbel-tik op een (bruikbare) uitgang-pijl: meteen naar de volgende ruimte */
+      const nowT = performance.now();
+      if (hs.exit && (!hs.requiresFlag || state.flags[hs.requiresFlag]) &&
+          lastTapHs === hs && nowT - lastTapTime < 450) {
+        lastTapHs = null; lastTapTime = 0;
+        travelTo(hs.exit.to, hs.exit.travelText);
+        return;
+      }
+      lastTapHs = hs; lastTapTime = nowT;
       const wt = hsWalkTo(hs);
-      marker = { x: wt.x, y: wt.y, until: performance.now() + 700 };
+      marker = { x: wt.x, y: wt.y, until: nowT + 700 };
       walkThenInteract(hs);
     } else {
+      lastTapHs = null;
       const dest = clampToWalkable(p.x, p.y);
       marker = { x: dest.x, y: dest.y, until: performance.now() + 700 };
       player.pending = null;

@@ -166,12 +166,34 @@
     footer { margin-top: clamp(34px,6vw,56px); font-family: var(--pixel); font-size: 9px; color: #6f6555; text-align: center; line-height: 2; }
     .lang { position: fixed; top: 12px; right: 12px; z-index: 10; font-family: var(--pixel); font-size: 10px;
       background: var(--panel); color: var(--gold-light); border: 3px solid var(--gold); box-shadow: 0 0 0 3px #1f1410; padding: 8px 10px; cursor: pointer; }
+    /* ---------- Menubalk ---------- */
+    .topnav { position: sticky; top: 0; z-index: 8; width: 100%; max-width: 1040px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      background: rgba(26,20,16,.94); border: 3px solid var(--gold); box-shadow: 0 0 0 3px #1f1410, 0 4px 0 rgba(0,0,0,.4);
+      padding: 8px 52px 8px 14px; margin-bottom: clamp(16px,3vw,26px); }
+    .nav-brand { font-family: var(--pixel); font-size: 11px; color: var(--gold-light); text-decoration: none; letter-spacing: 1px; white-space: nowrap; }
+    .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+    .nav-links a { font-family: var(--pixel); font-size: 9px; color: var(--gold-light); text-decoration: none;
+      padding: 7px 9px; border: 2px solid transparent; transition: background .1s, border-color .1s; }
+    .nav-links a:hover { border-color: var(--gold); background: var(--panel-2); color: #fff4d2; }
+    .section { scroll-margin-top: 64px; }
   </style>
 </head>
 <body>
   <button class="lang" id="lang" aria-label="Taal / Language">NL</button>
 
-  <header>
+  <nav class="topnav" aria-label="Menu">
+    <a class="nav-brand" href="#top">⚜ RetroAdventureWorld</a>
+    <div class="nav-links">
+      <a href="#games" data-en="Games" data-nl="Spellen">Games</a>
+      <a href="games/maanhoef/index.html">Maanhoef</a>
+      <a href="games/emberfall/index.html">Emberfall</a>
+      <a href="#about" data-en="About" data-nl="Over">About</a>
+      <a href="#faq" data-en="FAQ" data-nl="FAQ">FAQ</a>
+    </div>
+  </nav>
+
+  <header id="top">
     <div class="banner-frame">
       <img src="assets/banner.png?v=3" alt="Five fantasy heroes and a globe of worlds, a fantasy world of retro point-and-click pixel adventures" onerror="this.onerror=null;this.src='games/emberfall/assets/art/title.png'">
     </div>
@@ -184,7 +206,7 @@
        data-nl="Gratis 16-bit pixel-spelletjes die je direct in je browser speelt, op telefoon of desktop, zonder downloaden. Verken, verzamel, los puzzels op en ontdek het verhaal.">Free 16-bit pixel-art adventure games you can play right in your browser, on phone or desktop, no download. Explore, collect, solve puzzles and uncover the story.</p>
   </header>
 
-  <h2 class="section" data-en="Choose your adventure" data-nl="Kies je avontuur">Choose your adventure</h2>
+  <h2 class="section" id="games" data-en="Choose your adventure" data-nl="Kies je avontuur">Choose your adventure</h2>
 
   <main class="grid">
     <a class="card" href="games/maanhoef/index.html" aria-label="Play Maanhoef">
@@ -220,7 +242,7 @@
     <span class="feature" data-en="English &amp; Dutch" data-nl="Engels &amp; Nederlands">English &amp; Dutch</span>
   </div>
 
-  <h2 class="section" data-en="Retro point-and-click adventures, reborn" data-nl="Retro point-and-click spelletjes, herboren">Retro point-and-click adventures, reborn</h2>
+  <h2 class="section" id="about" data-en="Retro point-and-click adventures, reborn" data-nl="Retro point-and-click spelletjes, herboren">Retro point-and-click adventures, reborn</h2>
   <section class="prose">
     <p data-en="RetroAdventureWorld is a small home for retro adventure games you can play online for free. Each title is a point-and-click adventure in crisp 16-bit pixel art, inspired by the classic adventure games of the 80s and 90s, but made to run instantly in any modern browser."
        data-nl="RetroAdventureWorld is een klein thuis voor gratis online spellen in retro stijl. Elke titel is een point-and-click avontuur in scherpe 16-bit pixel-art, geïnspireerd op de klassieke retro games uit de jaren 80 en 90, maar gemaakt om direct in elke moderne browser te draaien.">RetroAdventureWorld is a small home for retro adventure games you can play online for free. Each title is a point-and-click adventure in crisp 16-bit pixel art, inspired by the classic adventure games of the 80s and 90s, but made to run instantly in any modern browser.</p>
@@ -228,7 +250,7 @@
        data-nl="Geen installaties, geen accounts, geen rommel. Tik op een scène, pak een voorwerp op, los de puzzel op en ontdek waar het verhaal heen gaat. Speel gratis spelletjes op je telefoon liggend of schermvullend op desktop, en installeer elk spel als app om offline te spelen.">No installs, no accounts, no clutter. Tap a scene, pick up an item, solve the puzzle and see where the story goes. Play on your phone in landscape or full-screen on desktop, and install any game as an app for offline play.</p>
   </section>
 
-  <h2 class="section" data-en="Frequently asked questions" data-nl="Veelgestelde vragen">Frequently asked questions</h2>
+  <h2 class="section" id="faq" data-en="Frequently asked questions" data-nl="Veelgestelde vragen">Frequently asked questions</h2>
   <section class="faq">
     <details open>
       <summary data-en="Are the games really free?" data-nl="Zijn de spelletjes echt gratis?">Are the games really free?</summary>

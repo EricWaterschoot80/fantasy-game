@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '19',
+  assetVer: '20',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -186,7 +186,7 @@ const GAME = {
       fx: {
         emblemGlow: { x: 348, y: 71, r: 22 },
         fountain: { sx: 225, sy: 117, wx: 228, wy: 138 },
-        birds: { n: 1, scale: 2, y: 46, yvar: 40, period: 16000, frac: 0.4, bob: 9 }
+        birds: { n: 1, scale: 1.4, y: 48, yvar: 42, period: 15000, frac: 0.42, bob: 8 }
       },
       hotspots: [
         {
@@ -335,8 +335,8 @@ const GAME = {
           id: 'toTemple',
           name: { nl: 'Poort naar de Tempel', en: 'Gate to the Temple' },
           rect: { x: 416, y: 46, w: 74, h: 112 },
-          walkTo: { x: 452, y: 174 },
-          arrow: { x: 452, y: 130, dir: 'up' },
+          walkTo: { x: 436, y: 176 },
+          arrow: { x: 430, y: 132, dir: 'up' },
           requiresFlag: 'gateOpen',
           blockedText: {
             nl: 'De stenen poortdeur zit muurvast. Het gouden embleem ernaast gloeit veelbetekenend...',
@@ -375,7 +375,7 @@ const GAME = {
       overlays: [],
       worldItems: [
         { item: 'vialEmpty', hotspot: 'chest', x: 412, y: 120, requiresFlag: 'runesSolved' },
-        { item: 'wood', hotspot: 'branch', x: 256, y: 250 }
+        { item: 'wood', hotspot: 'branch', x: 292, y: 268 }
       ],
       npcs: [
         { id: 'dog', sprite: 'dog', x: 415, y: 198, facesLeft: true, wanderRequiresFlag: 'dogWarm',

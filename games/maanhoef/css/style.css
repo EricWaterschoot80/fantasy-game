@@ -709,11 +709,14 @@ html, body {
 
 /* ---------- Legpuzzel: sleep de stukken naar het kader ---------- */
 #puzzle-grid.jig-stage {
-  width: 300px;
+  width: 100%;
   height: auto;
   background: none;
   box-shadow: none;
+  position: relative;
+  overflow: visible;
 }
+.jig-inner { position: absolute; left: 0; top: 0; }
 .jig-frame {
   position: absolute;
   left: 0; top: 0;

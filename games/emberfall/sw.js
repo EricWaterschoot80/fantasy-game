@@ -1,7 +1,7 @@
 /* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet.
    (Eerder: cache-first met ignoreSearch, waardoor updates niet doorkwamen.) */
 
-const CACHE = 'emberfall-v48';
+const CACHE = 'emberfall-v49';
 
 const PRECACHE = [
   './',
