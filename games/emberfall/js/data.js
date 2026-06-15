@@ -18,12 +18,13 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '25',
+  assetVer: '26',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
     hero:           'assets/art/hero.png',
     heroWalk:       'assets/art/hero-walk.png',
+    heroWalkSheet:  'assets/art/hero-walk-sheet.png',   /* 8-frame loopcyclus (Higgsfield AutoSprite) */
     heroWave:       'assets/art/hero-wave.png',
     seer:           'assets/art/seer.png',
     minotaur:       'assets/art/minotaur.png',
@@ -122,6 +123,7 @@ const GAME = {
   items: {
     berries:   { name: { nl: 'Rode Bessen', en: 'Red Berries' },     icon: '🍒', img: 'assets/art/item-berries.png' },
     flower:    { name: { nl: 'Slaapbloem', en: 'Slumber Flower' },   icon: '🌸', img: 'assets/art/item-flower.png' },
+    recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
     berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-vial-water.png' },
@@ -192,7 +194,8 @@ const GAME = {
          struiken/puin al, en de hoeken zijn niet-beloopbaar (voorkomt naad/dubbeling). */
       overlays: [],
       worldItems: [
-        { item: 'berries', hotspot: 'bushes', x: 140, y: 262 }
+        { item: 'berries', hotspot: 'bushes', x: 140, y: 262 },
+        { item: 'recipeCard', hotspot: 'recipe', x: 472, y: 190 }
       ],
       npcs: [
         { id: 'seer', sprite: 'seer', x: 285, y: 205,
@@ -316,6 +319,27 @@ const GAME = {
             item: 'berries',
             giveText: { nl: 'Tussen de rode struiken pluk je een handvol Rode Bessen.', en: 'Among the red bushes you pick a handful of Red Berries.' },
             emptyText: { nl: 'De struiken zijn nu kaal geplukt.', en: 'The bushes have been picked bare.' }
+          }
+        },
+        {
+          id: 'recipe',
+          name: { nl: 'Vergeeld Blaadje', en: 'Yellowed Note' },
+          rect: { x: 444, y: 162, w: 62, h: 50 },
+          walkTo: { x: 418, y: 250 },
+          gives: {
+            item: 'recipeCard',
+            giveText: {
+              nl: 'Tussen de stenen, net boven het puin, ligt een vergeeld en halfvergaan blaadje. Er staat een oud recept op gekrabbeld: “Slaapdrank — vang regenwater, kneus er rode bessen door, en roer er tot slot een Slaapbloem doorheen.”',
+              en: 'Among the stones, just above the rubble, lies a yellowed, half-rotten note. An old recipe is scrawled on it: “Sleeping Draught — catch rainwater, crush in red berries, and finally stir in a Slumber Flower.”'
+            },
+            emptyText: {
+              nl: 'Je kent het recept nu uit je hoofd: regenwater, rode bessen en een slaapbloem.',
+              en: 'You know the recipe by heart now: rainwater, red berries and a slumber flower.'
+            }
+          },
+          look: {
+            nl: 'Een vergeeld receptenblaadje, tussen de stenen geklemd net boven het puin.',
+            en: 'A yellowed recipe note, wedged among the stones just above the rubble.'
           }
         },
         {
@@ -625,7 +649,7 @@ const GAME = {
           { x: 284, y: 147 },
           { x: 397, y: 147 }
         ],
-        amulet: { x: 404, y: 128 },
+        amulet: { x: 332, y: 122 },
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }
@@ -722,12 +746,14 @@ const GAME = {
         {
           id: 'shrine',
           name: { nl: 'Altaar met Amulet', en: 'Altar with Amulet' },
-          rect: { x: 352, y: 110, w: 104, h: 80 },
-          walkTo: { x: 438, y: 224 },
-          requiresFlag: 'minotaurAsleep',
-          blockedText: { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' },
+          rect: { x: 292, y: 90, w: 80, h: 80 },
+          walkTo: { x: 352, y: 232 },
+          requiresFlag: ['torchLit', 'minotaurAsleep'],
+          blockedText: (state) => !state.flags.torchLit
+            ? { nl: 'Het is veel te donker bij het altaar — steek eerst de toortsen aan.', en: 'It’s far too dark at the altar — light the braziers first.' }
+            : { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' },
           jigsaw: {
-            requiresFlag: 'minotaurAsleep',
+            requiresFlag: ['torchLit', 'minotaurAsleep'],
             setFlag: 'wardLifted',
             give: 'amulet', win: true,
             cols: 4, rows: 3,

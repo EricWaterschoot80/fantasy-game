@@ -1089,18 +1089,19 @@
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
     /* Altijd brandende muurfakkel bij de deur — geeft ook in het donker een sprankje licht. */
     if (fx.doorFlame) {
-      const t = fx.doorFlame, r = t.r || 16;
-      const fl = 0.5 + 0.22 * Math.sin(now / 85 + t.x);
+      const t = fx.doorFlame, r = (t.r || 16) + 4;
+      const fl = 0.55 + 0.22 * Math.sin(now / 85 + t.x);
       const g = fctx.createRadialGradient(t.x, t.y, 2, t.x, t.y, r);
-      g.addColorStop(0, `rgba(255,196,96,${0.36 * fl})`);
-      g.addColorStop(1, 'rgba(255,150,60,0)');
+      g.addColorStop(0, `rgba(255,205,100,${0.5 * fl})`);
+      g.addColorStop(0.5, `rgba(255,150,50,${0.28 * fl})`);
+      g.addColorStop(1, 'rgba(255,140,60,0)');
       fctx.fillStyle = g;
       fctx.fillRect(t.x - r, t.y - r, r * 2, r * 2);
       const ff = (Math.sin(now / 70) * 30) | 0;
-      fctx.fillStyle = `rgba(255,${170 + ff},70,0.95)`;
-      fctx.fillRect((t.x - 1) | 0, (t.y - 4) | 0, 2, 6);
-      fctx.fillStyle = 'rgba(255,240,170,0.95)';
-      fctx.fillRect(t.x | 0, (t.y - 2) | 0, 1, 3);
+      fctx.fillStyle = `rgba(255,${170 + ff},70,0.97)`;
+      fctx.fillRect((t.x - 1) | 0, (t.y - 6) | 0, 2, 8);
+      fctx.fillStyle = 'rgba(255,242,180,0.97)';
+      fctx.fillRect(t.x | 0, (t.y - 4) | 0, 1, 4);
     }
     if (fx.waterfall) {
       const wf = fx.waterfall, n = wf.streaks || 16;
@@ -1185,12 +1186,20 @@
     }
     if (fx.flames && !dark) {
       for (const f of fx.flames) {
-        const flicker = 0.18 + 0.1 * Math.sin(now / 90 + f.x);
-        const g = fctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, f.r || 14);
-        g.addColorStop(0, `rgba(255,190,80,${flicker})`);
-        g.addColorStop(1, 'rgba(255,140,40,0)');
+        const r = (f.r || 14) + 6;
+        const flicker = 0.34 + 0.16 * Math.sin(now / 90 + f.x);
+        const g = fctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, r);
+        g.addColorStop(0, `rgba(255,205,100,${flicker})`);
+        g.addColorStop(0.5, `rgba(255,150,50,${flicker * 0.45})`);
+        g.addColorStop(1, 'rgba(255,120,30,0)');
         fctx.fillStyle = g;
-        fctx.fillRect(f.x - (f.r || 14), f.y - (f.r || 14), (f.r || 14) * 2, (f.r || 14) * 2);
+        fctx.fillRect(f.x - r, f.y - r, r * 2, r * 2);
+        /* duidelijk flikkerend vlammetje in de toorts/brazier */
+        const ff = (Math.sin(now / 70 + f.x) * 30) | 0;
+        fctx.fillStyle = `rgba(255,${170 + ff},70,0.95)`;
+        fctx.fillRect((f.x - 1) | 0, (f.y - 6) | 0, 2, 8);
+        fctx.fillStyle = 'rgba(255,242,180,0.95)';
+        fctx.fillRect(f.x | 0, (f.y - 4) | 0, 1, 4);
       }
     }
     /* Brandende muurfakkel zodra hij is aangestoken */
@@ -1417,9 +1426,21 @@
     const walking = !!player.target || player.kbMoving;
     if (ready(hero)) {
       if (walking) {
-        /* Vloeiendere loopcyclus: twee 'contact'-momenten per cyclus (links/rechts)
-           met een verende pas, lichte zwaai en zijwaartse wieg. Met twee stap-frames
-           een volledige animatie; met één loop-frame een soepele sta/stap-wissel. */
+        /* Volledige 8-frame loopcyclus uit de Higgsfield AutoSprite-sheet. */
+        const sheet = art.sprites.heroWalkSheet;
+        if (ready(sheet)) {
+          const NF = 8, fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
+          const fr = Math.floor(player.phase * 0.63) % NF;
+          shadow(player.x, player.y, fw * 0.8);
+          fctx.save();
+          fctx.imageSmoothingEnabled = false;
+          fctx.translate(Math.round(player.x), Math.round(player.y));
+          if (player.flip) fctx.scale(-1, 1);
+          fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-fw / 2), Math.round(-fh), fw, fh);
+          fctx.restore();
+          return;
+        }
+        /* Terugval: soepele 2-frame-pas met verende beweging. */
         const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2;
         const sp = player.phase * 0.5;
         const stride = Math.sin(sp);
@@ -1538,6 +1559,14 @@
   }
 
   function drawFollower(now) {
+    /* Ook het hondje is donkerder in de onverlichte tempel. */
+    const dim = state.currentScene === 'temple' && !state.flags.torchLit;
+    if (dim) fctx.filter = 'brightness(0.62)';
+    drawFollowerSprite(now);
+    if (dim) fctx.filter = 'none';
+  }
+
+  function drawFollowerSprite(now) {
     const moving = !follower.scared &&
       (!!follower.wTarget || Math.hypot(player.x - follower.x, player.y - follower.y) > 46);
     if (follower.scared) {
