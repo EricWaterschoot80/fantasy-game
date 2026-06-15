@@ -35,6 +35,7 @@
   const elDeathText = document.getElementById('deathText');
   const elStartBtn  = document.getElementById('startBtn');
   const elReplayBtn = document.getElementById('replayBtn');
+  const elWinNext   = document.getElementById('winNextBtn');
   const elRetryBtn  = document.getElementById('retryBtn');
 
   const MIN_SLOTS = 6;
@@ -59,6 +60,7 @@
     document.getElementById('win-h1').textContent = L(GAME.ui.winTitle);
     elWinText.textContent = L(GAME.winText);
     elReplayBtn.textContent = L(GAME.ui.replayBtn);
+    if (elWinNext && GAME.ui.playOther) elWinNext.textContent = L(GAME.ui.playOther);
     document.getElementById('death-h1').textContent = L(GAME.ui.deathTitle);
     elDeathText.textContent = L(GAME.ui.deathText);
     elRetryBtn.textContent = L(GAME.ui.retryBtn);
@@ -282,7 +284,11 @@
     const icon = document.getElementById('soundIcon');
     if (icon) icon.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png';
     if (music.master) music.master.gain.value = soundOn ? 1 : 0;
-    if (bgMusic) { bgMusic.volume = soundOn ? 0.07 : 0; if (soundOn) bgMusic.play().catch(() => {}); }
+    /* iOS negeert audio.volume → ook pauzeren zodat 'uit' echt stil is */
+    if (bgMusic) {
+      bgMusic.volume = soundOn ? 0.07 : 0;
+      if (soundOn) bgMusic.play().catch(() => {}); else { try { bgMusic.pause(); } catch (e) {} }
+    }
     if (soundOn) sfx('tap');
   });
 
@@ -385,11 +391,23 @@
   function inWalkableScene(scene, x, y) {
     if (inObstacle(scene, x, y)) return false;
     if (scene.walkPoly) return pointInPoly(scene.walkPoly, x, y);
-    return scene.walkable.some(r =>
+    /* In het donker (scene met darkness-flag nog uit) geldt het beperkte loopgebied. */
+    let rects = scene.walkable;
+    if (scene.darkWalkable && scene.fx && scene.fx.darkness && !state.flags[scene.fx.darkness.until]) {
+      rects = scene.darkWalkable;
+    }
+    return rects.some(r =>
       x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
   }
   function inWalkable(x, y) {
     return inWalkableScene(GAME.scenes[state.currentScene], x, y);
+  }
+  /* Punt dat alléén door de duisternis onbeloopbaar is (wél loopbaar zodra er licht is). */
+  function darkBlocked(x, y) {
+    const scene = GAME.scenes[state.currentScene];
+    if (!(scene.darkWalkable && scene.fx && scene.fx.darkness && !state.flags[scene.fx.darkness.until])) return false;
+    if (inWalkable(x, y) || inObstacle(scene, x, y)) return false;
+    return scene.walkable.some(r => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
   }
   function polyCentroid(poly) {
     let sx = 0, sy = 0;
@@ -866,6 +884,10 @@
       ents.push({ y: rt.y, draw: () => drawNpc(npc, now) });
     }
     ents.push({ y: player.y, draw: () => drawPlayer(now) });
+    /* In de donkere tempel draagt de held de fakkel die zij maakte (licht + sfeer) */
+    if (state.currentScene === 'temple' && state.inventory.includes('torch')) {
+      ents.push({ y: player.y + 0.5, draw: () => drawHeldTorch(now) });
+    }
     if (follower.active) ents.push({ y: follower.y, draw: () => drawFollower(now) });
     if (scene.overlays) {
       for (const o of scene.overlays) {
@@ -1065,6 +1087,21 @@
   function paintFx(scene, now) {
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
+    /* Altijd brandende muurfakkel bij de deur — geeft ook in het donker een sprankje licht. */
+    if (fx.doorFlame) {
+      const t = fx.doorFlame, r = t.r || 16;
+      const fl = 0.5 + 0.22 * Math.sin(now / 85 + t.x);
+      const g = fctx.createRadialGradient(t.x, t.y, 2, t.x, t.y, r);
+      g.addColorStop(0, `rgba(255,196,96,${0.36 * fl})`);
+      g.addColorStop(1, 'rgba(255,150,60,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(t.x - r, t.y - r, r * 2, r * 2);
+      const ff = (Math.sin(now / 70) * 30) | 0;
+      fctx.fillStyle = `rgba(255,${170 + ff},70,0.95)`;
+      fctx.fillRect((t.x - 1) | 0, (t.y - 4) | 0, 2, 6);
+      fctx.fillStyle = 'rgba(255,240,170,0.95)';
+      fctx.fillRect(t.x | 0, (t.y - 2) | 0, 1, 3);
+    }
     if (fx.waterfall) {
       const wf = fx.waterfall, n = wf.streaks || 16;
       for (let i = 0; i < n; i++) {
@@ -1227,7 +1264,12 @@
       const img = art.sprites.chestOpen;
       if (ready(img)) {
         const w = img.naturalWidth, h = img.naturalHeight;
-        fctx.drawImage(img, Math.round(fx.chestOpen.x - w / 2), Math.round(fx.chestOpen.y - h), w, h);
+        /* Gespiegeld getekend (horizontaal omgedraaid) */
+        fctx.save();
+        fctx.translate(Math.round(fx.chestOpen.x), Math.round(fx.chestOpen.y - h));
+        fctx.scale(-1, 1);
+        fctx.drawImage(img, Math.round(-w / 2), 0, w, h);
+        fctx.restore();
         const glow = 0.12 + 0.08 * Math.sin(now / 300);
         const g = fctx.createRadialGradient(fx.chestOpen.x, fx.chestOpen.y - h / 2, 2,
           fx.chestOpen.x, fx.chestOpen.y - h / 2, 26);
@@ -1348,21 +1390,48 @@
     return now < g.until ? (g.until - now) / durMs : 0;
   }
 
+  /* Brandende fakkel in de hand van de held (donkere tempel): warme gloed + vlam */
+  function drawHeldTorch(now) {
+    const hx = player.x + (player.flip ? -9 : 9), hy = player.y - 26;
+    const fl = 0.5 + 0.2 * Math.sin(now / 90), r = 38;
+    const g = fctx.createRadialGradient(hx, hy, 2, hx, hy, r);
+    g.addColorStop(0, `rgba(255,196,96,${0.34 * fl})`);
+    g.addColorStop(1, 'rgba(255,150,60,0)');
+    fctx.fillStyle = g; fctx.fillRect(hx - r, hy - r, r * 2, r * 2);
+    const ix = Math.round(hx), iy = Math.round(hy);
+    fctx.fillStyle = '#5a3a22'; fctx.fillRect(ix - 1, iy, 2, 13);          // steel
+    const ff = (Math.sin(now / 70) * 40) | 0;
+    fctx.fillStyle = `rgba(255,${165 + ff},60,0.95)`; fctx.fillRect(ix - 1, iy - 6, 2, 6);  // vlam
+    fctx.fillStyle = 'rgba(255,238,160,0.95)'; fctx.fillRect(ix, iy - 4, 1, 3);             // hart
+  }
   function drawPlayer(now) {
+    /* In de donkere tempel (vóór torchLit) zijn de personages een tikje donkerder. */
+    const dim = state.currentScene === 'temple' && !state.flags.torchLit;
+    if (dim) fctx.filter = 'brightness(0.62)';
+    drawPlayerSprite(now);
+    if (dim) fctx.filter = 'none';
+  }
+
+  function drawPlayerSprite(now) {
     const hero = art.sprites.hero;
     const walking = !!player.target || player.kbMoving;
     if (ready(hero)) {
       if (walking) {
-        /* loopcyclus: met 2 stap-frames (links/rechts) een echte animatie;
-           anders terugvallen op de oude sta/stap-wissel. */
+        /* Vloeiendere loopcyclus: twee 'contact'-momenten per cyclus (links/rechts)
+           met een verende pas, lichte zwaai en zijwaartse wieg. Met twee stap-frames
+           een volledige animatie; met één loop-frame een soepele sta/stap-wissel. */
         const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2;
-        const stride = Math.sin(player.phase * 0.55);
+        const sp = player.phase * 0.5;
+        const stride = Math.sin(sp);
         let img;
         if (ready(w1) && ready(w2)) img = stride > 0 ? w1 : w2;
-        else img = (stride > 0 && ready(w1)) ? w1 : hero;
-        const hop = -Math.round(Math.abs(stride) * 2.5);
-        const lean = stride * 0.05;
-        drawArtSprite(img, player.x, player.y, { flip: player.flip, bob: hop, rot: lean });
+        else if (ready(w1)) img = Math.abs(stride) > 0.35 ? w1 : hero;
+        else img = hero;
+        const step = Math.abs(stride);                  // piekt twee keer per cyclus
+        const hop = -Math.round(step * 3);              // verende pas
+        const lean = stride * 0.07;                     // lichte zwaai heen/weer
+        const sway = Math.round(Math.cos(sp) * 1);      // subtiele zijwaartse wieg
+        drawArtSprite(img, player.x + (player.flip ? -sway : sway), player.y, { flip: player.flip, bob: hop, rot: lean });
         return;
       }
       /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
@@ -1436,6 +1505,8 @@
         drawArtSprite(img, rt.x, rt.y, { flip: fl, rot: wag });
       }
     } else if (npc.sprite === 'minotaur') {
+      const dimMino = !state.flags.torchLit;            // donkerder in het donker
+      if (dimMino) fctx.filter = 'brightness(0.4)';
       if (state.flags.minotaurAsleep) {
         const img = art.sprites.minotaurAsleep;
         if (ready(img)) {
@@ -1444,6 +1515,7 @@
           drawSprite(fctx, MINO_ASLEEP, (rt.x - MINO_SLEEP_W * S / 2) | 0,
             (rt.y - MINO_SLEEP_H * S) | 0, false, S);
         }
+        if (dimMino) fctx.filter = 'none';
         /* Zzz stijgt op bij zijn kop */
         const zi = ((now / 700) | 0) % 3;
         for (let z = 0; z <= zi; z++) {
@@ -1456,10 +1528,11 @@
           /* hij staat stil — heel subtiele ademhaling (1px, traag) */
           const breathe = Math.sin(now / 1500) > 0.6 ? -1 : 0;
           drawArtSprite(img, rt.x, rt.y, { bob: breathe });
-          return;
+        } else {
+          const f = ((now / 600) | 0) % 2;
+          drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
         }
-        const f = ((now / 600) | 0) % 2;
-        drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
+        if (dimMino) fctx.filter = 'none';
       }
     }
   }
@@ -1843,11 +1916,18 @@
   }
   function fitJigsaw() {
     if (!jig || !jig.innerEl) return;
-    const avail = elPuzGrid.clientWidth || jig.stageW;
-    const sc = Math.min(1, avail / jig.stageW);
+    /* Reset de breedte vóór het meten, anders meten we de al-geschaalde breedte (krimp-lus). */
+    elPuzGrid.style.width = '';
+    const availW = elPuzGrid.clientWidth || jig.stageW;
+    /* Beschikbare hoogte = viewport minus titel, hint-knop, tip en marges van de kaart. */
+    const vh = window.innerHeight || 480;
+    const availH = Math.max(120, vh - 172);
+    /* Schaal op zowel breedte als hoogte zodat de puzzel altijd past (ook liggend mobiel). */
+    const sc = Math.min(1, availW / jig.stageW, availH / jig.stageH);
     jig.scale = sc;
     jig.innerEl.style.transform = 'scale(' + sc + ')';
     jig.innerEl.style.transformOrigin = 'top left';
+    elPuzGrid.style.width = (jig.stageW * sc) + 'px';
     elPuzGrid.style.height = (jig.stageH * sc) + 'px';
   }
   function openJigsaw(hs) {
@@ -2587,6 +2667,15 @@
   function walkThenInteract(hs) {
     showLabel(L(hs.name));
     const wt = hsWalkTo(hs);
+    /* Te donker om er heen te lopen? Loop tot de rand en weiger verder te gaan. */
+    if (darkBlocked(wt.x, wt.y)) {
+      const dest = clampToWalkable(wt.x, wt.y);
+      marker = { x: dest.x, y: dest.y, until: performance.now() + 700 };
+      player.pending = null;
+      player.target = dest;
+      showToast(L(GAME.scenes[state.currentScene].darkWalkText));
+      return;
+    }
     const dist = Math.hypot(player.x - wt.x, player.y - wt.y);
     if (dist <= ARRIVE_DIST + 2) { interactNow(hs); return; }
     player.pending = hs;
@@ -2655,6 +2744,7 @@
       marker = { x: dest.x, y: dest.y, until: performance.now() + 700 };
       player.pending = null;
       player.target = dest;
+      if (darkBlocked(p.x, p.y)) showToast(L(GAME.scenes[state.currentScene].darkWalkText));
     }
   });
 

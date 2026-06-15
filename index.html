@@ -168,11 +168,10 @@
       background: var(--panel); color: var(--gold-light); border: 3px solid var(--gold); box-shadow: 0 0 0 3px #1f1410; padding: 8px 10px; cursor: pointer; }
     /* ---------- Menubalk ---------- */
     .topnav { position: sticky; top: 0; z-index: 8; width: 100%; max-width: 1040px;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
       background: rgba(26,20,16,.94); border: 3px solid var(--gold); box-shadow: 0 0 0 3px #1f1410, 0 4px 0 rgba(0,0,0,.4);
-      padding: 8px 52px 8px 14px; margin-bottom: clamp(16px,3vw,26px); }
-    .nav-brand { font-family: var(--pixel); font-size: 11px; color: var(--gold-light); text-decoration: none; letter-spacing: 1px; white-space: nowrap; }
-    .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+      padding: 8px 14px; margin-bottom: clamp(16px,3vw,26px); }
+    .nav-links { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
     .nav-links a { font-family: var(--pixel); font-size: 9px; color: var(--gold-light); text-decoration: none;
       padding: 7px 9px; border: 2px solid transparent; transition: background .1s, border-color .1s; }
     .nav-links a:hover { border-color: var(--gold); background: var(--panel-2); color: #fff4d2; }
@@ -183,7 +182,6 @@
   <button class="lang" id="lang" aria-label="Taal / Language">NL</button>
 
   <nav class="topnav" aria-label="Menu">
-    <a class="nav-brand" href="#top">⚜ RetroAdventureWorld</a>
     <div class="nav-links">
       <a href="#games" data-en="Games" data-nl="Spellen">Games</a>
       <a href="games/maanhoef/index.html">Maanhoef</a>

@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '23',
+  assetVer: '25',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -61,6 +61,7 @@ const GAME = {
     startBtn:    { nl: 'Begin het avontuur', en: 'Begin the adventure' },
     winTitle:    { nl: 'Emberfall is Gered', en: 'Emberfall is Saved' },
     replayBtn:   { nl: 'Opnieuw spelen', en: 'Play again' },
+    playOther:   { nl: '▸ Speel nu Maanhoef', en: '▸ Now play Moonhoof' },
     deathTitle:  { nl: 'Verslagen...', en: 'Defeated...' },
     deathText:   { nl: 'De minotaur verloor zijn geduld. Met één machtige zwaai word je de tempel uit geslingerd. Gelukkig krabbel je buiten weer overeind.',
                    en: 'The minotaur lost his patience. With one mighty swing you are hurled out of the temple. Luckily, you scramble back to your feet outside.' },
@@ -77,12 +78,14 @@ const GAME = {
     q_chest:     { nl: 'Open de stenen kist in het bos', en: 'Open the stone chest in the grove' },
     q_fill:      { nl: 'Vul het flesje bij het altaar', en: 'Fill the vial at the altar' },
     q_berries:   { nl: 'Pluk rode bessen tussen de struiken', en: 'Pick red berries from the bushes' },
+    q_flower:    { nl: 'Pluk de slaapbloem bij de runenstenen in het bos', en: 'Pick the slumber flower by the rune stones in the grove' },
     q_combine:   { nl: 'Combineer de bessen met het water in je tas', en: 'Combine the berries with the water in your bag' },
+    q_brew:      { nl: 'Roer de slaapbloem door het bessenbrouwsel', en: 'Stir the slumber flower into the berry brew' },
     q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal', en: 'Pour the sleeping draught into the stone bowl' },
     q_torch:     { nl: 'Het is aardedonker — verzamel een vuursteen (binnenplaats) en droog hout (bos)', en: 'It’s pitch dark — gather a flint (courtyard) and dry wood (grove)' },
     q_makeTorch: { nl: 'Combineer de vuursteen en het hout in je tas tot een fakkel', en: 'Combine the flint and the wood in your bag into a torch' },
-    q_lightTorch:{ nl: 'Steek met de fakkel de toortsen bij de minotaur aan', en: 'Light the braziers by the minotaur with your torch' },
-    q_ward:      { nl: 'Een laatste ward: laat het water naar de amulet stromen', en: 'A final ward: make the water flow to the amulet' },
+    q_lightTorch:{ nl: 'Steek met je fakkel de muurfakkel bij de deur aan — dan ontvlammen alle toortsen', en: 'Light the wall torch by the door with your torch — all the braziers will catch' },
+    q_ward:      { nl: 'Los de zegelpuzzel op het altaar op om de amulet te bevrijden', en: 'Solve the seal puzzle on the altar to free the amulet' },
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
@@ -101,6 +104,8 @@ const GAME = {
     { when: { flag: 'visited_temple', notFlag: 'torchLit' },                          quest: 'q_torch' },
     { when: { has: 'potion', notFlag: 'gateOpen' },                 quest: 'q_gate' },
     { when: { has: 'potion' },                                      quest: 'q_pour' },
+    { when: { has: ['berryBrew', 'flower'] },                       quest: 'q_brew' },
+    { when: { has: 'berryBrew' },                                   quest: 'q_flower' },
     { when: { has: ['vialWater', 'berries'] },                      quest: 'q_combine' },
     { when: { has: 'vialWater' },                                   quest: 'q_berries' },
     { when: { has: 'vialEmpty' },                                   quest: 'q_fill' },
@@ -116,8 +121,10 @@ const GAME = {
 
   items: {
     berries:   { name: { nl: 'Rode Bessen', en: 'Red Berries' },     icon: '🍒', img: 'assets/art/item-berries.png' },
+    flower:    { name: { nl: 'Slaapbloem', en: 'Slumber Flower' },   icon: '🌸', img: 'assets/art/item-flower.png' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
+    berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-vial-water.png' },
     potion:    { name: { nl: 'Slaapdrank', en: 'Sleeping Draught' }, icon: '🧪', img: 'assets/art/item-potion.png' },
     amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' },
     vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' },
@@ -132,10 +139,17 @@ const GAME = {
 
   recipes: [
     {
-      a: 'berries', b: 'vialWater', result: 'potion',
+      a: 'berries', b: 'vialWater', result: 'berryBrew',
       text: {
-        nl: 'Je kneust de Rode Bessen in het regenwater. Het brouwsel kleurt diep en geurt zoet — een Slaapdrank.',
-        en: 'You crush the Red Berries into the rainwater. The brew turns deep red and smells sweet — a Sleeping Draught.'
+        nl: 'Je kneust de Rode Bessen in het regenwater. Het brouwsel kleurt diep rood en geurt zoet — maar het mist nog iets dat het beest écht in slaap wiegt: een Slaapbloem.',
+        en: 'You crush the Red Berries into the rainwater. The brew turns deep red and smells sweet — but it still lacks the one thing that truly lulls the beast to sleep: a Slumber Flower.'
+      }
+    },
+    {
+      a: 'berryBrew', b: 'flower', result: 'potion',
+      text: {
+        nl: 'Je plukt de blaadjes van de Slaapbloem en roert ze door het bessenbrouwsel. Het brouwsel wordt loom en zwaar — nu is het een echte Slaapdrank.',
+        en: 'You pluck the petals of the Slumber Flower and stir them through the berry brew. The mixture grows heavy and drowsy — now it is a true Sleeping Draught.'
       }
     },
     {
@@ -185,7 +199,7 @@ const GAME = {
           wander: { x: 245, y: 180, w: 85, h: 45, speed: 22, pauseMin: 2500, pauseMax: 7000 } }
       ],
       fx: {
-        emblemGlow: { x: 348, y: 71, r: 22 },
+        emblemGlow: { x: 332, y: 80, r: 22 },
         fountain: { sx: 225, sy: 117, wx: 228, wy: 138 },
         birds: { n: 1, scale: 1.4, y: 48, yvar: 42, period: 15000, frac: 0.42, bob: 8 }
       },
@@ -211,8 +225,8 @@ const GAME = {
         {
           id: 'emblem',
           name: { nl: 'Gouden Embleem', en: 'Golden Emblem' },
-          rect: { x: 318, y: 40, w: 60, h: 60 },
-          walkTo: { x: 348, y: 176 },
+          rect: { x: 300, y: 48, w: 66, h: 68 },
+          walkTo: { x: 332, y: 176 },
           slidePuzzle: {
             img: 'assets/art/emblem-puzzle.png',
             size: 3,
@@ -376,7 +390,8 @@ const GAME = {
       overlays: [],
       worldItems: [
         { item: 'vialEmpty', hotspot: 'chest', x: 412, y: 120, requiresFlag: 'runesSolved' },
-        { item: 'wood', hotspot: 'branch', x: 292, y: 268 }
+        { item: 'wood', hotspot: 'branch', x: 292, y: 268 },
+        { item: 'flower', hotspot: 'flower', x: 126, y: 178 }
       ],
       npcs: [
         { id: 'dog', sprite: 'dog', x: 415, y: 198, facesLeft: true, wanderRequiresFlag: 'dogWarm',
@@ -470,6 +485,24 @@ const GAME = {
           }
         },
         {
+          id: 'flower',
+          name: { nl: 'Slaapbloem', en: 'Slumber Flower' },
+          rect: { x: 104, y: 150, w: 46, h: 46 },
+          walkTo: { x: 150, y: 206 },
+          gives: {
+            item: 'flower',
+            giveText: {
+              nl: 'Aan de voet van de runenstenen groeit een bleekblauwe Slaapbloem. Je plukt haar voorzichtig — haar zware, zoete geur maakt al loom.',
+              en: 'At the foot of the rune stones grows a pale-blue Slumber Flower. You pick it carefully — its heavy, sweet scent already makes you drowsy.'
+            },
+            emptyText: { nl: 'Hier groeien geen slaapbloemen meer.', en: 'No more slumber flowers grow here.' }
+          },
+          look: {
+            nl: 'Een bleekblauwe bloem die tussen de runenstenen bloeit; haar geur is zwaar en zoet.',
+            en: 'A pale-blue flower blooming among the rune stones; its scent is heavy and sweet.'
+          }
+        },
+        {
           id: 'runeLeaf',
           name: { nl: 'Runensteen: Blad', en: 'Rune Stone: Leaf' },
           rect: { x: 148, y: 52, w: 56, h: 98 },
@@ -554,6 +587,14 @@ const GAME = {
         { x: 28, y: 200, w: 515, h: 72 },
         { x: 28, y: 272, w: 330, h: 44 }
       ],
+      /* In het donker (vóór torchLit) durft de held niet verder dan de ingang bij de deur. */
+      darkWalkable: [
+        { x: 28, y: 200, w: 132, h: 72 }
+      ],
+      darkWalkText: {
+        nl: 'Het is veel te donker om verder de tempel in te lopen. Ik kan beter eerst de toortsen ontsteken.',
+        en: 'It’s far too dark to walk deeper into the temple. I’d better light the torches first.'
+      },
       obstacles: [
         { x: 216, y: 226, w: 42, h: 94 },    // zuilstomp midden (incl. zone erachter)
         { x: 372, y: 220, w: 44, h: 100 },   // zuilstomp rechts
@@ -571,19 +612,22 @@ const GAME = {
            useArt:true houdt de fx-poort (vuur/amulet pas zichtbaar bij licht) intact
            zonder een zwart overlay te tekenen. */
         darkness: { until: 'torchLit', useArt: true },
-        wallTorch: { x: 135, y: 150, h: 46 },
+        /* De muurfakkel naast de deur brandt áltijd (ook in het donker): hij geeft een
+           sprankje licht bij de ingang en is het baken waar je je eigen fakkel aansteekt. */
+        doorFlame: { x: 115, y: 119, r: 17 },
+        /* Vlam-gloed precies op de brandende toortsen in de verlichte tempel-art */
         flames: [
-          { x: 307, y: 148, r: 14 },
-          { x: 434, y: 155, r: 14 }
+          { x: 284, y: 146, r: 13 },   // linker brazier op het altaar
+          { x: 397, y: 146, r: 13 },   // rechter brazier op het altaar
+          { x: 520, y: 119, r: 11 }    // muurfakkel rechts
         ],
         embers: [
-          { x: 307, y: 150 },
-          { x: 434, y: 157 }
+          { x: 284, y: 147 },
+          { x: 397, y: 147 }
         ],
-        amulet: { x: 397, y: 133 },
+        amulet: { x: 404, y: 128 },
         waterGlint: { x: 88, y: 248 },
-        waterGlintNeedsWater: true,
-        bowlEmpty: { x: 95, y: 254, rx: 26, ry: 11 },
+        waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }
       },
       hotspots: [
@@ -598,24 +642,37 @@ const GAME = {
           }
         },
         {
-          id: 'braziers',
-          name: { nl: 'Gedoofde Toortsen', en: 'Cold Braziers' },
-          rect: { x: 286, y: 114, w: 50, h: 46 },
-          walkTo: { x: 300, y: 214 },
+          id: 'doorTorch',
+          name: { nl: 'Muurfakkel bij de Deur', en: 'Wall Torch by the Door' },
+          rect: { x: 100, y: 86, w: 52, h: 70 },
+          walkTo: { x: 128, y: 210 },
           look: (state) => state.flags.torchLit
-            ? { nl: 'De toortsen bij het altaar branden hoog; hun licht vult de hele tempel.', en: 'The braziers by the altar burn high; their light fills the whole temple.' }
-            : { nl: 'Twee gedoofde toortsen flankeren het altaar, vlak bij de minotaur. Met een brandende fakkel kun je ze ontsteken.',
-                en: 'Two cold braziers flank the altar, right by the minotaur. With a lit torch you could set them ablaze.' },
+            ? { nl: 'De muurfakkel naast de deur brandt hoog; haar vlam heeft de hele tempel doen ontvlammen.', en: 'The wall torch beside the door burns high; its flame set the whole temple alight.' }
+            : state.inventory.includes('torch')
+              ? { nl: 'De muurfakkel naast de deur brandt laag na. Houd je brandende fakkel erbij — dan slaat het vuur over op alle toortsen in de tempel. (Gebruik je fakkel op de muurfakkel.)',
+                  en: 'The wall torch beside the door flickers low. Hold your lit torch to it — the fire will leap to every torch in the temple. (Use your torch on the wall torch.)' }
+              : { nl: 'Naast de deur brandt één muurfakkel laag na. Met een eigen brandende fakkel zou ik hiermee de hele tempel kunnen verlichten.',
+                  en: 'Beside the door one wall torch still flickers low. With a lit torch of my own I could set the whole temple ablaze from here.' },
           use: {
             torch: {
               consume: 'torch',
               setFlag: 'torchLit',
               text: {
-                nl: 'Je houdt je fakkel bij de gedoofde toortsen — ze vatten vlam en warm licht overspoelt de tempel. Vlak voor je doemt de minotaur op.',
-                en: 'You hold your torch to the cold braziers — they catch fire and warm light floods the temple. Right before you looms the minotaur.'
+                nl: 'Je houdt je brandende fakkel bij de muurfakkel naast de deur. Het vuur springt over en raast langs de muren — de grote toortsen bij het altaar laaien op en warm licht overspoelt de hele tempel.',
+                en: 'You hold your lit torch to the wall torch beside the door. The fire leaps across and races along the walls — the great braziers by the altar blaze up and warm light floods the whole temple.'
               }
             }
           }
+        },
+        {
+          id: 'braziers',
+          name: { nl: 'Gedoofde Toortsen', en: 'Cold Braziers' },
+          rect: { x: 286, y: 114, w: 50, h: 46 },
+          walkTo: { x: 300, y: 214 },
+          look: (state) => state.flags.torchLit
+            ? { nl: 'De grote toortsen bij het altaar branden hoog; hun licht vult de hele tempel.', en: 'The great braziers by the altar burn high; their light fills the whole temple.' }
+            : { nl: 'Twee grote toortsen flankeren het altaar, nog gedoofd. Ze ontvlammen vanzelf zodra je de muurfakkel bij de deur aansteekt.',
+                en: 'Two great braziers flank the altar, still cold. They will catch by themselves once you light the wall torch by the door.' }
         },
         {
           id: 'minotaur',
@@ -645,6 +702,9 @@ const GAME = {
           name: { nl: 'Stenen Schaal', en: 'Stone Bowl' },
           rect: { x: 55, y: 226, w: 82, h: 58 },
           walkTo: { x: 152, y: 258 },
+          requiresFlag: 'torchLit',
+          blockedText: { nl: 'Het is veel te donker om de schaal te vinden — steek eerst de toortsen aan.',
+                         en: 'It’s far too dark to find the bowl — light the braziers first.' },
           look: (state) => state.flags.minotaurAsleep
             ? { nl: 'De schaal is leeggedronken. Het beest heeft zoet geslurpt.', en: 'The bowl has been drained. The beast slurped it sweetly.' }
             : { nl: 'Een uit de vloer gehouwen drinkschaal, half gevuld met water.', en: 'A drinking bowl carved into the floor, half filled with water.' },
@@ -683,9 +743,9 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Terug naar de Binnenplaats', en: 'Back to the Courtyard' },
-          rect: { x: 24, y: 80, w: 84, h: 152 },
-          walkTo: { x: 92, y: 212 },
-          arrow: { x: 62, y: 160, dir: 'left' },
+          rect: { x: 22, y: 84, w: 70, h: 148 },
+          walkTo: { x: 78, y: 212 },
+          arrow: { x: 56, y: 162, dir: 'left' },
           exit: {
             to: 'courtyard',
             travelText: { nl: 'Je keert terug naar de binnenplaats.', en: 'You return to the courtyard.' }

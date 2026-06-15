@@ -562,6 +562,16 @@ html, body {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 2px 8px rgba(0,0,0,.5);
 }
 
+/* Eind-afbeelding op het win-scherm + 'speel ander spel' knop */
+.win-banner {
+  display: block; width: 100%; max-width: 420px; aspect-ratio: 16 / 9;
+  object-fit: cover; image-rendering: pixelated;
+  border: 2px solid var(--gold); border-radius: 3px;
+  box-shadow: 0 0 0 2px #1f1410, 0 6px 16px rgba(0,0,0,.5);
+  margin: 0 auto 12px;
+}
+.win-next { display: inline-block; margin-top: 10px; text-decoration: none; font-size: 15px; }
+
 /* Pixel-iconen in de knoppen */
 .round-btn img {
   width: 28px;
@@ -901,4 +911,5 @@ html, body {
   .gold-btn.riddle-ans { font-size: 13px; padding: 7px 14px; }
   #riddle-face { width: 36px; height: 36px; }
   .ornament { font-size: 30px; }
+  .win-banner { max-height: 32vh; width: auto; max-width: min(100%, 56vh); margin: 0 auto 8px; }
 }
