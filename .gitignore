@@ -8,3 +8,10 @@
 IMG_*.PNG
 assets/raw/
 assets/scenes/
+
+# Los aangeleverde bron-afbeeldingen/audio (werkbestanden, niet de game-assets)
+*PM.png
+*-2026,*.png
+no-light-*.png
+light-stones-*.png
+/Cistern Syntax.mp3
