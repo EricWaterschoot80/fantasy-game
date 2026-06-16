@@ -1483,6 +1483,18 @@
     return now < g.until ? (g.until - now) / durMs : 0;
   }
 
+  /* Af en toe knipperen met de ogen: korte donkere streep over de oog-lijn van een sprite. */
+  const blinkT = {};
+  function eyeBlink(id, cx, footY, spriteH, eyeFrac, halfW, now) {
+    let b = blinkT[id];
+    if (!b) { b = blinkT[id] = { next: now + 700 + Math.random() * 3500, until: 0 }; }
+    if (now >= b.next) { b.until = now + 120; b.next = now + 2600 + Math.random() * 4400; }
+    if (now >= b.until) return;
+    const ey = Math.round(footY - spriteH + spriteH * eyeFrac);
+    fctx.fillStyle = 'rgba(26,17,12,0.92)';
+    fctx.fillRect(Math.round(cx - halfW), ey, Math.round(halfW * 2), 2);
+  }
+
   /* Brandende fakkel in de hand van de held (donkere tempel): warme gloed + vlam */
   function drawHeldTorch(now) {
     const hx = player.x + (player.flip ? -9 : 9), hy = player.y - 26;
@@ -1554,6 +1566,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
+      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, 0.21, 4, now);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1578,6 +1591,7 @@
           const float_ = Math.round(Math.sin(now / 900) * 1.4);
           drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: float_ + nod });
         }
+        eyeBlink('seer', rt.x, rt.y, img.naturalHeight, 0.225, 4, now);   // gloeiende ogen knipperen
         return;
       }
       const f = ((now / 800) | 0) % 2;
@@ -1646,6 +1660,7 @@
           drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
         }
         if (dimMino) fctx.filter = 'none';
+        if (!walkingToBowl) eyeBlink('minotaur', rt.x, rt.y, ready(img) ? img.naturalHeight : 100, 0.32, 7, now);
       }
     }
   }
