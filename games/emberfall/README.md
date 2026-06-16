@@ -1,7 +1,42 @@
 # De Amulet van Emberfall
 
-16-bit point-and-click avontuur (vanilla JS + canvas, PWA). Onderdeel van RetroAdventureWorld.
-Inhoud staat in `js/data.js` (de `GAME`-structuur), de engine in `js/engine.js`.
+16-bit point-and-click **puzzel**-avontuur (vanilla JS + canvas, PWA). Onderdeel van
+RetroAdventureWorld. Inhoud staat in `js/data.js` (de `GAME`-structuur), de engine in
+`js/engine.js`. ~15 min · tweetalig (NL/EN).
+
+## Verhaal
+
+Het is voor altijd **herfst** geworden in het rijk Emberfall. De amulet is gestolen en
+wordt bewaakt door een **minotaur** — geen zwaard velt hem, enkel **list**. De held (een
+meisje met rode kap) brouwt een **slaapdrank** en verschalkt het beest.
+
+## Scenes
+
+- **De Binnenplaats** (`courtyard`) — start: fontein, bessenstruiken, de poort met
+  het embleem-raadsel, het westpad naar het bos.
+- **Het Runenbos** (`grove`) — de ziener, het schichtige hondje, de runenstenen
+  (volgorde-puzzel; hint op het kleitablet) en een kist.
+- **De Tempel** (`temple`) — donker tot je de fakkels ontsteekt; de slapende minotaur,
+  de stenen schaal, de tegel-volgordepuzzel vóór het altaar en de amulet-zegel-legpuzzel.
+
+## Puzzelketen (globaal)
+
+1. Los het **embleem-raadsel** op → de poort opent.
+2. In het bos: warm het **hondje** (vestje van de ziener), los de **runen-volgorde** op
+   → de kist met het lege flesje; pluk **bessen** en de **slaapbloem**.
+3. Vul het flesje met **water**, combineer met **bessen** → bessenbrouwsel, roer de
+   **slaapbloem** erdoor → **slaapdrank**.
+4. In de tempel: maak een **fakkel** (vuursteen + hout) en ontsteek de toortsen; giet de
+   drank in de **schaal** → de minotaur drinkt en slaapt.
+5. Druk de **tegels** in de juiste volgorde (aanwijzing op de muur) → de amulet komt omhoog;
+   los de **zegel-legpuzzel** op → pak de amulet (winst). Pas op: de minotaur te vaak porren
+   = de tempel uit gevlogen. 💀
+
+## Besturing
+
+Tik in de scene om te lopen · tik op iets interactiefs om het te onderzoeken/gebruiken ·
+tik een item in de tas aan om te selecteren, dan op de scène of een ander item om te
+combineren · 👁 licht hotspots op · 🔊 geluid · EN/NL taal · gouden banner = huidig doel.
 
 ## Afbeeldingen genereren (BELANGRIJK)
 
