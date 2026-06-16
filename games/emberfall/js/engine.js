@@ -1727,6 +1727,7 @@
       if (itemId) {
         const item = GAME.items[itemId];
         slot.classList.add('filled');
+        if (item.sparkle) slot.classList.add('sparkle');
         if (item.img) {
           const im = document.createElement('img');
           im.src = item.img + AV;

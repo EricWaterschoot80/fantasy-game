@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '37',
+  assetVer: '38',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -340,7 +340,9 @@ const GAME = {
       },
       obstacles: [
         { x: 244, y: 274, w: 142, h: 46, notFlag: 'snakeCharmed' },   // wakkere slang blokkeert de HELE strook (geen langsglippen)
-        { x: 132, y: 196, w: 106, h: 120, notFlag: 'bridgeFixed' }   // kapotte brug: geen oversteek zonder plank
+        { x: 132, y: 196, w: 106, h: 120, notFlag: 'bridgeFixed' },   // kapotte brug: geen oversteek zonder plank
+        { x: 16, y: 250, w: 96, h: 70 },    // beek ONDER/links van de brug — niet op het water lopen
+        { x: 184, y: 166, w: 88, h: 100 }   // waterpoel BOVEN/rechts van de brug — niet op het water lopen
       ],
       overlays: [],
       worldItems: [],

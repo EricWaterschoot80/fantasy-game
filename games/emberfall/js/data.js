@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '30',
+  assetVer: '31',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -126,8 +126,8 @@ const GAME = {
     recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/item-recipe-large.png' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
-    berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-vial-water.png' },
-    potion:    { name: { nl: 'Slaapdrank', en: 'Sleeping Draught' }, icon: '🧪', img: 'assets/art/item-potion.png' },
+    berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-berry-brew.png', sparkle: true },
+    potion:    { name: { nl: 'Slaapdrank', en: 'Sleeping Draught' }, icon: '🧪', img: 'assets/art/item-potion.png', sparkle: true },
     amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' },
     vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' },
     powder:    { name: { nl: 'Magisch Poeder', en: 'Magic Powder' }, icon: '✨', img: 'assets/art/item-powder.png' },
@@ -143,15 +143,15 @@ const GAME = {
     {
       a: 'berries', b: 'vialWater', result: 'berryBrew',
       text: {
-        nl: 'Je kneust de Rode Bessen in het regenwater. Het brouwsel kleurt diep rood en geurt zoet — maar het mist nog iets dat het beest écht in slaap wiegt: een Slaapbloem.',
-        en: 'You crush the Red Berries into the rainwater. The brew turns deep red and smells sweet — but it still lacks the one thing that truly lulls the beast to sleep: a Slumber Flower.'
+        nl: 'Je kneust de Rode Bessen in het flesje water. Het water in het flesje kleurt diep rood en begint zacht te glinsteren — maar het mist nog iets dat het beest écht in slaap wiegt: een Slaapbloem.',
+        en: 'You crush the Red Berries into the vial of water. The water in the vial turns deep red and begins to glitter softly — but it still lacks the one thing that truly lulls the beast to sleep: a Slumber Flower.'
       }
     },
     {
       a: 'berryBrew', b: 'flower', result: 'potion',
       text: {
-        nl: 'Je plukt de blaadjes van de Slaapbloem en roert ze door het bessenbrouwsel. Het brouwsel wordt loom en zwaar — nu is het een echte Slaapdrank.',
-        en: 'You pluck the petals of the Slumber Flower and stir them through the berry brew. The mixture grows heavy and drowsy — now it is a true Sleeping Draught.'
+        nl: 'Je doet de Slaapbloem in het flesje. Het brouwsel begint helder te fonkelen met magische sparkles en wordt loom en zwaar — nu is het een echte Slaapdrank.',
+        en: 'You drop the Slumber Flower into the vial. The brew bursts into bright magical sparkles and grows heavy and drowsy — now it is a true Sleeping Draught.'
       }
     },
     {
