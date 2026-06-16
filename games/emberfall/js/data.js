@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '37',
+  assetVer: '40',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -90,7 +90,7 @@ const GAME = {
     q_torch:     { nl: 'Het is aardedonker — verzamel een vuursteen (binnenplaats) en droog hout (bos)', en: 'It’s pitch dark — gather a flint (courtyard) and dry wood (grove)' },
     q_makeTorch: { nl: 'Combineer de vuursteen en het hout in je tas tot een fakkel', en: 'Combine the flint and the wood in your bag into a torch' },
     q_lightTorch:{ nl: 'Steek met je fakkel de muurfakkel bij de deur aan — dan ontvlammen alle toortsen', en: 'Light the wall torch by the door with your torch — all the braziers will catch' },
-    q_ward:      { nl: 'Druk de tegels vóór het altaar in de juiste volgorde in (de fries verraadt de code)', en: 'Press the tiles in front of the altar in the right order (the frieze reveals the code)' },
+    q_ward:      { nl: 'Klik op de tegels vóór het altaar en druk de juiste volgorde in (de aanwijzing staat op de muur rechts van het altaar)', en: 'Click the tiles in front of the altar and press the right order (the clue is on the wall right of the altar)' },
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
@@ -651,6 +651,7 @@ const GAME = {
           { x: 397, y: 147 }
         ],
         amulet: { x: 336, y: 122 },
+        tileHint: { x: 452, y: 120 },   // gegraveerde aanwijzing op de muur rechts van het altaar
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }
@@ -687,6 +688,16 @@ const GAME = {
         { id: 'tile2', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 360, y: 238, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't2' }, tile: true, pips: 2 },
         { id: 'tile3', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 290, y: 268, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't3' }, tile: true, pips: 3 },
         { id: 'tile4', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 360, y: 268, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't4' }, tile: true, pips: 4 },
+        {
+          id: 'tileHint',
+          name: { nl: 'Gegraveerde Aanwijzing', en: 'Carved Clue' },
+          rect: { x: 424, y: 100, w: 60, h: 42 },
+          walkTo: { x: 430, y: 230 },
+          look: (state) => state.flags.amuletRisen
+            ? { nl: 'De gegraveerde tegel-merktekens gloeien rustig na.', en: 'The carved tile-marks glow softly.' }
+            : { nl: 'In de muur rechts van het altaar zijn vier merktekens gekrast — de volgorde voor de tegels: ●●● · ● · ●●●● · ●● (drie, één, vier, twee stippen).',
+                en: 'Carved into the wall right of the altar are four marks — the order for the tiles: ●●● · ● · ●●●● · ●● (three, one, four, two pips).' }
+        },
         {
           id: 'doorTorch',
           name: { nl: 'Muurfakkel bij de Deur', en: 'Wall Torch by the Door' },

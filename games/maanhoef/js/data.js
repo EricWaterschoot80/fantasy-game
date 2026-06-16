@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '39',
+  assetVer: '40',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -157,7 +157,7 @@ const GAME = {
           altSprite: { flag: 'dogFriendly', sprite: 'pupNoKey', sprite2: 'pupNoKey2', idleSprite: 'pupSitNoKey' },
           fleeBox: { x: 90, y: 256, w: 270, h: 36 },
           fleeFrom: 'player', fleeRadius: 78, fleeSpeed: 86, fleeUnlessHas: 'bone', fleeUntilFlag: 'dogFriendly' },
-        { id: 'owl', sprite: 'owl', x: 511, y: 112, blinkEye: { frac: 0.33, halfW: 8 } },
+        { id: 'owl', sprite: 'owl', x: 511, y: 112, blinkEye: { frac: 0.27, halfW: 8 } },
         { id: 'mouse', sprite: 'mouse', sprite2: 'mouse2', scale: 0.62, x: 92, y: 236, hideFlag: 'mouseFed',
           wander: { x: 66, y: 228, w: 64, h: 24, speed: 16, pauseMin: 500, pauseMax: 2200, anywhere: true } }
       ],

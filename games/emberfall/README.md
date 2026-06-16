@@ -6,7 +6,9 @@ Inhoud staat in `js/data.js` (de `GAME`-structuur), de engine in `js/engine.js`.
 ## Afbeeldingen genereren (BELANGRIJK)
 
 Het spel is **16-bit pixel-art** — in-game iconen/sprites (items, tegels, props) moeten daarom
-ook **echte 16-bit pixel-art** zijn, niet fotorealistisch. Prompt expliciet:
+ook **echte 16-bit pixel-art** zijn, niet fotorealistisch. **Alles in dezelfde stijl**: nieuwe
+assets moeten matchen met de bestaande pixel-art én met de scène eromheen (bv. de tegel-puzzel
+gebruikt zandsteen-tegels die bij de tempelvloer passen). Prompt expliciet:
 "16-bit / SNES pixel-art, chunky pixels, harde randen, vlakke kleuren, geen anti-aliasing".
 - **`nano_banana` (nano_banana_pro)** geeft de rijkste, consistente beelden — gebruik het vooral
   voor grote/realistische visuals (hero-banner homepage, eind-illustratie). Voor in-game

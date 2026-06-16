@@ -1296,6 +1296,21 @@
         twinkle(tx, ty, 0.3 + 0.5 * Math.sin(now / 180 + k * 2), '180,225,255');
       }
     }
+    /* Gegraveerde aanwijzing op de muur rechts van het altaar: de volgorde 3-1-4-2 in stippen */
+    if (fx.tileHint && state.flags.minotaurAsleep && !state.flags.amuletRisen) {
+      const t = fx.tileHint, seq = [3, 1, 4, 2];
+      fctx.fillStyle = 'rgba(16,11,6,0.34)';
+      fctx.fillRect(t.x - 26, t.y - 13, 52, 26);
+      fctx.strokeStyle = `rgba(231,207,134,${0.26 + 0.16 * Math.sin(now / 600)})`;
+      fctx.lineWidth = 1;
+      fctx.strokeRect(t.x - 26.5, t.y - 13.5, 52, 26);
+      fctx.fillStyle = `rgba(255,226,150,${0.5 + 0.32 * Math.sin(now / 520)})`;
+      let gx = t.x - 20;
+      for (const n of seq) {
+        for (let i = 0; i < n; i++) fctx.fillRect(gx, Math.round(t.y - (n * 4) / 2 + i * 4), 2, 2);
+        gx += 11;
+      }
+    }
     /* (De dichte/open poortdeur zit nu in de achtergrond-afbeelding.) */
     /* Open kist zodra de runenpuzzel is opgelost */
     if (fx.chestOpen && state.flags.runesSolved) {
@@ -1487,12 +1502,12 @@
   const blinkT = {};
   function eyeBlink(id, cx, footY, spriteH, eyeFrac, halfW, now) {
     let b = blinkT[id];
-    if (!b) { b = blinkT[id] = { next: now + 700 + Math.random() * 3500, until: 0 }; }
-    if (now >= b.next) { b.until = now + 120; b.next = now + 2600 + Math.random() * 4400; }
+    if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
+    if (now >= b.next) { b.until = now + 150; b.next = now + 1900 + Math.random() * 3000; }
     if (now >= b.until) return;
-    const ey = Math.round(footY - spriteH + spriteH * eyeFrac);
-    fctx.fillStyle = 'rgba(26,17,12,0.92)';
-    fctx.fillRect(Math.round(cx - halfW), ey, Math.round(halfW * 2), 2);
+    const ey = Math.round(footY - spriteH + spriteH * eyeFrac - 1);
+    fctx.fillStyle = 'rgba(26,17,12,0.95)';
+    fctx.fillRect(Math.round(cx - halfW), ey, Math.round(halfW * 2), 4);
   }
 
   /* Brandende fakkel in de hand van de held (donkere tempel): warme gloed + vlam */
@@ -1566,7 +1581,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, 0.21, 4, now);
+      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, 0.28, 4, now);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1591,7 +1606,7 @@
           const float_ = Math.round(Math.sin(now / 900) * 1.4);
           drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: float_ + nod });
         }
-        eyeBlink('seer', rt.x, rt.y, img.naturalHeight, 0.225, 4, now);   // gloeiende ogen knipperen
+        eyeBlink('seer', rt.x - 1, rt.y, img.naturalHeight, 0.31, 7, now);   // gloeiende ogen knipperen
         return;
       }
       const f = ((now / 800) | 0) % 2;
@@ -1660,7 +1675,7 @@
           drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
         }
         if (dimMino) fctx.filter = 'none';
-        if (!walkingToBowl) eyeBlink('minotaur', rt.x, rt.y, ready(img) ? img.naturalHeight : 100, 0.32, 7, now);
+        if (!walkingToBowl) eyeBlink('minotaur', rt.x, rt.y, ready(img) ? img.naturalHeight : 100, 0.30, 7, now);
       }
     }
   }
@@ -2414,6 +2429,62 @@
 
   elRuneClose.addEventListener('click', () => { elRune.hidden = true; });
 
+  /* ---------- Tegel-popup vóór het altaar (juiste volgorde indrukken) ---------- */
+  const TILE_DEFS = [{ key: 't1', pips: 1 }, { key: 't2', pips: 2 }, { key: 't3', pips: 3 }, { key: 't4', pips: 4 }];
+  function openTilePopup() {
+    const pz = (GAME.scenes[state.currentScene].puzzles || {}).altarTiles;
+    if (!pz) return;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || GAME.strings.nothingThere); return; }
+    if (pz.requiresFlag && !state.flags[pz.requiresFlag]) { sfx('error'); say(pz.blockedText); return; }
+    elRuneTitle.textContent = lang === 'nl' ? 'De Tegels' : 'The Tiles';
+    elRuneHint.textContent  = lang === 'nl' ? 'Druk de tegels in de juiste volgorde in (zie de muur)' : 'Press the tiles in the right order (see the wall)';
+    renderTilePopup();
+    elRune.hidden = false;
+    sfx('tap');
+  }
+  function renderTilePopup() {
+    const pz = GAME.scenes[state.currentScene].puzzles.altarTiles;
+    const prog = state.flags['puzzle_altarTiles'] || 0;
+    elRuneBtns.innerHTML = '';
+    TILE_DEFS.forEach(({ key, pips }) => {
+      const idx = pz.sequence.indexOf(key);
+      const lit = idx < prog;
+      const btn = document.createElement('button');
+      btn.className = 'tile-btn' + (lit ? ' lit' : '');
+      const im = document.createElement('img'); im.src = 'assets/art/tile-' + pips + '.png' + AV; im.alt = ''; im.draggable = false;
+      btn.appendChild(im);
+      if (!lit) btn.addEventListener('click', () => tilePopupTap(key));
+      elRuneBtns.appendChild(btn);
+    });
+    elRuneStatus.textContent = '';
+  }
+  function tilePopupTap(key) {
+    const pz = GAME.scenes[state.currentScene].puzzles.altarTiles;
+    const progKey = 'puzzle_altarTiles';
+    const prog = state.flags[progKey] || 0;
+    if (key === pz.sequence[prog]) {
+      state.flags[progKey] = prog + 1;
+      sfx('pickup');
+      if (prog + 1 >= pz.sequence.length) {
+        state.flags[pz.setFlag] = true;
+        sfx('combine');
+        if (pz.revealAmulet) amuletRiseT0 = performance.now();
+        const am = (GAME.scenes.temple.fx || {}).amulet;
+        if (am) burstAt(am.x + 8, am.y + 6, { n: 18, col: '231,207,134', up: 16, life: 1.0 });
+        setTimeout(() => { elRune.hidden = true; say(pz.solvedText); updateQuest(); }, 480);
+      } else {
+        renderTilePopup();
+        const rem = pz.sequence.length - (prog + 1);
+        elRuneStatus.textContent = lang === 'nl' ? `Goed! Nog ${rem}...` : `Good! ${rem} more...`;
+      }
+    } else {
+      state.flags[progKey] = 0;
+      sfx('error');
+      elRuneStatus.textContent = L(pz.resetText);
+      setTimeout(renderTilePopup, 1100);
+    }
+  }
+
   /* ---------- Doolhof-puzzel (de ward bij het altaar) ----------
      Een willekeurig (altijd oplosbaar) doolhof; stuur de figuur met de
      richtingsknoppen/pijltjes naar de gloeiende amulet om de ward te lichten. */
@@ -2637,6 +2708,10 @@
 
     if (hs.zoomImg) {
       openZoom(hs.zoomImg);
+      return;
+    }
+    if (hs.tile && hs.puzzleKey) {
+      openTilePopup();
       return;
     }
     if (hs.puzzleKey) {
@@ -2873,8 +2948,8 @@
 
     const hs = hotspotAt(p.x, p.y);
 
-    /* Vloer-tegels vóór het altaar: meteen indrukken (geen lopen, geen popup) */
-    if (hs && hs.tile && hs.puzzleKey) { puzzleTap(hs); return; }
+    /* Vloer-tegels vóór het altaar: open de tegel-popup (juiste volgorde indrukken) */
+    if (hs && hs.tile && hs.puzzleKey) { openTilePopup(); return; }
 
     /* Mobiel: runenstenen openen meteen een popup (geen lopen vereist) */
     if (hs && hs.puzzleKey && window.matchMedia('(pointer: coarse)').matches) {

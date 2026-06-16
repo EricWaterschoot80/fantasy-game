@@ -1411,12 +1411,12 @@
   const blinkT = {};
   function eyeBlink(id, cx, footY, spriteH, eyeFrac, halfW, now) {
     let b = blinkT[id];
-    if (!b) { b = blinkT[id] = { next: now + 700 + Math.random() * 3500, until: 0 }; }
-    if (now >= b.next) { b.until = now + 120; b.next = now + 2600 + Math.random() * 4400; }
+    if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
+    if (now >= b.next) { b.until = now + 150; b.next = now + 1900 + Math.random() * 3000; }
     if (now >= b.until) return;
-    const ey = Math.round(footY - spriteH + spriteH * eyeFrac);
-    fctx.fillStyle = 'rgba(26,17,12,0.92)';
-    fctx.fillRect(Math.round(cx - halfW), ey, Math.round(halfW * 2), 2);
+    const ey = Math.round(footY - spriteH + spriteH * eyeFrac - 1);
+    fctx.fillStyle = 'rgba(26,17,12,0.95)';
+    fctx.fillRect(Math.round(cx - halfW), ey, Math.round(halfW * 2), 4);
   }
 
   function drawPlayer(now) {
@@ -1486,7 +1486,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, 0.21, 4, now);
+      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, 0.24, 4, now);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
