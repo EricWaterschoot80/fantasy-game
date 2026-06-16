@@ -1741,6 +1741,14 @@
 
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
+    const item = GAME.items[itemId];
+    if (item && item.zoomImg) {     // leesbaar item (bv. receptkaart): toon vergroot
+      state.selectedItem = null;
+      sfx('tap');
+      openZoom(item.zoomImg);
+      renderInventory();
+      return;
+    }
     const sel = state.selectedItem;
     if (sel === itemId) {
       state.selectedItem = null;

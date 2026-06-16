@@ -123,7 +123,7 @@ const GAME = {
   items: {
     berries:   { name: { nl: 'Rode Bessen', en: 'Red Berries' },     icon: '🍒', img: 'assets/art/item-berries.png' },
     flower:    { name: { nl: 'Slaapbloem', en: 'Slumber Flower' },   icon: '🌸', img: 'assets/art/item-flower.png' },
-    recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png' },
+    recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/item-recipe-large.png' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
     berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-vial-water.png' },
@@ -326,11 +326,17 @@ const GAME = {
           name: { nl: 'Vergeeld Receptenblaadje', en: 'Yellowed Recipe Note' },
           rect: { x: 444, y: 162, w: 62, h: 50 },
           walkTo: { x: 418, y: 250 },
-          /* Klik = blaadje uitvergroten (het oude slaapdrank-recept, hoge resolutie) */
-          zoomImg: 'assets/art/item-recipe-large.png',
+          gives: {
+            item: 'recipeCard',
+            giveText: {
+              nl: 'Tussen de stenen, net boven het puin, vind je een vergeeld receptenblaadje. Je stopt het in je tas — tik er later op om het oude recept groot te bekijken.',
+              en: 'Among the stones, just above the rubble, you find a yellowed recipe note. You tuck it into your bag — tap it later to view the old recipe up close.'
+            },
+            emptyText: { nl: 'Het receptenblaadje zit al veilig in je tas.', en: 'The recipe note is already safe in your bag.' }
+          },
           look: {
-            nl: 'Een vergeeld receptenblaadje tussen de stenen. Erop staat een oud recept gekrabbeld — tik erop om het te lezen.',
-            en: 'A yellowed recipe note wedged among the stones. An old recipe is scrawled on it — tap it to read.'
+            nl: 'Een vergeeld receptenblaadje, tussen de stenen geklemd net boven het puin.',
+            en: 'A yellowed recipe note, wedged among the stones just above the rubble.'
           }
         },
         {
