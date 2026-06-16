@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '46',
+  assetVer: '47',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -651,7 +651,7 @@ const GAME = {
           { x: 397, y: 147 }
         ],
         amulet: { x: 336, y: 122 },
-        tileHint: { x: 466, y: 151 },   // gegraveerde aanwijzing op de muur, onder de stierenkop rechts
+        tileHint: { x: 471, y: 151 },   // gegraveerde aanwijzing op de muur, onder de stierenkop rechts
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }

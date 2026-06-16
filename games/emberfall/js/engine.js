@@ -1382,11 +1382,11 @@
     const pips = TILE_PIPS[hs.pips || 1] || TILE_PIPS[1];
     const glow = pressed ? 0.95 : (0.42 + 0.26 * Math.sin(now / 430 + r.x));
     for (const [fx, fy] of pips) {
-      const px = r.x + 4 + fx * (r.w - 8) - 5, py = r.y + 3 + fy * (r.h - 6) - 5;   // 5px naar links + omhoog
-      const g = fctx.createRadialGradient(px, py, 0.3, px, py, 3.4);   // kleinere, zachte gloed
+      const px = r.x + 4 + fx * (r.w - 8) - 7, py = r.y + 3 + fy * (r.h - 6) - 7;   // iets meer naar links + 2px hoger
+      const g = fctx.createRadialGradient(px, py, 0.3, px, py, 2.6);   // kleinere, zachte gloed
       g.addColorStop(0, `rgba(255,226,150,${glow})`);
       g.addColorStop(1, 'rgba(255,226,150,0)');
-      fctx.fillStyle = g; fctx.fillRect(px - 4, py - 4, 8, 8);
+      fctx.fillStyle = g; fctx.fillRect(px - 3, py - 3, 6, 6);
       fctx.fillStyle = `rgba(255,232,168,${Math.min(1, glow + 0.3)})`;  // klein gloeiend puntje
       fctx.fillRect(Math.round(px), Math.round(py), 1, 1);
     }
@@ -1550,9 +1550,9 @@
     if (eyes === 2) {
       const g = halfW;   // de twee ogen liggen op cx ± halfW
       for (const s of [-1, 1]) {
-        const x0 = Math.round(cx + s * g) - 1;   // 3px breed, gecentreerd op elk oog
-        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 3, 3);   // 3x3 dekt het hele oog
-        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 2, 3, 1);
+        const x0 = Math.round(cx + s * g) - 2;   // 4px breed, gecentreerd -> dekt het oog ook gespiegeld (naar links kijkend)
+        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 4, 3);
+        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 2, 4, 1);
       }
     } else {
       const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
@@ -2450,6 +2450,7 @@
   function renderRunePopup() {
     const pz = GAME.scenes[state.currentScene].puzzles.runes;
     const prog = state.flags['puzzle_runes'] || 0;
+    elRuneBtns.className = 'rune-btn-row';
     elRuneBtns.innerHTML = '';
     RUNE_DEFS.forEach(({ key, nl, en }) => {
       const idx = pz.sequence.indexOf(key);
@@ -2509,6 +2510,7 @@
   function renderTilePopup() {
     const pz = GAME.scenes[state.currentScene].puzzles.altarTiles;
     const prog = state.flags['puzzle_altarTiles'] || 0;
+    elRuneBtns.className = 'rune-btn-row tile-grid';   // altijd 2 rijen × 2 kolommen
     elRuneBtns.innerHTML = '';
     TILE_DEFS.forEach(({ key, pips }) => {
       const idx = pz.sequence.indexOf(key);
@@ -2517,27 +2519,43 @@
       btn.className = 'tile-btn' + (lit ? ' lit' : '');
       const im = document.createElement('img'); im.src = 'assets/art/tile-' + pips + '.png' + AV; im.alt = ''; im.draggable = false;
       btn.appendChild(im);
-      if (!lit) btn.addEventListener('click', () => tilePopupTap(key));
+      if (!lit) btn.addEventListener('click', () => tilePopupTap(key, btn));
       elRuneBtns.appendChild(btn);
     });
     elRuneStatus.textContent = '';
   }
-  function tilePopupTap(key) {
+  /* Lichte sparkels op een tegel bij een juiste keuze. */
+  function spawnTileSparkles(btn) {
+    for (let i = 0; i < 6; i++) {
+      const sp = document.createElement('span');
+      sp.className = 'tile-sparkle';
+      sp.style.left = (12 + Math.random() * 76) + '%';
+      sp.style.top = (12 + Math.random() * 76) + '%';
+      sp.style.animationDelay = (Math.random() * 0.18) + 's';
+      btn.appendChild(sp);
+      setTimeout(() => sp.remove(), 850);
+    }
+  }
+  function tilePopupTap(key, btn) {
     const pz = GAME.scenes[state.currentScene].puzzles.altarTiles;
     const progKey = 'puzzle_altarTiles';
     const prog = state.flags[progKey] || 0;
     if (key === pz.sequence[prog]) {
       state.flags[progKey] = prog + 1;
       sfx('pickup');
+      if (btn) {                                   // juiste keuze -> lichte sparkels
+        btn.classList.add('lit', 'spark');
+        spawnTileSparkles(btn);
+        setTimeout(() => btn.classList.remove('spark'), 700);
+      }
       if (prog + 1 >= pz.sequence.length) {
         state.flags[pz.setFlag] = true;
         sfx('combine');
         if (pz.revealAmulet) amuletRiseT0 = performance.now();
         const am = (GAME.scenes.temple.fx || {}).amulet;
         if (am) burstAt(am.x + 8, am.y + 6, { n: 18, col: '231,207,134', up: 16, life: 1.0 });
-        setTimeout(() => { elRune.hidden = true; say(pz.solvedText); updateQuest(); }, 480);
+        setTimeout(() => { elRune.hidden = true; say(pz.solvedText); updateQuest(); }, 560);
       } else {
-        renderTilePopup();
         const rem = pz.sequence.length - (prog + 1);
         elRuneStatus.textContent = lang === 'nl' ? `Goed! Nog ${rem}...` : `Good! ${rem} more...`;
       }
