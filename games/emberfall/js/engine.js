@@ -1515,12 +1515,17 @@
         if (ready(sheet)) {
           const NF = 8, fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
           const fr = Math.floor(player.phase * 0.63) % NF;
-          shadow(player.x, player.y, fw * 0.8);
+          /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
+             de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven. */
+          const dh = ready(hero) ? hero.naturalHeight : 56;
+          const dw = Math.round(fw * dh / fh);
+          const foot = Math.round(dh * 2 / fh);   // compenseer de lucht onder de voeten
+          shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
           fctx.translate(Math.round(player.x), Math.round(player.y));
           if (player.flip) fctx.scale(-1, 1);
-          fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-fw / 2), Math.round(-fh), fw, fh);
+          fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
           fctx.restore();
           return;
         }
