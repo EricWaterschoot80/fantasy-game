@@ -155,6 +155,8 @@
   let started    = false;
   let msgQueue   = [];
   let pendingWin = false;
+  let minoWalk = null;        // animatie: minotaur loopt naar de schaal en valt in slaap
+  let amuletRiseT0 = 0;       // moment waarop de amulet omhoog begint te schuiven
   let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
   let labelTimer = null;
@@ -725,6 +727,18 @@
         rt.x = rt.baseX + Math.sin(ph) * npc.patrol.amp;
         rt.flip = Math.cos(ph) < 0;
       }
+      /* Minotaur sjokt naar de schaal en valt daar in slaap (korte animatie) */
+      if (npc.id === 'minotaur' && minoWalk && !minoWalk.arrived) {
+        const dx = minoWalk.tx - rt.x, dy = minoWalk.ty - rt.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 3) { minoWalk.arrived = true; sfx('sleep'); }
+        else {
+          const step = Math.min(64 * dt, dist);
+          rt.x += dx / dist * step; rt.y += dy / dist * step;
+          rt.phase += step * 0.2;
+          if (Math.abs(dx) > 1) rt.flip = dx < 0;
+        }
+      }
     }
 
     /* Trouwe hond: volgt de speler; is bang vlakbij de wakkere minotaur */
@@ -1287,26 +1301,32 @@
         fctx.fillRect(fx.chestOpen.x - 26, fx.chestOpen.y - h / 2 - 26, 52, 52);
       }
     }
-    if (fx.amulet && !dark && !state.flags.taken_temple_shrine) {
+    if (fx.amulet && state.flags.amuletRisen && !state.flags.taken_temple_shrine) {
       const a = fx.amulet;
-      const glow = 0.3 + 0.18 * Math.sin(now / 350);
-      const g = fctx.createRadialGradient(a.x + 8, a.y + 8, 1, a.x + 8, a.y + 8, 17);
+      /* schuift omhoog uit het altaar zodra de puzzel is opgelost */
+      const rise = amuletRiseT0 ? Math.min(1, (now - amuletRiseT0) / 950) : 1;
+      const ease = 1 - Math.pow(1 - rise, 3);
+      const yo = Math.round((1 - ease) * 24);   // begint 24px lager
+      const ax = a.x, ay = a.y + yo;
+      const glow = (0.3 + 0.18 * Math.sin(now / 350)) * (0.45 + 0.55 * ease);
+      const g = fctx.createRadialGradient(ax + 8, ay + 8, 1, ax + 8, ay + 8, 17);
       g.addColorStop(0, `rgba(231,207,134,${glow})`);
       g.addColorStop(1, 'rgba(231,207,134,0)');
       fctx.fillStyle = g;
-      fctx.fillRect(a.x - 9, a.y - 9, 34, 34);
+      fctx.fillRect(ax - 9, ay - 9, 34, 34);
       const img = art.items.amulet;
       if (ready(img)) {
         const hgt = 17, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
-        fctx.drawImage(img, a.x, a.y, wd, hgt);
+        fctx.drawImage(img, ax, ay, wd, hgt);
       } else {
-        drawSprite(fctx, AMULET_SPRITE, a.x, a.y, false, 2);
+        drawSprite(fctx, AMULET_SPRITE, ax, ay, false, 2);
       }
-      /* dansende fonkelingen rond de amulet */
-      for (let k = 0; k < 3; k++) {
+      /* dansende fonkelingen rond de amulet (extra tijdens het omhoog schuiven) */
+      const nTw = rise < 1 ? 5 : 3;
+      for (let k = 0; k < nTw; k++) {
         const ang = now / 700 + k * 2.1;
-        const tx = a.x + 8 + Math.cos(ang) * 14;
-        const ty = a.y + 8 + Math.sin(ang * 1.3) * 12;
+        const tx = ax + 8 + Math.cos(ang) * 14;
+        const ty = ay + 8 + Math.sin(ang * 1.3) * 12;
         twinkle(tx, ty, 0.45 + 0.45 * Math.sin(now / 200 + k * 2));
       }
     }
@@ -1536,7 +1556,8 @@
     } else if (npc.sprite === 'minotaur') {
       const dimMino = !state.flags.torchLit;            // donkerder in het donker
       if (dimMino) fctx.filter = 'brightness(0.4)';
-      if (state.flags.minotaurAsleep) {
+      const walkingToBowl = !!(minoWalk && !minoWalk.arrived);
+      if (state.flags.minotaurAsleep && !walkingToBowl) {
         const img = art.sprites.minotaurAsleep;
         if (ready(img)) {
           drawArtSprite(img, rt.x, rt.y, { bob: Math.round(Math.sin(now / 800)) });
@@ -1554,9 +1575,11 @@
       } else {
         const img = art.sprites.minotaur;
         if (ready(img)) {
-          /* hij staat stil — heel subtiele ademhaling (1px, traag) */
-          const breathe = Math.sin(now / 1500) > 0.6 ? -1 : 0;
-          drawArtSprite(img, rt.x, rt.y, { bob: breathe });
+          /* loopt naar de schaal: deinende stap; anders subtiele ademhaling */
+          const bob = walkingToBowl ? -Math.round(Math.abs(Math.sin(rt.phase * 0.6)) * 2)
+                                    : (Math.sin(now / 1500) > 0.6 ? -1 : 0);
+          const lean = walkingToBowl ? Math.sin(rt.phase * 0.6) * 0.04 : 0;
+          drawArtSprite(img, rt.x, rt.y, { bob: bob, rot: lean, flip: rt.flip });
         } else {
           const f = ((now / 600) | 0) % 2;
           drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
@@ -2091,10 +2114,16 @@
     const cfg = jig.hs.jigsaw;
     if (jig.frameEl) jig.frameEl.classList.add('jig-done');
     if (cfg.setFlag) state.flags[cfg.setFlag] = true;
-    if (cfg.give) addItem(cfg.give);
     sfx('gate'); paintBackground();
     setTimeout(() => {
       elPuzzle.hidden = true; jig = null;
+      if (cfg.revealAmulet) {                       // amulet schuift omhoog uit het altaar
+        state.flags.amuletRisen = true;
+        amuletRiseT0 = performance.now();
+        const am = (GAME.scenes.temple.fx || {}).amulet;
+        if (am) burstAt(am.x + 8, am.y + 6, { n: 18, col: '231,207,134', up: 16, life: 1.0 });
+      }
+      if (cfg.give) addItem(cfg.give);
       if (cfg.win) { pendingWin = true; sfx('win'); }
       say(cfg.solvedText);
       updateQuest();
@@ -2649,7 +2678,15 @@
       follower.x = (npcRt.dog ? npcRt.dog.x : player.x);
       follower.y = (npcRt.dog ? npcRt.dog.y : player.y);
     }
-    if (a.setFlag === 'minotaurAsleep') sfx('sleep');
+    if (a.setFlag === 'minotaurAsleep') {
+      sfx('sleep');
+      /* sparkle-effect in het water van de schaal zodra de drank erin gaat */
+      const wg = (GAME.scenes.temple.fx || {}).waterGlint || { x: 88, y: 248 };
+      burstAt(wg.x, wg.y, { n: 20, col: '150,210,255', up: 14, life: 1.0 });
+      burstAt(wg.x, wg.y, { n: 10, col: '255,242,180', up: 12, life: 1.1 });
+      /* minotaur sjokt naar de schaal en valt daar in slaap */
+      minoWalk = { arrived: false, tx: 168, ty: 258 };
+    }
     else if (a.give) sfx('pickup');
     else if (a.consume) sfx('use');
     if (a.text) say(a.text, anchor, face);
@@ -2833,6 +2870,8 @@
     state = newState();
     msgQueue = [];
     pendingWin = false;
+    minoWalk = null;
+    amuletRiseT0 = 0;
     revive = null;
     elMsg.hidden = true;
     elBubble.hidden = true;

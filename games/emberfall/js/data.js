@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '31',
+  assetVer: '32',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -734,8 +734,8 @@ const GAME = {
               consume: 'potion',
               setFlag: 'minotaurAsleep',
               text: {
-                nl: 'Je giet de Slaapdrank ongezien in de schaal. De minotaur drinkt gulzig... en zakt loom in slaap. De weg naar het altaar is vrij.',
-                en: 'You pour the Sleeping Draught unseen into the bowl. The minotaur drinks greedily... and sinks into slumber. The way to the altar is clear.'
+                nl: 'Je giet de Slaapdrank ongezien in de schaal — het water vonkt en glinstert op. De minotaur sjokt nieuwsgierig naar de schaal, drinkt gulzig... en zakt loom in slaap. De weg naar het altaar is vrij.',
+                en: 'You pour the Sleeping Draught unseen into the bowl — the water sparkles and glints. The minotaur shuffles over to the bowl, drinks greedily... and sinks into slumber. The way to the altar is clear.'
               }
             }
           }
@@ -752,13 +752,13 @@ const GAME = {
           jigsaw: {
             requiresFlag: ['torchLit', 'minotaurAsleep'],
             setFlag: 'wardLifted',
-            give: 'amulet', win: true,
+            give: 'amulet', win: true, revealAmulet: true,
             cols: 4, rows: 3,
             img: 'assets/art/amulet-seal.png',
             title: { nl: 'Het Zegel van de Amulet', en: 'The Amulet Seal' },
             solvedText: {
-              nl: 'De scherven klikken samen tot één geheel. Het zegel dooft met een diepe zucht en de Amulet van Emberfall ligt vrij — je grijpt hem. Warm licht stroomt door je heen.',
-              en: 'The shards click together into one. The seal fades with a deep sigh and the Amulet of Emberfall lies free — you seize it. Warm light flows through you.'
+              nl: 'De scherven klikken samen tot één geheel. Met een diep gerommel schuift de Amulet van Emberfall langzaam omhoog uit het altaar, stralend in het licht — je grijpt hem. Warm licht stroomt door je heen.',
+              en: 'The shards click together into one. With a deep rumble the Amulet of Emberfall slowly rises up out of the altar, blazing with light — you seize it. Warm light flows through you.'
             }
           },
           look: { nl: 'Het altaar is leeg; de amulet is van jou.', en: 'The altar is empty; the amulet is yours.' }
