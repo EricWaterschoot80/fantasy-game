@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '44',
+  assetVer: '46',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -621,9 +621,9 @@ const GAME = {
         en: 'It’s far too dark to walk deeper into the temple. I’d better light the torches first.'
       },
       obstacles: [
-        { x: 216, y: 226, w: 42, h: 94 },    // zuilstomp midden (incl. zone erachter)
-        { x: 372, y: 220, w: 44, h: 100 },   // zuilstomp rechts
-        { x: 508, y: 188, w: 60, h: 132 },   // grote zuil rechts
+        /* De middelste/rechter "zuilstomp"-blokken stonden op OPEN vloer vlak naast de minotaur
+           en lieten de held vastlopen als hij erlangs liep — verwijderd zodat de vloer vrij is. */
+        { x: 508, y: 188, w: 60, h: 132 },   // grote zuil/muur rechts
         { x: 55, y: 226, w: 82, h: 58 }      // stenen schaal
       ],
       overlays: [],
@@ -651,7 +651,7 @@ const GAME = {
           { x: 397, y: 147 }
         ],
         amulet: { x: 336, y: 122 },
-        tileHint: { x: 473, y: 151 },   // gegraveerde aanwijzing op de muur, onder de stierenkop rechts
+        tileHint: { x: 466, y: 151 },   // gegraveerde aanwijzing op de muur, onder de stierenkop rechts
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }

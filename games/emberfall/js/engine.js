@@ -1300,17 +1300,15 @@
        Subtiel ingebeiteld (geen omlijning/paneel) — alleen de stippen, +7px naar rechts. */
     if (fx.tileHint && state.flags.minotaurAsleep && !state.flags.amuletRisen) {
       const t = fx.tileHint, seq = [3, 1, 4, 2];
-      const pulse = 0.45 + 0.18 * Math.sin(now / 620);
-      let gx = t.x - 13;
+      const pulse = 0.42 + 0.16 * Math.sin(now / 620);
+      let gx = t.x - 11;
       for (const n of seq) {
         for (let i = 0; i < n; i++) {
-          const py = Math.round(t.y - (n * 3) / 2 + i * 3);
-          fctx.fillStyle = 'rgba(8,5,2,0.5)';                          // ingebeitelde schaduw
-          fctx.fillRect(gx, py + 1, 1, 1);
+          const py = Math.round(t.y - (n * 2.5) / 2 + i * 2.5);
           fctx.fillStyle = `rgba(255,222,74,${pulse})`;                // klein, geel, licht gloeiend
           fctx.fillRect(gx, py, 1, 1);
         }
-        gx += 10;
+        gx += 7;
       }
     }
     /* (De dichte/open poortdeur zit nu in de achtergrond-afbeelding.) */
@@ -1550,11 +1548,11 @@
     const lid = `rgb(${col.r},${col.g},${col.b})`;
     const lash = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.8)`;
     if (eyes === 2) {
-      const g = Math.max(2, Math.round(halfW * 0.6));   // halve afstand tussen de twee ogen
+      const g = halfW;   // de twee ogen liggen op cx ± halfW
       for (const s of [-1, 1]) {
-        const x0 = Math.round(cx + s * g - 1);
-        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 2, 2);
-        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, 2, 1);
+        const x0 = Math.round(cx + s * g) - 1;   // 3px breed, gecentreerd op elk oog
+        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 3, 3);   // 3x3 dekt het hele oog
+        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 2, 3, 1);
       }
     } else {
       const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
@@ -1640,7 +1638,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero, 0.28, 4, now, 2);   // held: beide ogen
+      eyeBlink('hero', player.x, player.y + breathe, hero, 0.30, 4, now, 2);   // held: beide ogen
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
