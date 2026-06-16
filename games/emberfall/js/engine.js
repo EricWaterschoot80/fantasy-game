@@ -1280,6 +1280,22 @@
         fctx.fillRect(wgl.x + (((now / 800) | 0) % 3) * 5, wgl.y, 2, 1);
       }
     }
+    /* Het slaapmiddel blijft fonkelen in het water van de schaal */
+    if (fx.waterGlint && state.flags.minotaurAsleep) {
+      const wg = fx.waterGlint;
+      const gl = 0.10 + 0.06 * Math.sin(now / 360);
+      const g = fctx.createRadialGradient(wg.x, wg.y, 1, wg.x, wg.y, 16);
+      g.addColorStop(0, `rgba(150,210,255,${gl})`);
+      g.addColorStop(1, 'rgba(150,210,255,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(wg.x - 16, wg.y - 16, 32, 32);
+      for (let k = 0; k < 3; k++) {
+        const ang = now / 520 + k * 2.1;
+        const tx = wg.x + Math.cos(ang) * 12;
+        const ty = wg.y - 2 + Math.sin(ang * 1.3) * 7;
+        twinkle(tx, ty, 0.3 + 0.5 * Math.sin(now / 180 + k * 2), '180,225,255');
+      }
+    }
     /* (De dichte/open poortdeur zit nu in de achtergrond-afbeelding.) */
     /* Open kist zodra de runenpuzzel is opgelost */
     if (fx.chestOpen && state.flags.runesSolved) {
@@ -1332,6 +1348,29 @@
     }
   }
 
+  /* Gekraste vloer-tegel met gouden pips, vóór het altaar */
+  function drawTile(hs, pressed, now) {
+    const r = hs.rect, cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+    fctx.save();
+    fctx.fillStyle = pressed ? 'rgba(120,90,40,0.55)' : 'rgba(36,26,14,0.42)';
+    fctx.fillRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4);
+    fctx.lineWidth = 1;
+    fctx.strokeStyle = pressed ? 'rgba(255,226,150,0.95)' : 'rgba(231,207,134,0.5)';
+    fctx.strokeRect(r.x + 2.5, r.y + 2.5, r.w - 5, r.h - 5);
+    const pips = hs.pips || 1;
+    const pulse = pressed ? 1 : (0.5 + 0.28 * Math.sin(now / 420 + r.x));
+    fctx.fillStyle = `rgba(255,226,150,${pulse})`;
+    const gap = 9, startx = cx - (pips - 1) * gap / 2;
+    for (let i = 0; i < pips; i++) { fctx.beginPath(); fctx.arc(startx + i * gap, cy, 2.3, 0, 6.3); fctx.fill(); }
+    fctx.restore();
+    if (pressed) {
+      const g = fctx.createRadialGradient(cx, cy, 2, cx, cy, 26);
+      g.addColorStop(0, `rgba(255,226,150,${0.3 + 0.15 * Math.sin(now / 250)})`);
+      g.addColorStop(1, 'rgba(255,226,150,0)');
+      fctx.fillStyle = g; fctx.fillRect(cx - 26, cy - 26, 52, 52);
+    }
+  }
+
   function paintPuzzleGlow(scene, now) {
     if (!scene.puzzles) return;
     for (const hs of scene.hotspots) {
@@ -1339,6 +1378,13 @@
       const pz = scene.puzzles[hs.puzzleKey.puzzle];
       const prog = state.flags['puzzle_' + hs.puzzleKey.puzzle] || 0;
       const idx = pz.sequence.indexOf(hs.puzzleKey.key);
+      /* Vloer-tegels: altijd zichtbaar zodra de puzzel actief is (en nog niet opgelost) */
+      if (hs.tile) {
+        if (pz.requiresFlag && !state.flags[pz.requiresFlag]) continue;
+        if (state.flags[pz.setFlag]) continue;
+        drawTile(hs, idx < prog, now);
+        continue;
+      }
       const revealed = pz.revealFlag && state.flags[pz.revealFlag];
       const lit = state.flags[pz.setFlag] || idx < prog || revealed;
       if (!lit) continue;
@@ -1855,6 +1901,7 @@
       if (prog + 1 >= pz.sequence.length) {
         state.flags[pz.setFlag] = true;
         sfx('combine');
+        if (pz.revealAmulet) { amuletRiseT0 = performance.now(); }   // amulet schuift omhoog
         say(pz.solvedText);
         if (pz.burst) burstAt(pz.burst.x, pz.burst.y);
         updateQuest();
@@ -2795,6 +2842,9 @@
     if (p.x < 0 || p.x > SCENE_W || p.y < 0 || p.y > SCENE_H) return;
 
     const hs = hotspotAt(p.x, p.y);
+
+    /* Vloer-tegels vóór het altaar: meteen indrukken (geen lopen, geen popup) */
+    if (hs && hs.tile && hs.puzzleKey) { puzzleTap(hs); return; }
 
     /* Mobiel: runenstenen openen meteen een popup (geen lopen vereist) */
     if (hs && hs.puzzleKey && window.matchMedia('(pointer: coarse)').matches) {

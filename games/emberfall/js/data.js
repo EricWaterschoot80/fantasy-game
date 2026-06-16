@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '33',
+  assetVer: '34',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -86,7 +86,7 @@ const GAME = {
     q_torch:     { nl: 'Het is aardedonker — verzamel een vuursteen (binnenplaats) en droog hout (bos)', en: 'It’s pitch dark — gather a flint (courtyard) and dry wood (grove)' },
     q_makeTorch: { nl: 'Combineer de vuursteen en het hout in je tas tot een fakkel', en: 'Combine the flint and the wood in your bag into a torch' },
     q_lightTorch:{ nl: 'Steek met je fakkel de muurfakkel bij de deur aan — dan ontvlammen alle toortsen', en: 'Light the wall torch by the door with your torch — all the braziers will catch' },
-    q_ward:      { nl: 'Los de zegelpuzzel op het altaar op om de amulet te bevrijden', en: 'Solve the seal puzzle on the altar to free the amulet' },
+    q_ward:      { nl: 'Druk de tegels vóór het altaar in de juiste volgorde in (de fries verraadt de code)', en: 'Press the tiles in front of the altar in the right order (the frieze reveals the code)' },
     q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
@@ -98,7 +98,7 @@ const GAME = {
      De engine leest dit generiek (zie condMet/questKey). */
   questRules: [
     { when: { flag: 'taken_temple_shrine' },                        quest: null },
-    { when: { flag: 'minotaurAsleep', notFlag: 'wardLifted' },      quest: 'q_ward' },
+    { when: { flag: 'minotaurAsleep', notFlag: 'amuletRisen' },     quest: 'q_ward' },
     { when: { flag: 'minotaurAsleep' },                             quest: 'q_amulet' },
     { when: { flag: 'visited_temple', notFlag: 'torchLit', has: 'torch' },           quest: 'q_lightTorch' },
     { when: { flag: 'visited_temple', notFlag: 'torchLit', has: ['flint', 'wood'] }, quest: 'q_makeTorch' },
@@ -640,7 +640,7 @@ const GAME = {
           { x: 284, y: 146, r: 13 },   // linker brazier op het altaar
           { x: 397, y: 146, r: 13 },   // rechter brazier op het altaar
           { x: 115, y: 119, r: 12 },   // muurfakkel links (bij de deur)
-          { x: 520, y: 119, r: 11 }    // muurfakkel rechts
+          { x: 545, y: 120, r: 12 }    // muurfakkel rechts (op de fakkel, niet op de zuil)
         ],
         embers: [
           { x: 284, y: 147 },
@@ -651,17 +651,38 @@ const GAME = {
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }
       },
+      /* Tegel-combinatiepuzzel vóór het altaar: druk de tegels in de juiste volgorde (de
+         aanwijzing staat op de fries). Oplossen onthult de amulet (schuift omhoog). */
+      puzzles: {
+        altarTiles: {
+          sequence: ['t3', 't1', 't4', 't2'],   // geheime combinatie: 3 → 1 → 4 → 2 stippen
+          setFlag: 'amuletRisen',
+          revealAmulet: true,
+          requiresFlag: 'minotaurAsleep',
+          blockedText: { nl: 'De tegels blijven koud en dof zolang het beest waakt.', en: 'The tiles stay cold and dull while the beast is awake.' },
+          stepText: { nl: 'De tegel gloeit goud op...', en: 'The tile glows gold...' },
+          resetText: { nl: 'Met een diep gerommel doven de tegels weer. Dat was niet de juiste volgorde — kijk nog eens naar de fries.', en: 'With a deep rumble the tiles go dark again. That wasn’t the right order — look again at the frieze.' },
+          solvedText: { nl: 'De vier tegels lichten samen goudgeel op! Met een diep gerommel schuift de Amulet van Emberfall omhoog uit het altaar.', en: 'All four tiles blaze gold together! With a deep rumble the Amulet of Emberfall rises up out of the altar.' },
+          doneText: { nl: 'De tegels gloeien tevreden na.', en: 'The tiles glow contentedly.' },
+          burst: { x: 332, y: 122 }
+        }
+      },
       hotspots: [
         {
           id: 'frieze',
           name: { nl: 'Fries met Glyphen', en: 'Glyph Frieze' },
           rect: { x: 100, y: 6, w: 460, h: 68 },
           walkTo: { x: 300, y: 212 },
-          look: {
-            nl: 'Gehouwen glyphen tonen een geknield beest dat uit een schaal drinkt en in slaap valt.',
-            en: 'Carved glyphs show a kneeling beast drinking from a bowl and falling asleep.'
-          }
+          look: (state) => state.flags.minotaurAsleep
+            ? { nl: 'Tussen de glyphen lichten vier merktekens op in een vaste volgorde — de sleutel voor de tegels vóór het altaar: ●●● · ● · ●●●● · ●● (drie, één, vier, twee stippen).',
+                en: 'Among the glyphs four marks glow in a fixed order — the key for the tiles before the altar: ●●● · ● · ●●●● · ●● (three, one, four, two pips).' }
+            : { nl: 'Gehouwen glyphen tonen een geknield beest dat uit een schaal drinkt en in slaap valt.',
+                en: 'Carved glyphs show a kneeling beast drinking from a bowl and falling asleep.' }
         },
+        { id: 'tile1', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 290, y: 238, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't1' }, tile: true, pips: 1 },
+        { id: 'tile2', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 360, y: 238, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't2' }, tile: true, pips: 2 },
+        { id: 'tile3', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 290, y: 268, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't3' }, tile: true, pips: 3 },
+        { id: 'tile4', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 360, y: 268, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't4' }, tile: true, pips: 4 },
         {
           id: 'doorTorch',
           name: { nl: 'Muurfakkel bij de Deur', en: 'Wall Torch by the Door' },
@@ -745,20 +766,18 @@ const GAME = {
           name: { nl: 'Altaar met Amulet', en: 'Altar with Amulet' },
           rect: { x: 292, y: 90, w: 80, h: 80 },
           walkTo: { x: 352, y: 232 },
-          requiresFlag: ['torchLit', 'minotaurAsleep'],
+          requiresFlag: 'amuletRisen',
           blockedText: (state) => !state.flags.torchLit
             ? { nl: 'Het is veel te donker bij het altaar — steek eerst de toortsen aan.', en: 'It’s far too dark at the altar — light the braziers first.' }
-            : { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' },
-          jigsaw: {
-            requiresFlag: ['torchLit', 'minotaurAsleep'],
-            setFlag: 'wardLifted',
-            give: 'amulet', win: true, revealAmulet: true,
-            cols: 4, rows: 3,
-            img: 'assets/art/amulet-seal.png',
-            title: { nl: 'Het Zegel van de Amulet', en: 'The Amulet Seal' },
-            solvedText: {
-              nl: 'De scherven klikken samen tot één geheel. Met een diep gerommel schuift de Amulet van Emberfall langzaam omhoog uit het altaar, stralend in het licht — je grijpt hem. Warm licht stroomt door je heen.',
-              en: 'The shards click together into one. With a deep rumble the Amulet of Emberfall slowly rises up out of the altar, blazing with light — you seize it. Warm light flows through you.'
+            : !state.flags.minotaurAsleep
+              ? { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' }
+              : { nl: 'De amulet zit nog diep in het altaar verzegeld. Druk de tegels vóór het altaar in de juiste volgorde in (de fries verraadt de code).',
+                  en: 'The amulet is still sealed deep in the altar. Press the tiles in front of the altar in the right order (the frieze reveals the code).' },
+          gives: {
+            item: 'amulet', win: true,
+            giveText: {
+              nl: 'Je grijpt de stralende Amulet van Emberfall van het altaar. Warm licht stroomt door je heen.',
+              en: 'You seize the radiant Amulet of Emberfall from the altar. Warm light flows through you.'
             }
           },
           look: { nl: 'Het altaar is leeg; de amulet is van jou.', en: 'The altar is empty; the amulet is yours.' }
