@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '32',
+  assetVer: '33',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -126,7 +126,7 @@ const GAME = {
     recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/item-recipe-large.png' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
-    berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-berry-brew.png', sparkle: true },
+    berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-berry-brew.png' },
     potion:    { name: { nl: 'Slaapdrank', en: 'Sleeping Draught' }, icon: '🧪', img: 'assets/art/item-potion.png', sparkle: true },
     amulet:    { name: { nl: 'Amulet van Emberfall', en: 'Amulet of Emberfall' }, icon: '🍁', img: 'assets/art/item-amulet.png' },
     vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' },
@@ -143,8 +143,8 @@ const GAME = {
     {
       a: 'berries', b: 'vialWater', result: 'berryBrew',
       text: {
-        nl: 'Je kneust de Rode Bessen in het flesje water. Het water in het flesje kleurt diep rood en begint zacht te glinsteren — maar het mist nog iets dat het beest écht in slaap wiegt: een Slaapbloem.',
-        en: 'You crush the Red Berries into the vial of water. The water in the vial turns deep red and begins to glitter softly — but it still lacks the one thing that truly lulls the beast to sleep: a Slumber Flower.'
+        nl: 'Je kneust de Rode Bessen in het flesje water. Het water in het flesje kleurt diep rood — maar het mist nog iets dat het beest écht in slaap wiegt: een Slaapbloem.',
+        en: 'You crush the Red Berries into the vial of water. The water in the vial turns deep red — but it still lacks the one thing that truly lulls the beast to sleep: a Slumber Flower.'
       }
     },
     {
