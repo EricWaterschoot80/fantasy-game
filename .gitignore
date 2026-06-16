@@ -15,3 +15,7 @@ assets/scenes/
 no-light-*.png
 light-stones-*.png
 /Cistern Syntax.mp3
+
+# Source image drops (originals live outside git; installed copies are committed)
+adventure Image*.png
+*Image *, 2026*.png

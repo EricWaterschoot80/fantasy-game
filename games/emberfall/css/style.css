@@ -572,6 +572,12 @@ html, body {
 }
 .win-next { display: inline-block; margin-top: 10px; text-decoration: none; font-size: 15px; }
 
+/* Uitvergrote kaart/afbeelding (bv. het receptenblaadje) */
+.zoom-img { max-width: 92vw; max-height: 84vh; width: auto; height: auto;
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,.7)); }
+#zoom-screen { cursor: zoom-out; }
+#zoom-screen .puz-x { position: absolute; top: 14px; right: 14px; z-index: 2; }
+
 /* Pixel-iconen in de knoppen */
 .round-btn img {
   width: 28px;

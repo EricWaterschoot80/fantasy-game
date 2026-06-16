@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '28',
+  assetVer: '29',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -323,23 +323,14 @@ const GAME = {
         },
         {
           id: 'recipe',
-          name: { nl: 'Vergeeld Blaadje', en: 'Yellowed Note' },
+          name: { nl: 'Vergeeld Receptenblaadje', en: 'Yellowed Recipe Note' },
           rect: { x: 444, y: 162, w: 62, h: 50 },
           walkTo: { x: 418, y: 250 },
-          gives: {
-            item: 'recipeCard',
-            giveText: {
-              nl: 'Tussen de stenen, net boven het puin, ligt een vergeeld en halfvergaan blaadje. Er staat een oud recept op gekrabbeld: “Slaapdrank — vang regenwater, kneus er rode bessen door, en roer er tot slot een Slaapbloem doorheen.”',
-              en: 'Among the stones, just above the rubble, lies a yellowed, half-rotten note. An old recipe is scrawled on it: “Sleeping Draught — catch rainwater, crush in red berries, and finally stir in a Slumber Flower.”'
-            },
-            emptyText: {
-              nl: 'Je kent het recept nu uit je hoofd: regenwater, rode bessen en een slaapbloem.',
-              en: 'You know the recipe by heart now: rainwater, red berries and a slumber flower.'
-            }
-          },
+          /* Klik = blaadje uitvergroten (het oude slaapdrank-recept, hoge resolutie) */
+          zoomImg: 'assets/art/item-recipe-large.png',
           look: {
-            nl: 'Een vergeeld receptenblaadje, tussen de stenen geklemd net boven het puin.',
-            en: 'A yellowed recipe note, wedged among the stones just above the rubble.'
+            nl: 'Een vergeeld receptenblaadje tussen de stenen. Erop staat een oud recept gekrabbeld — tik erop om het te lezen.',
+            en: 'A yellowed recipe note wedged among the stones. An old recipe is scrawled on it — tap it to read.'
           }
         },
         {

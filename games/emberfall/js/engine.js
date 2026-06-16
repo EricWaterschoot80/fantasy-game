@@ -37,6 +37,8 @@
   const elReplayBtn = document.getElementById('replayBtn');
   const elWinNext   = document.getElementById('winNextBtn');
   const elRetryBtn  = document.getElementById('retryBtn');
+  const elZoom      = document.getElementById('zoom-screen');
+  const elZoomImg   = document.getElementById('zoom-img');
 
   const MIN_SLOTS = 6;
   const WALK_SPEED = 95;
@@ -2509,6 +2511,10 @@
       return;
     }
 
+    if (hs.zoomImg) {
+      openZoom(hs.zoomImg);
+      return;
+    }
     if (hs.puzzleKey) {
       puzzleTap(hs);
       return;
@@ -2787,6 +2793,16 @@
     sfx('tap');
     hintUntil = performance.now() + 1800;
   });
+
+  /* ---------- Uitvergroten (bv. het receptenblaadje) ---------- */
+  function openZoom(img) {
+    if (!elZoom || !elZoomImg) return;
+    elZoomImg.src = img + AV;
+    elZoom.hidden = false;
+    sfx('tap');
+  }
+  function closeZoom() { if (elZoom) elZoom.hidden = true; }
+  if (elZoom) elZoom.addEventListener('pointerdown', closeZoom);
 
   /* ---------- Winst & herstart ---------- */
   function showWin() {

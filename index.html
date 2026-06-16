@@ -144,8 +144,12 @@
     .badge.easy   { background: #8cc472; }
     .badge.medium { background: #d8b24e; }
     .card-body { padding: 15px 16px 18px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
-    .card h3 { font-family: var(--pixel); font-weight: 400; font-size: 13px; color: var(--gold-light); letter-spacing: .5px; line-height: 1.4; }
-    .meta { font-family: var(--pixel); font-size: 8px; color: #9b8f78; letter-spacing: .5px; line-height: 1.6; }
+    .card h3 { font-family: var(--pixel); font-weight: 400; font-size: 19px; letter-spacing: .5px; line-height: 1.25; margin-bottom: 1px;
+      background: linear-gradient(180deg, #fff4d2 0%, #f0d68f 45%, #c9a24b 80%, #a87f33 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(2px 2px 0 #1f1410); }
+    .card p.meta { display: inline-block; align-self: flex-start; flex: none; font-family: var(--pixel); font-size: 8px; color: var(--gold);
+      letter-spacing: 1px; line-height: 1.5; background: var(--panel-2); border: 1px solid rgba(231,207,134,.35); padding: 5px 8px; }
     .card p { font-size: 15.5px; line-height: 1.5; color: var(--ink); flex: 1; }
     .play {
       align-self: flex-start; margin-top: 4px; font-family: var(--pixel); font-size: 10px;
@@ -175,12 +179,13 @@
     .nav-links a { font-family: var(--pixel); font-size: 9px; color: var(--gold-light); text-decoration: none;
       padding: 7px 9px; border: 2px solid transparent; transition: background .1s, border-color .1s; }
     .nav-links a:hover { border-color: var(--gold); background: var(--panel-2); color: #fff4d2; }
+    .nav-lang { font-family: var(--pixel); font-size: 9px; color: var(--gold-light); background: var(--panel-2);
+      border: 2px solid var(--gold); padding: 6px 10px; cursor: pointer; letter-spacing: 1px; line-height: 1; }
+    .nav-lang:hover { background: var(--gold); color: #2a1e0c; }
     .section { scroll-margin-top: 64px; }
   </style>
 </head>
 <body>
-  <button class="lang" id="lang" aria-label="Taal / Language">NL</button>
-
   <nav class="topnav" aria-label="Menu">
     <div class="nav-links">
       <a href="#games" data-en="Games" data-nl="Spellen">Games</a>
@@ -188,15 +193,13 @@
       <a href="games/emberfall/index.html">Emberfall</a>
       <a href="#about" data-en="About" data-nl="Over">About</a>
       <a href="#faq" data-en="FAQ" data-nl="FAQ">FAQ</a>
+      <button class="nav-lang" id="lang" aria-label="Taal / Language">NL</button>
     </div>
   </nav>
 
   <header id="top">
     <div class="banner-frame">
-      <img src="assets/banner.png?v=3" alt="Five fantasy heroes and a globe of worlds, a fantasy world of retro point-and-click pixel adventures" onerror="this.onerror=null;this.src='games/emberfall/assets/art/title.png'">
-    </div>
-    <div class="banner-title">
-      <h1>RetroAdventureWorld</h1>
+      <img src="assets/banner.png?v=4" alt="Retro Adventure World — five 16-bit pixel-art heroes around a campfire beneath a globe of worlds, free retro point-and-click adventures" onerror="this.onerror=null;this.src='games/emberfall/assets/art/title.png'">
     </div>
     <div class="flourish"><span data-en="FREE RETRO POINT-AND-CLICK ADVENTURES" data-nl="GRATIS RETRO POINT-AND-CLICK SPELLETJES">FREE RETRO POINT-AND-CLICK ADVENTURES</span></div>
     <p class="lead" data-en="Free 16-bit pixel-art adventure games you can play right in your browser, on phone or desktop, no download. Explore, collect, solve puzzles and uncover the story."
