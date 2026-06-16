@@ -2924,7 +2924,7 @@
     else if (!labelTimer) elLabel.hidden = true;
   });
 
-  elHintBtn.addEventListener('click', () => {
+  if (elHintBtn) elHintBtn.addEventListener('click', () => {
     sfx('tap');
     hintUntil = performance.now() + 1800;
   });

@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '29',
+  assetVer: '30',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -412,7 +412,7 @@ const GAME = {
       worldItems: [
         { item: 'vialEmpty', hotspot: 'chest', x: 412, y: 120, requiresFlag: 'runesSolved' },
         { item: 'wood', hotspot: 'branch', x: 292, y: 268 },
-        { item: 'flower', hotspot: 'flower', x: 126, y: 178 }
+        { item: 'flower', hotspot: 'flower', x: 126, y: 178, highlight: true }
       ],
       npcs: [
         { id: 'dog', sprite: 'dog', x: 415, y: 198, facesLeft: true, wanderRequiresFlag: 'dogWarm',

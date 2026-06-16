@@ -1352,15 +1352,24 @@
       if (wi.requiresFlag && !state.flags[wi.requiresFlag]) continue;
       const img = art.items[wi.item];
       if (!ready(img)) continue;
-      const hgt = 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
-      const bob = 0;                                   // items blijven stil staan (geen beweging)
-      const glow = 0.14 + 0.08 * Math.sin(now / 500 + wi.x);
-      const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, 13);
-      g.addColorStop(0, `rgba(231,207,134,${glow})`);
-      g.addColorStop(1, 'rgba(231,207,134,0)');
+      const big = !!wi.highlight;                       // extra opvallend item (bv. de slaapbloem)
+      const hgt = big ? 26 : 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+      const bob = big ? Math.round(Math.sin(now / 600) * 1.5) : 0;   // zachte deining trekt de aandacht
+      const r = big ? 22 : 13;
+      const glow = big ? (0.30 + 0.16 * Math.sin(now / 380 + wi.x)) : (0.14 + 0.08 * Math.sin(now / 500 + wi.x));
+      const col = big ? '176,214,255' : '231,207,134';  // koel blauw-wit voor de bloem, valt op in de herfst
+      const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, r);
+      g.addColorStop(0, `rgba(${col},${glow})`);
+      g.addColorStop(1, `rgba(${col},0)`);
       fctx.fillStyle = g;
-      fctx.fillRect(wi.x - 13, wi.y - 13, 26, 26);
+      fctx.fillRect(wi.x - r, wi.y - r, r * 2, r * 2);
       fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
+      if (big) {                                        // dansende fonkelingen rond de bloem
+        for (let k = 0; k < 2; k++) {
+          const ang = now / 640 + k * 3.1;
+          twinkle(wi.x + Math.cos(ang) * 15, (wi.y - hgt / 2) + bob + Math.sin(ang * 1.3) * 11, 0.4 + 0.4 * Math.sin(now / 220 + k * 2));
+        }
+      }
     }
   }
 
@@ -2797,7 +2806,7 @@
     else if (!labelTimer) elLabel.hidden = true;
   });
 
-  elHintBtn.addEventListener('click', () => {
+  if (elHintBtn) elHintBtn.addEventListener('click', () => {
     sfx('tap');
     hintUntil = performance.now() + 1800;
   });
