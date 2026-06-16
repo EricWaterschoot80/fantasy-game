@@ -1382,8 +1382,9 @@
     const pips = TILE_PIPS[hs.pips || 1] || TILE_PIPS[1];
     const glow = pressed ? 0.95 : (0.42 + 0.26 * Math.sin(now / 430 + r.x));
     const bottomUp = r.y > 250 ? 4 : 0;   // onderste rij tegels: lichtjes iets omhoog
+    const extraLeft = (hs.pips === 2 || hs.pips === 4) ? 3 : 0;   // tegel 2 en 4: lichtjes iets meer naar links
     for (const [fx, fy] of pips) {
-      const px = r.x + 4 + fx * (r.w - 8) - 10, py = r.y + 3 + fy * (r.h - 6) - 7 - bottomUp;   // iets meer naar links (+ onderste rij omhoog)
+      const px = r.x + 4 + fx * (r.w - 8) - 10 - extraLeft, py = r.y + 3 + fy * (r.h - 6) - 7 - bottomUp;   // iets meer naar links (+ onderste rij omhoog)
       const g = fctx.createRadialGradient(px, py, 0.3, px, py, 2.1);   // kleinere, zachte gloed
       g.addColorStop(0, `rgba(255,226,150,${glow})`);
       g.addColorStop(1, 'rgba(255,226,150,0)');
@@ -1551,7 +1552,7 @@
     if (eyes === 2) {
       /* De ogen liggen iets asymmetrisch (gezicht licht naar één kant gedraaid); de offsets
          spiegelen mee als de held naar links kijkt, zodat beide ogen netjes gedekt zijn. */
-      const offs = flip ? [-(halfW + 1), halfW] : [-halfW, halfW + 1];
+      const offs = flip ? [-(halfW + 1), halfW - 2] : [-halfW, halfW + 1];   // naar links kijkend: rechter ooglid 2px naar links
       for (const ox of offs) {
         const x0 = Math.round(cx + ox) - 1;   // 3px breed, kleiner ooglid
         fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 3, 2);
