@@ -118,7 +118,8 @@
     }
     .crest { font-size: clamp(20px, 5vw, 40px); line-height: 1; margin-bottom: 2px;
       filter: drop-shadow(0 0 12px rgba(231,207,134,.5)); }
-    .flourish { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+    .flourish { display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; z-index: 3;
+      margin-top: clamp(-54px,-6vw,-32px); margin-bottom: 6px; text-shadow: 0 2px 6px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.9); }
     .flourish::before, .flourish::after { content: ''; height: 3px; width: clamp(40px, 16vw, 150px);
       background: linear-gradient(90deg, transparent, var(--gold)); box-shadow: 0 0 0 1px #1f1410; }
     .flourish::after { background: linear-gradient(90deg, var(--gold), transparent); }
@@ -174,7 +175,7 @@
     .topnav { position: sticky; top: 0; z-index: 8; width: 100%; max-width: 1040px;
       display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
       background: rgba(26,20,16,.94); border: 3px solid var(--gold); box-shadow: 0 0 0 3px #1f1410, 0 4px 0 rgba(0,0,0,.4);
-      padding: 8px 14px; margin-bottom: clamp(16px,3vw,26px); }
+      padding: 8px 14px; margin-bottom: clamp(-46px,-5vw,-28px); }
     .nav-links { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
     .nav-links a { font-family: var(--pixel); font-size: 9px; color: var(--gold-light); text-decoration: none;
       padding: 7px 9px; border: 2px solid transparent; transition: background .1s, border-color .1s; }
