@@ -5,13 +5,19 @@ Inhoud staat in `js/data.js` (de `GAME`-structuur), de engine in `js/engine.js`.
 
 ## Afbeeldingen genereren (BELANGRIJK)
 
-**Gebruik standaard `nano_banana` (nano_banana_pro) voor losse afbeeldingen** (items, props,
-scene-elementen, visuals): die geeft de mooiste, meest realistische en consistente resultaten.
-Zo zijn o.a. de flesjes (rond, realistisch glas) en de tegel-puzzel-visual gemaakt.
-- Voor één consistente set varianten (bv. leeg/water/rood/drank-flesje): laat nano_banana ze in
-  **één afbeelding op een rij** maken en snijd ze daarna in losse iconen — dan zijn ze identiek.
-- Higgsfield **AutoSprite** blijft voor geanimeerde sprite-sheets (held-loopcyclus, vogel).
-- Verwijder telkens de neutrale achtergrond (flood-fill vanaf de randen) en bewaar transparant PNG.
+Het spel is **16-bit pixel-art** — in-game iconen/sprites (items, tegels, props) moeten daarom
+ook **echte 16-bit pixel-art** zijn, niet fotorealistisch. Prompt expliciet:
+"16-bit / SNES pixel-art, chunky pixels, harde randen, vlakke kleuren, geen anti-aliasing".
+- **`nano_banana` (nano_banana_pro)** geeft de rijkste, consistente beelden — gebruik het vooral
+  voor grote/realistische visuals (hero-banner homepage, eind-illustratie). Voor in-game
+  pixel-iconen kan het té realistisch zijn; dan `seedream_v5_lite` met een sterke pixel-prompt.
+- **Achtergrond = vlak fel magenta `#FF00FF`** (geen schaduw/gradient). Daarna key je magenta
+  weg op tint (R&B hoog, G laag) + despill; dat snijdt veel schoner dan grijs (glas/steen
+  worden niet "opgegeten" zoals bij een grijze achtergrond).
+- Eén consistente set varianten (bv. leeg/water/brouwsel/drank-flesje of de 4 tegels): genereer
+  ze in **één rij op één afbeelding** en snijd in gelijke stukken — dan zijn ze identiek.
+- In-game iconen klein houden (NEAREST downscalen, ~30-64px) zodat de pixels chunky blijven.
+- Higgsfield **AutoSprite** voor geanimeerde sprite-sheets (held-loopcyclus, vogel).
 
 ## Hoofdpersoon — character consistency (BELANGRIJK)
 
