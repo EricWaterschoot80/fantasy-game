@@ -1099,8 +1099,10 @@
           fctx.fillRect((tx + dy) | 0, (ty - dx) | 0, 1, 1); }
       }
     }
-    if (fx.snakeBlink && !state.flags[fx.snakeBlink.awakeFlag]) {
-      sceneEyeBlink('snake', fx.snakeBlink.x, fx.snakeBlink.y, fx.snakeBlink.halfW || 3, now);
+    if (fx.snakeBlink) {
+      const sb = fx.snakeBlink;
+      if (state.flags[sb.awakeFlag]) sceneEyeClosed('snakeSleep', sb.x, sb.y, sb.halfW || 3);  // slaapt: ogen dicht
+      else sceneEyeBlink('snake', sb.x, sb.y, sb.halfW || 3, now);                              // wakker: knippert
     }
     if (fx.zzz && state.flags[fx.zzz.flag]) {
       const zi = ((now / 700) | 0) % 3;
@@ -1483,6 +1485,25 @@
     fctx.fillRect(x0, Math.round(y) - 1, bw, 3);
   }
 
+  /* Ogen permanent DICHT houden (slapende slang): bemonster de scène-kleur één keer en teken
+     elk frame een ooglid. */
+  function sceneEyeClosed(id, x, y, halfW) {
+    let b = blinkT[id];
+    if (!b) b = blinkT[id] = { col: null };
+    if (!b.col) {
+      try {
+        const d = fctx.getImageData(Math.round(x - halfW), Math.round(y - 2), halfW * 2 + 1, 2).data;
+        const rs = [], gs = [], bs = [];
+        for (let i = 0; i < d.length; i += 4) { if (d[i + 3] > 140) { rs.push(d[i]); gs.push(d[i + 1]); bs.push(d[i + 2]); } }
+        if (rs.length) { const med = a => { a.sort((p, q) => p - q); return a[a.length >> 1]; }; b.col = { r: med(rs), g: med(gs), b: med(bs) }; }
+      } catch (e) { b.col = null; }
+    }
+    if (!b.col) return;
+    const c = b.col, x0 = Math.round(x - halfW), bw = halfW * 2;
+    fctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
+    fctx.fillRect(x0, Math.round(y) - 1, bw, 3);
+  }
+
   function drawPlayer(now) {
     const hero = art.sprites.hero;
     const walking = !!player.target || player.kbMoving;
@@ -1550,7 +1571,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, hero, 0.24, 4, now);
+      /* (alleen de slang knippert in Maanhoef) */
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1676,7 +1697,7 @@
         const breathe = Math.round(Math.sin(now / 700 + (npc.x || 0)));
         const idleSc = (usingIdle && npc.idleScale) ? npc.idleScale : (npc.scale || 1);
         drawArtSprite(idleImg, rt.x, rt.y, { flip: fl, bob: breathe + flap, scale: idleSc });
-        if (npc.blinkEye) eyeBlink(npc.id, rt.x, rt.y, idleImg.naturalHeight * idleSc, idleImg, npc.blinkEye.frac, npc.blinkEye.halfW, now);
+        /* (geen npc knippert in Maanhoef, alleen de slang) */
       }
     }
   }

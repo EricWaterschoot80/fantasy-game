@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '42',
+  assetVer: '43',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -651,7 +651,7 @@ const GAME = {
           { x: 397, y: 147 }
         ],
         amulet: { x: 336, y: 122 },
-        tileHint: { x: 452, y: 120 },   // gegraveerde aanwijzing op de muur rechts van het altaar
+        tileHint: { x: 466, y: 158 },   // gegraveerde aanwijzing op de muur, onder de stierenkop rechts
         waterGlint: { x: 88, y: 248 },
         waterGlintNeedsWater: true,   // glinster verdwijnt zodra de slaapdrank erin gaat (minotaurAsleep)
         zzz: { x: 300, y: 182 }
@@ -691,7 +691,7 @@ const GAME = {
         {
           id: 'tileHint',
           name: { nl: 'Gegraveerde Aanwijzing', en: 'Carved Clue' },
-          rect: { x: 424, y: 100, w: 60, h: 42 },
+          rect: { x: 446, y: 146, w: 44, h: 26 },
           walkTo: { x: 430, y: 230 },
           look: (state) => state.flags.amuletRisen
             ? { nl: 'De gegraveerde tegel-merktekens gloeien rustig na.', en: 'The carved tile-marks glow softly.' }

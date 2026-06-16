@@ -861,7 +861,7 @@ html, body {
 }
 .rune-stone-btn:active { transform: scale(.92); }
 .tile-btn {
-  flex: 0 0 auto; width: clamp(74px, 21vw, 104px); aspect-ratio: 1 / 1;
+  flex: 0 0 auto; width: clamp(88px, 25vw, 124px); aspect-ratio: 1 / 1;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #241a12, #140f0a);
   border: 2px solid var(--gold); border-radius: 4px; cursor: pointer; padding: 6px;

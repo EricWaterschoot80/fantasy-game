@@ -1300,17 +1300,17 @@
        Subtiel ingebeiteld (geen omlijning/paneel) — alleen de stippen, +7px naar rechts. */
     if (fx.tileHint && state.flags.minotaurAsleep && !state.flags.amuletRisen) {
       const t = fx.tileHint, seq = [3, 1, 4, 2];
-      const pulse = 0.42 + 0.16 * Math.sin(now / 620);
+      const pulse = 0.45 + 0.18 * Math.sin(now / 620);
       let gx = t.x - 13;
       for (const n of seq) {
         for (let i = 0; i < n; i++) {
-          const py = Math.round(t.y - (n * 4) / 2 + i * 4);
-          fctx.fillStyle = 'rgba(8,5,2,0.6)';                          // ingebeitelde schaduw (leesbaar op elke muur)
-          fctx.fillRect(gx, py + 1, 2, 2);
-          fctx.fillStyle = `rgba(245,216,150,${pulse})`;               // zachte gouden gloed
-          fctx.fillRect(gx, py, 2, 2);
+          const py = Math.round(t.y - (n * 3) / 2 + i * 3);
+          fctx.fillStyle = 'rgba(8,5,2,0.5)';                          // ingebeitelde schaduw
+          fctx.fillRect(gx, py + 1, 1, 1);
+          fctx.fillStyle = `rgba(255,222,74,${pulse})`;                // klein, geel, licht gloeiend
+          fctx.fillRect(gx, py, 1, 1);
         }
-        gx += 11;
+        gx += 10;
       }
     }
     /* (De dichte/open poortdeur zit nu in de achtergrond-afbeelding.) */
@@ -1365,36 +1365,39 @@
     }
   }
 
-  /* Vloer-tegel vóór het altaar: gebruik de tegel-art (met gouden pips), anders procedureel */
+  /* Dobbelsteen-posities van de pips binnen de tegel-rect (genormaliseerd). */
+  const TILE_PIPS = {
+    1: [[0.5, 0.5]],
+    2: [[0.3, 0.32], [0.7, 0.68]],
+    3: [[0.27, 0.28], [0.5, 0.5], [0.73, 0.72]],
+    4: [[0.3, 0.3], [0.7, 0.3], [0.3, 0.7], [0.7, 0.7]]
+  };
+  /* Vloer-tegel vóór het altaar: de tegel zelf heeft DEZELFDE kleur als de vloer (geen
+     contrasterende steen) — alleen een heel fijne rand + kleine, zacht gloeiende pips. */
   function drawTile(hs, pressed, now) {
     const r = hs.rect, cx = r.x + r.w / 2, cy = r.y + r.h / 2;
-    const img = art.sprites['tile' + (hs.pips || 1)];
-    if (ready(img)) {
-      fctx.save();
-      const sm = fctx.imageSmoothingEnabled; fctx.imageSmoothingEnabled = true;
-      fctx.globalAlpha = pressed ? 1 : (0.86 + 0.1 * Math.sin(now / 420 + r.x));
-      fctx.drawImage(img, r.x, r.y, r.w, r.h);
-      fctx.imageSmoothingEnabled = sm;
-      fctx.restore();
-    } else {
-      fctx.save();
-      fctx.fillStyle = pressed ? 'rgba(120,90,40,0.55)' : 'rgba(36,26,14,0.42)';
-      fctx.fillRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4);
-      fctx.lineWidth = 1;
-      fctx.strokeStyle = pressed ? 'rgba(255,226,150,0.95)' : 'rgba(231,207,134,0.5)';
-      fctx.strokeRect(r.x + 2.5, r.y + 2.5, r.w - 5, r.h - 5);
-      const pips = hs.pips || 1;
-      const pulse = pressed ? 1 : (0.5 + 0.28 * Math.sin(now / 420 + r.x));
-      fctx.fillStyle = `rgba(255,226,150,${pulse})`;
-      const gap = 9, startx = cx - (pips - 1) * gap / 2;
-      for (let i = 0; i < pips; i++) { fctx.beginPath(); fctx.arc(startx + i * gap, cy, 2.3, 0, 6.3); fctx.fill(); }
-      fctx.restore();
-    }
-    if (pressed) {
-      const g = fctx.createRadialGradient(cx, cy, 2, cx, cy, 28);
-      g.addColorStop(0, `rgba(255,226,150,${0.32 + 0.16 * Math.sin(now / 250)})`);
+    fctx.save();
+    /* nauwelijks zichtbare voeg zodat je voelt dát het een tegel is, in de vloerkleur */
+    fctx.lineWidth = 1;
+    fctx.strokeStyle = pressed ? 'rgba(255,224,150,0.42)' : 'rgba(18,11,4,0.22)';
+    fctx.strokeRect(r.x + 2.5, r.y + 2.5, r.w - 5, r.h - 5);
+    const pips = TILE_PIPS[hs.pips || 1] || TILE_PIPS[1];
+    const glow = pressed ? 0.95 : (0.42 + 0.26 * Math.sin(now / 430 + r.x));
+    for (const [fx, fy] of pips) {
+      const px = r.x + 4 + fx * (r.w - 8), py = r.y + 3 + fy * (r.h - 6);
+      const g = fctx.createRadialGradient(px, py, 0.3, px, py, 4.5);   // zachte gloed
+      g.addColorStop(0, `rgba(255,226,150,${glow})`);
       g.addColorStop(1, 'rgba(255,226,150,0)');
-      fctx.fillStyle = g; fctx.fillRect(cx - 28, cy - 28, 56, 56);
+      fctx.fillStyle = g; fctx.fillRect(px - 5, py - 5, 10, 10);
+      fctx.fillStyle = `rgba(255,232,168,${Math.min(1, glow + 0.3)})`;  // klein gloeiend puntje
+      fctx.fillRect(Math.round(px) - 1, Math.round(py) - 1, 2, 2);
+    }
+    fctx.restore();
+    if (pressed) {
+      const g = fctx.createRadialGradient(cx, cy, 2, cx, cy, 26);
+      g.addColorStop(0, `rgba(255,226,150,${0.24 + 0.14 * Math.sin(now / 250)})`);
+      g.addColorStop(1, 'rgba(255,226,150,0)');
+      fctx.fillStyle = g; fctx.fillRect(cx - 26, cy - 26, 52, 52);
     }
   }
 
@@ -1532,23 +1535,32 @@
     return col;
   }
 
-  /* Af en toe knipperen: een kort ooglid in de eigen huid-/kapkleur over de oog-lijn. */
+  /* Af en toe knipperen: een kort, klein ooglid in de eigen huid-/kapkleur over de oog-lijn.
+     eyes=2 tekent twee losse oogleden (bv. de held knippert met beide ogen). */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now) {
+  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes) {
     if (!ready(img)) return;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
-    if (now >= b.next) { b.until = now + 120; b.next = now + 2200 + Math.random() * 3200; }
+    if (now >= b.next) { b.until = now + 105; b.next = now + 2400 + Math.random() * 3200; }
     if (now >= b.until) return;
     const col = faceColor(img, eyeFrac, halfW);
     if (!col) return;
-    const spriteH = img.naturalHeight;
-    const ey = Math.round(footY - spriteH + spriteH * eyeFrac);
-    const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
-    fctx.fillStyle = `rgb(${col.r},${col.g},${col.b})`;        // ooglid in eigen kleur dekt de ogen af
-    fctx.fillRect(x0, ey - 1, bw, 3);
-    fctx.fillStyle = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.85)`;
-    fctx.fillRect(x0, ey + 1, bw, 1);                           // dun wimper-streepje
+    const ey = Math.round(footY - img.naturalHeight + img.naturalHeight * eyeFrac);
+    const lid = `rgb(${col.r},${col.g},${col.b})`;
+    const lash = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.8)`;
+    if (eyes === 2) {
+      const g = Math.max(2, Math.round(halfW * 0.6));   // halve afstand tussen de twee ogen
+      for (const s of [-1, 1]) {
+        const x0 = Math.round(cx + s * g - 1);
+        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 2, 2);
+        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, 2, 1);
+      }
+    } else {
+      const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
+      fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, bw, 2);
+      fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, bw, 1);
+    }
   }
 
   /* Brandende fakkel in de hand van de held (donkere tempel): warme gloed + vlam */
@@ -1570,7 +1582,7 @@
   function sceneFilter() {
     if (state.currentScene !== 'temple') return 'none';
     if (!state.flags.torchLit) return 'brightness(0.62)';
-    return 'sepia(0.5) saturate(1.4) brightness(1.05) hue-rotate(-14deg)';
+    return 'sepia(0.85) saturate(1.7) brightness(1.06) hue-rotate(-18deg)';   // warm geel/oranje fakkellicht
   }
   function drawPlayer(now) {
     const f = sceneFilter();
@@ -1628,7 +1640,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero, 0.28, 4, now);
+      eyeBlink('hero', player.x, player.y + breathe, hero, 0.28, 4, now, 2);   // held: beide ogen
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1730,7 +1742,7 @@
           drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
         }
         if (dimMino) fctx.filter = 'none';
-        if (!walkingToBowl) eyeBlink('minotaur', rt.x, rt.y, img, 0.30, 7, now);
+        /* (de minotaur knippert niet) */
       }
     }
   }
