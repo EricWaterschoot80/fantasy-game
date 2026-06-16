@@ -1536,7 +1536,7 @@
   /* Af en toe knipperen: een kort, klein ooglid in de eigen huid-/kapkleur over de oog-lijn.
      eyes=2 tekent twee losse oogleden (bv. de held knippert met beide ogen). */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes) {
+  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip) {
     if (!ready(img)) return;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
@@ -1548,11 +1548,13 @@
     const lid = `rgb(${col.r},${col.g},${col.b})`;
     const lash = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.8)`;
     if (eyes === 2) {
-      const g = halfW;   // de twee ogen liggen op cx ± halfW
-      for (const s of [-1, 1]) {
-        const x0 = Math.round(cx + s * g) - 2;   // 4px breed, gecentreerd -> dekt het oog ook gespiegeld (naar links kijkend)
-        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 4, 3);
-        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 2, 4, 1);
+      /* De ogen liggen iets asymmetrisch (gezicht licht naar één kant gedraaid); de offsets
+         spiegelen mee als de held naar links kijkt, zodat beide ogen netjes gedekt zijn. */
+      const offs = flip ? [-(halfW + 1), halfW] : [-halfW, halfW + 1];
+      for (const ox of offs) {
+        const x0 = Math.round(cx + ox) - 1;   // 3px breed, kleiner ooglid
+        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 3, 2);
+        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, 3, 1);
       }
     } else {
       const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
@@ -1638,7 +1640,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero, 0.30, 4, now, 2);   // held: beide ogen
+      eyeBlink('hero', player.x, player.y + breathe, hero, 0.286, 4, now, 2, player.flip);   // held: beide ogen
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
