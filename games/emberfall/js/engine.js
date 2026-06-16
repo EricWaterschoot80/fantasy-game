@@ -1384,13 +1384,13 @@
     const pips = TILE_PIPS[hs.pips || 1] || TILE_PIPS[1];
     const glow = pressed ? 0.95 : (0.42 + 0.26 * Math.sin(now / 430 + r.x));
     for (const [fx, fy] of pips) {
-      const px = r.x + 4 + fx * (r.w - 8), py = r.y + 3 + fy * (r.h - 6);
-      const g = fctx.createRadialGradient(px, py, 0.3, px, py, 4.5);   // zachte gloed
+      const px = r.x + 4 + fx * (r.w - 8) - 5, py = r.y + 3 + fy * (r.h - 6) - 5;   // 5px naar links + omhoog
+      const g = fctx.createRadialGradient(px, py, 0.3, px, py, 3.4);   // kleinere, zachte gloed
       g.addColorStop(0, `rgba(255,226,150,${glow})`);
       g.addColorStop(1, 'rgba(255,226,150,0)');
-      fctx.fillStyle = g; fctx.fillRect(px - 5, py - 5, 10, 10);
+      fctx.fillStyle = g; fctx.fillRect(px - 4, py - 4, 8, 8);
       fctx.fillStyle = `rgba(255,232,168,${Math.min(1, glow + 0.3)})`;  // klein gloeiend puntje
-      fctx.fillRect(Math.round(px) - 1, Math.round(py) - 1, 2, 2);
+      fctx.fillRect(Math.round(px), Math.round(py), 1, 1);
     }
     fctx.restore();
     if (pressed) {
@@ -1582,7 +1582,7 @@
   function sceneFilter() {
     if (state.currentScene !== 'temple') return 'none';
     if (!state.flags.torchLit) return 'brightness(0.62)';
-    return 'sepia(0.85) saturate(1.7) brightness(1.06) hue-rotate(-18deg)';   // warm geel/oranje fakkellicht
+    return 'sepia(0.45) saturate(2) brightness(1.07) hue-rotate(-12deg)';   // warm fakkellicht maar met eigen kleur
   }
   function drawPlayer(now) {
     const f = sceneFilter();
