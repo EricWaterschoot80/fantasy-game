@@ -3,6 +3,16 @@
 16-bit point-and-click avontuur (vanilla JS + canvas, PWA). Onderdeel van RetroAdventureWorld.
 Inhoud staat in `js/data.js` (de `GAME`-structuur), de engine in `js/engine.js`.
 
+## Afbeeldingen genereren (BELANGRIJK)
+
+**Gebruik standaard `nano_banana` (nano_banana_pro) voor losse afbeeldingen** (items, props,
+scene-elementen, visuals): die geeft de mooiste, meest realistische en consistente resultaten.
+Zo zijn o.a. de flesjes (rond, realistisch glas) en de tegel-puzzel-visual gemaakt.
+- Voor één consistente set varianten (bv. leeg/water/rood/drank-flesje): laat nano_banana ze in
+  **één afbeelding op een rij** maken en snijd ze daarna in losse iconen — dan zijn ze identiek.
+- Higgsfield **AutoSprite** blijft voor geanimeerde sprite-sheets (held-loopcyclus, vogel).
+- Verwijder telkens de neutrale achtergrond (flood-fill vanaf de randen) en bewaar transparant PNG.
+
 ## Hoofdpersoon — character consistency (BELANGRIJK)
 
 De held is één vaste figuur: een meisje met een **rode kap en mantel, leren tas/uitrusting**.

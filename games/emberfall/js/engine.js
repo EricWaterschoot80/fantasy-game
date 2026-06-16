@@ -1348,26 +1348,36 @@
     }
   }
 
-  /* Gekraste vloer-tegel met gouden pips, vóór het altaar */
+  /* Vloer-tegel vóór het altaar: gebruik de tegel-art (met gouden pips), anders procedureel */
   function drawTile(hs, pressed, now) {
     const r = hs.rect, cx = r.x + r.w / 2, cy = r.y + r.h / 2;
-    fctx.save();
-    fctx.fillStyle = pressed ? 'rgba(120,90,40,0.55)' : 'rgba(36,26,14,0.42)';
-    fctx.fillRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4);
-    fctx.lineWidth = 1;
-    fctx.strokeStyle = pressed ? 'rgba(255,226,150,0.95)' : 'rgba(231,207,134,0.5)';
-    fctx.strokeRect(r.x + 2.5, r.y + 2.5, r.w - 5, r.h - 5);
-    const pips = hs.pips || 1;
-    const pulse = pressed ? 1 : (0.5 + 0.28 * Math.sin(now / 420 + r.x));
-    fctx.fillStyle = `rgba(255,226,150,${pulse})`;
-    const gap = 9, startx = cx - (pips - 1) * gap / 2;
-    for (let i = 0; i < pips; i++) { fctx.beginPath(); fctx.arc(startx + i * gap, cy, 2.3, 0, 6.3); fctx.fill(); }
-    fctx.restore();
+    const img = art.sprites['tile' + (hs.pips || 1)];
+    if (ready(img)) {
+      fctx.save();
+      const sm = fctx.imageSmoothingEnabled; fctx.imageSmoothingEnabled = true;
+      fctx.globalAlpha = pressed ? 1 : (0.86 + 0.1 * Math.sin(now / 420 + r.x));
+      fctx.drawImage(img, r.x, r.y, r.w, r.h);
+      fctx.imageSmoothingEnabled = sm;
+      fctx.restore();
+    } else {
+      fctx.save();
+      fctx.fillStyle = pressed ? 'rgba(120,90,40,0.55)' : 'rgba(36,26,14,0.42)';
+      fctx.fillRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4);
+      fctx.lineWidth = 1;
+      fctx.strokeStyle = pressed ? 'rgba(255,226,150,0.95)' : 'rgba(231,207,134,0.5)';
+      fctx.strokeRect(r.x + 2.5, r.y + 2.5, r.w - 5, r.h - 5);
+      const pips = hs.pips || 1;
+      const pulse = pressed ? 1 : (0.5 + 0.28 * Math.sin(now / 420 + r.x));
+      fctx.fillStyle = `rgba(255,226,150,${pulse})`;
+      const gap = 9, startx = cx - (pips - 1) * gap / 2;
+      for (let i = 0; i < pips; i++) { fctx.beginPath(); fctx.arc(startx + i * gap, cy, 2.3, 0, 6.3); fctx.fill(); }
+      fctx.restore();
+    }
     if (pressed) {
-      const g = fctx.createRadialGradient(cx, cy, 2, cx, cy, 26);
-      g.addColorStop(0, `rgba(255,226,150,${0.3 + 0.15 * Math.sin(now / 250)})`);
+      const g = fctx.createRadialGradient(cx, cy, 2, cx, cy, 28);
+      g.addColorStop(0, `rgba(255,226,150,${0.32 + 0.16 * Math.sin(now / 250)})`);
       g.addColorStop(1, 'rgba(255,226,150,0)');
-      fctx.fillStyle = g; fctx.fillRect(cx - 26, cy - 26, 52, 52);
+      fctx.fillStyle = g; fctx.fillRect(cx - 28, cy - 28, 56, 56);
     }
   }
 

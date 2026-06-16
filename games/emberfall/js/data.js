@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '34',
+  assetVer: '35',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -35,7 +35,11 @@ const GAME = {
     chestOpen:      'assets/art/chest-open.png',
     gateDoor:       'assets/art/gate-door.png',
     wallTorch:      'assets/art/torch-lit.png',
-    robin:          'assets/art/robin-fly.png'   /* sprite-sheet: 4×3 = 12 vlieg-frames */
+    robin:          'assets/art/robin-fly.png',  /* sprite-sheet: 4×3 = 12 vlieg-frames */
+    tile1:          'assets/art/tile-1.png',
+    tile2:          'assets/art/tile-2.png',
+    tile3:          'assets/art/tile-3.png',
+    tile4:          'assets/art/tile-4.png'
   },
 
   winText: {
@@ -771,13 +775,18 @@ const GAME = {
             ? { nl: 'Het is veel te donker bij het altaar — steek eerst de toortsen aan.', en: 'It’s far too dark at the altar — light the braziers first.' }
             : !state.flags.minotaurAsleep
               ? { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' }
-              : { nl: 'De amulet zit nog diep in het altaar verzegeld. Druk de tegels vóór het altaar in de juiste volgorde in (de fries verraadt de code).',
-                  en: 'The amulet is still sealed deep in the altar. Press the tiles in front of the altar in the right order (the frieze reveals the code).' },
-          gives: {
-            item: 'amulet', win: true,
-            giveText: {
-              nl: 'Je grijpt de stralende Amulet van Emberfall van het altaar. Warm licht stroomt door je heen.',
-              en: 'You seize the radiant Amulet of Emberfall from the altar. Warm light flows through you.'
+              : { nl: 'De amulet zit nog diep in het altaar verzegeld. Druk eerst de tegels vóór het altaar in de juiste volgorde in (de fries verraadt de code).',
+                  en: 'The amulet is still sealed deep in the altar. First press the tiles in front of the altar in the right order (the frieze reveals the code).' },
+          jigsaw: {
+            requiresFlag: 'amuletRisen',
+            setFlag: 'wardLifted',
+            give: 'amulet', win: true,
+            cols: 4, rows: 3,
+            img: 'assets/art/amulet-seal.png',
+            title: { nl: 'Het Zegel van de Amulet', en: 'The Amulet Seal' },
+            solvedText: {
+              nl: 'De scherven klikken samen tot één geheel. Het laatste zegel breekt en de Amulet van Emberfall is eindelijk van jou — je grijpt hem. Warm licht stroomt door je heen.',
+              en: 'The shards click together into one. The final seal breaks and the Amulet of Emberfall is finally yours — you seize it. Warm light flows through you.'
             }
           },
           look: { nl: 'Het altaar is leeg; de amulet is van jou.', en: 'The altar is empty; the amulet is yours.' }
