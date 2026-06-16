@@ -1296,18 +1296,20 @@
         twinkle(tx, ty, 0.3 + 0.5 * Math.sin(now / 180 + k * 2), '180,225,255');
       }
     }
-    /* Gegraveerde aanwijzing op de muur rechts van het altaar: de volgorde 3-1-4-2 in stippen */
+    /* Gegraveerde aanwijzing op de muur rechts van het altaar: de volgorde 3-1-4-2 in stippen.
+       Subtiel ingebeiteld (geen omlijning/paneel) — alleen de stippen, +7px naar rechts. */
     if (fx.tileHint && state.flags.minotaurAsleep && !state.flags.amuletRisen) {
       const t = fx.tileHint, seq = [3, 1, 4, 2];
-      fctx.fillStyle = 'rgba(16,11,6,0.34)';
-      fctx.fillRect(t.x - 26, t.y - 13, 52, 26);
-      fctx.strokeStyle = `rgba(231,207,134,${0.26 + 0.16 * Math.sin(now / 600)})`;
-      fctx.lineWidth = 1;
-      fctx.strokeRect(t.x - 26.5, t.y - 13.5, 52, 26);
-      fctx.fillStyle = `rgba(255,226,150,${0.5 + 0.32 * Math.sin(now / 520)})`;
-      let gx = t.x - 20;
+      const pulse = 0.42 + 0.16 * Math.sin(now / 620);
+      let gx = t.x - 13;
       for (const n of seq) {
-        for (let i = 0; i < n; i++) fctx.fillRect(gx, Math.round(t.y - (n * 4) / 2 + i * 4), 2, 2);
+        for (let i = 0; i < n; i++) {
+          const py = Math.round(t.y - (n * 4) / 2 + i * 4);
+          fctx.fillStyle = 'rgba(8,5,2,0.6)';                          // ingebeitelde schaduw (leesbaar op elke muur)
+          fctx.fillRect(gx, py + 1, 2, 2);
+          fctx.fillStyle = `rgba(245,216,150,${pulse})`;               // zachte gouden gloed
+          fctx.fillRect(gx, py, 2, 2);
+        }
         gx += 11;
       }
     }
@@ -1498,16 +1500,55 @@
     return now < g.until ? (g.until - now) / durMs : 0;
   }
 
-  /* Af en toe knipperen met de ogen: korte donkere streep over de oog-lijn van een sprite. */
+  /* Gemeten huid-/kapkleur rond de oog-lijn van een sprite (mediaan negeert de donkere ogen
+     zelf), zodat een knipper een ooglid in de EIGEN kleur tekent i.p.v. een zwart blok. */
+  const _faceCache = {};
+  function faceColor(img, eyeFrac, halfW) {
+    const key = img.src;
+    if (key in _faceCache) return _faceCache[key];
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (!w) return null;
+    let data;
+    try {
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const cc = c.getContext('2d'); cc.imageSmoothingEnabled = false; cc.drawImage(img, 0, 0);
+      data = cc.getImageData(0, 0, w, h).data;
+    } catch (e) { _faceCache[key] = null; return null; }
+    const eyeRow = Math.round(h * eyeFrac), cx0 = Math.round(w / 2);
+    const rs = [], gs = [], bs = [];
+    for (let yy = eyeRow - 1; yy <= eyeRow + 1; yy++) {
+      if (yy < 0 || yy >= h) continue;
+      for (let xx = cx0 - halfW; xx <= cx0 + halfW; xx++) {
+        if (xx < 0 || xx >= w) continue;
+        const i = (yy * w + xx) * 4;
+        if (data[i + 3] < 140) continue;
+        rs.push(data[i]); gs.push(data[i + 1]); bs.push(data[i + 2]);
+      }
+    }
+    if (rs.length < 3) { _faceCache[key] = null; return null; }
+    const med = a => { a.sort((p, q) => p - q); return a[a.length >> 1]; };
+    const col = { r: med(rs), g: med(gs), b: med(bs) };
+    _faceCache[key] = col;
+    return col;
+  }
+
+  /* Af en toe knipperen: een kort ooglid in de eigen huid-/kapkleur over de oog-lijn. */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, spriteH, eyeFrac, halfW, now) {
+  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now) {
+    if (!ready(img)) return;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
-    if (now >= b.next) { b.until = now + 150; b.next = now + 1900 + Math.random() * 3000; }
+    if (now >= b.next) { b.until = now + 120; b.next = now + 2200 + Math.random() * 3200; }
     if (now >= b.until) return;
-    const ey = Math.round(footY - spriteH + spriteH * eyeFrac - 1);
-    fctx.fillStyle = 'rgba(26,17,12,0.95)';
-    fctx.fillRect(Math.round(cx - halfW), ey, Math.round(halfW * 2), 4);
+    const col = faceColor(img, eyeFrac, halfW);
+    if (!col) return;
+    const spriteH = img.naturalHeight;
+    const ey = Math.round(footY - spriteH + spriteH * eyeFrac);
+    const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
+    fctx.fillStyle = `rgb(${col.r},${col.g},${col.b})`;        // ooglid in eigen kleur dekt de ogen af
+    fctx.fillRect(x0, ey - 1, bw, 3);
+    fctx.fillStyle = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.85)`;
+    fctx.fillRect(x0, ey + 1, bw, 1);                           // dun wimper-streepje
   }
 
   /* Brandende fakkel in de hand van de held (donkere tempel): warme gloed + vlam */
@@ -1524,12 +1565,18 @@
     fctx.fillStyle = `rgba(255,${165 + ff},60,0.95)`; fctx.fillRect(ix - 1, iy - 6, 2, 6);  // vlam
     fctx.fillStyle = 'rgba(255,238,160,0.95)'; fctx.fillRect(ix, iy - 4, 1, 3);             // hart
   }
+  /* Sfeerfilter voor personages in de tempel: donker vóór de fakkels, warm gelig-oranje erna
+     (zo "zitten" de figuren in dezelfde kleur als de fakkelverlichte ruimte). */
+  function sceneFilter() {
+    if (state.currentScene !== 'temple') return 'none';
+    if (!state.flags.torchLit) return 'brightness(0.62)';
+    return 'sepia(0.5) saturate(1.4) brightness(1.05) hue-rotate(-14deg)';
+  }
   function drawPlayer(now) {
-    /* In de donkere tempel (vóór torchLit) zijn de personages een tikje donkerder. */
-    const dim = state.currentScene === 'temple' && !state.flags.torchLit;
-    if (dim) fctx.filter = 'brightness(0.62)';
+    const f = sceneFilter();
+    if (f !== 'none') fctx.filter = f;
     drawPlayerSprite(now);
-    if (dim) fctx.filter = 'none';
+    if (f !== 'none') fctx.filter = 'none';
   }
 
   function drawPlayerSprite(now) {
@@ -1581,7 +1628,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, 0.28, 4, now);
+      eyeBlink('hero', player.x, player.y + breathe, hero, 0.28, 4, now);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1591,6 +1638,14 @@
   }
 
   function drawNpc(npc, now) {
+    /* Warme/donkere sfeer toepassen; de minotaur is in het donker extra donker. */
+    let f = sceneFilter();
+    if (npc.sprite === 'minotaur' && state.currentScene === 'temple' && !state.flags.torchLit) f = 'brightness(0.4)';
+    if (f !== 'none') fctx.filter = f;
+    drawNpcInner(npc, now);
+    fctx.filter = 'none';
+  }
+  function drawNpcInner(npc, now) {
     const S = SPRITE_SCALE;
     const rt = npcRt[npc.id] || { x: npc.x, y: npc.y, flip: false, target: null, phase: 0 };
     if (npc.sprite === 'seer') {
@@ -1606,7 +1661,7 @@
           const float_ = Math.round(Math.sin(now / 900) * 1.4);
           drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: float_ + nod });
         }
-        eyeBlink('seer', rt.x - 1, rt.y, img.naturalHeight, 0.31, 7, now);   // gloeiende ogen knipperen
+        eyeBlink('seer', rt.x - 1, rt.y, img, 0.31, 7, now);   // gloeiende ogen knipperen
         return;
       }
       const f = ((now / 800) | 0) % 2;
@@ -1675,17 +1730,16 @@
           drawSprite(fctx, MINO_AWAKE[f], (rt.x - MINO_W * S / 2) | 0, (rt.y - MINO_H * S) | 0, false, S);
         }
         if (dimMino) fctx.filter = 'none';
-        if (!walkingToBowl) eyeBlink('minotaur', rt.x, rt.y, ready(img) ? img.naturalHeight : 100, 0.30, 7, now);
+        if (!walkingToBowl) eyeBlink('minotaur', rt.x, rt.y, img, 0.30, 7, now);
       }
     }
   }
 
   function drawFollower(now) {
-    /* Ook het hondje is donkerder in de onverlichte tempel. */
-    const dim = state.currentScene === 'temple' && !state.flags.torchLit;
-    if (dim) fctx.filter = 'brightness(0.62)';
+    const f = sceneFilter();
+    if (f !== 'none') fctx.filter = f;
     drawFollowerSprite(now);
-    if (dim) fctx.filter = 'none';
+    if (f !== 'none') fctx.filter = 'none';
   }
 
   function drawFollowerSprite(now) {

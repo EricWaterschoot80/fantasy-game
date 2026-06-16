@@ -836,6 +836,7 @@ html, body {
   display: flex;
   gap: 10px;
   justify-content: center;
+  flex-wrap: wrap;
   margin: 4px 0 10px;
 }
 .rune-stone-btn {
@@ -860,10 +861,10 @@ html, body {
 }
 .rune-stone-btn:active { transform: scale(.92); }
 .tile-btn {
-  flex: 0 0 auto; width: clamp(56px, 16vw, 78px); aspect-ratio: 1 / 1;
+  flex: 0 0 auto; width: clamp(74px, 21vw, 104px); aspect-ratio: 1 / 1;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #241a12, #140f0a);
-  border: 2px solid var(--gold); border-radius: 4px; cursor: pointer; padding: 5px;
+  border: 2px solid var(--gold); border-radius: 4px; cursor: pointer; padding: 6px;
   box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.15);
   transition: transform .1s, box-shadow .12s;
 }

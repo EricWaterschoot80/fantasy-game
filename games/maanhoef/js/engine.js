@@ -1099,6 +1099,9 @@
           fctx.fillRect((tx + dy) | 0, (ty - dx) | 0, 1, 1); }
       }
     }
+    if (fx.snakeBlink && !state.flags[fx.snakeBlink.awakeFlag]) {
+      sceneEyeBlink('snake', fx.snakeBlink.x, fx.snakeBlink.y, fx.snakeBlink.halfW || 3, now);
+    }
     if (fx.zzz && state.flags[fx.zzz.flag]) {
       const zi = ((now / 700) | 0) % 3;
       for (let z = 0; z <= zi; z++) {
@@ -1407,16 +1410,77 @@
     return now < g.until ? (g.until - now) / durMs : 0;
   }
 
-  /* Af en toe knipperen met de ogen: korte donkere streep over de oog-lijn van een sprite. */
+  /* Gemeten huid-/verenkleur rond de oog-lijn van een sprite (mediaan negeert de donkere ogen),
+     zodat een knipper een ooglid in de EIGEN kleur tekent i.p.v. een zwart blok. */
+  const _faceCache = {};
+  function faceColor(img, eyeFrac, halfW) {
+    const key = img.src;
+    if (key in _faceCache) return _faceCache[key];
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (!w) return null;
+    let data;
+    try {
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const cc = c.getContext('2d'); cc.imageSmoothingEnabled = false; cc.drawImage(img, 0, 0);
+      data = cc.getImageData(0, 0, w, h).data;
+    } catch (e) { _faceCache[key] = null; return null; }
+    const eyeRow = Math.round(h * eyeFrac), cx0 = Math.round(w / 2);
+    const rs = [], gs = [], bs = [];
+    for (let yy = eyeRow - 1; yy <= eyeRow + 1; yy++) {
+      if (yy < 0 || yy >= h) continue;
+      for (let xx = cx0 - halfW; xx <= cx0 + halfW; xx++) {
+        if (xx < 0 || xx >= w) continue;
+        const i = (yy * w + xx) * 4;
+        if (data[i + 3] < 140) continue;
+        rs.push(data[i]); gs.push(data[i + 1]); bs.push(data[i + 2]);
+      }
+    }
+    if (rs.length < 3) { _faceCache[key] = null; return null; }
+    const med = a => { a.sort((p, q) => p - q); return a[a.length >> 1]; };
+    const col = { r: med(rs), g: med(gs), b: med(bs) };
+    _faceCache[key] = col;
+    return col;
+  }
+
+  /* Af en toe knipperen: een kort ooglid in de eigen kleur over de oog-lijn. */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, spriteH, eyeFrac, halfW, now) {
+  function eyeBlink(id, cx, footY, spriteH, img, eyeFrac, halfW, now) {
+    if (!ready(img)) return;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
-    if (now >= b.next) { b.until = now + 150; b.next = now + 1900 + Math.random() * 3000; }
+    if (now >= b.next) { b.until = now + 120; b.next = now + 2200 + Math.random() * 3200; }
     if (now >= b.until) return;
-    const ey = Math.round(footY - spriteH + spriteH * eyeFrac - 1);
-    fctx.fillStyle = 'rgba(26,17,12,0.95)';
-    fctx.fillRect(Math.round(cx - halfW), ey, Math.round(halfW * 2), 4);
+    const col = faceColor(img, eyeFrac, halfW);
+    if (!col) return;
+    const ey = Math.round(footY - spriteH + spriteH * eyeFrac);
+    const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
+    fctx.fillStyle = `rgb(${col.r},${col.g},${col.b})`;
+    fctx.fillRect(x0, ey - 1, bw, 3);
+    fctx.fillStyle = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.85)`;
+    fctx.fillRect(x0, ey + 1, bw, 1);
+  }
+
+  /* Knipper voor een in de scène-art ingebakken figuur (de slang): bemonster de al getekende
+     canvas-kleur rond de ogen en teken daar kort een ooglid overheen. */
+  function sceneEyeBlink(id, x, y, halfW, now) {
+    let b = blinkT[id];
+    if (!b) { b = blinkT[id] = { next: now + 2000 + Math.random() * 3000, until: 0, col: null }; }
+    if (now >= b.next) {
+      b.until = now + 130; b.next = now + 2400 + Math.random() * 3400;
+      try {
+        const d = fctx.getImageData(Math.round(x - halfW), Math.round(y - 2), halfW * 2 + 1, 2).data;
+        const rs = [], gs = [], bs = [];
+        for (let i = 0; i < d.length; i += 4) { if (d[i + 3] > 140) { rs.push(d[i]); gs.push(d[i + 1]); bs.push(d[i + 2]); } }
+        if (rs.length) {
+          const med = a => { a.sort((p, q) => p - q); return a[a.length >> 1]; };
+          b.col = { r: med(rs), g: med(gs), b: med(bs) };
+        }
+      } catch (e) { b.col = null; }
+    }
+    if (now >= b.until || !b.col) return;
+    const c = b.col, x0 = Math.round(x - halfW), bw = halfW * 2;
+    fctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
+    fctx.fillRect(x0, Math.round(y) - 1, bw, 3);
   }
 
   function drawPlayer(now) {
@@ -1486,7 +1550,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, 0.24, 4, now);
+      eyeBlink('hero', player.x, player.y + breathe, hero.naturalHeight, hero, 0.24, 4, now);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1612,7 +1676,7 @@
         const breathe = Math.round(Math.sin(now / 700 + (npc.x || 0)));
         const idleSc = (usingIdle && npc.idleScale) ? npc.idleScale : (npc.scale || 1);
         drawArtSprite(idleImg, rt.x, rt.y, { flip: fl, bob: breathe + flap, scale: idleSc });
-        if (npc.blinkEye) eyeBlink(npc.id, rt.x, rt.y, idleImg.naturalHeight * idleSc, npc.blinkEye.frac, npc.blinkEye.halfW, now);
+        if (npc.blinkEye) eyeBlink(npc.id, rt.x, rt.y, idleImg.naturalHeight * idleSc, idleImg, npc.blinkEye.frac, npc.blinkEye.halfW, now);
       }
     }
   }

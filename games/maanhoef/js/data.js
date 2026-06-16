@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '40',
+  assetVer: '42',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -336,6 +336,7 @@ const GAME = {
           { x: 150, y: 168, rx: 40, ry: 24, col: '250,225,120', phase: 3 }     // gele vlinder bij de boog
         ],
         snakeTongue: { x: 316, y: 210, dx: -0.05, dy: 1, len: 10, hideFlag: 'snakeCharmed' },
+        snakeBlink: { x: 307, y: 202, halfW: 3, awakeFlag: 'snakeCharmed' },  // knippert zolang ze wakker is
         zzz: { x: 322, y: 174, flag: 'snakeCharmed' }
       },
       obstacles: [
