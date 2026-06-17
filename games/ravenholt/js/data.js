@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '13',
+  assetVer: '14',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -388,15 +388,15 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 398, y: 244, scale: 1.45 }   // poortwacht verder naar achter ín de poort; verzet af en toe zijn hellebaard
+        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 398, y: 234, scale: 1.62 }   // poortwacht groter en verder naar achter ín de poort; verzet af en toe zijn hellebaard
       ],
       fx: {},
       hotspots: [
         {
           id: 'guard',
           name: { nl: 'De Poortwacht', en: 'The Gate Guard' },
-          rect: { x: 368, y: 168, w: 68, h: 110 },
-          walkTo: { x: 388, y: 286 },
+          rect: { x: 362, y: 140, w: 76, h: 138 },
+          walkTo: { x: 388, y: 284 },
           face: 'assets/art/face-guard.png',
           look: (state) => state.flags.gateOpen
             ? { nl: 'De wacht plant zijn hellebaard steviger neer. “Het radwerk draait weer, knul — knap werk. Maar hier kom je niet door. Bevel van de hofmaarschalk: niemand het kasteel in zonder zegel.” (wordt vervolgd)', en: 'The guard plants his halberd firmer. “The gearworks turns again, lad — fine work. But you don’t pass here. Steward’s orders: no one enters the castle without a seal.” (to be continued)' }
