@@ -73,13 +73,20 @@ verkleind naar **~84px hoog** (meer detail). De bron-PNG's staan in `assets/raw/
 
 - Op het plein zit een **glanzende raaf** op de oude ton (`npcs: [{ sprite:'ravenPerch', hideFlag:'ravenFed' }]`).
 - Selecteer het **muntje** in de tas en gebruik het op de raaf (`hotspots[].use.coin`): de raaf
-  pakt het glimmende muntje, **vliegt weg** (korte vlucht-animatie met `ravenFly`) en zet de
-  vlag `ravenFed`. Daardoor verdwijnt de raaf van het plein (`hideFlag`) en verschijnt hij bij
-  de **molen** (`npcs: [{ appearFlag:'ravenFed' }]`).
-- Bij de molen onthult de raaf een **geheim**: een losse steen die wegkantelt en een donkere
-  doorgang met blauw licht laat zien — de weg naar de vallei (hotspot met `appearFlag:'ravenFed'`).
-- Twee nieuwe engine-haken maken dit data-driven: **`appearFlag`** (alleen tonen zodra gezet) en
+  pakt het glimmende muntje, **geeft een tip** (“het water stokt bínnen, niet buiten...”) en
+  **vliegt weg** (korte vlucht-animatie met `ravenFly`). De vlag `ravenFed` verbergt de raaf
+  daarna van het plein (`hideFlag`).
+- Twee engine-haken maken dit data-driven: **`appearFlag`** (alleen tonen zodra gezet) en
   **`hideFlag`** (verbergen zodra gezet) werken op zowel NPC's als hotspots.
+
+## De molen + het molenbinnen
+
+- Bij de **molen** wijst een opvallende pijl omhoog **naar het dorp** (rechter pad → `square`) en
+  een pijl bij de **deur** die je **naar binnen** brengt (`exit: { to: 'millInside' }`).
+- **In de molen** (`scene-mill-inside.png`) onderzoek je de maalsteen, het vastgelopen tandrad en
+  een molenaarsboek op de plank (look-hotspots die voortgang-vlaggen zetten). Een pijl omlaag
+  brengt je weer naar buiten. Het tandrad hint dat je gereedschap én een blauwe steen nodig hebt —
+  de haak naar het volgende hoofdstuk.
 
 ## Diepte (perspectief)
 
@@ -87,6 +94,13 @@ De locaties hebben veel diepte. Per scène kun je dat aanzetten met
 `scene.depth = { far, near, sFar, sNear }`: een figuur op de achterste lijn (`y = far`) wordt op
 schaal `sFar` getekend, vooraan (`y = near`) op `sNear`, lineair ertussen. Zo **krimpt** de held
 (en NPC's) als hij naar achteren loopt. Geen `depth` = geen effect (schaal 1).
+
+## Belichting & detail
+
+- **`scene.charFilter`** legt een CSS-filter over de personages zodat ze in de sfeer van de locatie
+  passen — hier een zacht, warm ochtendlicht met iets minder felle kleuren.
+- **`GAME.spriteDetail: 2`** — de sprites worden op 2× resolutie opgeslagen en door de engine op
+  halve maat getekend, zodat de figuren fijnere details hebben zonder groter te worden.
 
 ## NPC's en de staf
 

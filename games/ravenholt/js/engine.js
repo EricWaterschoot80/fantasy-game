@@ -930,9 +930,10 @@
         fctx.save();
         fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
+          const D = GAME.spriteDetail || 1;
           const flap = 0.9 + 0.18 * Math.sin(now / 70);                     // wiekslag-puls
-          const w = Math.round(img.naturalWidth * 0.5 * flap);
-          const h = Math.round(img.naturalHeight * 0.5);
+          const w = Math.round(img.naturalWidth / D * flap);
+          const h = Math.round(img.naturalHeight / D);
           fctx.imageSmoothingEnabled = false;
           fctx.drawImage(img, Math.round(fx_ - w / 2), Math.round(fy_ - h / 2), w, h);
         } else {
@@ -949,21 +950,26 @@
       if (!flagVisible(hs)) continue;
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
       const a = hs.arrow;
-      const pulse = 0.34 + 0.2 * Math.sin(now / 350);
+      const pulse = 0.58 + 0.22 * Math.sin(now / 350);
       const f = Math.sin(now / 350) * 2;
+      const s = a.scale || 1.4;                         // iets groter zodat de pijl ook op drukke achtergronden opvalt
       fctx.save();
       fctx.translate(a.x, a.y + (a.dir === 'up' ? f : a.dir === 'down' ? -f : 0));
       if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
       else if (a.dir === 'right') { fctx.rotate(Math.PI / 2); fctx.translate(f, 0); }
       else if (a.dir === 'down') fctx.rotate(Math.PI);
-      fctx.fillStyle = `rgba(231,207,134,${pulse})`;
-      fctx.strokeStyle = `rgba(31,20,16,${pulse + 0.25})`;
-      fctx.lineWidth = 1.5;
+      fctx.scale(s, s);
       fctx.beginPath();
       fctx.moveTo(0, -10); fctx.lineTo(9, 1); fctx.lineTo(4, 1); fctx.lineTo(4, 9);
       fctx.lineTo(-4, 9); fctx.lineTo(-4, 1); fctx.lineTo(-9, 1);
       fctx.closePath();
-      fctx.fill(); fctx.stroke();
+      fctx.shadowColor = 'rgba(0,0,0,0.55)'; fctx.shadowBlur = 4;   // donkere halo voor contrast
+      fctx.fillStyle = `rgba(247,226,150,${pulse})`;
+      fctx.fill();
+      fctx.shadowBlur = 0;
+      fctx.strokeStyle = `rgba(28,18,14,${Math.min(1, pulse + 0.3)})`;
+      fctx.lineWidth = 1.4;
+      fctx.stroke();
       fctx.restore();
     }
 
@@ -1507,8 +1513,9 @@
 
   /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
   function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0, scale = 1 } = {}) {
-    const w = Math.max(1, Math.round(img.naturalWidth * scale));
-    const h = Math.max(1, Math.round(img.naturalHeight * scale));
+    const D = GAME.spriteDetail || 1;   // sprites op 2x opgeslagen -> op halve maat tekenen = fijnere details
+    const w = Math.max(1, Math.round(img.naturalWidth * scale / D));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale / D));
     const px = Math.round(x), py = Math.round(y + bob);
     shadow(x, y, w * 0.8);
     fctx.save();
@@ -1574,7 +1581,8 @@
     if (now >= b.until) return;
     const col = faceColor(img, eyeFrac, halfW);
     if (!col) return;
-    const ey = Math.round(footY - img.naturalHeight + img.naturalHeight * eyeFrac);
+    const eh = img.naturalHeight / (GAME.spriteDetail || 1);   // tekenhoogte (sprites zijn op 2x opgeslagen)
+    const ey = Math.round(footY - eh + eh * eyeFrac);
     const lid = `rgb(${col.r},${col.g},${col.b})`;
     const lash = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.8)`;
     if (eyes === 2) {
@@ -1651,15 +1659,16 @@
         /* Volledige 8-frame loopcyclus uit de Higgsfield AutoSprite-sheet. */
         const sheet = art.sprites.heroWalkSheet;
         if (ready(sheet)) {
+          const D = GAME.spriteDetail || 1;
           const NF = (GAME.heroWalkFrames || 8), fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
           const fr = Math.floor(player.phase * 0.5) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
              de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven.
-             ds = perspectief-diepteschaal (kleiner naar achteren). */
+             ds = perspectief-diepteschaal (kleiner naar achteren); /D compenseert de 2x sprites. */
           const ds = depthScaleAt(player.y);
-          const dh = Math.round((ready(hero) ? hero.naturalHeight : 56) * ds);
+          const dh = Math.round((ready(hero) ? hero.naturalHeight : 56) / D * ds);
           const dw = Math.round(fw * dh / fh);
-          const foot = Math.round(dh * 2 / fh);   // compenseer de lucht onder de voeten
+          const foot = Math.round(dh * 2 * D / fh);   // compenseer de lucht onder de voeten
           const bob = (fr % 2) ? -1 : 0;           // 'passing'-frames iets omhoog -> natuurlijke verende pas
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
