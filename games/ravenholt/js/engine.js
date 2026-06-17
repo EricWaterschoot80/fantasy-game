@@ -842,25 +842,11 @@
     }
   }
 
-  /* Per scene: een uitgang is pas "gewapend" zodra je er even vandaan
-     bent — anders stuiter je direct terug na het binnenkomen. */
+  /* Uitgangen werken nu ALLEEN door op de pijl te tikken (niet automatisch door er
+     langs te lopen) — anders stap je per ongeluk naar buiten als je naar een voorwerp
+     loopt dat dicht bij een uitgang ligt. */
   let exitArm = {};
-  function checkExitProximity(scene) {
-    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden)) return;
-    for (const hs of scene.hotspots) {
-      if (!hs.exit || !hs.walkTo) continue;
-      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
-      const d = Math.hypot(player.x - hs.walkTo.x, player.y - hs.walkTo.y);
-      if (!exitArm[hs.id]) {
-        if (d > 30) exitArm[hs.id] = true;
-      } else if (d < 13) {
-        player.target = null;
-        player.pending = null;
-        travelTo(hs.exit.to, hs.exit.travelText);
-        return;
-      }
-    }
-  }
+  function checkExitProximity(scene) { /* bewust uitgeschakeld: tik op de pijl om te wisselen */ }
 
   function arrive() {
     player.target = null;
@@ -960,10 +946,11 @@
       const a = hs.arrow;
       const pulse = 0.58 + 0.22 * Math.sin(now / 350);
       const f = Math.sin(now / 350) * 2;
-      const s = a.scale || 1.4;                         // iets groter zodat de pijl ook op drukke achtergronden opvalt
+      const s = a.scale || 1.05;                        // wat kleinere pijlen
       fctx.save();
       fctx.translate(a.x, a.y + (a.dir === 'up' ? f : a.dir === 'down' ? -f : 0));
-      if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
+      if (typeof a.rot === 'number') fctx.rotate(a.rot);   // vrije hoek (bv. schuin naar het dorp)
+      else if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
       else if (a.dir === 'right') { fctx.rotate(Math.PI / 2); fctx.translate(f, 0); }
       else if (a.dir === 'down') fctx.rotate(Math.PI);
       fctx.scale(s, s);
@@ -1656,10 +1643,12 @@
   }
 
   function drawPlayer(now) {
-    const f = sceneFilter();
-    if (f !== 'none') fctx.filter = f;
+    /* De held staat vaak in de schaduw -> iets donkerder dan de scène-belichting. */
+    const sf = sceneFilter();
+    const f = (sf === 'none') ? 'brightness(0.84)' : (sf + ' brightness(0.84)');
+    fctx.filter = f;
     drawPlayerSprite(now);
-    if (f !== 'none') fctx.filter = 'none';
+    fctx.filter = 'none';
   }
 
   function drawPlayerSprite(now) {

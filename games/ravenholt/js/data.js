@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '11',
+  assetVer: '12',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -256,7 +256,7 @@ const GAME = {
           name: { nl: 'Pad naar het Dorp', en: 'Path to the Village' },
           rect: { x: 446, y: 182, w: 96, h: 130 },
           walkTo: { x: 470, y: 300 },
-          arrow: { x: 486, y: 286, dir: 'up' },
+          arrow: { x: 498, y: 280, dir: 'up', rot: 0.7 },   // schuin omhoog-rechts, richting het dorp
           exit: { to: 'square', travelText: { nl: 'Je volgt het pad terug omhoog naar het dorp.', en: 'You follow the path back up to the village.' } }
         }
       ]
@@ -279,7 +279,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mouse', sprite: 'mouse', x: 182, y: 300, scale: 0.5, flip: true, filter: 'brightness(0.6) saturate(0.9)' }   // muisje bij het holletje naast de wijnton, in de schaduw
+        { id: 'mouse', sprite: 'mouse', x: 162, y: 306, scale: 0.55, flip: true, filter: 'brightness(0.82)' }   // muisje bij het holletje naast de wijnton (zichtbaar, licht in de schaduw)
       ],
       fx: {},
       hotspots: [
@@ -342,8 +342,8 @@ const GAME = {
         {
           id: 'mouse',
           name: { nl: 'Een Bruine Muis', en: 'A Brown Mouse' },
-          rect: { x: 150, y: 276, w: 66, h: 42 },
-          walkTo: { x: 186, y: 300 },
+          rect: { x: 134, y: 284, w: 64, h: 38 },
+          walkTo: { x: 172, y: 300 },
           look: (state) => state.flags.mouseFed
             ? { nl: 'Het muisje knabbelt tevreden aan het graan. “Mmm, dank je, vriendelijke reus! De molenaar? Die is naar het kasteel om hulp te vragen — volg het pad maar. Piep!”', en: 'The little mouse nibbles the grain happily. “Mmm, thank you, kind giant! The miller? He went to the castle for help — just follow the path. Squeak!”' }
             : { nl: 'Een klein bruin muisje kijkt je met glanzende kraaloogjes aan. “Piep! Niet schrikken, hoor. Het is hier zo stil sinds het rad stilstaat... heb jij misschien iets te knabbelen voor me?”', en: 'A little brown mouse looks up at you with shiny beady eyes. “Squeak! Don’t be startled. It’s been so quiet since the wheel stopped... do you maybe have something to nibble?”' },
@@ -358,9 +358,9 @@ const GAME = {
         {
           id: 'outMill',
           name: { nl: 'Naar Buiten', en: 'Back Outside' },
-          rect: { x: 108, y: 278, w: 92, h: 38 },
-          walkTo: { x: 140, y: 304 },
-          arrow: { x: 138, y: 296, dir: 'down' },
+          rect: { x: 60, y: 286, w: 50, h: 30 },
+          walkTo: { x: 88, y: 302 },
+          arrow: { x: 86, y: 306, dir: 'down' },
           exit: { to: 'mill', travelText: { nl: 'Je stapt de molen weer uit, het ochtendlicht in.', en: 'You step back out of the mill into the morning light.' } }
         }
       ]
@@ -377,21 +377,22 @@ const GAME = {
       playerStart: { x: 300, y: 300 },
       depth: { far: 250, near: 316, sFar: 0.62, sNear: 1.06 },
       walkable: [
-        { x: 120, y: 256, w: 400, h: 60 }    // de geplaveide weg vóór de poort
+        { x: 120, y: 256, w: 400, h: 60 },   // de geplaveide weg vóór de poort
+        { x: 330, y: 214, w: 130, h: 102 }   // pad omhoog naar de poort (zodat je naar de wacht kunt lopen)
       ],
       obstacles: [],
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', x: 412, y: 300 }   // poortwacht vóór de poort, verspert de weg
+        { id: 'guard', sprite: 'guard', x: 400, y: 262, scale: 1.5 }   // poortwacht hoger, ín de poort, groter
       ],
       fx: {},
       hotspots: [
         {
           id: 'guard',
           name: { nl: 'De Poortwacht', en: 'The Gate Guard' },
-          rect: { x: 386, y: 210, w: 58, h: 94 },
-          walkTo: { x: 392, y: 300 },
+          rect: { x: 368, y: 168, w: 68, h: 110 },
+          walkTo: { x: 388, y: 286 },
           look: (state) => state.flags.gateOpen
             ? { nl: 'De wacht plant zijn hellebaard steviger neer. “Het radwerk draait weer, knul — knap werk. Maar hier kom je niet door. Bevel van de hofmaarschalk: niemand het kasteel in zonder zegel.” (wordt vervolgd)', en: 'The guard plants his halberd firmer. “The gearworks turns again, lad — fine work. But you don’t pass here. Steward’s orders: no one enters the castle without a seal.” (to be continued)' }
             : { nl: 'Een strenge poortwacht in een blauw tabbaard verspert de weg. “Halt. Het kasteel is gesloten zolang de bron droog staat — en die poort krijg je toch niet open: het radwerk ernaast is kapot.” Hij knikt naar het mechaniek naast de poort.', en: 'A stern guard in a blue tabard blocks the way. “Halt. The castle is closed while the spring runs dry — and you won’t open that gate anyway: the gearworks beside it is broken.” He nods at the mechanism beside the gate.' },
