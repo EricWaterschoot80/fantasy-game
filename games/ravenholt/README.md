@@ -3,10 +3,12 @@
 Een 16-bit point-and-click **mysterie**-avontuur in een mistig dorp. Onderdeel van
 RetroAdventureWorld, op dezelfde gedeelde engine als Maanhoef en Emberfall.
 
-> **Status: in opbouw.** Dit is een opgezet skelet dat al **speelbaar** is
-> (een mini-demo: losse kei → sleutel → poortslot → lantaarn → winst) en nog
-> géén eigen art heeft — de engine valt terug op een procedurele scene en
-> emoji-iconen. Hier bouw je het echte spel op.
+> **Status: in opbouw.** Hoofdstuk 1 heeft een **speelbaar beginpunt**: het
+> dorpsplein van Eldoria met eigen achtergrond en de held **Finn** (eigen sprites:
+> lopen + zwaaien). Je loopt over de keien, raapt voorwerpen op (muntje, briefje) en
+> onderzoekt de drooggevallen fontein en de watermolen. Uitleg van de werking staat in
+> **[HOE-HET-WERKT.md](HOE-HET-WERKT.md)**; het verhaal + cast in
+> **[STORYBOARD.md](STORYBOARD.md)**.
 
 ## Hoe dit is opgezet
 

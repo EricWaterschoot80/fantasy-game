@@ -2893,6 +2893,8 @@
       if (hs.gives.win) { pendingWin = true; sfx('win'); }
       return;
     }
+    /* Een puur 'look'-hotspot mag ook een flag zetten (bv. iets onderzocht hebben). */
+    if (hs.setFlag && !state.flags[hs.setFlag]) { state.flags[hs.setFlag] = true; updateQuest(); }
     say(lookText(hs), hsSpeaker(hs), hsFace(hs));
   }
 

@@ -3,37 +3,31 @@
    Tweetalig: elke tekst is {nl, en}; de engine kiest via L().
    Coördinaten zijn scene-pixels (568×320, liggend).
 
-   Dit is een START-STUB: een compleet speelbaar mini-spel
-   (losse straatsteen → sleutel → poortslot → lantaarn → winst) dat
-   ALLEEN generieke engine-features gebruikt. Het draait zónder art:
-   de engine valt terug op een geschilderde scene + emoji-iconen.
+   Hoofdstuk 1 — speelbaar beginpunt: het dorpsplein van Eldoria.
+   Finn loopt over de keien, onderzoekt de drooggevallen fontein en de
+   watermolen, en raapt voorwerpen op. Bouw verder uit volgens STORYBOARD.md.
 
-   Bouw het stap voor stap om naar je eigen verhaal:
-   1. titel / teksten / winText / ui
-   2. items + recepten
-   3. scenes: walkPoly (of walkable), hotspots, puzzels
-   4. teken art in assets/art/ (568×320 scenes, sprites) en koppel via
-      scene.bg / scene.bgVariants / GAME.sprites
-   Zie ../../RETRO-ADVENTURE-SPEC.md voor het volledige datamodel en de
-   drie herbruikbare puzzeltypes (runen-volgorde, tegel-volgorde, legpuzzel).
-
-   Bij ELKE wijziging: bump de ?v= in index.html, de assetVer hieronder
-   én de CACHE in sw.js (zie README.md → Cache-busting).
+   Bij ELKE wijziging: bump ?v= in index.html, assetVer hieronder én CACHE in sw.js.
    ============================================================ */
 
 const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '1',   /* wordt als ?v= achter alle asset-URL's gezet; ophogen bij elke art-wijziging */
+  assetVer: '2',
 
-  /* Nog geen eigen art nodig om te starten. Vul later met je sprites:
-     sprites: { hero: 'assets/art/hero.png', heroWave: 'assets/art/hero-wave.png', ... } */
-  sprites: {},
+  /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
+     idle = hero, loopcyclus = heroWalk/heroWalk2 (2-frame), zwaaien = heroWave. */
+  sprites: {
+    hero:      'assets/art/hero.png',
+    heroWalk:  'assets/art/hero-walk.png',
+    heroWalk2: 'assets/art/hero-walk2.png',
+    heroWave:  'assets/art/hero-wave.png'
+  },
 
   winText: {
-    nl: 'De lantaarn flakkert aan en werpt warm licht over de mist. Ravenholt heeft je gezien — en je eerste avond is volbracht.',
-    en: 'The lantern sputters to life, casting warm light through the fog. Ravenholt has seen you — and your first night is done.'
+    nl: 'Wordt vervolgd...',
+    en: 'To be continued...'
   },
 
   strings: {
@@ -44,11 +38,11 @@ const GAME = {
 
   ui: {
     subtitle:   { nl: 'Een point-and-click mysterie', en: 'A point-and-click mystery' },
-    intro:      { nl: 'Mist hangt over het stille dorp Ravenholt. Achter een vergrendelde poort wacht een gedoofde lantaarn. Vind de weg naar binnen.',
-                  en: 'Fog hangs over the silent village of Ravenholt. Beyond a locked gate waits an unlit lantern. Find your way in.' },
+    intro:      { nl: 'In het koninkrijk Eldoria is de fontein op het dorpsplein al weken drooggevallen. De jonge Finn — die droomt van magie en wiens vader gevangen zit in het kasteel — gaat op onderzoek uit.',
+                  en: 'In the kingdom of Eldoria the village-square fountain has run dry for weeks. Young Finn — who dreams of magic and whose father is imprisoned in the castle — sets out to investigate.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
-    winTitle:   { nl: 'De Lantaarn Brandt', en: 'The Lantern Burns' },
+    winTitle:   { nl: 'Wordt vervolgd', en: 'To be continued' },
     replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
     playOther:  { nl: '▸ Speel een ander avontuur', en: '▸ Play another adventure' },
     deathTitle: { nl: 'Verloren in de mist...', en: 'Lost in the fog...' },
@@ -61,42 +55,44 @@ const GAME = {
     selected:   { nl: 'geselecteerd', en: 'selected' },
     homeConfirm:{ nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
 
-    /* questhint-teksten — verwezen vanuit questRules hieronder */
-    q_explore:  { nl: 'Verken het dorpsplein', en: 'Explore the village square' },
-    q_unlock:   { nl: 'Gebruik de sleutel op het poortslot', en: 'Use the key on the gate lock' },
-    q_lantern:  { nl: 'Ga door de poort en pak de lantaarn', en: 'Go through the gate and take the lantern' }
+    q_explore:  { nl: 'Verken het dorpsplein van Eldoria', en: 'Explore the village square of Eldoria' },
+    q_fountain: { nl: 'Onderzoek waarom de fontein is drooggevallen', en: 'Investigate why the fountain has run dry' },
+    q_mill:     { nl: 'Bekijk de oude watermolen aan de rand van het plein', en: 'Inspect the old watermill at the edge of the square' }
   },
 
   items: {
-    key:     { name: { nl: 'Oude Sleutel', en: 'Old Key' }, icon: '🗝️' },
-    lantern: { name: { nl: 'Gedoofde Lantaarn', en: 'Unlit Lantern' }, icon: '🏮' }
+    coin: { name: { nl: 'Oud Muntje', en: 'Old Coin' }, icon: '🪙' },
+    note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜',
+            look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } }
   },
 
-  /* Recepten combineren twee tas-items tot een derde. Voorbeeld:
-     { a: 'flint', b: 'steel', result: 'fire', text: { nl:'...', en:'...' } } */
   recipes: [],
 
-  /* Questhint-regels — eerste match wint; quest:null verbergt de hint. */
   questRules: [
-    { when: { flag: 'taken_square_lantern' }, quest: null },
-    { when: { flag: 'gateOpen' },             quest: 'q_lantern' },
-    { when: { has: 'key' },                   quest: 'q_unlock' },
-    { when: {},                               quest: 'q_explore' }
+    { when: { flag: 'lookedMill', has: ['coin', 'note'] }, quest: null },
+    { when: { flag: 'seenFountain' },                      quest: 'q_mill' },
+    { when: {},                                            quest: 'q_explore' }
   ],
 
   scenes: {
     square: {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
-      /* bg: 'assets/art/scene-square.png',  ← koppel hier je eigen 568×320 achtergrond */
+      bg: 'assets/art/scene-square.png',
       entryText: {
-        nl: 'Een verlaten plein in de mist. Tussen de keien glinstert iets, en aan de overkant gaapt een vergrendelde smeedijzeren poort.',
-        en: 'A deserted square wrapped in fog. Something glints between the cobbles, and across the way looms a locked wrought-iron gate.'
+        nl: 'Het dorpsplein van Eldoria, gehuld in avondmist. In het midden staat de stenen fontein — droog en stil. Aan de rand kraakt de oude watermolen.',
+        en: 'The village square of Eldoria, wrapped in evening mist. The stone fountain stands dry and silent in the middle. At the edge the old watermill creaks.'
       },
-      playerStart: { x: 284, y: 252 },
+      playerStart: { x: 120, y: 286 },
 
-      /* Beloopbaar gebied (veelhoek in scene-pixels). Of gebruik walkable: [ {x,y,w,h}, ... ]. */
-      walkPoly: [[60, 196], [508, 196], [508, 300], [60, 300]],
-      obstacles: [],
+      /* Beloopbare keien rondom de fontein (de molen rechts en de fontein zelf zijn geblokkeerd). */
+      walkable: [
+        { x: 40,  y: 296, w: 488, h: 20 },   // voorgrond-strook vóór de fontein
+        { x: 40,  y: 222, w: 150, h: 94 },   // keien links van de fontein
+        { x: 366, y: 222, w: 104, h: 94 }    // keien rechts (vóór de molen)
+      ],
+      obstacles: [
+        { x: 190, y: 232, w: 182, h: 68 }    // de fontein-bak (niet doorheen lopen)
+      ],
       overlays: [],
       worldItems: [],
       npcs: [],
@@ -104,46 +100,47 @@ const GAME = {
 
       hotspots: [
         {
-          id: 'cobble',
-          name: { nl: 'Losse Kei', en: 'Loose Cobble' },
-          rect: { x: 70, y: 168, w: 96, h: 84 },
-          walkTo: { x: 140, y: 250 },
+          id: 'fountain',
+          name: { nl: 'Drooggevallen Fontein', en: 'Dry Fountain' },
+          rect: { x: 196, y: 150, w: 176, h: 150 },
+          walkTo: { x: 284, y: 308 },
+          look: (state) => state.flags.seenFountain
+            ? { nl: 'De fontein blijft droog. Zonder stromend water komt hier niets op gang.', en: 'The fountain stays dry. Without flowing water nothing will start here.' }
+            : { nl: 'De fontein is al weken droog. Geen druppel water. Iemand zei dat de watermolen het water hierheen pompt... maar de molen staat stil.', en: 'The fountain has been dry for weeks. Not a drop. Someone said the watermill pumps the water here... but the mill stands still.' },
+          setFlag: 'seenFountain'
+        },
+        {
+          id: 'coin',
+          name: { nl: 'Iets Glimmends', en: 'Something Shiny' },
+          rect: { x: 56, y: 290, w: 60, h: 24 },
+          walkTo: { x: 92, y: 302 },
           gives: {
-            item: 'key',
-            giveText: { nl: 'Onder de kei ligt een Oude Sleutel, groen uitgeslagen.', en: 'Beneath the cobble lies an Old Key, green with age.' },
-            emptyText: { nl: 'Onder de kei is niets meer.', en: 'There’s nothing left under the cobble.' }
+            item: 'coin',
+            giveText: { nl: 'Tussen de keien glinstert een oud muntje. Je steekt het in je tas.', en: 'An old coin glints between the cobbles. You pocket it.' },
+            emptyText: { nl: 'Niets meer tussen de keien hier.', en: 'Nothing more between the cobbles here.' }
           }
         },
         {
-          id: 'gateLock',
-          name: { nl: 'Poortslot', en: 'Gate Lock' },
-          rect: { x: 236, y: 150, w: 96, h: 96 },
-          walkTo: { x: 284, y: 250 },
+          id: 'note',
+          name: { nl: 'Briefje aan de Muur', en: 'Note on the Wall' },
+          rect: { x: 384, y: 232, w: 56, h: 40 },
+          walkTo: { x: 408, y: 304 },
+          gives: {
+            item: 'note',
+            giveText: { nl: 'Een verfrommeld briefje is aan een paal geprikt. Je pakt het en leest het later na (tik het aan in je tas).', en: 'A crumpled note is pinned to a post. You take it to read later (tap it in your bag).' },
+            emptyText: { nl: 'De paal is nu leeg.', en: 'The post is empty now.' }
+          }
+        },
+        {
+          id: 'mill',
+          name: { nl: 'Oude Watermolen', en: 'Old Watermill' },
+          rect: { x: 470, y: 150, w: 96, h: 150 },
+          walkTo: { x: 452, y: 304 },
           look: {
-            nl: 'Een zwaar, verroest poortslot. Er past vast een sleutel in.',
-            en: 'A heavy, rusted gate lock. A key would surely fit.'
+            nl: 'De grote watermolen kraakt zachtjes. Het waterrad ontbreekt — er is alleen een lege as waar het ooit zat. Zonder rad pompt de molen geen water.',
+            en: 'The great watermill creaks softly. Its water wheel is missing — only a bare axle remains where it once turned. Without the wheel the mill pumps no water.'
           },
-          use: {
-            key: {
-              consume: 'key',
-              setFlag: 'gateOpen',
-              text: { nl: 'De sleutel knarst om en de poort kreunt open!', en: 'The key grinds round and the gate groans open!' }
-            }
-          }
-        },
-        {
-          id: 'lantern',
-          name: { nl: 'Lantaarn', en: 'Lantern' },
-          rect: { x: 392, y: 158, w: 108, h: 92 },
-          walkTo: { x: 430, y: 250 },
-          requiresFlag: 'gateOpen',
-          blockedText: { nl: 'De poort zit op slot. Vind eerst een sleutel.', en: 'The gate is locked. Find a key first.' },
-          gives: {
-            item: 'lantern',
-            win: true,
-            giveText: { nl: 'Voorbij de poort hangt een oude lantaarn. Je neemt hem van de haak.', en: 'Beyond the gate hangs an old lantern. You lift it from its hook.' },
-            emptyText: { nl: 'Er hangt niets meer.', en: 'Nothing hangs there anymore.' }
-          }
+          setFlag: 'lookedMill'
         }
       ]
     }
