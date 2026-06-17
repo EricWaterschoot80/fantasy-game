@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '4',
+  assetVer: '6',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -25,7 +25,9 @@ const GAME = {
     heroWalk2:     'assets/art/hero-walk2.png',
     heroWave:      'assets/art/hero-wave.png',
     heroWalkSheet: 'assets/art/hero-walk-sheet.png',
-    mayor:         'assets/art/mayor.png'
+    mayor:         'assets/art/mayor.png',
+    ravenPerch:    'assets/art/raven-perch.png',   // raaf op de ton (gevouwen vleugels)
+    ravenFly:      'assets/art/raven-fly.png'       // raaf in vlucht (wegvliegen)
   },
   heroWalkFrames: 4,            // aantal frames in hero-walk-sheet.png (vloeiender lopen)
 
@@ -64,13 +66,16 @@ const GAME = {
 
     q_explore:  { nl: 'Verken het dorpsplein van Eldoria', en: 'Explore the village square of Eldoria' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
-    q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' }
+    q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
+    q_raven:    { nl: 'De raaf op de ton is dol op glimmende dingen — geef hem iets', en: 'The raven on the barrel loves shiny things — give it something' },
+    q_follow:   { nl: 'Volg de raaf naar de molen', en: 'Follow the raven to the mill' }
   },
 
   items: {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Bovenin zit een lege vatting — er hoort een magische steen in. Zonder die steen doet de staf nog niets.', en: 'My father’s wooden staff. The top has an empty setting — a magic stone belongs there. Without the stone the staff does nothing yet.' } },
-    coin: { name: { nl: 'Oud Muntje', en: 'Old Coin' }, icon: '🪙', img: 'assets/art/item-coin.png' },
+    coin: { name: { nl: 'Oud Muntje', en: 'Old Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
+            look: { nl: 'Een oud, mat muntje — maar in het zonlicht glinstert het nog mooi. Precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old, dull coin — but it still glints prettily in the sunlight. Just the kind of shiny thing a magpie or raven can’t resist.' } },
     note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
             look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } }
   },
@@ -78,20 +83,25 @@ const GAME = {
   recipes: [],
 
   questRules: [
-    { when: { flag: 'lookedMill', has: ['coin', 'note'] }, quest: null },
-    { when: { flag: 'seenFountain' },                      quest: 'q_mill' },
-    { when: {},                                            quest: 'q_explore' }
+    { when: { flag: 'ravenSecret' },                        quest: null },       // het geheim is onthuld -> wordt vervolgd
+    { when: { flag: 'ravenFed', notFlag: 'ravenSecret' },   quest: 'q_follow' },  // de raaf is naar de molen gevlogen
+    { when: { flag: 'lookedMill', notFlag: 'ravenFed' },    quest: 'q_raven' },   // de molen zit muurvast: de raaf kan helpen
+    { when: { flag: 'seenFountain' },                       quest: 'q_mill' },
+    { when: {},                                             quest: 'q_explore' }
   ],
 
   scenes: {
     square: {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
       bg: 'assets/art/scene-square.png',
+      charFilter: 'sepia(0.22) saturate(1.18) brightness(1.06)',   // warm ochtendlicht over de personages
       entryText: {
         nl: 'Het dorpsplein van Eldoria baadt in het ochtendlicht. De fontein klatert nog wat na, maar het water zakt zienderogen. Aan de rand staat de oude molen stil.',
         en: 'The village square of Eldoria bathes in morning light. The fountain still trickles, but the water is dropping fast. At the edge the old mill stands still.'
       },
       playerStart: { x: 300, y: 300 },
+      spawnFrom: { mill: { x: 150, y: 300 } },   // terug uit de molen: bij het pad links
+      depth: { far: 238, near: 318, sFar: 0.74, sNear: 1.06 },   // perspectief: kleiner naar achteren
 
       /* Beloopbare keien op het plein; de fontein (midden-links) en de gebouwen zijn geblokkeerd. */
       walkable: [
@@ -105,7 +115,8 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mayor', sprite: 'mayor', x: 312, y: 262 }   // burgemeester Bram, rechts van de fontein
+        { id: 'mayor', sprite: 'mayor', x: 372, y: 264 },                    // burgemeester Bram, rechts van de fontein
+        { id: 'raven', sprite: 'ravenPerch', x: 36, y: 260, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links)
       ],
       fx: {},
 
@@ -113,12 +124,27 @@ const GAME = {
         {
           id: 'mayor',
           name: { nl: 'Burgemeester Bram', en: 'Mayor Bram' },
-          rect: { x: 286, y: 184, w: 54, h: 82 },
-          walkTo: { x: 300, y: 300 },
+          rect: { x: 346, y: 186, w: 54, h: 80 },
+          walkTo: { x: 366, y: 300 },
           look: (state) => state.flags.metMayor
             ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
           setFlag: 'metMayor'
+        },
+        {
+          id: 'raven',
+          name: { nl: 'Glanzende Raaf', en: 'Glossy Raven' },
+          rect: { x: 12, y: 226, w: 46, h: 44 },
+          walkTo: { x: 80, y: 298 },
+          hideFlag: 'ravenFed',                        // weg zodra hij is opgevlogen
+          look: { nl: 'Een grote, glanzende raaf zit op de oude ton en houdt zijn kop scheef. Zijn kraaloogjes volgen elk glimmend ding dat je bij je hebt. Hij lijkt iets te willen ruilen...', en: 'A big glossy raven sits on the old barrel, cocking its head. Its beady eyes track every shiny thing you carry. It seems to want a trade...' },
+          use: {
+            coin: {
+              consume: 'coin',
+              setFlag: 'ravenFed',
+              text: { nl: 'Je houdt het muntje omhoog. De raaf grist het bliksemsnel uit je hand, krast tevreden — en vliegt met klepperende vleugels op, recht naar de oude molen aan de rand van het dorp. Volg hem!', en: 'You hold up the coin. The raven snatches it in a flash, caws with delight — and beats its wings, flying straight to the old mill at the edge of the village. Follow it!' }
+            }
+          }
         },
         {
           id: 'fountain',
@@ -153,15 +179,66 @@ const GAME = {
           }
         },
         {
-          id: 'mill',
-          name: { nl: 'De Oude Molen', en: 'The Old Mill' },
-          rect: { x: 56, y: 70, w: 116, h: 152 },
-          walkTo: { x: 120, y: 300 },
+          id: 'toMill',
+          name: { nl: 'Pad naar de Molen', en: 'Path to the Mill' },
+          rect: { x: 48, y: 80, w: 124, h: 220 },
+          walkTo: { x: 118, y: 300 },
+          arrow: { x: 96, y: 232, dir: 'up' },
+          exit: { to: 'mill', travelText: { nl: 'Je volgt het pad naar de oude molen aan de rand van het dorp...', en: 'You follow the path to the old mill at the edge of the village...' } }
+        }
+      ]
+    },
+
+    mill: {
+      name: { nl: 'De Oude Molen', en: 'The Old Mill' },
+      bg: 'assets/art/scene-mill.png',
+      charFilter: 'sepia(0.26) saturate(1.18) brightness(1.05)',   // warm gouden molenlicht
+      entryText: {
+        nl: 'De oude molen op de heuvel. De wieken staan stil en het waterrad aan de zijkant beweegt niet. Hier moet het misgaan met de waterbron.',
+        en: 'The old mill on the hill. The sails are still and the water wheel on its side does not turn. This must be where the water source fails.'
+      },
+      playerStart: { x: 300, y: 300 },
+      depth: { far: 250, near: 316, sFar: 0.78, sNear: 1.05 },   // perspectief: kleiner naar achteren
+      walkable: [
+        { x: 70, y: 250, w: 430, h: 66 }    // het pad / voorgrond vóór de molen
+      ],
+      obstacles: [],
+      overlays: [],
+      worldItems: [],
+      npcs: [
+        { id: 'ravenMill', sprite: 'ravenPerch', x: 132, y: 246, scale: 1.1, appearFlag: 'ravenFed' }   // de raaf is hierheen gevlogen
+      ],
+      fx: {},
+      hotspots: [
+        {
+          id: 'wheel',
+          name: { nl: 'Het Waterrad', en: 'The Water Wheel' },
+          rect: { x: 206, y: 150, w: 150, h: 110 },
+          walkTo: { x: 284, y: 300 },
           look: {
-            nl: 'De oude molen aan de rand van het plein staat stil. Het rad dat de bron voedt is verdwenen — er is alleen een lege as waar het ooit zat. Zonder rad komt er geen water.',
-            en: 'The old mill at the edge of the square stands still. The wheel that feeds the spring is gone — only a bare axle remains where it once turned. Without the wheel there is no water.'
+            nl: 'Het grote waterrad zit muurvast — de as is verbogen en er ontbreekt een stuk. Zo komt het water nooit naar het dorp. Misschien weet iemand in de vallei raad... men sprak van vreemde lichten.',
+            en: 'The great water wheel is jammed — the axle is bent and a piece is missing. The water will never reach the village like this. Maybe someone in the valley knows... they spoke of strange lights.'
           },
           setFlag: 'lookedMill'
+        },
+        {
+          id: 'ravenSecret',
+          name: { nl: 'De Raaf', en: 'The Raven' },
+          rect: { x: 104, y: 214, w: 56, h: 46 },
+          walkTo: { x: 150, y: 300 },
+          appearFlag: 'ravenFed',                      // pas hier zodra de raaf is gevoerd
+          look: (state) => state.flags.ravenSecret
+            ? { nl: 'De raaf zit naast de smalle doorgang en wacht. Achter de losgewipte steen gloeit het zwakke blauwe licht — de weg naar de vallei der runen.', en: 'The raven waits beside the narrow passage. Behind the loosened stone the faint blue light glows — the way to the valley of runes.' }
+            : { nl: 'De raaf wipt naar de voet van de molen en pikt aan een losse steen tot die wegkantelt. Daarachter: een smalle, donkere doorgang waar een flauw blauw licht uit gloeit — dezelfde lichten waar het briefje en de burgemeester over spraken. De weg naar de vallei der runen ligt open.', en: 'The raven hops to the foot of the mill and pecks at a loose stone until it tips away. Behind it: a narrow, dark passage glowing with faint blue light — the very lights the note and the mayor spoke of. The way to the valley of runes lies open.' },
+          setFlag: 'ravenSecret'
+        },
+        {
+          id: 'toSquare',
+          name: { nl: 'Terug naar het Dorp', en: 'Back to the Village' },
+          rect: { x: 24, y: 268, w: 120, h: 48 },
+          walkTo: { x: 86, y: 300 },
+          arrow: { x: 64, y: 300, dir: 'down' },
+          exit: { to: 'square', travelText: { nl: 'Je loopt terug het dorp in.', en: 'You head back into the village.' } }
         }
       ]
     }

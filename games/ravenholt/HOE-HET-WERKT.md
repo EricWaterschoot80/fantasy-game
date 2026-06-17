@@ -69,6 +69,25 @@ verkleind naar **~84px hoog** (meer detail). De bron-PNG's staan in `assets/raw/
   engine speelt ze af tijdens het lopen en spiegelt voor naar-links lopen.
 - (Een 8-frame AutoSprite-cyclus lukte niet betrouwbaar; daarom deze 4-frame strook.)
 
+## De raaf (puzzel: glimmend ruilen)
+
+- Op het plein zit een **glanzende raaf** op de oude ton (`npcs: [{ sprite:'ravenPerch', hideFlag:'ravenFed' }]`).
+- Selecteer het **muntje** in de tas en gebruik het op de raaf (`hotspots[].use.coin`): de raaf
+  pakt het glimmende muntje, **vliegt weg** (korte vlucht-animatie met `ravenFly`) en zet de
+  vlag `ravenFed`. Daardoor verdwijnt de raaf van het plein (`hideFlag`) en verschijnt hij bij
+  de **molen** (`npcs: [{ appearFlag:'ravenFed' }]`).
+- Bij de molen onthult de raaf een **geheim**: een losse steen die wegkantelt en een donkere
+  doorgang met blauw licht laat zien — de weg naar de vallei (hotspot met `appearFlag:'ravenFed'`).
+- Twee nieuwe engine-haken maken dit data-driven: **`appearFlag`** (alleen tonen zodra gezet) en
+  **`hideFlag`** (verbergen zodra gezet) werken op zowel NPC's als hotspots.
+
+## Diepte (perspectief)
+
+De locaties hebben veel diepte. Per scène kun je dat aanzetten met
+`scene.depth = { far, near, sFar, sNear }`: een figuur op de achterste lijn (`y = far`) wordt op
+schaal `sFar` getekend, vooraan (`y = near`) op `sNear`, lineair ertussen. Zo **krimpt** de held
+(en NPC's) als hij naar achteren loopt. Geen `depth` = geen effect (schaal 1).
+
 ## NPC's en de staf
 
 - **Burgemeester Bram** staat als NPC op het plein (`npcs: [{ sprite:'mayor', ... }]`).

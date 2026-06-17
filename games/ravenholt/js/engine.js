@@ -156,6 +156,7 @@
   let msgQueue   = [];
   let pendingWin = false;
   let minoWalk = null;        // animatie: minotaur loopt naar de schaal en valt in slaap
+  let ravenFly = null;        // animatie: de raaf vliegt weg richting de molen
   let amuletRiseT0 = 0;       // moment waarop de amulet omhoog begint te schuiven
   let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
@@ -303,7 +304,7 @@
   });
 
   /* ---------- Render-buffers (2× supersampled voor scherpere, gedetailleerde art) ---------- */
-  const SS = 2;                       // supersample-factor: interne buffers op 2× detail
+  const SS = 3;                       // supersample-factor: interne buffers op 3× detail (scherpere, gedetailleerde art)
   const bgCanvas = document.createElement('canvas');
   bgCanvas.width = SCENE_W * SS; bgCanvas.height = SCENE_H * SS;
   const bgCtx = bgCanvas.getContext('2d');
@@ -896,6 +897,7 @@
     /* Entiteiten + voorgrond-overlays op diepte gesorteerd */
     const ents = [];
     for (const npc of (scene.npcs || [])) {
+      if (!flagVisible(npc)) continue;
       const rt = npcRt[npc.id] || npc;
       ents.push({ y: rt.y, draw: () => drawNpc(npc, now) });
     }
@@ -917,9 +919,34 @@
     ents.sort((a, b) => a.y - b.y);
     for (const e of ents) e.draw();
 
+    /* De raaf vliegt weg: stijgt op en zweeft naar de rand van het beeld (richting het molenpad). */
+    if (ravenFly) {
+      const el = (now - ravenFly.t) / 1700;
+      if (el >= 1) { ravenFly = null; }
+      else {
+        const img = art.sprites.ravenFly || art.sprites.ravenPerch;
+        const fx_ = ravenFly.x - el * 70;                                   // naar links, richting het pad
+        const fy_ = ravenFly.y - el * 150 - Math.sin(el * Math.PI) * 14;    // opstijgen in een boog
+        fctx.save();
+        fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
+        if (ready(img)) {
+          const flap = 0.9 + 0.18 * Math.sin(now / 70);                     // wiekslag-puls
+          const w = Math.round(img.naturalWidth * 0.5 * flap);
+          const h = Math.round(img.naturalHeight * 0.5);
+          fctx.imageSmoothingEnabled = false;
+          fctx.drawImage(img, Math.round(fx_ - w / 2), Math.round(fy_ - h / 2), w, h);
+        } else {
+          fctx.fillStyle = '#15110f';
+          fctx.fillRect(Math.round(fx_ - 4), Math.round(fy_ - 2), 8, 4);
+        }
+        fctx.restore();
+      }
+    }
+
     /* Doorzichtige pulserende pijlen bij uitgangen — bovenop alles */
     for (const hs of scene.hotspots) {
       if (!hs.exit || !hs.arrow) continue;
+      if (!flagVisible(hs)) continue;
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
       const a = hs.arrow;
       const pulse = 0.34 + 0.2 * Math.sin(now / 350);
@@ -1479,8 +1506,9 @@
   }
 
   /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
-  function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0 } = {}) {
-    const w = img.naturalWidth, h = img.naturalHeight;
+  function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0, scale = 1 } = {}) {
+    const w = Math.max(1, Math.round(img.naturalWidth * scale));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale));
     const px = Math.round(x), py = Math.round(y + bob);
     shadow(x, y, w * 0.8);
     fctx.save();
@@ -1582,10 +1610,32 @@
   /* Sfeerfilter voor personages in de tempel: donker vóór de fakkels, warm gelig-oranje erna
      (zo "zitten" de figuren in dezelfde kleur als de fakkelverlichte ruimte). */
   function sceneFilter() {
+    /* Per-scene belichting voor de personages, zodat ze in de sfeer van de locatie passen. */
+    const sc = GAME.scenes[state.currentScene];
+    if (sc && sc.charFilter) return sc.charFilter;
     if (state.currentScene !== 'temple') return 'none';
     if (!state.flags.torchLit) return 'brightness(0.62)';
     return 'sepia(0.45) saturate(2) brightness(1.07) hue-rotate(-12deg)';   // warm fakkellicht maar met eigen kleur
   }
+  /* Perspectief-diepte: personages krimpen naar achteren in de scène (kleinere y = verder weg).
+     Per scène optioneel via scene.depth = { far, near, sFar, sNear }: op y=far schaal sFar,
+     op y=near schaal sNear, lineair ertussen. Geen depth = schaal 1 (geen effect). */
+  function depthScaleAt(y) {
+    const d = GAME.scenes[state.currentScene] && GAME.scenes[state.currentScene].depth;
+    if (!d) return 1;
+    const t = Math.max(0, Math.min(1, (y - d.far) / (d.near - d.far)));
+    return d.sFar + (d.sNear - d.sFar) * t;
+  }
+
+  /* Zichtbaarheid van een hotspot/NPC op basis van vlaggen:
+     appearFlag = pas tonen zodra gezet; hideFlag = verbergen zodra gezet. */
+  function flagVisible(o) {
+    if (!o) return true;
+    if (o.appearFlag && !state.flags[o.appearFlag]) return false;
+    if (o.hideFlag && state.flags[o.hideFlag]) return false;
+    return true;
+  }
+
   function drawPlayer(now) {
     const f = sceneFilter();
     if (f !== 'none') fctx.filter = f;
@@ -1604,14 +1654,17 @@
           const NF = (GAME.heroWalkFrames || 8), fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
           const fr = Math.floor(player.phase * 0.5) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
-             de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven. */
-          const dh = ready(hero) ? hero.naturalHeight : 56;
+             de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven.
+             ds = perspectief-diepteschaal (kleiner naar achteren). */
+          const ds = depthScaleAt(player.y);
+          const dh = Math.round((ready(hero) ? hero.naturalHeight : 56) * ds);
           const dw = Math.round(fw * dh / fh);
           const foot = Math.round(dh * 2 / fh);   // compenseer de lucht onder de voeten
+          const bob = (fr % 2) ? -1 : 0;           // 'passing'-frames iets omhoog -> natuurlijke verende pas
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
-          fctx.translate(Math.round(player.x), Math.round(player.y));
+          fctx.translate(Math.round(player.x), Math.round(player.y) + bob);
           if (player.flip) fctx.scale(-1, 1);
           fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
           fctx.restore();
@@ -1629,19 +1682,20 @@
         const hop = -Math.round(step * 3);              // verende pas
         const lean = stride * 0.07;                     // lichte zwaai heen/weer
         const sway = Math.round(Math.cos(sp) * 1);      // subtiele zijwaartse wieg
-        drawArtSprite(img, player.x + (player.flip ? -sway : sway), player.y, { flip: player.flip, bob: hop, rot: lean });
+        drawArtSprite(img, player.x + (player.flip ? -sway : sway), player.y, { flip: player.flip, bob: hop, rot: lean, scale: depthScaleAt(player.y) });
         return;
       }
       /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
+      const ds = depthScaleAt(player.y);
       const g = gestureState('hero', now, 1300, 5000, 9000);
       const wave = art.sprites.heroWave;
       if (g > 0 && ready(wave)) {
         const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2);
-        drawArtSprite(wave, player.x, player.y, { flip: player.flip, bob: bounce });
+        drawArtSprite(wave, player.x, player.y, { flip: player.flip, bob: bounce, scale: ds });
         return;
       }
       const breathe = Math.round(Math.sin(now / 800));
-      drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
+      drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe, scale: ds });
       eyeBlink('hero', player.x, player.y + breathe, hero, 0.286, 4, now, 2, player.flip);   // held: beide ogen
       return;
     }
@@ -1747,11 +1801,12 @@
         /* (de minotaur knippert niet) */
       }
     } else {
-      /* Generieke NPC: teken de sprite als rustig staande figuur (subtiele ademhaling). */
+      /* Generieke NPC: teken de sprite als rustig staande figuur (subtiele ademhaling).
+         Diepteschaal van de scène vermenigvuldigt met een eventuele eigen npc.scale. */
       const img = art.sprites[npc.sprite];
       if (ready(img)) {
         const breathe = Math.round(Math.sin(now / 760 + (npc.x || 0)));
-        drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, bob: breathe, scale: npc.scale || 1 });
+        drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, bob: breathe, scale: depthScaleAt(rt.y) * (npc.scale || 1) });
       }
     }
   }
@@ -1790,6 +1845,7 @@
     const pulse = 0.5 + 0.5 * Math.sin(now / 130);
     const alpha = Math.min(1, remain * 2) * (0.55 + 0.35 * pulse);
     for (const hs of GAME.scenes[state.currentScene].hotspots) {
+      if (!flagVisible(hs)) continue;
       const r = hsRect(hs);
       const x = view.ox + r.x * scale, y = view.oy + r.y * scale;
       ctx.save();
@@ -2901,9 +2957,12 @@
       if (hs.gives.win) { pendingWin = true; sfx('win'); }
       return;
     }
-    /* Een puur 'look'-hotspot mag ook een flag zetten (bv. iets onderzocht hebben). */
+    /* Een puur 'look'-hotspot mag ook een flag zetten (bv. iets onderzocht hebben).
+       Bepaal de tekst VÓÓR het zetten van de vlag: zo kan een look(state)-functie
+       de eerste-keer-tekst tonen en pas daarna naar de "al gezien"-variant schakelen. */
+    const lt = lookText(hs);
     if (hs.setFlag && !state.flags[hs.setFlag]) { state.flags[hs.setFlag] = true; updateQuest(); }
-    say(lookText(hs), hsSpeaker(hs), hsFace(hs));
+    say(lt, hsSpeaker(hs), hsFace(hs));
   }
 
   function runAction(a, anchor, face) {
@@ -2925,6 +2984,15 @@
       follower.active = true;
       follower.x = (npcRt.dog ? npcRt.dog.x : player.x);
       follower.y = (npcRt.dog ? npcRt.dog.y : player.y);
+    }
+    if (a.setFlag === 'ravenFed') {
+      /* De raaf pakt het glinsterende muntje en vliegt weg richting de molen. */
+      sfx('use');
+      const sc = GAME.scenes[state.currentScene];
+      const r = (sc.npcs || []).find((n) => n.id === 'raven');
+      const rx = r ? r.x : player.x, ry = r ? r.y - 16 : player.y - 40;
+      ravenFly = { x: rx, y: ry, t: performance.now() };
+      burstAt(rx, ry, { n: 8, col: '231,207,134', up: 10, life: 0.8 });   // glinster bij het opvliegen
     }
     if (a.setFlag === 'minotaurAsleep') {
       sfx('sleep');
@@ -3021,6 +3089,7 @@
     const scene = GAME.scenes[state.currentScene];
     let best = null, bestArea = Infinity;
     for (const hs of scene.hotspots) {
+      if (!flagVisible(hs)) continue;
       const r = hsRect(hs);
       if (sx >= r.x && sx <= r.x + r.w && sy >= r.y && sy <= r.y + r.h) {
         const area = r.w * r.h;
