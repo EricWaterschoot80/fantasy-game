@@ -1723,13 +1723,16 @@
         drawArtSprite(wave, player.x, player.y, { flip: player.flip, bob: bounce, scale: ds });
         return;
       }
-      /* Rustig staan: GEEN verticale hobbel meer (dat 'bouncede'); alleen een heel
-         subtiele ademhaling via een minimale verticale rek (squashY), verankerd op de voeten. */
+      /* Rustig staan: heel subtiele ademhaling (squashY) + een zachte, doorlopende wieg
+         zoals de wacht (lichte romp-zwaai met een minimale gewichtsverschuiving), verankerd
+         op de voeten. Geen verticale hobbel. */
       const breaths = 1 + 0.012 * Math.sin(now / 1500);
-      drawArtSprite(hero, player.x, player.y, { flip: player.flip, scale: ds, squashY: breaths });
+      const idleRot = Math.sin(now / 720) * 0.03;                 // zachte schommel net als de wachter
+      const idleSway = Math.round(Math.sin(now / 720) * 0.8 * ds);// minimale gewichtsverschuiving
+      drawArtSprite(hero, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
       /* Finns gezicht zit iets rechts van het spritemidden en hoog (omhoog gedraaid kopje);
          richt de oogleden daarop (gespiegeld als hij naar links kijkt). */
-      eyeBlink('hero', player.x + (player.flip ? -9 : 9) * ds, player.y, hero, 0.21, 5, now, 2, player.flip, ds);
+      eyeBlink('hero', player.x + idleSway + (player.flip ? -9 : 9) * ds, player.y, hero, 0.21, 5, now, 2, player.flip, ds);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
