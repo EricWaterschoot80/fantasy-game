@@ -1701,11 +1701,13 @@
           const foot = Math.round(dh * 2 * D / fh);   // compenseer de lucht onder de voeten
           /* Natuurlijke pas: lichaam wipt 2x per cyclus omhoog (op de 'passing'-frames),
              met een zachte gewichtsverschuiving zijwaarts en een lichte romp-zwaai. */
-          /* Doorlopende verende pas (2x wippen per cyclus) + subtiele gewichtsverschuiving. */
+          /* Doorlopende verende pas (2x wippen per cyclus) + gewichtsverschuiving + een
+             duidelijker romp-/staf-zwaai (de staf steekt omhoog, dus de rotatie laat de
+             arm/staf zichtbaar meewiegen terwijl de voeten op de grond blijven). */
           const s = Math.sin(t * Math.PI * 0.5);
           const bob = -Math.round(Math.abs(s) * 1.8 * ds);
-          const sway = Math.round(s * 0.6 * ds);              // subtiele gewichtsverschuiving
-          const lean = s * 0.02;                              // heel lichte romp-zwaai
+          const sway = Math.round(s * 0.8 * ds);              // gewichtsverschuiving
+          const lean = s * 0.045;                             // duidelijke arm-/staf-zwaai
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
