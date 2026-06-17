@@ -1701,12 +1701,9 @@
           const foot = Math.round(dh * 2 * D / fh);   // compenseer de lucht onder de voeten
           /* Natuurlijke pas: lichaam wipt 2x per cyclus omhoog (op de 'passing'-frames),
              met een zachte gewichtsverschuiving zijwaarts en een lichte romp-zwaai. */
-          /* Verende pas afgestemd op de 6-frame cyclus [contact, mid, passing, contact, mid, passing]:
-             lichaam het HOOGST op de 'passing'-frames (voeten samen), het LAAGST op de contacten. */
-          const ph = fr % 3;                                  // 0=contact, 1=mid, 2=passing
-          const bobAmt = ph === 2 ? 2.8 : (ph === 1 ? 1.3 : 0);
-          const bob = -Math.round(bobAmt * ds);
+          /* Doorlopende verende pas (2x wippen per cyclus) + subtiele gewichtsverschuiving. */
           const s = Math.sin(t * Math.PI * 0.5);
+          const bob = -Math.round(Math.abs(s) * 1.8 * ds);
           const sway = Math.round(s * 0.6 * ds);              // subtiele gewichtsverschuiving
           const lean = s * 0.02;                              // heel lichte romp-zwaai
           shadow(player.x, player.y, dw * 0.8);
