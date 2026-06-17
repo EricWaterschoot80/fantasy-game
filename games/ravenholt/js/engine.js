@@ -1669,12 +1669,23 @@
     const walking = !!player.target || player.kbMoving;
     if (ready(hero)) {
       if (walking) {
+        /* Schuin naar voren lopen (richting de speler): aparte 3/4-sprite met een verende
+           stap, i.p.v. de zijaanzicht-loopsheet. Spiegelt mee met de horizontale richting. */
+        const diag = art.sprites.heroWalkDiag;
+        if (player.dir === 'down' && ready(diag)) {
+          const ds = depthScaleAt(player.y);
+          const sp = player.phase * 0.9;
+          const hop = -Math.round(Math.abs(Math.sin(sp * Math.PI * 0.5)) * 2 * ds);   // verende pas
+          const rock = Math.sin(sp * Math.PI * 0.5) * 0.03;
+          drawArtSprite(diag, player.x, player.y, { flip: player.flip, bob: hop, rot: rock, scale: ds });
+          return;
+        }
         /* Volledige 8-frame loopcyclus uit de Higgsfield AutoSprite-sheet. */
         const sheet = art.sprites.heroWalkSheet;
         if (ready(sheet)) {
           const D = GAME.spriteDetail || 1;
           const NF = (GAME.heroWalkFrames || 8), fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
-          const t = player.phase * 0.5;            // doorlopende loop-fase
+          const t = player.phase * 0.9;            // doorlopende loop-fase (sneller -> benen bewegen duidelijk)
           const fr = Math.floor(t) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
              de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven.
@@ -1732,7 +1743,7 @@
       drawArtSprite(hero, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
       /* Finns ogen zitten vrijwel in het midden (iets rechts) en hoog; richt de twee
          oogleden daar precies op (gespiegeld als hij naar links kijkt). */
-      eyeBlink('hero', player.x + idleSway + (player.flip ? -2 : 2) * ds, player.y, hero, 0.185, 8, now, 2, player.flip, ds);
+      eyeBlink('hero', player.x + idleSway + (player.flip ? -8 : 8) * ds, player.y, hero, 0.19, 6, now, 2, player.flip, ds);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1843,7 +1854,17 @@
          Diepteschaal van de scène vermenigvuldigt met een eventuele eigen npc.scale.
          Heeft de NPC een gestureSprite, dan toont hij die af en toe (bv. de burgemeester
          die wanhopig met zijn handen wringt omdat er geen water is). */
-      const img = art.sprites[npc.sprite];
+      let img = art.sprites[npc.sprite];
+      /* Blikrichting-sprites: een NPC kan rustig heen en weer 'spieden' (scanSprites,
+         bv. de koopman die van zijn kar naar de wacht kijkt) en omschakelen naar een
+         verbaasde blik zodra een vlag is gezet (aweSprite, bv. starend naar de dansende bloem). */
+      if (npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
+        img = art.sprites[npc.aweSprite];
+      } else if (npc.scanSprites && npc.scanSprites.length) {
+        const si = Math.floor(now / 1700) % npc.scanSprites.length;
+        const ss = art.sprites[npc.scanSprites[si]];
+        if (ready(ss)) img = ss;
+      }
       if (ready(img)) {
         const sc2 = depthScaleAt(rt.y) * (npc.scale || 1);
         const breaths = 1 + 0.012 * Math.sin(now / 1500 + (npc.x || 0));
