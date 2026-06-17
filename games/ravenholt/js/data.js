@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '18',
+  assetVer: '19',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -35,7 +35,8 @@ const GAME = {
     guard:         'assets/art/guard.png',          // poortwacht bij het kasteel
     guardGesture:  'assets/art/guard-gesture.png',  // wacht verzet zijn hellebaard (af en toe)
     merchant:      'assets/art/merchant.png',        // handelsman bij de kar (kasteel)
-    flower:        'assets/art/flower.png'           // grote toverbloem (kan dansen)
+    flower:        'assets/art/flower.png',          // bloem (oranje accent)
+    flowerWhite:   'assets/art/flower-white.png'     // witte bloem (dansende bloem + cluster)
   },
   heroWalkFrames: 6,            // aantal frames in hero-walk-sheet.png (echte 6-frame loopcyclus)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -450,13 +451,13 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
-        { id: 'merchant', sprite: 'merchant', x: 282, y: 296, scale: 1.02, turnFlag: 'merchantDistracted' },   // handelsman iets verder naar achter; kijkt naar zijn kar tot de bloem danst
+        { id: 'merchant', sprite: 'merchant', x: 282, y: 298, scale: 1.18, flip: true, turnFlag: 'merchantDistracted' },   // handelsman iets groter; kijkt standaard naar zijn kar (links), draait pas naar de bloem als die danst
         { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
-        { id: 'flower', sprite: 'flower', x: 392, y: 260, scale: 0.74, danceFlag: 'flowerDancing' },   // (dansende) bloem — meer naar links én naar achter (hoger), kleiner, vrij van de tasbalk
-        { id: 'flower2', sprite: 'flower', x: 356, y: 256, scale: 0.5 },   // kleinere bloemen eromheen
-        { id: 'flower3', sprite: 'flower', x: 432, y: 262, scale: 0.48 },
-        { id: 'flower4', sprite: 'flower', x: 336, y: 250, scale: 0.42 },   // nog een paar, verder naar links/achter
-        { id: 'flower5', sprite: 'flower', x: 462, y: 258, scale: 0.44 }
+        { id: 'flower', sprite: 'flowerWhite', x: 440, y: 262, scale: 0.5, danceFlag: 'flowerDancing' },   // (dansende) witte bloem — strak cluster, iets naar rechts, veel kleiner
+        { id: 'flower2', sprite: 'flowerWhite', x: 422, y: 266, scale: 0.36 },   // wit cluster eromheen, dicht bij elkaar
+        { id: 'flower3', sprite: 'flowerWhite', x: 458, y: 266, scale: 0.34 },
+        { id: 'flower4', sprite: 'flower', x: 408, y: 262, scale: 0.3 },   // één oranje accentbloempje
+        { id: 'flower5', sprite: 'flowerWhite', x: 472, y: 260, scale: 0.3 }
       ],
       fx: {},
       hotspots: [
@@ -489,9 +490,9 @@ const GAME = {
         },
         {
           id: 'flower',
-          name: { nl: 'Grote Bloem', en: 'Big Flower' },
-          rect: { x: 368, y: 220, w: 52, h: 78 },
-          walkTo: { x: 392, y: 300 },
+          name: { nl: 'Witte Bloemen', en: 'White Flowers' },
+          rect: { x: 404, y: 238, w: 76, h: 60 },
+          walkTo: { x: 440, y: 300 },
           look: (state) => state.flags.flowerDancing
             ? { nl: 'De bloemen zwieren uitbundig heen en weer; de handelsman kan zijn ogen er niet vanaf houden.', en: 'The flowers sway wildly to and fro; the merchant can’t take his eyes off them.' }
             : { nl: 'Een groep bloemen naast de poort, met één grote ertussen. Als die eens zouden gaan dansen... (lees je toverboek)', en: 'A cluster of flowers by the gate, one big one among them. If only they would dance... (read your spellbook)' },

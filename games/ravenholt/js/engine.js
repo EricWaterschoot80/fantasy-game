@@ -1727,7 +1727,9 @@
          subtiele ademhaling via een minimale verticale rek (squashY), verankerd op de voeten. */
       const breaths = 1 + 0.012 * Math.sin(now / 1500);
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, scale: ds, squashY: breaths });
-      eyeBlink('hero', player.x, player.y, hero, 0.27, 7, now, 1, player.flip, ds);   // held: knipper-balk over beide ogen
+      /* Finns gezicht zit iets rechts van het spritemidden en hoog (omhoog gedraaid kopje);
+         richt de oogleden daarop (gespiegeld als hij naar links kijkt). */
+      eyeBlink('hero', player.x + (player.flip ? -9 : 9) * ds, player.y, hero, 0.21, 5, now, 2, player.flip, ds);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
