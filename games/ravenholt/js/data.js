@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '29',
+  assetVer: '30',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -47,7 +47,7 @@ const GAME = {
     flower:        'assets/art/flower.png',          // bloem (oranje accent)
     flowerWhite:   'assets/art/flower-white.png'     // witte bloem (dansende bloem + cluster)
   },
-  heroWalkFrames: 6,            // aantal frames in hero-walk-sheet.png (natuurlijke loop: contact->passing->stap, beide kanten)
+  heroWalkFrames: 4,            // Seedream-loopcyclus: stap-links, passing, stap-rechts, passing (benen wisselen écht)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader in zijn tas. */

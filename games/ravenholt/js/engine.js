@@ -41,7 +41,7 @@
   const elZoomImg   = document.getElementById('zoom-img');
 
   const MIN_SLOTS = 6;
-  const WALK_SPEED = 95;
+  const WALK_SPEED = 80;
   const ARRIVE_DIST = 4;
 
   /* ---------- Taal ---------- */
@@ -1743,7 +1743,7 @@
       }
       /* idle: rustig ademen + regelmatig vrolijk zwaaien (2-frame zwaai). */
       const ds = depthScaleAt(player.y);
-      const g = gestureState('hero', now, 850, 8000, 15000);     // af en toe ÉÉN keer zwaaien (sneller)
+      const g = gestureState('hero', now, 550, 8000, 15000);     // af en toe ÉÉN keer zwaaien (vlotte zwaai)
       const wave1 = art.sprites.heroWave, wave2 = art.sprites.heroWave2;
       if (g > 0 && ready(wave1)) {
         /* Eén zwaai: hand omhoog (begin) en daarna één keer terug omlaag (einde) — geen
