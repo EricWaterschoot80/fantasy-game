@@ -1556,26 +1556,27 @@
     /* Natuurlijk knipperen: af en toe een dubbele knipper, met onregelmatige tussenpozen. */
     if (now >= b.next) { b.until = now + 95; b.next = now + 2600 + Math.random() * 3600 + (Math.random() < 0.25 ? -2200 : 0); }
     if (now >= b.until) return;
-    const col = faceColor(img, eyeFrac, halfW);
+    /* Huidkleur bemonsteren op de WANG (net onder de ogen) — daar zit schone huid,
+       niet de donkere oog-pixels — zodat het ooglid echt huidkleurig is. */
+    const col = faceColor(img, Math.min(0.95, eyeFrac + 0.07), halfW) || faceColor(img, eyeFrac, halfW);
     if (!col) return;
     const eh = (img.naturalHeight / (GAME.spriteDetail || 1)) * scale;   // tekenhoogte (2x sprites + diepteschaal)
     const ey = Math.round(footY - eh + eh * eyeFrac);
-    const lw = Math.max(2, Math.round(3 * scale));     // ooglid-breedte schaalt mee
-    const lh = Math.max(1, Math.round(2 * scale));
+    const lw = Math.max(2, Math.round(3.5 * scale));   // ooglid-breedte ≈ oogbreedte
     const lid = `rgb(${col.r},${col.g},${col.b})`;
-    const lash = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.8)`;
+    /* Gesloten oog = dun huidkleurig ooglid met een fijne donkere wimperlijn eronder. */
+    const lash = `rgba(${(col.r * 0.45) | 0},${(col.g * 0.4) | 0},${(col.b * 0.4) | 0},0.85)`;
+    const drawLid = (xc) => {
+      const x0 = Math.round(xc) - (lw >> 1);
+      fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, lw, Math.max(1, Math.round(1.5 * scale)));
+      fctx.fillStyle = lash; fctx.fillRect(x0, ey + Math.max(1, Math.round(1.5 * scale)) - 1, lw, 1);
+    };
     if (eyes === 2) {
-      /* De ogen liggen iets asymmetrisch; de offsets spiegelen mee als de held naar links kijkt. */
+      /* De twee ogen; offsets spiegelen mee als de held naar links kijkt. */
       const offs = flip ? [-(halfW + 1), halfW - 2] : [-halfW, halfW + 1];
-      for (const ox of offs) {
-        const x0 = Math.round(cx + ox * scale) - (lw >> 1);
-        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, lw, lh);
-        fctx.fillStyle = lash; fctx.fillRect(x0, ey + lh - 1, lw, 1);
-      }
+      for (const ox of offs) drawLid(cx + ox * scale);
     } else {
-      const x0 = Math.round(cx - halfW * scale), bw = Math.round(halfW * 2 * scale);
-      fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, bw, lh);
-      fctx.fillStyle = lash; fctx.fillRect(x0, ey + lh - 1, bw, 1);
+      drawLid(cx);
     }
   }
 
@@ -1725,13 +1726,15 @@
         drawArtSprite(img, player.x + (player.flip ? -sway : sway), player.y, { flip: player.flip, bob: hop, rot: lean, scale: depthScaleAt(player.y) });
         return;
       }
-      /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
+      /* idle: rustig ademen + regelmatig vrolijk zwaaien (2-frame zwaai). */
       const ds = depthScaleAt(player.y);
-      const g = gestureState('hero', now, 1100, 16000, 30000);   // veel minder vaak zwaaien
-      const wave = art.sprites.heroWave;
-      if (g > 0 && ready(wave)) {
+      const g = gestureState('hero', now, 1400, 7000, 13000);    // regelmatig zwaaien
+      const wave1 = art.sprites.heroWave, wave2 = art.sprites.heroWave2;
+      if (g > 0 && ready(wave1)) {
+        /* Hand op en neer: wissel tussen de twee zwaai-frames terwijl het gebaar duurt. */
+        const wf = (ready(wave2) && Math.floor(now / 230) % 2 === 0) ? wave2 : wave1;
         const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2);
-        drawArtSprite(wave, player.x, player.y, { flip: player.flip, bob: bounce, scale: ds });
+        drawArtSprite(wf, player.x, player.y, { flip: player.flip, bob: bounce, scale: ds });
         return;
       }
       /* Rustig staan: heel subtiele ademhaling (squashY) + een zachte, doorlopende wieg

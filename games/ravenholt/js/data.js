@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '22',
+  assetVer: '23',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -24,6 +24,7 @@ const GAME = {
     heroWalk:      'assets/art/hero-walk.png',
     heroWalk2:     'assets/art/hero-walk2.png',
     heroWave:      'assets/art/hero-wave.png',
+    heroWave2:     'assets/art/hero-wave2.png',     // 2e zwaai-frame (hand op/neer)
     heroWalkSheet: 'assets/art/hero-walk-sheet.png',
     mayor:         'assets/art/mayor.png',
     mayorGesture:  'assets/art/mayor-gesture.png',  // bezorgd gebaar (af en toe)
@@ -36,13 +37,14 @@ const GAME = {
     guardGesture:  'assets/art/guard-gesture.png',  // wacht verzet zijn hellebaard (af en toe)
     merchant:      'assets/art/merchant-left.png',   // handelsman (kap op) — kijkt naar de kar (links)
     merchantLeft:  'assets/art/merchant-left.png',   // kijkt naar links (zijn kar)
+    merchantFwd:   'assets/art/merchant-fwd.png',    // kijkt vooruit (tussenstand voor natuurlijk spieden)
     merchantRight: 'assets/art/merchant-right.png',  // kijkt naar rechts (de wacht)
     merchantAwe:   'assets/art/merchant-awe.png',    // verbaasd starend naar de dansende bloem
     heroWalkDiag:  'assets/art/hero-walk-diag.png',  // schuin lopen (3/4 naar de speler toe)
     flower:        'assets/art/flower.png',          // bloem (oranje accent)
     flowerWhite:   'assets/art/flower-white.png'     // witte bloem (dansende bloem + cluster)
   },
-  heroWalkFrames: 8,            // aantal frames in hero-walk-sheet.png (vloeiende 8-frame loopcyclus)
+  heroWalkFrames: 6,            // aantal frames in hero-walk-sheet.png (natuurlijke loop: contact->passing->stap, beide kanten)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader in zijn tas. */
@@ -455,13 +457,13 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
-        { id: 'merchant', sprite: 'merchantLeft', x: 282, y: 298, scale: 1.18, scanSprites: ['merchantLeft', 'merchantRight'], aweSprite: 'merchantAwe', aweFlag: 'merchantDistracted' },   // sneaky handelsman (kap op): spiedt afwisselend naar zijn kar (links) en de wacht (rechts); staart verbaasd naar de bloem zodra die danst
+        { id: 'merchant', sprite: 'merchantLeft', x: 282, y: 298, scale: 1.18, scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantFwd'], aweSprite: 'merchantAwe', aweFlag: 'merchantDistracted' },   // sneaky handelsman (kap op): spiedt afwisselend naar zijn kar (links) en de wacht (rechts); staart verbaasd naar de bloem zodra die danst
         { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
-        { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.42, danceFlag: 'flowerDancing' },   // (dansende) witte bloem — strak cluster, iets naar rechts, kleiner
-        { id: 'flower2', sprite: 'flowerWhite', x: 428, y: 267, scale: 0.3 },   // alle bloemen wit, dicht bij elkaar
-        { id: 'flower3', sprite: 'flowerWhite', x: 460, y: 267, scale: 0.29 },
-        { id: 'flower4', sprite: 'flowerWhite', x: 414, y: 263, scale: 0.26 },
-        { id: 'flower5', sprite: 'flowerWhite', x: 474, y: 262, scale: 0.27 }
+        { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.34, danceFlag: 'flowerDancing' },   // (dansende) witte bloem — strak cluster, iets kleiner
+        { id: 'flower2', sprite: 'flowerWhite', x: 430, y: 267, scale: 0.24 },   // alle bloemen wit, dicht bij elkaar
+        { id: 'flower3', sprite: 'flowerWhite', x: 458, y: 267, scale: 0.23 },
+        { id: 'flower4', sprite: 'flowerWhite', x: 418, y: 263, scale: 0.21 },
+        { id: 'flower5', sprite: 'flowerWhite', x: 470, y: 262, scale: 0.22 }
       ],
       fx: {},
       hotspots: [
