@@ -78,6 +78,24 @@ verkleind naar **~84px hoog** (meer detail). De bron-PNG's staan in `assets/raw/
   daarna van het plein (`hideFlag`).
 - Twee engine-haken maken dit data-driven: **`appearFlag`** (alleen tonen zodra gezet) en
   **`hideFlag`** (verbergen zodra gezet) werken op zowel NPC's als hotspots.
+- De raaf-tip wijst nu de hele queststap aan: het **molenrad** ligt in de **kar van de
+  handelsman** bij het kasteel, maar je moet hem afleiden met een **toverboek**-spreuk.
+
+## De grote queststap (toverboek → dansende bloem → molenrad)
+
+1. **Toverboek-puzzel (molen-binnen).** De boeken op de plank zitten vast. Op het boek op de
+   tafel staat de volgorde (ROOD, BLAUW, GEEL, GROEN). Trek de boeken in die volgorde
+   (`hotspots[].bookPuzzle`, hergebruikt het runen-scherm) → je krijgt het **toverboek** (`spellbook`).
+2. **Dansende bloem (kasteel).** Rechts van de poort staat een grote bloem. Selecteer het
+   toverboek en gebruik het op de bloem (`use.spellbook`) → de bloem **danst** (`npc.danceFlag`,
+   procedurele wieg-animatie) en de **handelsman is afgeleid** (`merchantDistracted`).
+3. **Het molenrad pakken.** De kar (`requiresFlag: 'merchantDistracted'`) geeft nu het
+   **molenrad** (`millwheel`) — anders meldt de `blockedText` dat de handelsman oplet.
+
+Verder dit hoofdstuk: uitgang-pijlen worden vóór de personages getekend (dus ze vallen
+**achter** het karakter); stilstaande figuren **bouncen niet** meer (subtiele squashY-ademhaling);
+de held knippert met een ooglid-balk op de juiste oog-lijn; de loop-sprites zijn opnieuw
+gegenereerd en even licht als de idle.
 
 ## De molen + het molenbinnen
 

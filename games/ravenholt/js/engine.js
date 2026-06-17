@@ -911,6 +911,7 @@
         } });
       }
     }
+    drawExitArrows(now);                 // uitgang-pijlen ACHTER de personages tekenen
     ents.sort((a, b) => a.y - b.y);
     for (const e of ents) e.draw();
 
@@ -939,35 +940,6 @@
       }
     }
 
-    /* Doorzichtige pulserende pijlen bij uitgangen — bovenop alles */
-    for (const hs of scene.hotspots) {
-      if (!hs.exit || !hs.arrow) continue;
-      if (!flagVisible(hs)) continue;
-      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
-      const a = hs.arrow;
-      const pulse = 0.58 + 0.22 * Math.sin(now / 350);
-      const f = Math.sin(now / 350) * 2;
-      const s = a.scale || 1.05;                        // wat kleinere pijlen
-      fctx.save();
-      fctx.translate(a.x, a.y + (a.dir === 'up' ? f : a.dir === 'down' ? -f : 0));
-      if (typeof a.rot === 'number') fctx.rotate(a.rot);   // vrije hoek (bv. schuin naar het dorp)
-      else if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
-      else if (a.dir === 'right') { fctx.rotate(Math.PI / 2); fctx.translate(f, 0); }
-      else if (a.dir === 'down') fctx.rotate(Math.PI);
-      fctx.scale(s, s);
-      fctx.beginPath();
-      fctx.moveTo(0, -10); fctx.lineTo(9, 1); fctx.lineTo(4, 1); fctx.lineTo(4, 9);
-      fctx.lineTo(-4, 9); fctx.lineTo(-4, 1); fctx.lineTo(-9, 1);
-      fctx.closePath();
-      fctx.shadowColor = 'rgba(0,0,0,0.55)'; fctx.shadowBlur = 4;   // donkere halo voor contrast
-      fctx.fillStyle = `rgba(247,226,150,${pulse})`;
-      fctx.fill();
-      fctx.shadowBlur = 0;
-      fctx.strokeStyle = `rgba(28,18,14,${Math.min(1, pulse + 0.3)})`;
-      fctx.lineWidth = 1.4;
-      fctx.stroke();
-      fctx.restore();
-    }
 
     /* gloeiende partikels bovenop */
     for (const e of embers) {
@@ -1643,6 +1615,39 @@
     return true;
   }
 
+  /* Uitgang-pijlen (pulserend); worden vóór de personages getekend zodat ze ACHTER het karakter vallen. */
+  function drawExitArrows(now) {
+    const scene = GAME.scenes[state.currentScene];
+    for (const hs of scene.hotspots) {
+      if (!hs.exit || !hs.arrow) continue;
+      if (!flagVisible(hs)) continue;
+      if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
+      const a = hs.arrow;
+      const pulse = 0.58 + 0.22 * Math.sin(now / 350);
+      const f = Math.sin(now / 350) * 2;
+      const s = a.scale || 1.05;
+      fctx.save();
+      fctx.translate(a.x, a.y + (a.dir === 'up' ? f : a.dir === 'down' ? -f : 0));
+      if (typeof a.rot === 'number') fctx.rotate(a.rot);
+      else if (a.dir === 'left') { fctx.rotate(-Math.PI / 2); fctx.translate(-f, 0); }
+      else if (a.dir === 'right') { fctx.rotate(Math.PI / 2); fctx.translate(f, 0); }
+      else if (a.dir === 'down') fctx.rotate(Math.PI);
+      fctx.scale(s, s);
+      fctx.beginPath();
+      fctx.moveTo(0, -10); fctx.lineTo(9, 1); fctx.lineTo(4, 1); fctx.lineTo(4, 9);
+      fctx.lineTo(-4, 9); fctx.lineTo(-4, 1); fctx.lineTo(-9, 1);
+      fctx.closePath();
+      fctx.shadowColor = 'rgba(0,0,0,0.55)'; fctx.shadowBlur = 4;
+      fctx.fillStyle = `rgba(247,226,150,${pulse})`;
+      fctx.fill();
+      fctx.shadowBlur = 0;
+      fctx.strokeStyle = `rgba(28,18,14,${Math.min(1, pulse + 0.3)})`;
+      fctx.lineWidth = 1.4;
+      fctx.stroke();
+      fctx.restore();
+    }
+  }
+
   function drawPlayer(now) {
     /* De held staat vaak in de schaduw -> iets donkerder dan de scène-belichting. */
     const sf = sceneFilter();
@@ -1711,9 +1716,11 @@
         drawArtSprite(wave, player.x, player.y, { flip: player.flip, bob: bounce, scale: ds });
         return;
       }
-      const breathe = Math.round(Math.sin(now / 800));
-      drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe, scale: ds });
-      eyeBlink('hero', player.x, player.y + breathe, hero, 0.27, 8, now, 2, player.flip, ds);   // held: beide ogen (op de eigen oog-lijn, schaalt mee)
+      /* Rustig staan: GEEN verticale hobbel meer (dat 'bouncede'); alleen een heel
+         subtiele ademhaling via een minimale verticale rek (squashY), verankerd op de voeten. */
+      const breaths = 1 + 0.012 * Math.sin(now / 1500);
+      drawArtSprite(hero, player.x, player.y, { flip: player.flip, scale: ds, squashY: breaths });
+      eyeBlink('hero', player.x, player.y, hero, 0.27, 7, now, 1, player.flip, ds);   // held: knipper-balk over beide ogen
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1827,13 +1834,19 @@
       const img = art.sprites[npc.sprite];
       if (ready(img)) {
         const sc2 = depthScaleAt(rt.y) * (npc.scale || 1);
-        const breathe = Math.round(Math.sin(now / 760 + (npc.x || 0)));
+        const breaths = 1 + 0.012 * Math.sin(now / 1500 + (npc.x || 0));
         const ges = npc.gestureSprite && art.sprites[npc.gestureSprite];
-        if (ges && ready(ges) && gestureState(npc.id, now, 1500, 3200, 6500) > 0) {
-          const fret = Math.round(Math.sin(now / 110) * 0.8);   // nerveus heen-en-weer wiebelen
-          drawArtSprite(ges, rt.x + fret, rt.y, { flip: !!npc.flip, bob: breathe, scale: sc2 });
+        if (npc.danceFlag && state.flags[npc.danceFlag]) {
+          /* Dansende bloem: vrolijk heen-en-weer wiegen vanaf de wortel + verende squash. */
+          const sway = Math.sin(now / 170);
+          drawArtSprite(img, rt.x + Math.round(sway * 3), rt.y, {
+            flip: !!npc.flip, scale: sc2, rot: sway * 0.17, squashY: 1 + 0.07 * Math.sin(now / 120)
+          });
+        } else if (ges && ready(ges) && gestureState(npc.id, now, 1500, 3200, 6500) > 0) {
+          const fret = Math.round(Math.sin(now / 130) * 0.7);   // nerveus heen-en-weer wiebelen (gebaar)
+          drawArtSprite(ges, rt.x + fret, rt.y, { flip: !!npc.flip, scale: sc2, squashY: breaths });
         } else {
-          drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, bob: breathe, scale: sc2 });
+          drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, scale: sc2, squashY: breaths });
         }
       }
     }
@@ -2590,6 +2603,56 @@
 
   elRuneClose.addEventListener('click', () => { elRune.hidden = true; });
 
+  /* ---------- Boeken-volgorde-puzzel (hergebruikt het runen-scherm) ----------
+     Trek de vastzittende boeken in de juiste volgorde; dan komt het toverboek vrij. */
+  function openBookPuzzle(hs) {
+    const pz = hs.bookPuzzle;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    state.flags['puzzle_books'] = 0;
+    elRuneTitle.textContent = L(pz.title);
+    if (elRuneHint) elRuneHint.textContent = L(pz.hint);
+    renderBookPuzzle(hs);
+    elRune.hidden = false;
+    sfx('tap');
+  }
+  function renderBookPuzzle(hs) {
+    const pz = hs.bookPuzzle, prog = state.flags['puzzle_books'] || 0;
+    elRuneBtns.className = 'rune-btn-row';
+    elRuneBtns.innerHTML = '';
+    pz.books.forEach((b) => {
+      const done = pz.sequence.indexOf(b.key) < prog;
+      const btn = document.createElement('button');
+      btn.className = 'rune-stone-btn' + (done ? ' lit' : '');
+      btn.textContent = L(b.label);
+      if (b.color) btn.style.color = b.color;
+      if (!done) btn.addEventListener('click', () => bookTap(hs, b.key));
+      elRuneBtns.appendChild(btn);
+    });
+    elRuneStatus.textContent = '';
+  }
+  function bookTap(hs, key) {
+    const pz = hs.bookPuzzle, prog = state.flags['puzzle_books'] || 0;
+    if (key === pz.sequence[prog]) {
+      state.flags['puzzle_books'] = prog + 1;
+      sfx('pickup');
+      if (prog + 1 >= pz.sequence.length) {
+        state.flags[pz.setFlag] = true;
+        if (pz.gives) addItem(pz.gives);
+        sfx('combine');
+        setTimeout(() => { elRune.hidden = true; if (pz.solvedText) say(pz.solvedText); updateQuest(); }, 500);
+      } else {
+        renderBookPuzzle(hs);
+        const rem = pz.sequence.length - (prog + 1);
+        elRuneStatus.textContent = lang === 'nl' ? `Het boek schuift los! Nog ${rem}...` : `The book slides loose! ${rem} more...`;
+      }
+    } else {
+      state.flags['puzzle_books'] = 0;
+      sfx('error');
+      elRuneStatus.textContent = L(pz.resetText);
+      setTimeout(() => { if (!elRune.hidden) renderBookPuzzle(hs); }, 1100);
+    }
+  }
+
   /* ---------- Tegel-popup vóór het altaar (juiste volgorde indrukken) ---------- */
   const TILE_DEFS = [{ key: 't1', pips: 1 }, { key: 't2', pips: 2 }, { key: 't3', pips: 3 }, { key: 't4', pips: 4 }];
   function openTilePopup() {
@@ -3158,6 +3221,15 @@
       openGears(hs);
       return;
     }
+    if (hs.bookPuzzle) {
+      if (hs.bookPuzzle.requiresFlag && !state.flags[hs.bookPuzzle.requiresFlag]) {
+        sfx('error');
+        say(hs.bookPuzzle.blockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      openBookPuzzle(hs);
+      return;
+    }
 
     /* gevaarlijk wezen blijven porren = einde verhaal */
     if (hs.danger && !state.flags[hs.dangerUntil || 'minotaurAsleep']) {
@@ -3210,10 +3282,11 @@
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
     if (a.setFlag) {
-      state.flags[a.setFlag] = true;
+      (Array.isArray(a.setFlag) ? a.setFlag : [a.setFlag]).forEach((fl) => { state.flags[fl] = true; });
       updateQuest();
       const sc = GAME.scenes[state.currentScene];
-      if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === a.setFlag || v.notFlag === a.setFlag)) {
+      const setList = Array.isArray(a.setFlag) ? a.setFlag : [a.setFlag];
+      if (sc && sc.bgVariants && sc.bgVariants.some((v) => setList.includes(v.flag) || setList.includes(v.notFlag))) {
         paintBackground();
       }
     }
