@@ -125,7 +125,7 @@
 
   /* ---------- State ---------- */
   function newState() {
-    return { currentScene: GAME.startScene, inventory: [], flags: {}, selectedItem: null };
+    return { currentScene: GAME.startScene, inventory: (GAME.startItems || []).slice(), flags: {}, selectedItem: null };
   }
   let state = newState();
 
@@ -1601,8 +1601,8 @@
         /* Volledige 8-frame loopcyclus uit de Higgsfield AutoSprite-sheet. */
         const sheet = art.sprites.heroWalkSheet;
         if (ready(sheet)) {
-          const NF = 8, fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
-          const fr = Math.floor(player.phase * 0.63) % NF;
+          const NF = (GAME.heroWalkFrames || 8), fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
+          const fr = Math.floor(player.phase * 0.5) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
              de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven. */
           const dh = ready(hero) ? hero.naturalHeight : 56;
@@ -1745,6 +1745,13 @@
         }
         if (dimMino) fctx.filter = 'none';
         /* (de minotaur knippert niet) */
+      }
+    } else {
+      /* Generieke NPC: teken de sprite als rustig staande figuur (subtiele ademhaling). */
+      const img = art.sprites[npc.sprite];
+      if (ready(img)) {
+        const breathe = Math.round(Math.sin(now / 760 + (npc.x || 0)));
+        drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, bob: breathe, scale: npc.scale || 1 });
       }
     }
   }
@@ -1951,6 +1958,7 @@
       state.selectedItem = itemId;
       sfx('tap');
       showLabel(L(GAME.items[itemId].name) + ' ' + L(GAME.ui.selected));
+      if (item && item.look) say(item.look);   // toon de beschrijving van het voorwerp
     }
     renderInventory();
   }

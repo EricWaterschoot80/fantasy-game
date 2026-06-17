@@ -57,13 +57,27 @@ Finn is één vaste figuur (roodharige jongen, blauwe kapmantel, leren tas, hout
 | Sprite | Bestand | Wanneer |
 |--------|---------|--------|
 | Stilstaand | `assets/art/hero.png` | idle (met af en toe ademen) |
-| Lopen (frame 1/2) | `assets/art/hero-walk.png`, `hero-walk2.png` | tijdens lopen (2-frame cyclus) |
+| Lopen | `assets/art/hero-walk-sheet.png` | **4-frame loopcyclus** (vloeiend) |
+| Lopen (terugval) | `hero-walk.png`, `hero-walk2.png` | 2-frame cyclus als er geen sheet is |
 | Zwaaien | `assets/art/hero-wave.png` | af en toe als vrolijk gebaar |
 
 Gegenereerd met nano_banana (clean op magenta `#FF00FF`), daarna magenta weggekeyd en
-verkleind naar ~62px hoog. De bron-PNG's staan in `assets/raw/`. (Een vloeiende
-8-frame loopsheet via AutoSprite kan later; nu gebruiken we de 2-frame cyclus, die de
-engine ook ondersteunt.)
+verkleind naar **~84px hoog** (meer detail). De bron-PNG's staan in `assets/raw/`.
+
+- De **loopsheet** is een horizontale strook van 4 frames (contact-links → passing →
+  contact-rechts → passing). Het aantal frames staat in `GAME.heroWalkFrames` (= 4); de
+  engine speelt ze af tijdens het lopen en spiegelt voor naar-links lopen.
+- (Een 8-frame AutoSprite-cyclus lukte niet betrouwbaar; daarom deze 4-frame strook.)
+
+## NPC's en de staf
+
+- **Burgemeester Bram** staat als NPC op het plein (`npcs: [{ sprite:'mayor', ... }]`).
+  De engine tekent elke NPC-sprite generiek als rustig staande figuur; klik erop voor een
+  gesprek (look-tekst + `setFlag: 'metMayor'`).
+- Finn begint met **de staf van zijn vader** in zijn tas (`GAME.startItems: ['staff']`).
+  Tik het voorwerp aan om de beschrijving te lezen — de staf doet nog niets: er hoort een
+  **magische steen** in de lege vatting bovenin. (Die steen + spreuken komen in de Vallei der Runen.)
+- Voorwerp-iconen (`items[].img`) zijn 16-bit pixel-art in dezelfde stijl (staf, muntje, briefje).
 
 ## Verder bouwen
 

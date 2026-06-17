@@ -14,16 +14,23 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '2',
+  assetVer: '3',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
-     idle = hero, loopcyclus = heroWalk/heroWalk2 (2-frame), zwaaien = heroWave. */
+     idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
+     heroWalk/heroWalk2 blijven als terugval voor de 2-frame cyclus. */
   sprites: {
-    hero:      'assets/art/hero.png',
-    heroWalk:  'assets/art/hero-walk.png',
-    heroWalk2: 'assets/art/hero-walk2.png',
-    heroWave:  'assets/art/hero-wave.png'
+    hero:          'assets/art/hero.png',
+    heroWalk:      'assets/art/hero-walk.png',
+    heroWalk2:     'assets/art/hero-walk2.png',
+    heroWave:      'assets/art/hero-wave.png',
+    heroWalkSheet: 'assets/art/hero-walk-sheet.png',
+    mayor:         'assets/art/mayor.png'
   },
+  heroWalkFrames: 4,            // aantal frames in hero-walk-sheet.png (vloeiender lopen)
+
+  /* Finn begint met de staf van zijn vader in zijn tas. */
+  startItems: ['staff'],
 
   winText: {
     nl: 'Wordt vervolgd...',
@@ -61,8 +68,10 @@ const GAME = {
   },
 
   items: {
-    coin: { name: { nl: 'Oud Muntje', en: 'Old Coin' }, icon: '🪙' },
-    note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜',
+    staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
+             look: { nl: 'De houten staf van mijn vader. Bovenin zit een lege vatting — er hoort een magische steen in. Zonder die steen doet de staf nog niets.', en: 'My father’s wooden staff. The top has an empty setting — a magic stone belongs there. Without the stone the staff does nothing yet.' } },
+    coin: { name: { nl: 'Oud Muntje', en: 'Old Coin' }, icon: '🪙', img: 'assets/art/item-coin.png' },
+    note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
             look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } }
   },
 
@@ -82,7 +91,7 @@ const GAME = {
         nl: 'Het dorpsplein van Eldoria, gehuld in avondmist. In het midden staat de stenen fontein — droog en stil. Aan de rand kraakt de oude watermolen.',
         en: 'The village square of Eldoria, wrapped in evening mist. The stone fountain stands dry and silent in the middle. At the edge the old watermill creaks.'
       },
-      playerStart: { x: 120, y: 286 },
+      playerStart: { x: 210, y: 300 },
 
       /* Beloopbare keien rondom de fontein (de molen rechts en de fontein zelf zijn geblokkeerd). */
       walkable: [
@@ -95,10 +104,22 @@ const GAME = {
       ],
       overlays: [],
       worldItems: [],
-      npcs: [],
+      npcs: [
+        { id: 'mayor', sprite: 'mayor', x: 108, y: 250 }   // burgemeester Bram op de linkerkeien
+      ],
       fx: {},
 
       hotspots: [
+        {
+          id: 'mayor',
+          name: { nl: 'Burgemeester Bram', en: 'Mayor Bram' },
+          rect: { x: 82, y: 168, w: 58, h: 86 },
+          walkTo: { x: 150, y: 300 },
+          look: (state) => state.flags.metMayor
+            ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
+            : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein staat al weken droog en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain has been dry for weeks and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
+          setFlag: 'metMayor'
+        },
         {
           id: 'fountain',
           name: { nl: 'Drooggevallen Fontein', en: 'Dry Fountain' },
