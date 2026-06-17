@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '15',
+  assetVer: '16',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -79,7 +79,8 @@ const GAME = {
     q_inside:   { nl: 'Zoek binnen in de molen wat het water tegenhoudt', en: 'Search inside the mill for what blocks the water' },
     q_book:     { nl: 'Bevrijd het toverboek in de molen (trek de boeken in de juiste volgorde)', en: 'Free the spellbook in the mill (pull the books in the right order)' },
     q_flower:   { nl: 'Bij het kasteel: laat met de spreuk de grote bloem dansen', en: 'At the castle: use the spell to make the big flower dance' },
-    q_takewheel:{ nl: 'De handelsman kijkt naar de bloem — pak nu het molenrad uit zijn kar', en: 'The merchant is watching the flower — grab the mill wheel from his cart now' }
+    q_takewheel:{ nl: 'De handelsman kijkt naar de bloem — pak nu het molenrad uit zijn kar', en: 'The merchant is watching the flower — grab the mill wheel from his cart now' },
+    q_fixmill:  { nl: 'Breng het molenrad naar het tandrad in de molen en maak het radwerk', en: 'Take the mill wheel to the gear inside the mill and fix the gearworks' }
   },
 
   items: {
@@ -95,7 +96,7 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-book.png',
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-book.png', zoomImg: 'assets/art/spell-flower.png',
              look: { nl: 'Het molenaars-toverboek. Eén spreuk licht warm op: “Laat wat stil staat vrolijk dansen.” Richt het op iets levends en het begint te bewegen.', en: 'The miller’s spellbook. One spell glows warm: “Make what stands still dance.” Aim it at something living and it starts to move.' } },
     millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
              look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen! (wordt vervolgd)', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it! (to be continued)' } }
@@ -104,7 +105,8 @@ const GAME = {
   recipes: [],
 
   questRules: [
-    { when: { has: 'millwheel' },           quest: null },         // het rad bemachtigd -> wordt vervolgd
+    { when: { flag: 'millFixed' },          quest: null },         // molen gemaakt -> wordt vervolgd
+    { when: { has: 'millwheel' },           quest: 'q_fixmill' },  // rad in handen -> maak het radwerk in de molen
     { when: { flag: 'merchantDistracted' }, quest: 'q_takewheel' },// bloem danst, handelsman afgeleid -> pak het rad
     { when: { has: 'spellbook' },           quest: 'q_flower' },   // toverboek -> laat de bloem dansen bij de poort
     { when: { flag: 'lookedMill' },         quest: 'q_book' },     // rad zit vast -> zoek het toverboek in de molen
@@ -116,7 +118,7 @@ const GAME = {
     square: {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
       bg: 'assets/art/scene-square.png',
-      charFilter: 'sepia(0.46) saturate(0.95) brightness(1.06)',   // warm-gouden opkomende zon, geeliger
+      charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // warm-gouden opkomende zon, geeliger
       entryText: {
         nl: 'Het dorpsplein van Eldoria baadt in het ochtendlicht. De fontein klatert nog wat na, maar het water zakt zienderogen. Aan de rand staat de oude molen stil.',
         en: 'The village square of Eldoria bathes in morning light. The fountain still trickles, but the water is dropping fast. At the edge the old mill stands still.'
@@ -217,14 +219,14 @@ const GAME = {
     mill: {
       name: { nl: 'De Oude Molen', en: 'The Old Mill' },
       bg: 'assets/art/scene-mill.png',
-      charFilter: 'sepia(0.46) saturate(0.95) brightness(1.06)',   // warm-gouden opkomende zon, geeliger
+      charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // warm-gouden opkomende zon, geeliger
       entryText: {
         nl: 'De oude molen op de heuvel. De wieken staan stil en het waterrad aan de zijkant beweegt niet. De deur staat op een kier — hier moet het misgaan met de waterbron.',
         en: 'The old mill on the hill. The sails are still and the water wheel on its side does not turn. The door stands ajar — this must be where the water source fails.'
       },
       playerStart: { x: 300, y: 300 },
-      spawnFrom: { millInside: { x: 280, y: 300 }, castle: { x: 96, y: 300 } },   // terug uit de molen / van het kasteel-pad
-      depth: { far: 250, near: 316, sFar: 0.62, sNear: 1.06 },   // perspectief: duidelijk kleiner naar achteren
+      spawnFrom: { millInside: { x: 280, y: 300 }, square: { x: 482, y: 262 }, castle: { x: 92, y: 262 } },   // uit het dorp: rechtsboven; van het kasteel: linksboven
+      depth: { far: 250, near: 316, sFar: 0.84, sNear: 1.04 },   // milde diepte: niet te snel kleiner naar de poort   // perspectief: duidelijk kleiner naar achteren
       walkable: [
         { x: 70, y: 250, w: 430, h: 66 }    // het pad / voorgrond vóór de molen
       ],
@@ -275,7 +277,7 @@ const GAME = {
     millInside: {
       name: { nl: 'In de Molen', en: 'Inside the Mill' },
       bg: 'assets/art/scene-mill-inside.png',
-      charFilter: 'sepia(0.42) saturate(0.95) brightness(1.04)',   // warm gouden binnenlicht met zonnestralen
+      charFilter: 'sepia(0.28) saturate(1.2) brightness(1.04)',   // warm gouden binnenlicht met zonnestralen
       entryText: {
         nl: 'Binnen is het schemerig en stoffig; zonnestralen vallen door de raampjes op de grote maalsteen en het houten tandrad. Het rad staat stokstijf stil — hier wordt het water tegengehouden.',
         en: 'Inside it is dim and dusty; sunbeams fall through the small windows onto the great millstone and the wooden gear. The wheel stands dead still — this is where the water is held back.'
@@ -309,9 +311,20 @@ const GAME = {
           name: { nl: 'Het Tandrad', en: 'The Gear Wheel' },
           rect: { x: 348, y: 150, w: 96, h: 110 },
           walkTo: { x: 380, y: 300 },
+          gears: {
+            needItem: 'millwheel',
+            needText: {
+              nl: 'Het grote tandrad mist zijn hoofdwiel — er hoort een zwaar molenrad in. Zonder dat rad kun je het radwerk niet maken. (het rad is weggesleept naar het kasteel...)',
+              en: 'The big gear is missing its main wheel — a heavy mill wheel belongs here. Without that wheel you can’t fix the gearworks. (the wheel was hauled off to the castle...)'
+            },
+            title: { nl: 'Het Molenradwerk', en: 'The Mill Gearworks' },
+            hint: { nl: 'Je hebt het molenrad! Sleep de 5 radjes op maat op hun plek zodat het rad weer aangrijpt.', en: 'You have the mill wheel! Drag the 5 gears into place (by size) so the wheel engages again.' },
+            setFlag: 'millFixed',
+            solvedText: { nl: 'Je zet het zware molenrad terug en de radjes grijpen aan. Met een diep gekraak komt het waterrad weer in beweging — water klatert door de goot, op weg naar het dorp! (wordt vervolgd)', en: 'You set the heavy mill wheel back and the gears engage. With a deep groan the water wheel turns again — water gushes down the channel, on its way to the village! (to be continued)' }
+          },
           look: {
-            nl: 'Het grote houten tandrad dat het waterrad buiten aandrijft. Tussen de tanden zit een afgebroken stuk hout geklemd — dáár loopt het vast. Met het juiste gereedschap zou je het kunnen losmaken... maar dat heb je nog niet.',
-            en: 'The big wooden gear that drives the water wheel outside. A broken piece of wood is wedged between the teeth — that is what jams it. With the right tool you could pry it free... but you don’t have one yet.'
+            nl: 'Het grote houten tandrad draait weer soepel; het waterrad buiten klatert. (wordt vervolgd)',
+            en: 'The big wooden gear turns smoothly again; the water wheel outside splashes. (to be continued)'
           },
           setFlag: 'foundJam'
         },
@@ -400,13 +413,13 @@ const GAME = {
     castle: {
       name: { nl: 'De Kasteelpoort', en: 'The Castle Gate' },
       bg: 'assets/art/scene-castle.png',
-      charFilter: 'sepia(0.46) saturate(0.95) brightness(1.06)',   // zelfde warme ochtendzon
+      charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // zelfde warme ochtendzon
       entryText: {
         nl: 'De poort van kasteel Eldoria, aan het einde van de brug. Een handkar vol vaten en kruiken staat verlaten bij de muur. Het poortmechaniek — een radwerk van tandwielen — is uit elkaar gevallen, zodat de poort niet opengaat.',
         en: 'The gate of castle Eldoria, at the end of the bridge. A handcart full of barrels and jugs stands abandoned by the wall. The gate mechanism — a clockwork of gears — has fallen apart, so the gate will not open.'
       },
       playerStart: { x: 300, y: 300 },
-      depth: { far: 250, near: 316, sFar: 0.62, sNear: 1.06 },
+      depth: { far: 250, near: 316, sFar: 0.84, sNear: 1.04 },   // milde diepte: niet te snel kleiner naar de poort
       walkable: [
         { x: 120, y: 256, w: 400, h: 60 },   // de geplaveide weg vóór de poort
         { x: 330, y: 214, w: 130, h: 102 }   // pad omhoog naar de poort (zodat je naar de wacht kunt lopen)
@@ -415,9 +428,12 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 398, y: 234, scale: 1.62 },   // poortwacht groter en verder naar achter ín de poort
-        { id: 'merchant', sprite: 'merchant', x: 214, y: 306, scale: 1.0 },   // handelsman bij zijn kar
-        { id: 'flower', sprite: 'flower', x: 526, y: 304, scale: 1.05, danceFlag: 'flowerDancing' }   // grote toverbloem rechts van de poort; danst na de spreuk
+        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 398, y: 226, scale: 1.62, sway: true },   // wacht dichter bij/ín de poort; wiegt + verzet hellebaard
+        { id: 'merchant', sprite: 'merchant', x: 286, y: 304, scale: 1.05, turnFlag: 'merchantDistracted' },   // handelsman dichter bij het paard; kijkt naar zijn kar tot de bloem danst
+        { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
+        { id: 'flower', sprite: 'flower', x: 524, y: 306, scale: 0.95, danceFlag: 'flowerDancing' },   // grotere (dansende) bloem rechts van de poort
+        { id: 'flower2', sprite: 'flower', x: 494, y: 312, scale: 0.55 },   // kleinere bloemen ernaast
+        { id: 'flower3', sprite: 'flower', x: 552, y: 314, scale: 0.5 }
       ],
       fx: {},
       hotspots: [
@@ -439,8 +455,8 @@ const GAME = {
           walkTo: { x: 150, y: 300 },
           requiresFlag: 'merchantDistracted',
           blockedText: {
-            nl: 'Tussen de vaten ligt een zwaar ijzeren MOLENRAD — precies wat de molen nodig heeft! Maar de handelsman houdt zijn kar scherp in de gaten. Je moet hem eerst afleiden.',
-            en: 'Among the barrels lies a heavy iron MILL WHEEL — exactly what the mill needs! But the merchant watches his cart closely. You must distract him first.'
+            nl: 'De raaf zit boven op de kar en pikt naar één plek tussen de vaten — dáár ligt een zwaar ijzeren MOLENRAD, precies wat de molen nodig heeft! Maar de handelsman houdt zijn kar scherp in de gaten. Je moet hem eerst afleiden.',
+            en: 'The raven perches atop the cart, pecking at one spot between the barrels — there lies a heavy iron MILL WHEEL, exactly what the mill needs! But the merchant watches his cart closely. You must distract him first.'
           },
           gives: {
             item: 'millwheel',
@@ -454,13 +470,13 @@ const GAME = {
           rect: { x: 498, y: 206, w: 62, h: 100 },
           walkTo: { x: 498, y: 300 },
           look: (state) => state.flags.flowerDancing
-            ? { nl: 'De grote bloem zwiert uitbundig heen en weer; de handelsman kan zijn ogen er niet vanaf houden.', en: 'The big flower sways wildly to and fro; the merchant can’t take his eyes off it.' }
-            : { nl: 'Een grote, vrolijke bloem met een snoezig gezichtje wiegt zachtjes naast de poort. Als die eens zou gaan dansen...', en: 'A big, cheerful flower with a cute little face sways gently by the gate. If only it would dance...' },
-          use: {
-            spellbook: {
-              setFlag: ['flowerDancing', 'merchantDistracted'],
-              text: { nl: 'Je slaat het toverboek open en spreekt de spreuk uit. De grote bloem schiet wakker en begint uitbundig te DANSEN! De handelsman draait zich verbaasd om en loopt er gebiologeerd naartoe — zijn kar staat nu onbewaakt.', en: 'You open the spellbook and speak the spell. The big flower springs awake and begins to DANCE wildly! The merchant turns in astonishment and wanders over, transfixed — his cart now stands unguarded.' }
-            }
+            ? { nl: 'De bloemen zwieren uitbundig heen en weer; de handelsman kan zijn ogen er niet vanaf houden.', en: 'The flowers sway wildly to and fro; the merchant can’t take his eyes off them.' }
+            : { nl: 'Een groep bloemen naast de poort, met één grote ertussen. Als die eens zouden gaan dansen... (lees je toverboek)', en: 'A cluster of flowers by the gate, one big one among them. If only they would dance... (read your spellbook)' },
+          castWith: {
+            item: 'spellbook',
+            setFlag: ['flowerDancing', 'merchantDistracted'],
+            needText: { nl: 'Je voelt dat hier magie kan werken, maar je kent de spreuk nog niet. Misschien staat er iets in een toverboek...', en: 'You sense magic could work here, but you don’t know the spell yet. Perhaps a spellbook holds one...' },
+            text: { nl: 'Je slaat het toverboek open en spreekt de spreuk uit. De grote bloem schiet wakker en begint uitbundig te DANSEN! De handelsman draait zich verbaasd om en loopt er gebiologeerd naartoe — zijn kar staat nu onbewaakt.', en: 'You open the spellbook and speak the spell. The big flower springs awake and begins to DANCE wildly! The merchant turns in astonishment and wanders over, transfixed — his cart now stands unguarded.' }
           }
         },
         {

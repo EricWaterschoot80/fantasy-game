@@ -1651,7 +1651,7 @@
   function drawPlayer(now) {
     /* De held staat vaak in de schaduw -> iets donkerder dan de scène-belichting. */
     const sf = sceneFilter();
-    const f = (sf === 'none') ? 'brightness(0.84)' : (sf + ' brightness(0.84)');
+    const f = (sf === 'none') ? 'brightness(0.9)' : (sf + ' brightness(0.9)');
     fctx.filter = f;
     drawPlayerSprite(now);
     fctx.filter = 'none';
@@ -1835,18 +1835,24 @@
       if (ready(img)) {
         const sc2 = depthScaleAt(rt.y) * (npc.scale || 1);
         const breaths = 1 + 0.012 * Math.sin(now / 1500 + (npc.x || 0));
+        /* Kijkrichting kan omdraaien zodra een vlag is gezet (bv. de koopman kijkt naar zijn
+           kar tot de bloem danst). */
+        let fl = !!npc.flip;
+        if (npc.turnFlag && state.flags[npc.turnFlag]) fl = !fl;
+        /* Lichte, doorlopende wieg voor wat 'leven' (bv. de wacht). */
+        const swayRot = npc.sway ? Math.sin(now / 650 + (npc.x || 0)) * 0.035 : 0;
         const ges = npc.gestureSprite && art.sprites[npc.gestureSprite];
         if (npc.danceFlag && state.flags[npc.danceFlag]) {
           /* Dansende bloem: vrolijk heen-en-weer wiegen vanaf de wortel + verende squash. */
           const sway = Math.sin(now / 170);
           drawArtSprite(img, rt.x + Math.round(sway * 3), rt.y, {
-            flip: !!npc.flip, scale: sc2, rot: sway * 0.17, squashY: 1 + 0.07 * Math.sin(now / 120)
+            flip: fl, scale: sc2, rot: sway * 0.17, squashY: 1 + 0.07 * Math.sin(now / 120)
           });
-        } else if (ges && ready(ges) && gestureState(npc.id, now, 1500, 3200, 6500) > 0) {
-          const fret = Math.round(Math.sin(now / 130) * 0.7);   // nerveus heen-en-weer wiebelen (gebaar)
-          drawArtSprite(ges, rt.x + fret, rt.y, { flip: !!npc.flip, scale: sc2, squashY: breaths });
+        } else if (ges && ready(ges) && gestureState(npc.id, now, 1100, 2400, 5200) > 0) {
+          const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
+          drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         } else {
-          drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, scale: sc2, squashY: breaths });
+          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         }
       }
     }
@@ -3216,10 +3222,16 @@
       openMaze(hs);
       return;
     }
-    if (hs.gears && !state.flags[hs.gears.setFlag] &&
-        (!hs.gears.requiresFlag || state.flags[hs.gears.requiresFlag])) {
-      openGears(hs);
-      return;
+    if (hs.gears && !state.flags[hs.gears.setFlag]) {
+      if (hs.gears.needItem && !state.inventory.includes(hs.gears.needItem)) {
+        sfx('error');
+        say(hs.gears.needText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      if (!hs.gears.requiresFlag || state.flags[hs.gears.requiresFlag]) {
+        openGears(hs);
+        return;
+      }
     }
     if (hs.bookPuzzle) {
       if (hs.bookPuzzle.requiresFlag && !state.flags[hs.bookPuzzle.requiresFlag]) {
@@ -3228,6 +3240,19 @@
         return;
       }
       openBookPuzzle(hs);
+      return;
+    }
+    /* Spreuk uitspreken: heb je het juiste voorwerp in je tas, dan werkt het meteen
+       (zonder selecteren) — zo kan het toverboek óók een leesbare afbeelding (zoomImg) hebben. */
+    if (hs.castWith) {
+      const c = hs.castWith;
+      const fls = Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag];
+      if (fls.some((f) => state.flags[f])) { say(lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
+      if (!state.inventory.includes(c.item)) { sfx('error'); say(c.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
+      fls.forEach((f) => { state.flags[f] = true; });
+      sfx('combine');
+      updateQuest();
+      say(c.text, hsSpeaker(hs), hsFace(hs));
       return;
     }
 
