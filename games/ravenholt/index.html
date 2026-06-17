@@ -23,7 +23,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/style.css?v=10">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Whispers of Ravenholt",
+    "url": "https://www.retroadventureworld.com/games/ravenholt/",
+    "image": "https://www.retroadventureworld.com/games/ravenholt/assets/art/title.png",
+    "description": "Whispers of Ravenholt is a story-driven 16-bit point-and-click mystery adventure, free to play in your browser with no download. In the kingdom of Eldoria the village fountain is running dry. Play as young Finn: question the mayor, trade a shiny coin with a clever raven for a hint, follow the path to the silent water mill and search its dusty interior to uncover why the wheel has stopped and what the strange lights in the valley mean. A pixel-art mystery for phone and desktop, in English and Dutch.",
+    "genre": ["Point-and-click adventure", "Pixel art", "Mystery"],
+    "gamePlatform": "Web browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any (modern browser)",
+    "inLanguage": ["en", "nl"],
+    "playMode": "SinglePlayer",
+    "author": { "@type": "Organization", "name": "RetroAdventureWorld" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" }
+  }
+  </script>
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -73,7 +91,7 @@
 
   <div id="win-screen" class="overlay" hidden>
     <div class="overlay-card panel">
-      <img class="win-banner" src="assets/art/win-emberfall.png?v=9" alt="" onerror="this.remove()">
+      <img class="win-banner" src="assets/art/win-emberfall.png?v=10" alt="" onerror="this.remove()">
       <h1 id="win-h1">De Lantaarn Brandt</h1>
       <p class="intro" id="winText"></p>
       <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
@@ -154,10 +172,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=9"></script>
-  <script src="js/scenes.js?v=9"></script>
-  <script src="js/data.js?v=9"></script>
-  <script src="js/engine.js?v=9"></script>
+  <script src="js/sprites.js?v=10"></script>
+  <script src="js/scenes.js?v=10"></script>
+  <script src="js/data.js?v=10"></script>
+  <script src="js/engine.js?v=10"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

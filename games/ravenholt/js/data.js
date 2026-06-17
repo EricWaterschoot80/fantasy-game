@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '7',
+  assetVer: '8',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -93,7 +93,7 @@ const GAME = {
     square: {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
       bg: 'assets/art/scene-square.png',
-      charFilter: 'sepia(0.34) saturate(0.82) brightness(1.04)',   // zacht ochtendlicht: warmer, minder felle kleuren
+      charFilter: 'sepia(0.46) saturate(0.95) brightness(1.06)',   // warm-gouden opkomende zon, geeliger
       entryText: {
         nl: 'Het dorpsplein van Eldoria baadt in het ochtendlicht. De fontein klatert nog wat na, maar het water zakt zienderogen. Aan de rand staat de oude molen stil.',
         en: 'The village square of Eldoria bathes in morning light. The fountain still trickles, but the water is dropping fast. At the edge the old mill stands still.'
@@ -191,7 +191,7 @@ const GAME = {
     mill: {
       name: { nl: 'De Oude Molen', en: 'The Old Mill' },
       bg: 'assets/art/scene-mill.png',
-      charFilter: 'sepia(0.34) saturate(0.82) brightness(1.04)',   // zelfde zachte ochtend-/molenlicht
+      charFilter: 'sepia(0.46) saturate(0.95) brightness(1.06)',   // warm-gouden opkomende zon, geeliger
       entryText: {
         nl: 'De oude molen op de heuvel. De wieken staan stil en het waterrad aan de zijkant beweegt niet. De deur staat op een kier — hier moet het misgaan met de waterbron.',
         en: 'The old mill on the hill. The sails are still and the water wheel on its side does not turn. The door stands ajar — this must be where the water source fails.'
@@ -241,13 +241,13 @@ const GAME = {
     millInside: {
       name: { nl: 'In de Molen', en: 'Inside the Mill' },
       bg: 'assets/art/scene-mill-inside.png',
-      charFilter: 'sepia(0.3) saturate(0.85) brightness(1.0)',   // warm, gedempt binnenlicht met lichtbundels
+      charFilter: 'sepia(0.42) saturate(0.95) brightness(1.04)',   // warm gouden binnenlicht met zonnestralen
       entryText: {
         nl: 'Binnen is het schemerig en stoffig; zonnestralen vallen door de raampjes op de grote maalsteen en het houten tandrad. Het rad staat stokstijf stil — hier wordt het water tegengehouden.',
         en: 'Inside it is dim and dusty; sunbeams fall through the small windows onto the great millstone and the wooden gear. The wheel stands dead still — this is where the water is held back.'
       },
       playerStart: { x: 300, y: 300 },
-      depth: { far: 214, near: 314, sFar: 0.56, sNear: 1.05 },   // diepe ruimte: flink kleiner naar achteren
+      depth: { far: 214, near: 314, sFar: 0.7, sNear: 1.3 },   // krappe ruimte: Finn staat hier wat groter/dichterbij
       walkable: [
         { x: 60, y: 256, w: 470, h: 60 }    // de stenen vloer op de voorgrond
       ],
@@ -293,9 +293,9 @@ const GAME = {
         {
           id: 'outMill',
           name: { nl: 'Naar Buiten', en: 'Back Outside' },
-          rect: { x: 230, y: 250, w: 110, h: 66 },
-          walkTo: { x: 290, y: 304 },
-          arrow: { x: 290, y: 300, dir: 'down' },
+          rect: { x: 92, y: 276, w: 130, h: 40 },
+          walkTo: { x: 140, y: 304 },
+          arrow: { x: 138, y: 296, dir: 'down' },
           exit: { to: 'mill', travelText: { nl: 'Je stapt de molen weer uit, het ochtendlicht in.', en: 'You step back out of the mill into the morning light.' } }
         }
       ]

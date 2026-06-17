@@ -62,27 +62,16 @@ voorbeelden in **[../../RETRO-ADVENTURE-SPEC.md](../../RETRO-ADVENTURE-SPEC.md)*
 2. `js/data.js` — bump `assetVer`.
 3. `sw.js` — bump `CACHE` (`ravenholt-vN`).
 
-## Op de homepage zetten (wanneer klaar)
+## Op de homepage + SEO
 
-Nu nog **niet** gekoppeld op `index.html` van de site (om geen lege demo te
-publiceren). Voeg dit toe in de `<main class="grid">` zodra het spel klaar is,
-plus een title-afbeelding op `assets/art/title.png`:
+Ravenholt **staat nu op de homepage** (`index.html`, in de `<main class="grid">`) met een
+eigen kaart (cover = `assets/art/scene-square.png`, badge `MYSTERY/MYSTERIE`) en is opgenomen
+in de `ItemList`-structured-data. Daarnaast heeft de spelpagina zelf:
 
-```html
-<a class="card" href="games/ravenholt/index.html" aria-label="Play Whispers of Ravenholt">
-  <span class="badge" data-en="MYSTERY" data-nl="MYSTERIE">MYSTERY</span>
-  <img class="cover" src="games/ravenholt/assets/art/title.png?v=1"
-       alt="Whispers of Ravenholt, a 16-bit point-and-click mystery"
-       loading="lazy" onerror="this.style.display='none'">
-  <div class="card-body">
-    <h3>Whispers of Ravenholt</h3>
-    <p class="meta">Point-and-click · 16-bit · mystery</p>
-    <p data-en="A fog-shrouded village hides its secrets..."
-       data-nl="Een mistig dorp verbergt zijn geheimen...">A fog-shrouded village hides its secrets...</p>
-    <span class="play" data-en="▸ Play free" data-nl="▸ Speel gratis">▸ Play free</span>
-  </div>
-</a>
-```
+- een unieke **`<title>`**, **`meta description`**, **`keywords`** en Open Graph/Twitter-tags;
+- een **`VideoGame` JSON-LD**-blok met een uitgebreide, unieke beschrijving (de "uitleg"
+  waarmee zoekmachines het spel beter vinden).
 
-Vergeet niet ook een `itemListElement` toe te voegen aan de structured-data
-(JSON-LD) bovenin `index.html`, naar voorbeeld van de andere spellen.
+Elk spel (Maanhoef, Emberfall, Ravenholt) heeft zo zijn eigen SEO-tekst en structured data.
+Een eigen `assets/art/title.png` (voor de social-share-afbeelding via `og:image`) staat nog
+op de wensenlijst — tot die er is valt de homepage-cover terug op de dorpsplein-achtergrond.
