@@ -917,21 +917,28 @@
 
     /* De raaf vliegt weg: stijgt op en zweeft naar de rand van het beeld (richting het molenpad). */
     if (ravenFly) {
-      const el = (now - ravenFly.t) / 1700;
+      const el = (now - ravenFly.t) / 2100;
       if (el >= 1) { ravenFly = null; }
       else {
         const img = art.sprites.ravenFly || art.sprites.ravenPerch;
-        const fx_ = ravenFly.x - el * 70;                                   // naar links, richting het pad
-        const fy_ = ravenFly.y - el * 150 - Math.sin(el * Math.PI) * 14;    // opstijgen in een boog
+        const ease = el * el * (3 - 2 * el);                                // smoothstep: rustige afzet, dan versnellen
+        const flap = Math.sin(now / 95);                                    // wiekslag-fase
+        const fx_ = ravenFly.x - ease * 130;                               // wegvliegen naar links (molenpad)
+        const fy_ = ravenFly.y - el * 132                                   // gestaag opstijgen
+                  - Math.sin(el * Math.PI) * 10                             // zachte boog
+                  + flap * 5 * (1 - el * 0.55);                             // op-en-neer golven per wiekslag
+        const bank = -0.13 + flap * 0.11;                                   // licht kantelen op de slag
         fctx.save();
-        fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
+        fctx.globalAlpha = el < 0.82 ? 1 : Math.max(0, 1 - (el - 0.82) / 0.18);
         if (ready(img)) {
           const D = GAME.spriteDetail || 1;
-          const flap = 0.9 + 0.18 * Math.sin(now / 70);                     // wiekslag-puls
-          const w = Math.round(img.naturalWidth / D * flap);
-          const h = Math.round(img.naturalHeight / D);
+          const af = Math.abs(flap);
+          const w = Math.round(img.naturalWidth / D * (0.74 + 0.32 * af));  // vleugels open/dicht -> breedte pulseert
+          const h = Math.round(img.naturalHeight / D * (0.94 + 0.06 * af));
+          fctx.translate(Math.round(fx_), Math.round(fy_));
+          fctx.rotate(bank);
           fctx.imageSmoothingEnabled = false;
-          fctx.drawImage(img, Math.round(fx_ - w / 2), Math.round(fy_ - h / 2), w, h);
+          fctx.drawImage(img, Math.round(-w / 2), Math.round(-h / 2), w, h);
         } else {
           fctx.fillStyle = '#15110f';
           fctx.fillRect(Math.round(fx_ - 4), Math.round(fy_ - 2), 8, 4);
@@ -2888,9 +2895,19 @@
       const hx = 58 + i * 80, hy = 220;
       return { size: sz, r: GEAR_RADII[sz], img: GEAR_IMGKEY[sz], hx, hy, x: hx, y: hy, placedAt: null };
     });
+    /* Eén rad ontbreekt tot je het molenrad gevonden hebt: het grootste rad (maat 4)
+       is dan niet in de voorraad -> de puzzel is wél te zien maar niet op te lossen. */
+    const missingWheel = cfg.needItem && !state.inventory.includes(cfg.needItem);
+    if (missingWheel) {
+      let big = -1, bigSz = -1;
+      for (let i = 0; i < tray.length; i++) if (tray[i].size > bigSz) { bigSz = tray[i].size; big = i; }
+      if (big >= 0) tray[big].missing = true;
+    }
     gears = { hs, sockets, tray, drag: null, solved: false, spin: false, spinT: 0, jamT: 0 };
     elGearTitle.textContent = L(cfg.title || { nl: 'Het Radwerk', en: 'The Gearworks' });
-    if (elGearHint) elGearHint.textContent = L(cfg.hint || { nl: '', en: '' });
+    if (elGearHint) elGearHint.textContent = missingWheel
+      ? L(cfg.needText || { nl: 'Eén rad ontbreekt — het grote molenrad. Dat moet je eerst vinden.', en: 'One gear is missing — the great mill wheel. Find it first.' })
+      : L(cfg.hint || { nl: '', en: '' });
     elGear.hidden = false;
     drawGears(performance.now());
     sfx('tap');
@@ -2948,7 +2965,7 @@
     /* voorraad-radjes */
     for (let i = 0; i < gears.tray.length; i++) {
       const g = gears.tray[i];
-      if (g.placedAt != null || (gears.drag && gears.drag.i === i)) continue;
+      if (g.placedAt != null || g.missing || (gears.drag && gears.drag.i === i)) continue;
       drawCog(g.hx, g.hy, g.r, g.img, 0);
     }
     /* het gesleepte radje bovenop */
@@ -3023,6 +3040,7 @@
       let pick = -1, best = 1e9;
       for (let i = 0; i < gears.tray.length; i++) {
         const g = gears.tray[i];
+        if (g.missing) continue;                 // ontbrekend rad kun je niet oppakken
         const cx = g.placedAt != null ? gears.sockets[g.placedAt].x : g.hx;
         const cy = g.placedAt != null ? gears.sockets[g.placedAt].y : g.hy;
         const d = Math.hypot(p.x - cx, p.y - cy);
@@ -3223,13 +3241,8 @@
       return;
     }
     if (hs.gears && !state.flags[hs.gears.setFlag]) {
-      if (hs.gears.needItem && !state.inventory.includes(hs.gears.needItem)) {
-        sfx('error');
-        say(hs.gears.needText || lookText(hs), hsSpeaker(hs));
-        return;
-      }
       if (!hs.gears.requiresFlag || state.flags[hs.gears.requiresFlag]) {
-        openGears(hs);
+        openGears(hs);   // opent altijd; zonder molenrad mist één rad (zie openGears)
         return;
       }
     }
@@ -3270,7 +3283,10 @@
     }
 
     if (hs.gives) {
-      if (state.flags[takenFlag(hs)]) {
+      const repeat = hs.gives.repeat;            // herbruikbaar (bv. graan scheppen)
+      if (repeat) {
+        if (state.inventory.includes(hs.gives.item)) { say(hs.gives.haveText || hs.gives.emptyText || lookText(hs)); return; }
+      } else if (state.flags[takenFlag(hs)]) {
         say(hs.gives.emptyText || lookText(hs));
         return;
       }
@@ -3288,7 +3304,7 @@
         say(hs.blockedText || GAME.strings.noEffect);
         return;
       }
-      state.flags[takenFlag(hs)] = true;
+      if (!repeat) state.flags[takenFlag(hs)] = true;
       addItem(hs.gives.item);
       sfx('pickup');
       say(hs.gives.giveText);

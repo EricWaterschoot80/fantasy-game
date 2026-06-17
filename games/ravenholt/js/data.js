@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '17',
+  assetVer: '18',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -37,7 +37,7 @@ const GAME = {
     merchant:      'assets/art/merchant.png',        // handelsman bij de kar (kasteel)
     flower:        'assets/art/flower.png'           // grote toverbloem (kan dansen)
   },
-  heroWalkFrames: 4,            // aantal frames in hero-walk-sheet.png (vloeiender lopen)
+  heroWalkFrames: 6,            // aantal frames in hero-walk-sheet.png (echte 6-frame loopcyclus)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader in zijn tas. */
@@ -99,7 +99,9 @@ const GAME = {
     spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-book.png', zoomImg: 'assets/art/spell-flower.png',
              look: { nl: 'Het molenaars-toverboek. Eén spreuk licht warm op: “Laat wat stil staat vrolijk dansen.” Richt het op iets levends en het begint te bewegen.', en: 'The miller’s spellbook. One spell glows warm: “Make what stands still dance.” Aim it at something living and it starts to move.' } },
     millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
-             look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen! (wordt vervolgd)', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it! (to be continued)' } }
+             look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen!', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it!' } },
+    cheese: { name: { nl: 'Stuk Kaas', en: 'Piece of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
+             look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } }
   },
 
   recipes: [],
@@ -134,7 +136,8 @@ const GAME = {
         { x: 268, y: 238, w: 230, h: 80 }    // keien rechts van de fontein (richting de kraampjes)
       ],
       obstacles: [
-        { x: 150, y: 214, w: 116, h: 66 }    // de fontein-bak (niet doorheen lopen)
+        { x: 138, y: 200, w: 142, h: 92 },   // de fontein-bak (ruimer: niet er doorheen of er bovenop lopen)
+        { x: 452, y: 250, w: 96, h: 68 }     // het kaaskraampje rechts (niet doorheen lopen)
       ],
       overlays: [],
       worldItems: [],
@@ -203,6 +206,23 @@ const GAME = {
             item: 'note',
             giveText: { nl: 'Aan een marktkraampje is een verfrommeld briefje geprikt. Je pakt het en leest het later na (tik het aan in je tas).', en: 'A crumpled note is pinned to a market stall. You take it to read later (tap it in your bag).' },
             emptyText: { nl: 'Er hangt niets meer.', en: 'Nothing hangs there anymore.' }
+          }
+        },
+        {
+          id: 'stall',
+          name: { nl: 'Het Kaaskraampje', en: 'The Cheese Stall' },
+          rect: { x: 452, y: 226, w: 100, h: 70 },
+          walkTo: { x: 436, y: 306 },
+          look: (state) => state.flags.gotCheese
+            ? { nl: 'De kaasboer knikt tevreden achter zijn stapels gele kazen. “Smakelijk eten met dat ruiltje, jongen!”', en: 'The cheesemonger nods contentedly behind his stacks of yellow cheese. “Enjoy that trade, lad!”' }
+            : { nl: 'Een kraampje vol geurige gele boerenkazen. De kaasboer wenkt: “Geld hoef ik niet, knul — maar voor een handvol vers graan ruil ik je graag een mooi stuk kaas.” (gebruik graan op het kraampje)', en: 'A stall full of fragrant yellow farmhouse cheeses. The cheesemonger beckons: “I don’t need coin, lad — but for a handful of fresh grain I’ll happily trade you a fine wedge of cheese.” (use grain on the stall)' },
+          use: {
+            grain: {
+              consume: 'grain',
+              give: 'cheese',
+              setFlag: 'gotCheese',
+              text: { nl: 'Je legt de handvol graan op de toonbank. De kaasboer lacht breed, weegt een fors stuk gele kaas af en drukt het je in handen. “Eerlijke ruil!”', en: 'You set the handful of grain on the counter. The cheesemonger grins, weighs out a hefty wedge of yellow cheese and presses it into your hands. “A fair trade!”' }
+            }
           }
         },
         {
@@ -314,8 +334,8 @@ const GAME = {
           gears: {
             needItem: 'millwheel',
             needText: {
-              nl: 'Het grote tandrad mist zijn hoofdwiel — er hoort een zwaar molenrad in. Zonder dat rad kun je het radwerk niet maken. (het rad is weggesleept naar het kasteel...)',
-              en: 'The big gear is missing its main wheel — a heavy mill wheel belongs here. Without that wheel you can’t fix the gearworks. (the wheel was hauled off to the castle...)'
+              nl: 'Eén rad ontbreekt: het zware molenrad zit niet in de voorraad. Dat is weggesleept naar de kar bij het kasteel — vind het eerst, dan kun je het radwerk maken.',
+              en: 'One gear is missing: the heavy mill wheel isn’t in the tray. It was hauled off to the cart by the castle — find it first, then you can fix the gearworks.'
             },
             title: { nl: 'Het Molenradwerk', en: 'The Mill Gearworks' },
             hint: { nl: 'Je hebt het molenrad! Sleep de 5 radjes op maat op hun plek zodat het rad weer aangrijpt.', en: 'You have the mill wheel! Drag the 5 gears into place (by size) so the wheel engages again.' },
@@ -378,8 +398,9 @@ const GAME = {
           walkTo: { x: 344, y: 300 },
           gives: {
             item: 'grain',
+            repeat: true,                          // je kunt telkens vers graan scheppen (voor de muis én de kaasruil)
             giveText: { nl: 'Een opengevallen zak graan staat bij de maalsteen. Je schept een handvol goudgeel graan in je tas.', en: 'An open sack of grain stands by the millstone. You scoop a handful of golden grain into your bag.' },
-            emptyText: { nl: 'De zak is bijna leeg; de rest laat je liggen.', en: 'The sack is nearly empty; you leave the rest.' }
+            haveText: { nl: 'Je hebt al een handvol graan in je tas.', en: 'You already have a handful of grain in your bag.' }
           }
         },
         {
@@ -428,12 +449,14 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 398, y: 226, scale: 1.62, sway: true },   // wacht dichter bij/ín de poort; wiegt + verzet hellebaard
-        { id: 'merchant', sprite: 'merchant', x: 286, y: 304, scale: 1.05, turnFlag: 'merchantDistracted' },   // handelsman dichter bij het paard; kijkt naar zijn kar tot de bloem danst
+        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
+        { id: 'merchant', sprite: 'merchant', x: 282, y: 296, scale: 1.02, turnFlag: 'merchantDistracted' },   // handelsman iets verder naar achter; kijkt naar zijn kar tot de bloem danst
         { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
-        { id: 'flower', sprite: 'flower', x: 524, y: 306, scale: 0.95, danceFlag: 'flowerDancing' },   // grotere (dansende) bloem rechts van de poort
-        { id: 'flower2', sprite: 'flower', x: 494, y: 312, scale: 0.55 },   // kleinere bloemen ernaast
-        { id: 'flower3', sprite: 'flower', x: 552, y: 314, scale: 0.5 }
+        { id: 'flower', sprite: 'flower', x: 392, y: 260, scale: 0.74, danceFlag: 'flowerDancing' },   // (dansende) bloem — meer naar links én naar achter (hoger), kleiner, vrij van de tasbalk
+        { id: 'flower2', sprite: 'flower', x: 356, y: 256, scale: 0.5 },   // kleinere bloemen eromheen
+        { id: 'flower3', sprite: 'flower', x: 432, y: 262, scale: 0.48 },
+        { id: 'flower4', sprite: 'flower', x: 336, y: 250, scale: 0.42 },   // nog een paar, verder naar links/achter
+        { id: 'flower5', sprite: 'flower', x: 462, y: 258, scale: 0.44 }
       ],
       fx: {},
       hotspots: [
@@ -467,8 +490,8 @@ const GAME = {
         {
           id: 'flower',
           name: { nl: 'Grote Bloem', en: 'Big Flower' },
-          rect: { x: 498, y: 206, w: 62, h: 100 },
-          walkTo: { x: 498, y: 300 },
+          rect: { x: 368, y: 220, w: 52, h: 78 },
+          walkTo: { x: 392, y: 300 },
           look: (state) => state.flags.flowerDancing
             ? { nl: 'De bloemen zwieren uitbundig heen en weer; de handelsman kan zijn ogen er niet vanaf houden.', en: 'The flowers sway wildly to and fro; the merchant can’t take his eyes off them.' }
             : { nl: 'Een groep bloemen naast de poort, met één grote ertussen. Als die eens zouden gaan dansen... (lees je toverboek)', en: 'A cluster of flowers by the gate, one big one among them. If only they would dance... (read your spellbook)' },
@@ -495,16 +518,11 @@ const GAME = {
           name: { nl: 'Het Poortradwerk', en: 'The Gate Gearworks' },
           rect: { x: 300, y: 96, w: 150, h: 176 },
           walkTo: { x: 372, y: 300 },
-          gears: {
-            title: { nl: 'Het Poortradwerk', en: 'The Gate Gearworks' },
-            hint: { nl: 'Sleep de 5 radjes naar de juiste plek (op maat) zodat ze precies in elkaar grijpen.', en: 'Drag the 5 gears to the right spots (by size) so they mesh perfectly.' },
-            setFlag: 'gateOpen',
-            solvedText: { nl: 'De radjes grijpen in elkaar en beginnen te draaien — kettingen ratelen en het zware poortmechaniek komt knarsend tot leven. De weg dieper Eldoria in gaat bijna open... (wordt vervolgd)', en: 'The gears mesh and begin to turn — chains rattle and the heavy gate mechanism grinds to life. The way deeper into Eldoria is about to open... (to be continued)' }
-          },
           look: {
-            nl: 'Het radwerk draait nu soepel; het poortmechaniek zoemt zacht na. (wordt vervolgd)',
-            en: 'The gearworks turns smoothly now; the gate mechanism hums. (to be continued)'
-          }
+            nl: 'Het poortradwerk is volledig uit elkaar gevallen en zwaar verroest — hier valt voorlopig niets te repareren. (De molen heeft net zo’n radwerk — dáár, met het molenrad, ligt jouw echte klus.)',
+            en: 'The gate gearworks has completely fallen apart and is badly rusted — nothing to repair here for now. (The mill has a gearworks just like this — there, with the mill wheel, lies your real task.)'
+          },
+          setFlag: 'sawGateGears'
         },
         {
           id: 'toMill',
