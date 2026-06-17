@@ -93,10 +93,18 @@ verkleind naar **~84px hoog** (meer detail). De bron-PNG's staan in `assets/raw/
 
 - Vanaf de molen wijst een pijl over het linkerpad **naar de kasteelpoort** (`scene-castle.png`).
 - Bij de poort zit het **poortradwerk** vast. Tik erop voor de **radwerk-puzzel** (`hotspots[].gears`):
-  plaats de **5 radjes** uit de voorraad op de juiste plek (op maat) zodat ze in elkaar grijpen.
-  Staan alle 5 goed, dan **draaien** ze en gaat de poort open (`setFlag`, dan `solvedText`).
-  De puzzel-overlay (`#gear-screen`) wordt elk frame getekend; `__game.gearAuto()` lost hem in
-  één keer op voor geautomatiseerd testen.
+  **sleep** de 5 radjes (cog-afbeeldingen, op maat) naar de juiste stippel-sockets zodat ze precies
+  in elkaar grijpen. Staan alle 5 goed, dan gloeit het radwerk op en gaat de poort open
+  (`setFlag`, dan `solvedText`). De radjes **draaien niet** — het gaat puur om de juiste plek.
+  Drag-and-drop met pointer-events; `__game.gearAuto()` lost hem in één keer op (testen).
+
+## Hulp & gezelschap
+
+- **Het oogje** (knop rechtsboven, `ui-eye.png`) laat een paar seconden alle hotspot-omtrekken in
+  de huidige scène oplichten, zodat je ziet waar je iets kunt onderzoeken/oppakken/heen kunt.
+- In de diepte (kleinere `depth`-schaal) loopt de held **iets langzamer** — perspectief.
+- Een **bruin muisje** in de molen (`npcs: [{ sprite:'mouse' }]`) is een praat-NPC: klik voor een
+  gesprekje; geef hem **graan** (`use.grain`) en hij verklapt waar de molenaar heen ging.
 
 ## Bewegende NPC's
 

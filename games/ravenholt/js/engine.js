@@ -284,6 +284,10 @@
     } catch (e) { startSynthFallback(); }
   }
 
+  /* Oogje: laat kort zien waar je iets kunt onderzoeken/oppakken/heen kunt (hotspot-omlijningen). */
+  const elEyeBtn = document.getElementById('eyeBtn');
+  if (elEyeBtn) elEyeBtn.addEventListener('click', () => { hintUntil = performance.now() + 2800; sfx('tap'); });
+
   elSoundBtn.addEventListener('click', () => {
     soundOn = !soundOn;
     const icon = document.getElementById('soundIcon');
@@ -592,7 +596,9 @@
   }
 
   function movePlayer(dx, dy, dist, dt) {
-    const step = Math.min(WALK_SPEED * dt, dist);
+    /* In de diepte (kleinere schaal) loopt de held iets langzamer — perspectief. */
+    const sf = Math.max(0.55, Math.min(1.15, depthScaleAt(player.y)));
+    const step = Math.min(WALK_SPEED * sf * dt, dist);
     let nx = player.x + (dx / dist) * step;
     let ny = player.y + (dy / dist) * step;
     if (!inWalkable(nx, ny)) {
@@ -648,7 +654,8 @@
         if (player.path && player.path.length) player.path.shift();
         if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
       } else {
-        const step = Math.min(WALK_SPEED * dt, dist);
+        const sf = Math.max(0.55, Math.min(1.15, depthScaleAt(player.y)));   // langzamer in de diepte
+        const step = Math.min(WALK_SPEED * sf * dt, dist);
         let nx = player.x + (dx / dist) * step;
         let ny = player.y + (dy / dist) * step;
         if (!inWalkable(nx, ny)) {
@@ -2790,7 +2797,7 @@
   if (elMazeClose) elMazeClose.addEventListener('click', closeMaze);
   if (elMaze) elMaze.addEventListener('pointerdown', (e) => { if (e.target === elMaze) closeMaze(); });
 
-  /* ---------- Radwerk-puzzel: plaats 5 radjes op de juiste plek zodat ze meshen en draaien ---------- */
+  /* ---------- Radwerk-puzzel: SLEEP 5 radjes naar de juiste plek (op maat). Geen draaien. ---------- */
   const elGear       = document.getElementById('gear-screen');
   const elGearTitle  = document.getElementById('gear-title');
   const elGearHint   = document.getElementById('gear-hint');
@@ -2798,24 +2805,26 @@
   const elGearClose  = document.getElementById('gear-close');
   const gctx = elGearCanvas ? elGearCanvas.getContext('2d') : null;
   let gears = null;
-  const GEAR_RADII = [15, 19, 23, 27, 32];
-  const GEAR_COLS  = ['#cda659', '#c5853f', '#b3ab9a', '#9a7b46', '#7c6a57'];
+  const GEAR_RADII   = [15, 19, 23, 27, 32];
+  const GEAR_IMGKEY  = ['cogBrass', 'cogIron', 'cogBrass', 'cogIron', 'cogBrass'];
 
   function openGears(hs) {
     if (!gctx) return;
     const cfg = hs.gears;
     const order = [2, 4, 0, 3, 1];          // benodigde maat per socket (vaste oplossing)
-    const cy = 92, sockets = [];
+    const cy = 90, sockets = [];
     let x = 0;
     for (let i = 0; i < order.length; i++) {
       const r = GEAR_RADII[order[i]];
-      x = (i === 0) ? (44 + r) : x + GEAR_RADII[order[i - 1]] + r - 7;
+      x = (i === 0) ? (46 + r) : x + GEAR_RADII[order[i - 1]] + r - 6;
       sockets.push({ x, y: cy, r, need: order[i], has: null });
     }
     const trayOrder = [3, 1, 4, 0, 2];      // geschudde voorraad onderin
-    const tray = trayOrder.map((sz, i) => ({ size: sz, r: GEAR_RADII[sz], col: GEAR_COLS[sz],
-      tx: 54 + i * 72, ty: 212, placedAt: null }));
-    gears = { hs, sockets, tray, sel: null, solved: false };
+    const tray = trayOrder.map((sz, i) => {
+      const hx = 54 + i * 72, hy = 214;
+      return { size: sz, r: GEAR_RADII[sz], img: GEAR_IMGKEY[sz], hx, hy, x: hx, y: hy, placedAt: null };
+    });
+    gears = { hs, sockets, tray, drag: null, solved: false };
     elGearTitle.textContent = L(cfg.title || { nl: 'Het Radwerk', en: 'The Gearworks' });
     if (elGearHint) elGearHint.textContent = L(cfg.hint || { nl: '', en: '' });
     elGear.hidden = false;
@@ -2823,43 +2832,57 @@
     sfx('tap');
   }
 
-  function drawOneGear(cx, cy, r, col, ang) {
-    const tc = Math.max(8, Math.round(r / 2.2));
-    gctx.save(); gctx.translate(cx, cy); gctx.rotate(ang);
-    gctx.fillStyle = col;
-    for (let i = 0; i < tc; i++) { gctx.save(); gctx.rotate(i / tc * Math.PI * 2); gctx.fillRect(-3, -r - 4, 6, 7); gctx.restore(); }
-    gctx.beginPath(); gctx.arc(0, 0, r, 0, Math.PI * 2); gctx.fill();
-    gctx.fillStyle = 'rgba(0,0,0,0.30)'; gctx.beginPath(); gctx.arc(0, 0, r * 0.42, 0, Math.PI * 2); gctx.fill();
-    gctx.fillStyle = 'rgba(255,255,255,0.16)'; gctx.fillRect(-2, -r + 3, 4, Math.round(r * 0.5));
-    gctx.restore();
+  function drawCog(cx, cy, r, imgKey) {
+    const img = art.sprites[imgKey];
+    const d = Math.round(r * 2.25);
+    if (ready(img)) {
+      gctx.save(); gctx.imageSmoothingEnabled = false;
+      gctx.drawImage(img, Math.round(cx - d / 2), Math.round(cy - d / 2), d, d);
+      gctx.restore();
+    } else {                                  // terugval: simpele cirkel
+      gctx.fillStyle = '#caa45a'; gctx.beginPath(); gctx.arc(cx, cy, r, 0, Math.PI * 2); gctx.fill();
+      gctx.fillStyle = 'rgba(0,0,0,0.3)'; gctx.beginPath(); gctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2); gctx.fill();
+    }
   }
 
   function drawGears(now) {
     if (!gears || !gctx) return;
-    now = now || performance.now();
     const W = elGearCanvas.width, H = elGearCanvas.height;
     gctx.fillStyle = '#221830'; gctx.fillRect(0, 0, W, H);
-    /* aandrijving links, poort-mechaniek rechts */
-    gctx.fillStyle = '#5a4a33'; gctx.fillRect(6, 66, 30, 56);
-    gctx.fillStyle = '#6b5a40'; gctx.fillRect(2, 86, 10, 16);
+    /* aandrijving links, poort-mechaniek rechts + as-lijn langs de sockets */
+    gctx.fillStyle = '#5a4a33'; gctx.fillRect(6, 64, 30, 56);
+    gctx.fillStyle = '#6b5a40'; gctx.fillRect(2, 84, 10, 16);
     gctx.fillStyle = '#3a2f22'; gctx.fillRect(W - 30, 44, 26, 100);
-    const spin = gears.solved ? now / 800 : 0;
+    gctx.strokeStyle = 'rgba(231,207,134,0.22)'; gctx.lineWidth = 3;
+    gctx.beginPath(); gctx.moveTo(36, 92);
+    for (const s of gears.sockets) gctx.lineTo(s.x, s.y);
+    gctx.lineTo(W - 28, 92); gctx.stroke();
+    /* lege sockets als stippel-omtrek (toont de vereiste maat) */
     for (const s of gears.sockets) {
-      if (s.has == null) {
-        gctx.strokeStyle = 'rgba(231,207,134,0.55)'; gctx.lineWidth = 2; gctx.setLineDash([4, 4]);
-        gctx.beginPath(); gctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); gctx.stroke(); gctx.setLineDash([]);
-        gctx.fillStyle = 'rgba(231,207,134,0.5)'; gctx.beginPath(); gctx.arc(s.x, s.y, 2, 0, Math.PI * 2); gctx.fill();
-      } else {
-        const g = gears.tray[s.has];
-        drawOneGear(s.x, s.y, g.r, g.col, spin * (s.need % 2 ? 1 : -1));
-      }
+      if (s.has != null) continue;
+      gctx.strokeStyle = 'rgba(231,207,134,0.6)'; gctx.lineWidth = 2; gctx.setLineDash([4, 4]);
+      gctx.beginPath(); gctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); gctx.stroke(); gctx.setLineDash([]);
+      gctx.fillStyle = 'rgba(231,207,134,0.5)'; gctx.beginPath(); gctx.arc(s.x, s.y, 2, 0, Math.PI * 2); gctx.fill();
     }
+    /* geplaatste radjes (gouden gloed als alles klopt) */
+    for (const s of gears.sockets) {
+      if (s.has == null || (gears.drag && gears.drag.i === s.has)) continue;
+      const g = gears.tray[s.has];
+      if (gears.solved) {
+        const gl = 16, rg = gctx.createRadialGradient(s.x, s.y, 2, s.x, s.y, g.r + gl);
+        rg.addColorStop(0, 'rgba(231,207,134,0.5)'); rg.addColorStop(1, 'rgba(231,207,134,0)');
+        gctx.fillStyle = rg; gctx.fillRect(s.x - g.r - gl, s.y - g.r - gl, (g.r + gl) * 2, (g.r + gl) * 2);
+      }
+      drawCog(s.x, s.y, g.r, g.img);
+    }
+    /* voorraad-radjes */
     for (let i = 0; i < gears.tray.length; i++) {
       const g = gears.tray[i];
-      if (g.placedAt != null) continue;
-      if (gears.sel === i) { gctx.strokeStyle = '#f0d68a'; gctx.lineWidth = 2; gctx.beginPath(); gctx.arc(g.tx, g.ty, g.r + 5, 0, Math.PI * 2); gctx.stroke(); }
-      drawOneGear(g.tx, g.ty, g.r, g.col, (now / 2600) % (Math.PI * 2));
+      if (g.placedAt != null || (gears.drag && gears.drag.i === i)) continue;
+      drawCog(g.hx, g.hy, g.r, g.img);
     }
+    /* het gesleepte radje bovenop */
+    if (gears.drag) { const g = gears.tray[gears.drag.i]; drawCog(g.x, g.y, g.r, g.img); }
   }
 
   function checkGears() {
@@ -2868,6 +2891,7 @@
     if (!ok) return;
     gears.solved = true;
     sfx('combine');
+    drawGears(performance.now());
     const hs = gears.hs;
     setTimeout(() => {
       elGear.hidden = true;
@@ -2875,37 +2899,69 @@
       gears = null;
       if (cfg.setFlag) { state.flags[cfg.setFlag] = true; updateQuest(); }
       if (cfg.solvedText) say(cfg.solvedText);
-    }, 1600);
+    }, 1200);
   }
 
-  function gearPlace(socketIndex) {            // tray-keuze -> socket
-    if (!gears || gears.sel == null) return;
-    const s = gears.sockets[socketIndex]; if (!s || s.has != null) return;
-    const g = gears.tray[gears.sel];
-    g.placedAt = socketIndex; s.has = gears.sel; gears.sel = null;
-    sfx(g.size === s.need ? 'pickup' : 'tap');
-    checkGears(); drawGears(performance.now());
-  }
-
-  if (elGearCanvas) elGearCanvas.addEventListener('pointerdown', (e) => {
-    if (!gears || elGear.hidden || gears.solved) return;
+  function gearEvtPos(e) {
     const rect = elGearCanvas.getBoundingClientRect();
-    const sx = (e.clientX - rect.left) * (elGearCanvas.width / rect.width);
-    const sy = (e.clientY - rect.top) * (elGearCanvas.height / rect.height);
-    for (let si = 0; si < gears.sockets.length; si++) {
-      const s = gears.sockets[si];
-      if (Math.hypot(sx - s.x, sy - s.y) <= s.r + 6) {
-        if (s.has != null) { gears.tray[s.has].placedAt = null; s.has = null; gears.sel = null; sfx('tap'); drawGears(performance.now()); }
-        else if (gears.sel != null) { gearPlace(si); }
-        return;
+    return { x: (e.clientX - rect.left) * (elGearCanvas.width / rect.width),
+             y: (e.clientY - rect.top) * (elGearCanvas.height / rect.height) };
+  }
+
+  function gearDrop() {                        // laat het gesleepte radje los
+    if (!gears || !gears.drag) return;
+    const i = gears.drag.i, g = gears.tray[i];
+    let si = -1, best = 1e9;
+    for (let k = 0; k < gears.sockets.length; k++) {
+      const s = gears.sockets[k];
+      if (s.has != null) continue;
+      const d = Math.hypot(g.x - s.x, g.y - s.y);
+      if (d < best) { best = d; si = k; }
+    }
+    if (si >= 0 && best <= gears.sockets[si].r + 18) {
+      g.placedAt = si; gears.sockets[si].has = i; g.x = gears.sockets[si].x; g.y = gears.sockets[si].y;
+      sfx(g.size === gears.sockets[si].need ? 'pickup' : 'tap');
+    } else {
+      g.x = g.hx; g.y = g.hy; sfx('tap');     // terug naar de voorraad
+    }
+    gears.drag = null;
+    checkGears();
+    if (gears) drawGears(performance.now());
+  }
+
+  if (elGearCanvas) {
+    elGearCanvas.addEventListener('pointerdown', (e) => {
+      if (!gears || elGear.hidden || gears.solved) return;
+      e.preventDefault();
+      const p = gearEvtPos(e);
+      let pick = -1, best = 1e9;
+      for (let i = 0; i < gears.tray.length; i++) {
+        const g = gears.tray[i];
+        const cx = g.placedAt != null ? gears.sockets[g.placedAt].x : g.hx;
+        const cy = g.placedAt != null ? gears.sockets[g.placedAt].y : g.hy;
+        const d = Math.hypot(p.x - cx, p.y - cy);
+        if (d <= g.r + 6 && d < best) { best = d; pick = i; }
       }
-    }
-    for (let i = 0; i < gears.tray.length; i++) {
-      const g = gears.tray[i];
-      if (g.placedAt != null) continue;
-      if (Math.hypot(sx - g.tx, sy - g.ty) <= g.r + 5) { gears.sel = (gears.sel === i ? null : i); sfx('tap'); drawGears(performance.now()); return; }
-    }
-  });
+      if (pick < 0) return;
+      const g = gears.tray[pick];
+      if (g.placedAt != null) { gears.sockets[g.placedAt].has = null; g.placedAt = null; }
+      g.x = p.x; g.y = p.y;
+      gears.drag = { i: pick };
+      sfx('tap');
+      if (elGearCanvas.setPointerCapture) { try { elGearCanvas.setPointerCapture(e.pointerId); } catch (_) {} }
+      drawGears(performance.now());
+    });
+    elGearCanvas.addEventListener('pointermove', (e) => {
+      if (!gears || !gears.drag) return;
+      e.preventDefault();
+      const p = gearEvtPos(e);
+      const g = gears.tray[gears.drag.i];
+      g.x = p.x; g.y = p.y;
+      drawGears(performance.now());
+    });
+    elGearCanvas.addEventListener('pointerup', gearDrop);
+    elGearCanvas.addEventListener('pointercancel', gearDrop);
+  }
 
   function closeGears() { elGear.hidden = true; gears = null; }
   if (elGearClose) elGearClose.addEventListener('click', closeGears);
@@ -2917,9 +2973,9 @@
     for (const s of gears.sockets) {
       if (s.has != null) continue;
       const ti = gears.tray.findIndex((g) => g.placedAt == null && g.size === s.need);
-      if (ti >= 0) { gears.tray[ti].placedAt = gears.sockets.indexOf(s); s.has = ti; }
+      if (ti >= 0) { const idx = gears.sockets.indexOf(s); gears.tray[ti].placedAt = idx; gears.tray[ti].x = s.x; gears.tray[ti].y = s.y; s.has = ti; }
     }
-    checkGears(); drawGears(performance.now());
+    checkGears(); if (gears) drawGears(performance.now());
     return true;
   }
 
@@ -3426,6 +3482,8 @@
     mazeMove: (dr, dc) => mazeMove(dr, dc),
     isGearShown: () => !!(elGear && !elGear.hidden),
     gearAuto: () => gearAuto(),
+    gearState: () => gears && { placed: gears.tray.filter((g) => g.placedAt != null).length, solved: gears.solved,
+      canvas: elGearCanvas ? { w: elGearCanvas.width, h: elGearCanvas.height } : null },
     reset: resetGame
   };
 

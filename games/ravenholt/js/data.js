@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '9',
+  assetVer: '10',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -28,7 +28,10 @@ const GAME = {
     mayor:         'assets/art/mayor.png',
     mayorGesture:  'assets/art/mayor-gesture.png',  // bezorgd gebaar (af en toe)
     ravenPerch:    'assets/art/raven-perch.png',   // raaf op de ton (gevouwen vleugels)
-    ravenFly:      'assets/art/raven-fly.png'       // raaf in vlucht (wegvliegen)
+    ravenFly:      'assets/art/raven-fly.png',      // raaf in vlucht (wegvliegen)
+    mouse:         'assets/art/mouse.png',          // bruine muis in de molen (praten)
+    cogBrass:      'assets/art/cog-brass.png',      // radwerk-puzzel: messing tandwiel
+    cogIron:       'assets/art/cog-iron.png'        // radwerk-puzzel: ijzeren tandwiel
   },
   heroWalkFrames: 4,            // aantal frames in hero-walk-sheet.png (vloeiender lopen)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -168,13 +171,14 @@ const GAME = {
         },
         {
           id: 'coin',
-          name: { nl: 'Iets Glimmends', en: 'Something Shiny' },
-          rect: { x: 58, y: 294, w: 64, h: 24 },
-          walkTo: { x: 95, y: 306 },
+          name: { nl: 'Iets Glimmends in de Fontein', en: 'Something Shiny in the Fountain' },
+          rect: { x: 158, y: 236, w: 100, h: 44 },
+          walkTo: { x: 208, y: 300 },
+          hideFlag: 'taken_square_coin',                 // weg zodra opgeraapt (dan werkt de fontein-look weer)
           gives: {
             item: 'coin',
-            giveText: { nl: 'Tussen de keien glinstert een oud muntje. Je steekt het in je tas.', en: 'An old coin glints between the cobbles. You pocket it.' },
-            emptyText: { nl: 'Niets meer tussen de keien hier.', en: 'Nothing more between the cobbles here.' }
+            giveText: { nl: 'Op de bodem van de drooggevallen fontein, tussen de natte stenen, glinstert een oud muntje — ooit door iemand ingegooid als wens. Je raapt het op.', en: 'On the bottom of the dried-up fountain, between the wet stones, an old coin glints — once tossed in as a wish. You pick it up.' },
+            emptyText: { nl: 'Verder ligt er niets in het bekken.', en: 'There is nothing else in the basin.' }
           }
         },
         {
@@ -273,7 +277,9 @@ const GAME = {
       obstacles: [],
       overlays: [],
       worldItems: [],
-      npcs: [],
+      npcs: [
+        { id: 'mouse', sprite: 'mouse', x: 446, y: 304, scale: 0.5, flip: true }   // klein bruin muisje bij de zakken
+      ],
       fx: {},
       hotspots: [
         {
@@ -333,6 +339,22 @@ const GAME = {
           }
         },
         {
+          id: 'mouse',
+          name: { nl: 'Een Bruine Muis', en: 'A Brown Mouse' },
+          rect: { x: 420, y: 280, w: 56, h: 40 },
+          walkTo: { x: 440, y: 300 },
+          look: (state) => state.flags.mouseFed
+            ? { nl: 'Het muisje knabbelt tevreden aan het graan. “Mmm, dank je, vriendelijke reus! De molenaar? Die is naar het kasteel om hulp te vragen — volg het pad maar. Piep!”', en: 'The little mouse nibbles the grain happily. “Mmm, thank you, kind giant! The miller? He went to the castle for help — just follow the path. Squeak!”' }
+            : { nl: 'Een klein bruin muisje kijkt je met glanzende kraaloogjes aan. “Piep! Niet schrikken, hoor. Het is hier zo stil sinds het rad stilstaat... heb jij misschien iets te knabbelen voor me?”', en: 'A little brown mouse looks up at you with shiny beady eyes. “Squeak! Don’t be startled. It’s been so quiet since the wheel stopped... do you maybe have something to nibble?”' },
+          use: {
+            grain: {
+              consume: 'grain',
+              setFlag: 'mouseFed',
+              text: { nl: 'Je strooit wat graan voor het muisje. Het knabbelt blij en piept: “Heerlijk! Zoek je de molenaar? Hij ging het pad op naar het kasteel — daar zoeken ze ook naar de bron.”', en: 'You scatter some grain for the mouse. It nibbles happily and squeaks: “Delicious! Looking for the miller? He took the path to the castle — they’re searching for the spring there too.”' }
+            }
+          }
+        },
+        {
           id: 'outMill',
           name: { nl: 'Naar Buiten', en: 'Back Outside' },
           rect: { x: 92, y: 276, w: 130, h: 40 },
@@ -380,7 +402,7 @@ const GAME = {
           walkTo: { x: 372, y: 300 },
           gears: {
             title: { nl: 'Het Poortradwerk', en: 'The Gate Gearworks' },
-            hint: { nl: 'Plaats de 5 radjes op de juiste plek (op maat) zodat ze in elkaar grijpen en gaan draaien.', en: 'Place the 5 gears in the right spots (by size) so they mesh and start turning.' },
+            hint: { nl: 'Sleep de 5 radjes naar de juiste plek (op maat) zodat ze precies in elkaar grijpen.', en: 'Drag the 5 gears to the right spots (by size) so they mesh perfectly.' },
             setFlag: 'gateOpen',
             solvedText: { nl: 'De radjes grijpen in elkaar en beginnen te draaien — kettingen ratelen en het zware poortmechaniek komt knarsend tot leven. De weg dieper Eldoria in gaat bijna open... (wordt vervolgd)', en: 'The gears mesh and begin to turn — chains rattle and the heavy gate mechanism grinds to life. The way deeper into Eldoria is about to open... (to be continued)' }
           },
