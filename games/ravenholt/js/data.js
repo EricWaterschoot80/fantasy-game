@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '12',
+  assetVer: '13',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -32,7 +32,8 @@ const GAME = {
     mouse:         'assets/art/mouse.png',          // bruine muis in de molen (praten)
     cogBrass:      'assets/art/cog-brass.png',      // radwerk-puzzel: messing tandwiel
     cogIron:       'assets/art/cog-iron.png',       // radwerk-puzzel: ijzeren tandwiel
-    guard:         'assets/art/guard.png'           // poortwacht bij het kasteel
+    guard:         'assets/art/guard.png',          // poortwacht bij het kasteel
+    guardGesture:  'assets/art/guard-gesture.png'   // wacht verzet zijn hellebaard (af en toe)
   },
   heroWalkFrames: 4,            // aantal frames in hero-walk-sheet.png (vloeiender lopen)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -140,6 +141,7 @@ const GAME = {
           name: { nl: 'Burgemeester Bram', en: 'Mayor Bram' },
           rect: { x: 346, y: 186, w: 54, h: 80 },
           walkTo: { x: 366, y: 300 },
+          face: 'assets/art/face-mayor.png',
           look: (state) => state.flags.metMayor
             ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
@@ -150,6 +152,7 @@ const GAME = {
           name: { nl: 'Glanzende Raaf', en: 'Glossy Raven' },
           rect: { x: 12, y: 226, w: 46, h: 44 },
           walkTo: { x: 80, y: 298 },
+          face: 'assets/art/face-raven.png',
           hideFlag: 'ravenFed',                        // weg zodra hij is opgevlogen
           look: { nl: 'Een grote, glanzende raaf zit op de oude ton en houdt zijn kop scheef. Zijn kraaloogjes volgen elk glimmend ding dat je bij je hebt. Hij lijkt iets te willen ruilen...', en: 'A big glossy raven sits on the old barrel, cocking its head. Its beady eyes track every shiny thing you carry. It seems to want a trade...' },
           use: {
@@ -238,25 +241,25 @@ const GAME = {
         {
           id: 'toMillInside',
           name: { nl: 'Deur van de Molen', en: 'Mill Door' },
-          rect: { x: 254, y: 198, w: 54, h: 74 },
+          rect: { x: 248, y: 198, w: 54, h: 74 },
           walkTo: { x: 280, y: 300 },
-          arrow: { x: 280, y: 234, dir: 'up' },
+          arrow: { x: 262, y: 232, dir: 'up' },
           exit: { to: 'millInside', travelText: { nl: 'Je duwt de zware deur open en stapt de molen binnen...', en: 'You push the heavy door open and step inside the mill...' } }
         },
         {
           id: 'toCastle',
           name: { nl: 'Pad naar het Kasteel', en: 'Path to the Castle' },
-          rect: { x: 64, y: 182, w: 74, h: 130 },
+          rect: { x: 64, y: 168, w: 74, h: 144 },
           walkTo: { x: 96, y: 300 },
-          arrow: { x: 96, y: 286, dir: 'up' },
+          arrow: { x: 96, y: 244, dir: 'up' },
           exit: { to: 'castle', travelText: { nl: 'Je neemt het pad over de heuvel naar de kasteelpoort van Eldoria...', en: 'You take the path over the hill to the castle gate of Eldoria...' } }
         },
         {
           id: 'toSquare',
           name: { nl: 'Pad naar het Dorp', en: 'Path to the Village' },
-          rect: { x: 446, y: 182, w: 96, h: 130 },
+          rect: { x: 446, y: 168, w: 96, h: 144 },
           walkTo: { x: 470, y: 300 },
-          arrow: { x: 498, y: 280, dir: 'up', rot: 0.7 },   // schuin omhoog-rechts, richting het dorp
+          arrow: { x: 492, y: 244, dir: 'up' },   // recht omhoog, hoger op het pad naar het dorp
           exit: { to: 'square', travelText: { nl: 'Je volgt het pad terug omhoog naar het dorp.', en: 'You follow the path back up to the village.' } }
         }
       ]
@@ -344,6 +347,7 @@ const GAME = {
           name: { nl: 'Een Bruine Muis', en: 'A Brown Mouse' },
           rect: { x: 134, y: 284, w: 64, h: 38 },
           walkTo: { x: 172, y: 300 },
+          face: 'assets/art/face-mouse.png',
           look: (state) => state.flags.mouseFed
             ? { nl: 'Het muisje knabbelt tevreden aan het graan. “Mmm, dank je, vriendelijke reus! De molenaar? Die is naar het kasteel om hulp te vragen — volg het pad maar. Piep!”', en: 'The little mouse nibbles the grain happily. “Mmm, thank you, kind giant! The miller? He went to the castle for help — just follow the path. Squeak!”' }
             : { nl: 'Een klein bruin muisje kijkt je met glanzende kraaloogjes aan. “Piep! Niet schrikken, hoor. Het is hier zo stil sinds het rad stilstaat... heb jij misschien iets te knabbelen voor me?”', en: 'A little brown mouse looks up at you with shiny beady eyes. “Squeak! Don’t be startled. It’s been so quiet since the wheel stopped... do you maybe have something to nibble?”' },
@@ -384,7 +388,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', x: 400, y: 262, scale: 1.5 }   // poortwacht hoger, ín de poort, groter
+        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 398, y: 244, scale: 1.45 }   // poortwacht verder naar achter ín de poort; verzet af en toe zijn hellebaard
       ],
       fx: {},
       hotspots: [
@@ -393,6 +397,7 @@ const GAME = {
           name: { nl: 'De Poortwacht', en: 'The Gate Guard' },
           rect: { x: 368, y: 168, w: 68, h: 110 },
           walkTo: { x: 388, y: 286 },
+          face: 'assets/art/face-guard.png',
           look: (state) => state.flags.gateOpen
             ? { nl: 'De wacht plant zijn hellebaard steviger neer. “Het radwerk draait weer, knul — knap werk. Maar hier kom je niet door. Bevel van de hofmaarschalk: niemand het kasteel in zonder zegel.” (wordt vervolgd)', en: 'The guard plants his halberd firmer. “The gearworks turns again, lad — fine work. But you don’t pass here. Steward’s orders: no one enters the castle without a seal.” (to be continued)' }
             : { nl: 'Een strenge poortwacht in een blauw tabbaard verspert de weg. “Halt. Het kasteel is gesloten zolang de bron droog staat — en die poort krijg je toch niet open: het radwerk ernaast is kapot.” Hij knikt naar het mechaniek naast de poort.', en: 'A stern guard in a blue tabard blocks the way. “Halt. The castle is closed while the spring runs dry — and you won’t open that gate anyway: the gearworks beside it is broken.” He nods at the mechanism beside the gate.' },

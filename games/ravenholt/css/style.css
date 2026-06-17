@@ -698,9 +698,11 @@ html, body {
   box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410, inset 0 0 18px rgba(0,0,0,.8);
   touch-action: none;
 }
+/* Radwerk-kaart breder dan een gewone puzzel-kaart, zodat het hele canvas past. */
+#gear-card { max-width: 492px; }
 #gear-canvas {
   display: block;
-  width: min(440px, 86vw, 62vh);
+  width: min(440px, 88vw, 74vh);   /* past in de kaart én op een laag mobiel scherm */
   height: auto;
   margin: 4px auto 2px;
   background: #221830;
@@ -712,6 +714,10 @@ html, body {
   margin: 8px auto 2px;
   font-size: 13px;
   padding: 7px 18px;
+}
+@media (max-height: 540px) {
+  #gear-canvas { width: min(440px, 88vw, 88vh); }
+  .gear-lever-btn { margin: 6px auto 2px; padding: 6px 16px; }
 }
 #maze-dpad {
   display: flex;

@@ -557,6 +557,7 @@
     dog: 'assets/art/face-dog.png'
   };
   function hsFace(hs) {
+    if (hs.face) return hs.face;                 // expliciet portret in de tekstwolk
     if (!hs.followNpc) return null;
     const npc = (GAME.scenes[state.currentScene].npcs || []).find(n => n.id === hs.followNpc);
     return npc ? FACE_BY_SPRITE[npc.sprite] || null : null;
