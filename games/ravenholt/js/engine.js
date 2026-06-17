@@ -1548,40 +1548,48 @@
   /* Af en toe knipperen: een kort, klein ooglid in de eigen huid-/kapkleur over de oog-lijn.
      eyes=2 tekent twee losse oogleden (bv. de held knippert met beide ogen). */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip, scale, rot, squash) {
+  /* Knipperen — getekend BINNEN exact dezelfde transform als de sprite (drawArtSprite),
+     met oog-posities als FRACTIES van de sprite. Zo wordt diepte (scale), ademhaling
+     (squashY), romp-rotatie (rot), zijwaartse wieg (x), sprong (bob) en spiegelen (flip)
+     allemaal automatisch in de berekening meegenomen — het ooglid blijft altijd op de
+     ogen, ook als Finn klein is of schommelt. */
+  function eyeBlink(id, img, x, y, o) {
     if (!ready(img)) return;
-    scale = scale || 1; rot = rot || 0; squash = squash || 1;
+    o = o || {}; const now = o.now;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
-    /* Natuurlijk knipperen: af en toe een dubbele knipper, met onregelmatige tussenpozen. */
     if (now >= b.next) { b.until = now + 95; b.next = now + 2600 + Math.random() * 3600 + (Math.random() < 0.25 ? -2200 : 0); }
     if (now >= b.until) return;
-    /* Huidkleur bemonsteren op de WANG (net onder de ogen) — daar zit schone huid,
-       niet de donkere oog-pixels — zodat het ooglid echt huidkleurig is. */
-    const col = faceColor(img, Math.min(0.95, eyeFrac + 0.07), halfW) || faceColor(img, eyeFrac, halfW);
+    const D = GAME.spriteDetail || 1;
+    const scale = o.scale || 1, squashY = o.squashY || 1;
+    const eyeFrac = o.eyeFrac != null ? o.eyeFrac : 0.2;     // oog-lijn, fractie vanaf de bovenkant
+    const cxFrac  = o.eyeCxFrac != null ? o.eyeCxFrac : 0.5; // oog-midden, fractie vanaf links
+    const gapFrac = o.eyeGap != null ? o.eyeGap : 0.09;      // halve oog-afstand, fractie van de breedte
+    /* Huidkleur op de wang (net onder de ogen), in natuurlijke pixels bemonsterd. */
+    const col = faceColor(img, Math.min(0.95, eyeFrac + 0.07), Math.max(4, Math.round(gapFrac * img.naturalWidth)))
+             || faceColor(img, eyeFrac, 8);
     if (!col) return;
-    /* Volg Finns beweging: squash (ademhaling) rekt de hoogte, de romp-rotatie schuift de
-       oog-lijn zijwaarts (ogen zitten hoog boven het draaipunt = de voeten). */
-    const eh = (img.naturalHeight / (GAME.spriteDetail || 1)) * scale * squash;
-    const ey = Math.round(footY - eh + eh * eyeFrac);
-    const aboveFeet = eh * (1 - eyeFrac);                 // hoogte van de ogen boven de voeten
-    cx = cx - rot * aboveFeet;                            // meekantelen met de schommel
-    const lw = Math.max(2, Math.round(3.5 * scale));   // ooglid-breedte ≈ oogbreedte
+    const w = Math.max(1, Math.round(img.naturalWidth * scale / D));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale / D));
+    const dh = Math.round(h * squashY);
+    const eyeY = -dh + Math.round(dh * eyeFrac);            // lokale oog-lijn (voeten = 0)
+    const cxL = -w / 2 + cxFrac * w;
+    const lw = Math.max(2, Math.round((o.lidWFrac != null ? o.lidWFrac : 0.07) * w));
+    const lh = Math.max(1, Math.round(h * 0.02));
     const lid = `rgb(${col.r},${col.g},${col.b})`;
-    /* Gesloten oog = dun huidkleurig ooglid met een fijne donkere wimperlijn eronder. */
     const lash = `rgba(${(col.r * 0.45) | 0},${(col.g * 0.4) | 0},${(col.b * 0.4) | 0},0.85)`;
-    const drawLid = (xc) => {
-      const x0 = Math.round(xc) - (lw >> 1);
-      fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, lw, Math.max(1, Math.round(1.5 * scale)));
-      fctx.fillStyle = lash; fctx.fillRect(x0, ey + Math.max(1, Math.round(1.5 * scale)) - 1, lw, 1);
+    fctx.save(); fctx.imageSmoothingEnabled = false;
+    fctx.translate(Math.round(x), Math.round(y + (o.bob || 0)));
+    if (o.rot) fctx.rotate(o.rot);
+    if (o.flip) fctx.scale(-1, 1);
+    const drawLid = (lx) => {
+      const x0 = Math.round(lx - lw / 2);
+      fctx.fillStyle = lid;  fctx.fillRect(x0, eyeY, lw, lh);
+      fctx.fillStyle = lash; fctx.fillRect(x0, eyeY + lh, lw, 1);
     };
-    if (eyes === 2) {
-      /* De twee ogen; offsets spiegelen mee als de held naar links kijkt. */
-      const offs = flip ? [-(halfW + 1), halfW - 2] : [-halfW, halfW + 1];
-      for (const ox of offs) drawLid(cx + ox * scale);
-    } else {
-      drawLid(cx);
-    }
+    if ((o.eyes || 2) === 2) { drawLid(cxL - gapFrac * w); drawLid(cxL + gapFrac * w); }
+    else drawLid(cxL);
+    fctx.restore();
   }
 
   /* Brandende fakkel in de hand van de held (donkere tempel): warme gloed + vlam */
@@ -1756,7 +1764,10 @@
       drawArtSprite(idleImg, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
       /* Finns ogen zitten vrijwel in het midden (iets rechts) en hoog; richt de twee
          oogleden daar precies op (gespiegeld als hij naar links kijkt). */
-      eyeBlink('hero', player.x + idleSway + (player.flip ? -3 : 3) * ds, player.y, idleImg, 0.176, 8, now, 2, player.flip, ds, idleRot, breaths);
+      eyeBlink('hero', idleImg, player.x + idleSway, player.y, {
+        now, scale: ds, squashY: breaths, rot: idleRot, flip: player.flip,
+        eyeFrac: 0.179, eyeCxFrac: 0.514, eyeGap: 0.083, eyes: 2
+      });
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1791,7 +1802,7 @@
           const float_ = Math.round(Math.sin(now / 900) * 1.4);
           drawArtSprite(img, rt.x, rt.y, { flip: rt.flip, bob: float_ + nod });
         }
-        eyeBlink('seer', rt.x - 1, rt.y, img, 0.31, 7, now);   // gloeiende ogen knipperen
+        eyeBlink('seer', img, rt.x, rt.y, { now, flip: rt.flip, eyeFrac: 0.31, eyeCxFrac: 0.5, eyeGap: 0.09, eyes: 1 });   // gloeiende ogen knipperen
         return;
       }
       const f = ((now / 800) | 0) % 2;
