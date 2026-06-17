@@ -1728,12 +1728,13 @@
       }
       /* idle: rustig ademen + regelmatig vrolijk zwaaien (2-frame zwaai). */
       const ds = depthScaleAt(player.y);
-      const g = gestureState('hero', now, 1400, 7000, 13000);    // regelmatig zwaaien
+      const g = gestureState('hero', now, 1300, 8000, 15000);    // af en toe ÉÉN keer zwaaien
       const wave1 = art.sprites.heroWave, wave2 = art.sprites.heroWave2;
       if (g > 0 && ready(wave1)) {
-        /* Hand op en neer: wissel tussen de twee zwaai-frames terwijl het gebaar duurt. */
-        const wf = (ready(wave2) && Math.floor(now / 230) % 2 === 0) ? wave2 : wave1;
-        const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2);
+        /* Eén zwaai: hand omhoog (begin) en daarna één keer terug omlaag (einde) — geen
+           herhaald heen-en-weer. g loopt van 1 -> 0 over het gebaar. */
+        const wf = (ready(wave2) && g < 0.5) ? wave2 : wave1;
+        const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI)) * 2);
         drawArtSprite(wf, player.x, player.y, { flip: player.flip, bob: bounce, scale: ds });
         return;
       }
@@ -1743,10 +1744,12 @@
       const breaths = 1 + 0.012 * Math.sin(now / 1500);
       const idleRot = Math.sin(now / 720) * 0.03;                 // zachte schommel net als de wachter
       const idleSway = Math.round(Math.sin(now / 720) * 0.8 * ds);// minimale gewichtsverschuiving
-      drawArtSprite(hero, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
+      /* 2-frame stilstaan: wissel rustig tussen twee sta-poses (zacht gewicht verplaatsen). */
+      const idleImg = (ready(art.sprites.heroIdle2) && Math.floor(now / 1600) % 2 === 1) ? art.sprites.heroIdle2 : hero;
+      drawArtSprite(idleImg, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
       /* Finns ogen zitten vrijwel in het midden (iets rechts) en hoog; richt de twee
          oogleden daar precies op (gespiegeld als hij naar links kijkt). */
-      eyeBlink('hero', player.x + idleSway + (player.flip ? -8 : 8) * ds, player.y, hero, 0.19, 6, now, 2, player.flip, ds);
+      eyeBlink('hero', player.x + idleSway + (player.flip ? -3 : 3) * ds, player.y, idleImg, 0.176, 8, now, 2, player.flip, ds);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];

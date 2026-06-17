@@ -14,13 +14,14 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '23',
+  assetVer: '24',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
      heroWalk/heroWalk2 blijven als terugval voor de 2-frame cyclus. */
   sprites: {
     hero:          'assets/art/hero.png',
+    heroIdle2:     'assets/art/hero-idle2.png',     // 2e stilstaan-frame (zacht gewicht verplaatsen)
     heroWalk:      'assets/art/hero-walk.png',
     heroWalk2:     'assets/art/hero-walk2.png',
     heroWave:      'assets/art/hero-wave.png',
@@ -459,11 +460,11 @@ const GAME = {
         { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
         { id: 'merchant', sprite: 'merchantLeft', x: 282, y: 298, scale: 1.18, scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantFwd'], aweSprite: 'merchantAwe', aweFlag: 'merchantDistracted' },   // sneaky handelsman (kap op): spiedt afwisselend naar zijn kar (links) en de wacht (rechts); staart verbaasd naar de bloem zodra die danst
         { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
-        { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.34, danceFlag: 'flowerDancing' },   // (dansende) witte bloem — strak cluster, iets kleiner
-        { id: 'flower2', sprite: 'flowerWhite', x: 430, y: 267, scale: 0.24 },   // alle bloemen wit, dicht bij elkaar
-        { id: 'flower3', sprite: 'flowerWhite', x: 458, y: 267, scale: 0.23 },
-        { id: 'flower4', sprite: 'flowerWhite', x: 418, y: 263, scale: 0.21 },
-        { id: 'flower5', sprite: 'flowerWhite', x: 470, y: 262, scale: 0.22 }
+        { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
+        { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21 },   // alle bloemen gelig-wit, dicht bij elkaar
+        { id: 'flower3', sprite: 'flowerWhite', x: 457, y: 267, scale: 0.2 },
+        { id: 'flower4', sprite: 'flowerWhite', x: 420, y: 263, scale: 0.18 },
+        { id: 'flower5', sprite: 'flowerWhite', x: 468, y: 262, scale: 0.19 }
       ],
       fx: {},
       hotspots: [
