@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '3',
+  assetVer: '4',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -45,8 +45,8 @@ const GAME = {
 
   ui: {
     subtitle:   { nl: 'Een point-and-click mysterie', en: 'A point-and-click mystery' },
-    intro:      { nl: 'In het koninkrijk Eldoria is de fontein op het dorpsplein al weken drooggevallen. De jonge Finn — die droomt van magie en wiens vader gevangen zit in het kasteel — gaat op onderzoek uit.',
-                  en: 'In the kingdom of Eldoria the village-square fountain has run dry for weeks. Young Finn — who dreams of magic and whose father is imprisoned in the castle — sets out to investigate.' },
+    intro:      { nl: 'In het koninkrijk Eldoria loopt de fontein op het dorpsplein al weken leeg. De jonge Finn — die droomt van magie en wiens vader gevangen zit in het kasteel — gaat op onderzoek uit.',
+                  en: 'In the kingdom of Eldoria the village-square fountain has been running dry for weeks. Young Finn — who dreams of magic and whose father is imprisoned in the castle — sets out to investigate.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
     winTitle:   { nl: 'Wordt vervolgd', en: 'To be continued' },
@@ -63,8 +63,8 @@ const GAME = {
     homeConfirm:{ nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
 
     q_explore:  { nl: 'Verken het dorpsplein van Eldoria', en: 'Explore the village square of Eldoria' },
-    q_fountain: { nl: 'Onderzoek waarom de fontein is drooggevallen', en: 'Investigate why the fountain has run dry' },
-    q_mill:     { nl: 'Bekijk de oude watermolen aan de rand van het plein', en: 'Inspect the old watermill at the edge of the square' }
+    q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
+    q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' }
   },
 
   items: {
@@ -88,24 +88,24 @@ const GAME = {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
       bg: 'assets/art/scene-square.png',
       entryText: {
-        nl: 'Het dorpsplein van Eldoria, gehuld in avondmist. In het midden staat de stenen fontein — droog en stil. Aan de rand kraakt de oude watermolen.',
-        en: 'The village square of Eldoria, wrapped in evening mist. The stone fountain stands dry and silent in the middle. At the edge the old watermill creaks.'
+        nl: 'Het dorpsplein van Eldoria baadt in het ochtendlicht. De fontein klatert nog wat na, maar het water zakt zienderogen. Aan de rand staat de oude molen stil.',
+        en: 'The village square of Eldoria bathes in morning light. The fountain still trickles, but the water is dropping fast. At the edge the old mill stands still.'
       },
-      playerStart: { x: 210, y: 300 },
+      playerStart: { x: 300, y: 300 },
 
-      /* Beloopbare keien rondom de fontein (de molen rechts en de fontein zelf zijn geblokkeerd). */
+      /* Beloopbare keien op het plein; de fontein (midden-links) en de gebouwen zijn geblokkeerd. */
       walkable: [
-        { x: 40,  y: 296, w: 488, h: 20 },   // voorgrond-strook vóór de fontein
-        { x: 40,  y: 222, w: 150, h: 94 },   // keien links van de fontein
-        { x: 366, y: 222, w: 104, h: 94 }    // keien rechts (vóór de molen)
+        { x: 40,  y: 282, w: 488, h: 36 },   // voorgrond-strook over het hele plein
+        { x: 40,  y: 238, w: 110, h: 80 },   // keien links van de fontein
+        { x: 268, y: 238, w: 230, h: 80 }    // keien rechts van de fontein (richting de kraampjes)
       ],
       obstacles: [
-        { x: 190, y: 232, w: 182, h: 68 }    // de fontein-bak (niet doorheen lopen)
+        { x: 150, y: 214, w: 116, h: 66 }    // de fontein-bak (niet doorheen lopen)
       ],
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mayor', sprite: 'mayor', x: 108, y: 250 }   // burgemeester Bram op de linkerkeien
+        { id: 'mayor', sprite: 'mayor', x: 312, y: 262 }   // burgemeester Bram, rechts van de fontein
       ],
       fx: {},
 
@@ -113,28 +113,28 @@ const GAME = {
         {
           id: 'mayor',
           name: { nl: 'Burgemeester Bram', en: 'Mayor Bram' },
-          rect: { x: 82, y: 168, w: 58, h: 86 },
-          walkTo: { x: 150, y: 300 },
+          rect: { x: 286, y: 184, w: 54, h: 82 },
+          walkTo: { x: 300, y: 300 },
           look: (state) => state.flags.metMayor
             ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
-            : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein staat al weken droog en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain has been dry for weeks and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
+            : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
           setFlag: 'metMayor'
         },
         {
           id: 'fountain',
-          name: { nl: 'Drooggevallen Fontein', en: 'Dry Fountain' },
-          rect: { x: 196, y: 150, w: 176, h: 150 },
-          walkTo: { x: 284, y: 308 },
+          name: { nl: 'De Fontein', en: 'The Fountain' },
+          rect: { x: 150, y: 150, w: 116, h: 130 },
+          walkTo: { x: 208, y: 300 },
           look: (state) => state.flags.seenFountain
-            ? { nl: 'De fontein blijft droog. Zonder stromend water komt hier niets op gang.', en: 'The fountain stays dry. Without flowing water nothing will start here.' }
-            : { nl: 'De fontein is al weken droog. Geen druppel water. Iemand zei dat de watermolen het water hierheen pompt... maar de molen staat stil.', en: 'The fountain has been dry for weeks. Not a drop. Someone said the watermill pumps the water here... but the mill stands still.' },
+            ? { nl: 'Het water in de fontein blijft zakken. Zonder de molen komt er geen nieuw water bij.', en: 'The fountain’s water keeps dropping. Without the mill no fresh water comes through.' }
+            : { nl: 'Het water in de fontein zakt met de dag. De molen die de bron voedt staat stil — daar moet het misgaan.', en: 'The fountain’s water drops by the day. The mill that feeds the spring stands still — that must be where it goes wrong.' },
           setFlag: 'seenFountain'
         },
         {
           id: 'coin',
           name: { nl: 'Iets Glimmends', en: 'Something Shiny' },
-          rect: { x: 56, y: 290, w: 60, h: 24 },
-          walkTo: { x: 92, y: 302 },
+          rect: { x: 58, y: 294, w: 64, h: 24 },
+          walkTo: { x: 95, y: 306 },
           gives: {
             item: 'coin',
             giveText: { nl: 'Tussen de keien glinstert een oud muntje. Je steekt het in je tas.', en: 'An old coin glints between the cobbles. You pocket it.' },
@@ -143,23 +143,23 @@ const GAME = {
         },
         {
           id: 'note',
-          name: { nl: 'Briefje aan de Muur', en: 'Note on the Wall' },
-          rect: { x: 384, y: 232, w: 56, h: 40 },
-          walkTo: { x: 408, y: 304 },
+          name: { nl: 'Briefje bij een Kraampje', en: 'Note by a Stall' },
+          rect: { x: 432, y: 244, w: 52, h: 40 },
+          walkTo: { x: 442, y: 306 },
           gives: {
             item: 'note',
-            giveText: { nl: 'Een verfrommeld briefje is aan een paal geprikt. Je pakt het en leest het later na (tik het aan in je tas).', en: 'A crumpled note is pinned to a post. You take it to read later (tap it in your bag).' },
-            emptyText: { nl: 'De paal is nu leeg.', en: 'The post is empty now.' }
+            giveText: { nl: 'Aan een marktkraampje is een verfrommeld briefje geprikt. Je pakt het en leest het later na (tik het aan in je tas).', en: 'A crumpled note is pinned to a market stall. You take it to read later (tap it in your bag).' },
+            emptyText: { nl: 'Er hangt niets meer.', en: 'Nothing hangs there anymore.' }
           }
         },
         {
           id: 'mill',
-          name: { nl: 'Oude Watermolen', en: 'Old Watermill' },
-          rect: { x: 470, y: 150, w: 96, h: 150 },
-          walkTo: { x: 452, y: 304 },
+          name: { nl: 'De Oude Molen', en: 'The Old Mill' },
+          rect: { x: 56, y: 70, w: 116, h: 152 },
+          walkTo: { x: 120, y: 300 },
           look: {
-            nl: 'De grote watermolen kraakt zachtjes. Het waterrad ontbreekt — er is alleen een lege as waar het ooit zat. Zonder rad pompt de molen geen water.',
-            en: 'The great watermill creaks softly. Its water wheel is missing — only a bare axle remains where it once turned. Without the wheel the mill pumps no water.'
+            nl: 'De oude molen aan de rand van het plein staat stil. Het rad dat de bron voedt is verdwenen — er is alleen een lege as waar het ooit zat. Zonder rad komt er geen water.',
+            en: 'The old mill at the edge of the square stands still. The wheel that feeds the spring is gone — only a bare axle remains where it once turned. Without the wheel there is no water.'
           },
           setFlag: 'lookedMill'
         }
