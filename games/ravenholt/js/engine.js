@@ -567,6 +567,7 @@
     update(dt, now);
     draw(now);
     if (elMaze && !elMaze.hidden) drawMaze(now);
+    if (elGear && !elGear.hidden) drawGears(now);
   }
 
   /* ---------- Toetsenbord (WASD / pijltjes, fysieke key-codes) ---------- */
@@ -619,7 +620,7 @@
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
-    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden && elMaze.hidden) {
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden && elMaze.hidden && (!elGear || elGear.hidden)) {
       const { vx, vy } = keyVector();
       if (vx || vy) {
         if (msgOpen()) showNextMsg();    // tekst weg én meteen lopen
@@ -838,7 +839,7 @@
      bent — anders stuiter je direct terug na het binnenkomen. */
   let exitArm = {};
   function checkExitProximity(scene) {
-    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden) return;
+    if (!started || fade.mode || !elDeath.hidden || !elWin.hidden || !elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden)) return;
     for (const hs of scene.hotspots) {
       if (!hs.exit || !hs.walkTo) continue;
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
@@ -1661,7 +1662,8 @@
         if (ready(sheet)) {
           const D = GAME.spriteDetail || 1;
           const NF = (GAME.heroWalkFrames || 8), fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
-          const fr = Math.floor(player.phase * 0.5) % NF;
+          const t = player.phase * 0.5;            // doorlopende loop-fase
+          const fr = Math.floor(t) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
              de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven.
              ds = perspectief-diepteschaal (kleiner naar achteren); /D compenseert de 2x sprites. */
@@ -1669,12 +1671,18 @@
           const dh = Math.round((ready(hero) ? hero.naturalHeight : 56) / D * ds);
           const dw = Math.round(fw * dh / fh);
           const foot = Math.round(dh * 2 * D / fh);   // compenseer de lucht onder de voeten
-          const bob = (fr % 2) ? -1 : 0;           // 'passing'-frames iets omhoog -> natuurlijke verende pas
+          /* Natuurlijke pas: lichaam wipt 2x per cyclus omhoog (op de 'passing'-frames),
+             met een zachte gewichtsverschuiving zijwaarts en een lichte romp-zwaai. */
+          const s = Math.sin(t * Math.PI * 0.5);
+          const bob = -Math.round(Math.abs(s) * 2 * ds);
+          const sway = Math.round(s * 1.2 * ds);
+          const lean = s * 0.05;
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
-          fctx.translate(Math.round(player.x), Math.round(player.y) + bob);
+          fctx.translate(Math.round(player.x) + (player.flip ? -sway : sway), Math.round(player.y) + bob);
           if (player.flip) fctx.scale(-1, 1);
+          fctx.rotate(lean);
           fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
           fctx.restore();
           return;
@@ -1811,11 +1819,20 @@
       }
     } else {
       /* Generieke NPC: teken de sprite als rustig staande figuur (subtiele ademhaling).
-         Diepteschaal van de scène vermenigvuldigt met een eventuele eigen npc.scale. */
+         Diepteschaal van de scène vermenigvuldigt met een eventuele eigen npc.scale.
+         Heeft de NPC een gestureSprite, dan toont hij die af en toe (bv. de burgemeester
+         die wanhopig met zijn handen wringt omdat er geen water is). */
       const img = art.sprites[npc.sprite];
       if (ready(img)) {
+        const sc2 = depthScaleAt(rt.y) * (npc.scale || 1);
         const breathe = Math.round(Math.sin(now / 760 + (npc.x || 0)));
-        drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, bob: breathe, scale: depthScaleAt(rt.y) * (npc.scale || 1) });
+        const ges = npc.gestureSprite && art.sprites[npc.gestureSprite];
+        if (ges && ready(ges) && gestureState(npc.id, now, 1500, 3200, 6500) > 0) {
+          const fret = Math.round(Math.sin(now / 110) * 0.8);   // nerveus heen-en-weer wiebelen
+          drawArtSprite(ges, rt.x + fret, rt.y, { flip: !!npc.flip, bob: breathe, scale: sc2 });
+        } else {
+          drawArtSprite(img, rt.x, rt.y, { flip: !!npc.flip, bob: breathe, scale: sc2 });
+        }
       }
     }
   }
@@ -2773,6 +2790,139 @@
   if (elMazeClose) elMazeClose.addEventListener('click', closeMaze);
   if (elMaze) elMaze.addEventListener('pointerdown', (e) => { if (e.target === elMaze) closeMaze(); });
 
+  /* ---------- Radwerk-puzzel: plaats 5 radjes op de juiste plek zodat ze meshen en draaien ---------- */
+  const elGear       = document.getElementById('gear-screen');
+  const elGearTitle  = document.getElementById('gear-title');
+  const elGearHint   = document.getElementById('gear-hint');
+  const elGearCanvas = document.getElementById('gear-canvas');
+  const elGearClose  = document.getElementById('gear-close');
+  const gctx = elGearCanvas ? elGearCanvas.getContext('2d') : null;
+  let gears = null;
+  const GEAR_RADII = [15, 19, 23, 27, 32];
+  const GEAR_COLS  = ['#cda659', '#c5853f', '#b3ab9a', '#9a7b46', '#7c6a57'];
+
+  function openGears(hs) {
+    if (!gctx) return;
+    const cfg = hs.gears;
+    const order = [2, 4, 0, 3, 1];          // benodigde maat per socket (vaste oplossing)
+    const cy = 92, sockets = [];
+    let x = 0;
+    for (let i = 0; i < order.length; i++) {
+      const r = GEAR_RADII[order[i]];
+      x = (i === 0) ? (44 + r) : x + GEAR_RADII[order[i - 1]] + r - 7;
+      sockets.push({ x, y: cy, r, need: order[i], has: null });
+    }
+    const trayOrder = [3, 1, 4, 0, 2];      // geschudde voorraad onderin
+    const tray = trayOrder.map((sz, i) => ({ size: sz, r: GEAR_RADII[sz], col: GEAR_COLS[sz],
+      tx: 54 + i * 72, ty: 212, placedAt: null }));
+    gears = { hs, sockets, tray, sel: null, solved: false };
+    elGearTitle.textContent = L(cfg.title || { nl: 'Het Radwerk', en: 'The Gearworks' });
+    if (elGearHint) elGearHint.textContent = L(cfg.hint || { nl: '', en: '' });
+    elGear.hidden = false;
+    drawGears(performance.now());
+    sfx('tap');
+  }
+
+  function drawOneGear(cx, cy, r, col, ang) {
+    const tc = Math.max(8, Math.round(r / 2.2));
+    gctx.save(); gctx.translate(cx, cy); gctx.rotate(ang);
+    gctx.fillStyle = col;
+    for (let i = 0; i < tc; i++) { gctx.save(); gctx.rotate(i / tc * Math.PI * 2); gctx.fillRect(-3, -r - 4, 6, 7); gctx.restore(); }
+    gctx.beginPath(); gctx.arc(0, 0, r, 0, Math.PI * 2); gctx.fill();
+    gctx.fillStyle = 'rgba(0,0,0,0.30)'; gctx.beginPath(); gctx.arc(0, 0, r * 0.42, 0, Math.PI * 2); gctx.fill();
+    gctx.fillStyle = 'rgba(255,255,255,0.16)'; gctx.fillRect(-2, -r + 3, 4, Math.round(r * 0.5));
+    gctx.restore();
+  }
+
+  function drawGears(now) {
+    if (!gears || !gctx) return;
+    now = now || performance.now();
+    const W = elGearCanvas.width, H = elGearCanvas.height;
+    gctx.fillStyle = '#221830'; gctx.fillRect(0, 0, W, H);
+    /* aandrijving links, poort-mechaniek rechts */
+    gctx.fillStyle = '#5a4a33'; gctx.fillRect(6, 66, 30, 56);
+    gctx.fillStyle = '#6b5a40'; gctx.fillRect(2, 86, 10, 16);
+    gctx.fillStyle = '#3a2f22'; gctx.fillRect(W - 30, 44, 26, 100);
+    const spin = gears.solved ? now / 800 : 0;
+    for (const s of gears.sockets) {
+      if (s.has == null) {
+        gctx.strokeStyle = 'rgba(231,207,134,0.55)'; gctx.lineWidth = 2; gctx.setLineDash([4, 4]);
+        gctx.beginPath(); gctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); gctx.stroke(); gctx.setLineDash([]);
+        gctx.fillStyle = 'rgba(231,207,134,0.5)'; gctx.beginPath(); gctx.arc(s.x, s.y, 2, 0, Math.PI * 2); gctx.fill();
+      } else {
+        const g = gears.tray[s.has];
+        drawOneGear(s.x, s.y, g.r, g.col, spin * (s.need % 2 ? 1 : -1));
+      }
+    }
+    for (let i = 0; i < gears.tray.length; i++) {
+      const g = gears.tray[i];
+      if (g.placedAt != null) continue;
+      if (gears.sel === i) { gctx.strokeStyle = '#f0d68a'; gctx.lineWidth = 2; gctx.beginPath(); gctx.arc(g.tx, g.ty, g.r + 5, 0, Math.PI * 2); gctx.stroke(); }
+      drawOneGear(g.tx, g.ty, g.r, g.col, (now / 2600) % (Math.PI * 2));
+    }
+  }
+
+  function checkGears() {
+    if (!gears || gears.solved) return;
+    const ok = gears.sockets.every((s) => s.has != null && gears.tray[s.has].size === s.need);
+    if (!ok) return;
+    gears.solved = true;
+    sfx('combine');
+    const hs = gears.hs;
+    setTimeout(() => {
+      elGear.hidden = true;
+      const cfg = hs.gears;
+      gears = null;
+      if (cfg.setFlag) { state.flags[cfg.setFlag] = true; updateQuest(); }
+      if (cfg.solvedText) say(cfg.solvedText);
+    }, 1600);
+  }
+
+  function gearPlace(socketIndex) {            // tray-keuze -> socket
+    if (!gears || gears.sel == null) return;
+    const s = gears.sockets[socketIndex]; if (!s || s.has != null) return;
+    const g = gears.tray[gears.sel];
+    g.placedAt = socketIndex; s.has = gears.sel; gears.sel = null;
+    sfx(g.size === s.need ? 'pickup' : 'tap');
+    checkGears(); drawGears(performance.now());
+  }
+
+  if (elGearCanvas) elGearCanvas.addEventListener('pointerdown', (e) => {
+    if (!gears || elGear.hidden || gears.solved) return;
+    const rect = elGearCanvas.getBoundingClientRect();
+    const sx = (e.clientX - rect.left) * (elGearCanvas.width / rect.width);
+    const sy = (e.clientY - rect.top) * (elGearCanvas.height / rect.height);
+    for (let si = 0; si < gears.sockets.length; si++) {
+      const s = gears.sockets[si];
+      if (Math.hypot(sx - s.x, sy - s.y) <= s.r + 6) {
+        if (s.has != null) { gears.tray[s.has].placedAt = null; s.has = null; gears.sel = null; sfx('tap'); drawGears(performance.now()); }
+        else if (gears.sel != null) { gearPlace(si); }
+        return;
+      }
+    }
+    for (let i = 0; i < gears.tray.length; i++) {
+      const g = gears.tray[i];
+      if (g.placedAt != null) continue;
+      if (Math.hypot(sx - g.tx, sy - g.ty) <= g.r + 5) { gears.sel = (gears.sel === i ? null : i); sfx('tap'); drawGears(performance.now()); return; }
+    }
+  });
+
+  function closeGears() { elGear.hidden = true; gears = null; }
+  if (elGearClose) elGearClose.addEventListener('click', closeGears);
+  if (elGear) elGear.addEventListener('pointerdown', (e) => { if (e.target === elGear) closeGears(); });
+
+  /* Test-hook: los het radwerk in één keer correct op (voor geautomatiseerde verificatie). */
+  function gearAuto() {
+    if (!gears) return false;
+    for (const s of gears.sockets) {
+      if (s.has != null) continue;
+      const ti = gears.tray.findIndex((g) => g.placedAt == null && g.size === s.need);
+      if (ti >= 0) { gears.tray[ti].placedAt = gears.sockets.indexOf(s); s.has = ti; }
+    }
+    checkGears(); drawGears(performance.now());
+    return true;
+  }
+
   const MAZE_DIRS = { 'maze-up': [-1, 0], 'maze-down': [1, 0], 'maze-left': [0, -1], 'maze-right': [0, 1] };
   for (const id in MAZE_DIRS) {
     const b = document.getElementById(id);
@@ -2924,6 +3074,11 @@
     if (hs.maze && !state.flags[hs.maze.setFlag] &&
         (!hs.maze.requiresFlag || state.flags[hs.maze.requiresFlag])) {
       openMaze(hs);
+      return;
+    }
+    if (hs.gears && !state.flags[hs.gears.setFlag] &&
+        (!hs.gears.requiresFlag || state.flags[hs.gears.requiresFlag])) {
+      openGears(hs);
       return;
     }
 
@@ -3269,6 +3424,8 @@
     questKey,
     getMaze: () => maze && { g: maze.g.map(r => r.slice()), n: maze.n, cur: maze.cur.slice(), exit: maze.exit.slice() },
     mazeMove: (dr, dc) => mazeMove(dr, dc),
+    isGearShown: () => !!(elGear && !elGear.hidden),
+    gearAuto: () => gearAuto(),
     reset: resetGame
   };
 

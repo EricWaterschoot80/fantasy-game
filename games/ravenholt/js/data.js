@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '8',
+  assetVer: '9',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -26,6 +26,7 @@ const GAME = {
     heroWave:      'assets/art/hero-wave.png',
     heroWalkSheet: 'assets/art/hero-walk-sheet.png',
     mayor:         'assets/art/mayor.png',
+    mayorGesture:  'assets/art/mayor-gesture.png',  // bezorgd gebaar (af en toe)
     ravenPerch:    'assets/art/raven-perch.png',   // raaf op de ton (gevouwen vleugels)
     ravenFly:      'assets/art/raven-fly.png'       // raaf in vlucht (wegvliegen)
   },
@@ -68,7 +69,9 @@ const GAME = {
     q_explore:  { nl: 'Verken het dorpsplein van Eldoria', en: 'Explore the village square of Eldoria' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
     q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
-    q_inside:   { nl: 'Zoek binnen in de molen wat het water tegenhoudt', en: 'Search inside the mill for what blocks the water' }
+    q_inside:   { nl: 'Zoek binnen in de molen wat het water tegenhoudt', en: 'Search inside the mill for what blocks the water' },
+    q_castle:   { nl: 'Volg het pad naar de kasteelpoort van Eldoria', en: 'Follow the path to the castle gate of Eldoria' },
+    q_gate:     { nl: 'Maak het poortradwerk: plaats de 5 radjes juist', en: 'Fix the gate gearworks: place the 5 gears correctly' }
   },
 
   items: {
@@ -77,13 +80,21 @@ const GAME = {
     coin: { name: { nl: 'Oud Muntje', en: 'Old Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
             look: { nl: 'Een oud, mat muntje — maar in het zonlicht glinstert het nog mooi. Precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old, dull coin — but it still glints prettily in the sunlight. Just the kind of shiny thing a magpie or raven can’t resist.' } },
     note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
-            look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } }
+            look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } },
+    vial:  { name: { nl: 'Leeg Flesje', en: 'Empty Vial' }, icon: '🧪', img: 'assets/art/item-vial.png',
+             look: { nl: 'Een leeg glazen flesje met kurk, van de stoffige plank in de molen. Handig om straks iets in te bewaren.', en: 'An empty corked glass vial from the dusty shelf in the mill. Handy for storing something later.' } },
+    book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
+             look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
+    grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
+             look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } }
   },
 
   recipes: [],
 
   questRules: [
-    { when: { flag: 'visited_millInside' }, quest: null },        // binnen geweest -> wordt vervolgd
+    { when: { flag: 'gateOpen' },           quest: null },         // poortradwerk opgelost -> wordt vervolgd
+    { when: { flag: 'visited_castle' },     quest: 'q_gate' },     // bij het kasteel: maak het radwerk
+    { when: { flag: 'visited_millInside' }, quest: 'q_castle' },   // binnen geweest -> ga naar het kasteel
     { when: { flag: 'lookedMill' },         quest: 'q_inside' },   // rad zit vast: zoek binnen
     { when: { flag: 'seenFountain' },       quest: 'q_mill' },
     { when: {},                             quest: 'q_explore' }
@@ -114,7 +125,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mayor', sprite: 'mayor', x: 372, y: 264 },                    // burgemeester Bram, rechts van de fontein
+        { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264 },   // burgemeester Bram; wringt af en toe wanhopig met zijn handen
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 260, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links)
       ],
       fx: {},
@@ -197,7 +208,7 @@ const GAME = {
         en: 'The old mill on the hill. The sails are still and the water wheel on its side does not turn. The door stands ajar — this must be where the water source fails.'
       },
       playerStart: { x: 300, y: 300 },
-      spawnFrom: { millInside: { x: 280, y: 300 } },   // terug uit de molen: vóór de deur
+      spawnFrom: { millInside: { x: 280, y: 300 }, castle: { x: 96, y: 300 } },   // terug uit de molen / van het kasteel-pad
       depth: { far: 250, near: 316, sFar: 0.62, sNear: 1.06 },   // perspectief: duidelijk kleiner naar achteren
       walkable: [
         { x: 70, y: 250, w: 430, h: 66 }    // het pad / voorgrond vóór de molen
@@ -222,10 +233,18 @@ const GAME = {
         {
           id: 'toMillInside',
           name: { nl: 'Deur van de Molen', en: 'Mill Door' },
-          rect: { x: 246, y: 188, w: 70, h: 80 },
+          rect: { x: 246, y: 186, w: 70, h: 86 },
           walkTo: { x: 280, y: 300 },
-          arrow: { x: 252, y: 264, dir: 'up' },
+          arrow: { x: 280, y: 234, dir: 'up' },
           exit: { to: 'millInside', travelText: { nl: 'Je duwt de zware deur open en stapt de molen binnen...', en: 'You push the heavy door open and step inside the mill...' } }
+        },
+        {
+          id: 'toCastle',
+          name: { nl: 'Pad naar het Kasteel', en: 'Path to the Castle' },
+          rect: { x: 60, y: 150, w: 90, h: 166 },
+          walkTo: { x: 96, y: 300 },
+          arrow: { x: 96, y: 286, dir: 'up' },
+          exit: { to: 'castle', travelText: { nl: 'Je neemt het pad over de heuvel naar de kasteelpoort van Eldoria...', en: 'You take the path over the hill to the castle gate of Eldoria...' } }
         },
         {
           id: 'toSquare',
@@ -247,7 +266,7 @@ const GAME = {
         en: 'Inside it is dim and dusty; sunbeams fall through the small windows onto the great millstone and the wooden gear. The wheel stands dead still — this is where the water is held back.'
       },
       playerStart: { x: 300, y: 300 },
-      depth: { far: 214, near: 314, sFar: 0.7, sNear: 1.3 },   // krappe ruimte: Finn staat hier wat groter/dichterbij
+      depth: { far: 214, near: 314, sFar: 1.45, sNear: 1.45 },   // vaste, grotere schaal: binnen krimp je NIET naar achteren
       walkable: [
         { x: 60, y: 256, w: 470, h: 60 }    // de stenen vloer op de voorgrond
       ],
@@ -280,15 +299,38 @@ const GAME = {
           setFlag: 'foundJam'
         },
         {
-          id: 'shelf',
-          name: { nl: 'De Stoffige Plank', en: 'The Dusty Shelf' },
-          rect: { x: 24, y: 150, w: 90, h: 110 },
+          id: 'vial',
+          name: { nl: 'Stoffige Flesjes', en: 'Dusty Bottles' },
+          rect: { x: 14, y: 60, w: 104, h: 96 },
           walkTo: { x: 96, y: 300 },
-          look: {
-            nl: 'Een wankele plank met stoffige flesjes en een opengeslagen molenaarsboek. In het boek staan tekeningen van het rad — en een kruisje bij een grot in de vallei, met daarbij gekrabbeld: “de blauwe steen drijft het rad weer aan.”',
-            en: 'A rickety shelf of dusty bottles and an open miller’s book. The book shows drawings of the wheel — and a cross marked at a cave in the valley, scrawled with: “the blue stone drives the wheel again.”'
+          gives: {
+            item: 'vial',
+            giveText: { nl: 'Op de stoffige plank staan oude flesjes. Je neemt een leeg glazen flesje met kurk mee.', en: 'Old bottles line the dusty shelf. You take an empty corked glass vial.' },
+            emptyText: { nl: 'De andere flesjes zijn gebarsten of vol spinrag.', en: 'The other bottles are cracked or full of cobwebs.' }
+          }
+        },
+        {
+          id: 'book',
+          name: { nl: 'Het Molenaarsboek', en: 'The Miller’s Book' },
+          rect: { x: 18, y: 166, w: 128, h: 50 },
+          walkTo: { x: 108, y: 300 },
+          gives: {
+            item: 'book',
+            giveText: { nl: 'Een opengeslagen molenaarsboek ligt op de tafel. Tekeningen van het rad en een kruisje bij een grot in de vallei: “de blauwe steen drijft het rad weer aan.” Je neemt het boek mee.', en: 'An open miller’s book lies on the table. Drawings of the wheel and a cross at a cave in the valley: “the blue stone drives the wheel again.” You take the book.' },
+            emptyText: { nl: 'Verder ligt er niets bruikbaars op de tafel.', en: 'Nothing else useful lies on the table.' }
           },
           setFlag: 'readMillBook'
+        },
+        {
+          id: 'grain',
+          name: { nl: 'Graanzak', en: 'Grain Sack' },
+          rect: { x: 296, y: 224, w: 116, h: 80 },
+          walkTo: { x: 344, y: 300 },
+          gives: {
+            item: 'grain',
+            giveText: { nl: 'Een opengevallen zak graan staat bij de maalsteen. Je schept een handvol goudgeel graan in je tas.', en: 'An open sack of grain stands by the millstone. You scoop a handful of golden grain into your bag.' },
+            emptyText: { nl: 'De zak is bijna leeg; de rest laat je liggen.', en: 'The sack is nearly empty; you leave the rest.' }
+          }
         },
         {
           id: 'outMill',
@@ -297,6 +339,63 @@ const GAME = {
           walkTo: { x: 140, y: 304 },
           arrow: { x: 138, y: 296, dir: 'down' },
           exit: { to: 'mill', travelText: { nl: 'Je stapt de molen weer uit, het ochtendlicht in.', en: 'You step back out of the mill into the morning light.' } }
+        }
+      ]
+    },
+
+    castle: {
+      name: { nl: 'De Kasteelpoort', en: 'The Castle Gate' },
+      bg: 'assets/art/scene-castle.png',
+      charFilter: 'sepia(0.46) saturate(0.95) brightness(1.06)',   // zelfde warme ochtendzon
+      entryText: {
+        nl: 'De poort van kasteel Eldoria, aan het einde van de brug. Een handkar vol vaten en kruiken staat verlaten bij de muur. Het poortmechaniek — een radwerk van tandwielen — is uit elkaar gevallen, zodat de poort niet opengaat.',
+        en: 'The gate of castle Eldoria, at the end of the bridge. A handcart full of barrels and jugs stands abandoned by the wall. The gate mechanism — a clockwork of gears — has fallen apart, so the gate will not open.'
+      },
+      playerStart: { x: 300, y: 300 },
+      depth: { far: 250, near: 316, sFar: 0.62, sNear: 1.06 },
+      walkable: [
+        { x: 120, y: 256, w: 400, h: 60 }    // de geplaveide weg vóór de poort
+      ],
+      obstacles: [],
+      overlays: [],
+      worldItems: [],
+      npcs: [],
+      fx: {},
+      hotspots: [
+        {
+          id: 'cart',
+          name: { nl: 'De Handkar', en: 'The Handcart' },
+          rect: { x: 20, y: 168, w: 184, h: 120 },
+          walkTo: { x: 168, y: 300 },
+          look: {
+            nl: 'Een verlaten handkar vol vaten en kruiken, op een groot houten wiel. Hiermee brachten ze vroeger water en graan naar het kasteel — tot de bron opdroogde.',
+            en: 'An abandoned handcart full of barrels and jugs, on a big wooden wheel. They used to haul water and grain to the castle with it — until the spring ran dry.'
+          },
+          setFlag: 'sawCart'
+        },
+        {
+          id: 'bridgeGears',
+          name: { nl: 'Het Poortradwerk', en: 'The Gate Gearworks' },
+          rect: { x: 300, y: 96, w: 150, h: 176 },
+          walkTo: { x: 372, y: 300 },
+          gears: {
+            title: { nl: 'Het Poortradwerk', en: 'The Gate Gearworks' },
+            hint: { nl: 'Plaats de 5 radjes op de juiste plek (op maat) zodat ze in elkaar grijpen en gaan draaien.', en: 'Place the 5 gears in the right spots (by size) so they mesh and start turning.' },
+            setFlag: 'gateOpen',
+            solvedText: { nl: 'De radjes grijpen in elkaar en beginnen te draaien — kettingen ratelen en het zware poortmechaniek komt knarsend tot leven. De weg dieper Eldoria in gaat bijna open... (wordt vervolgd)', en: 'The gears mesh and begin to turn — chains rattle and the heavy gate mechanism grinds to life. The way deeper into Eldoria is about to open... (to be continued)' }
+          },
+          look: {
+            nl: 'Het radwerk draait nu soepel; het poortmechaniek zoemt zacht na. (wordt vervolgd)',
+            en: 'The gearworks turns smoothly now; the gate mechanism hums. (to be continued)'
+          }
+        },
+        {
+          id: 'toMill',
+          name: { nl: 'Terug naar de Molen', en: 'Back to the Mill' },
+          rect: { x: 120, y: 256, w: 120, h: 60 },
+          walkTo: { x: 156, y: 300 },
+          arrow: { x: 150, y: 292, dir: 'down' },
+          exit: { to: 'mill', travelText: { nl: 'Je daalt het pad weer af naar de molen.', en: 'You head back down the path to the mill.' } }
         }
       ]
     }

@@ -83,10 +83,27 @@ verkleind naar **~84px hoog** (meer detail). De bron-PNG's staan in `assets/raw/
 
 - Bij de **molen** wijst een opvallende pijl omhoog **naar het dorp** (rechter pad → `square`) en
   een pijl bij de **deur** die je **naar binnen** brengt (`exit: { to: 'millInside' }`).
-- **In de molen** (`scene-mill-inside.png`) onderzoek je de maalsteen, het vastgelopen tandrad en
-  een molenaarsboek op de plank (look-hotspots die voortgang-vlaggen zetten). Een pijl omlaag
-  brengt je weer naar buiten. Het tandrad hint dat je gereedschap én een blauwe steen nodig hebt —
-  de haak naar het volgende hoofdstuk.
+- **In de molen** (`scene-mill-inside.png`) onderzoek je de maalsteen en het vastgelopen tandrad,
+  en je **raapt voorwerpen op**: een leeg **flesje** van de plank, het **molenaarsboek** van de
+  tafel en een handvol **graan** uit de zak (`gives`-hotspots). Een pijl omlaag (links, vrij van
+  de inventarisbalk) brengt je weer naar buiten. Binnen **krimp je niet** naar achteren en staat
+  Finn wat groter (vaste, grotere `depth`-schaal: `sFar === sNear`).
+
+## Het kasteel + het radwerk-puzzel
+
+- Vanaf de molen wijst een pijl over het linkerpad **naar de kasteelpoort** (`scene-castle.png`).
+- Bij de poort zit het **poortradwerk** vast. Tik erop voor de **radwerk-puzzel** (`hotspots[].gears`):
+  plaats de **5 radjes** uit de voorraad op de juiste plek (op maat) zodat ze in elkaar grijpen.
+  Staan alle 5 goed, dan **draaien** ze en gaat de poort open (`setFlag`, dan `solvedText`).
+  De puzzel-overlay (`#gear-screen`) wordt elk frame getekend; `__game.gearAuto()` lost hem in
+  één keer op voor geautomatiseerd testen.
+
+## Bewegende NPC's
+
+- Een NPC met een **`gestureSprite`** wisselt af en toe naar die sprite (met een nerveus wiebeltje).
+  Burgemeester Bram gebruikt dit om af en toe **wanhopig met zijn handen te wringen** (geen water).
+- De held loopt nu **natuurlijker**: een doorlopende verende pas (2× wippen per cyclus) met een
+  zachte gewichtsverschuiving en lichte romp-zwaai i.p.v. een harde 1px-hobbel.
 
 ## Diepte (perspectief)
 
