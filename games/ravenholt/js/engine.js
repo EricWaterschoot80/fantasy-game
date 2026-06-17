@@ -1730,9 +1730,9 @@
       const idleRot = Math.sin(now / 720) * 0.03;                 // zachte schommel net als de wachter
       const idleSway = Math.round(Math.sin(now / 720) * 0.8 * ds);// minimale gewichtsverschuiving
       drawArtSprite(hero, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
-      /* Finns gezicht zit iets rechts van het spritemidden en hoog (omhoog gedraaid kopje);
-         richt de oogleden daarop (gespiegeld als hij naar links kijkt). */
-      eyeBlink('hero', player.x + idleSway + (player.flip ? -9 : 9) * ds, player.y, hero, 0.21, 5, now, 2, player.flip, ds);
+      /* Finns ogen zitten vrijwel in het midden (iets rechts) en hoog; richt de twee
+         oogleden daar precies op (gespiegeld als hij naar links kijkt). */
+      eyeBlink('hero', player.x + idleSway + (player.flip ? -2 : 2) * ds, player.y, hero, 0.185, 8, now, 2, player.flip, ds);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];

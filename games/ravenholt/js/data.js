@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '20',
+  assetVer: '21',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -38,7 +38,7 @@ const GAME = {
     flower:        'assets/art/flower.png',          // bloem (oranje accent)
     flowerWhite:   'assets/art/flower-white.png'     // witte bloem (dansende bloem + cluster)
   },
-  heroWalkFrames: 6,            // aantal frames in hero-walk-sheet.png (echte 6-frame loopcyclus)
+  heroWalkFrames: 8,            // aantal frames in hero-walk-sheet.png (vloeiende 8-frame loopcyclus)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader in zijn tas. */
@@ -451,7 +451,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
-        { id: 'merchant', sprite: 'merchant', x: 282, y: 298, scale: 1.18, flip: true, turnFlag: 'merchantDistracted', filter: 'saturate(0.6) sepia(0.22) brightness(0.95)' },   // handelsman groter; getemperd/warmer zodat hij in de ochtendsfeer past net als de wacht; kijkt standaard naar zijn kar, draait pas naar de bloem als die danst
+        { id: 'merchant', sprite: 'merchant', x: 282, y: 298, scale: 1.18, flip: true, turnFlag: 'merchantDistracted' },   // sneaky handelsman; getemperde sprite past net als de wacht in de scènesfeer (alleen het scènefilter); kijkt standaard naar zijn kar, draait pas naar de bloem als die danst
         { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.42, danceFlag: 'flowerDancing' },   // (dansende) witte bloem — strak cluster, iets naar rechts, kleiner
         { id: 'flower2', sprite: 'flowerWhite', x: 428, y: 267, scale: 0.3 },   // alle bloemen wit, dicht bij elkaar
