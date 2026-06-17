@@ -1581,31 +1581,34 @@
   /* Af en toe knipperen: een kort, klein ooglid in de eigen huid-/kapkleur over de oog-lijn.
      eyes=2 tekent twee losse oogleden (bv. de held knippert met beide ogen). */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip) {
+  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip, scale) {
     if (!ready(img)) return;
+    scale = scale || 1;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
-    if (now >= b.next) { b.until = now + 105; b.next = now + 2400 + Math.random() * 3200; }
+    /* Natuurlijk knipperen: af en toe een dubbele knipper, met onregelmatige tussenpozen. */
+    if (now >= b.next) { b.until = now + 95; b.next = now + 2600 + Math.random() * 3600 + (Math.random() < 0.25 ? -2200 : 0); }
     if (now >= b.until) return;
     const col = faceColor(img, eyeFrac, halfW);
     if (!col) return;
-    const eh = img.naturalHeight / (GAME.spriteDetail || 1);   // tekenhoogte (sprites zijn op 2x opgeslagen)
+    const eh = (img.naturalHeight / (GAME.spriteDetail || 1)) * scale;   // tekenhoogte (2x sprites + diepteschaal)
     const ey = Math.round(footY - eh + eh * eyeFrac);
+    const lw = Math.max(2, Math.round(3 * scale));     // ooglid-breedte schaalt mee
+    const lh = Math.max(1, Math.round(2 * scale));
     const lid = `rgb(${col.r},${col.g},${col.b})`;
     const lash = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.8)`;
     if (eyes === 2) {
-      /* De ogen liggen iets asymmetrisch (gezicht licht naar één kant gedraaid); de offsets
-         spiegelen mee als de held naar links kijkt, zodat beide ogen netjes gedekt zijn. */
-      const offs = flip ? [-(halfW + 1), halfW - 2] : [-halfW, halfW + 1];   // naar links kijkend: rechter ooglid 2px naar links
+      /* De ogen liggen iets asymmetrisch; de offsets spiegelen mee als de held naar links kijkt. */
+      const offs = flip ? [-(halfW + 1), halfW - 2] : [-halfW, halfW + 1];
       for (const ox of offs) {
-        const x0 = Math.round(cx + ox) - 1;   // 3px breed, kleiner ooglid
-        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 3, 2);
-        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, 3, 1);
+        const x0 = Math.round(cx + ox * scale) - (lw >> 1);
+        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, lw, lh);
+        fctx.fillStyle = lash; fctx.fillRect(x0, ey + lh - 1, lw, 1);
       }
     } else {
-      const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
-      fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, bw, 2);
-      fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, bw, 1);
+      const x0 = Math.round(cx - halfW * scale), bw = Math.round(halfW * 2 * scale);
+      fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, bw, lh);
+      fctx.fillStyle = lash; fctx.fillRect(x0, ey + lh - 1, bw, 1);
     }
   }
 
@@ -1681,9 +1684,9 @@
           /* Natuurlijke pas: lichaam wipt 2x per cyclus omhoog (op de 'passing'-frames),
              met een zachte gewichtsverschuiving zijwaarts en een lichte romp-zwaai. */
           const s = Math.sin(t * Math.PI * 0.5);
-          const bob = -Math.round(Math.abs(s) * 2 * ds);
-          const sway = Math.round(s * 1.2 * ds);
-          const lean = s * 0.05;
+          const bob = -Math.round(Math.abs(s) * 1.6 * ds);   // zachte verende pas
+          const sway = Math.round(s * 0.6 * ds);              // subtiele gewichtsverschuiving
+          const lean = s * 0.022;                             // heel lichte romp-zwaai (geen wiebel)
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
@@ -1711,7 +1714,7 @@
       }
       /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
       const ds = depthScaleAt(player.y);
-      const g = gestureState('hero', now, 1300, 5000, 9000);
+      const g = gestureState('hero', now, 1100, 16000, 30000);   // veel minder vaak zwaaien
       const wave = art.sprites.heroWave;
       if (g > 0 && ready(wave)) {
         const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2);
@@ -1720,7 +1723,7 @@
       }
       const breathe = Math.round(Math.sin(now / 800));
       drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe, scale: ds });
-      eyeBlink('hero', player.x, player.y + breathe, hero, 0.286, 4, now, 2, player.flip);   // held: beide ogen
+      eyeBlink('hero', player.x, player.y + breathe, hero, 0.27, 8, now, 2, player.flip, ds);   // held: beide ogen (op de eigen oog-lijn, schaalt mee)
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1733,6 +1736,8 @@
     /* Warme/donkere sfeer toepassen; de minotaur is in het donker extra donker. */
     let f = sceneFilter();
     if (npc.sprite === 'minotaur' && state.currentScene === 'temple' && !state.flags.torchLit) f = 'brightness(0.4)';
+    /* Eigen NPC-filter erbij (bv. de muis in de schaduw, donkerder). */
+    if (npc.filter) f = (f === 'none') ? npc.filter : (f + ' ' + npc.filter);
     if (f !== 'none') fctx.filter = f;
     drawNpcInner(npc, now);
     fctx.filter = 'none';
@@ -2805,26 +2810,26 @@
   const elGearClose  = document.getElementById('gear-close');
   const gctx = elGearCanvas ? elGearCanvas.getContext('2d') : null;
   let gears = null;
-  const GEAR_RADII   = [15, 19, 23, 27, 32];
+  const GEAR_RADII   = [18, 23, 28, 33, 39];
   const GEAR_IMGKEY  = ['cogBrass', 'cogIron', 'cogBrass', 'cogIron', 'cogBrass'];
 
   function openGears(hs) {
     if (!gctx) return;
     const cfg = hs.gears;
     const order = [2, 4, 0, 3, 1];          // benodigde maat per socket (vaste oplossing)
-    const cy = 90, sockets = [];
+    const cy = 94, sockets = [];
     let x = 0;
     for (let i = 0; i < order.length; i++) {
       const r = GEAR_RADII[order[i]];
-      x = (i === 0) ? (46 + r) : x + GEAR_RADII[order[i - 1]] + r - 6;
+      x = (i === 0) ? (50 + r) : x + GEAR_RADII[order[i - 1]] + r - 7;
       sockets.push({ x, y: cy, r, need: order[i], has: null });
     }
     const trayOrder = [3, 1, 4, 0, 2];      // geschudde voorraad onderin
     const tray = trayOrder.map((sz, i) => {
-      const hx = 54 + i * 72, hy = 214;
+      const hx = 58 + i * 80, hy = 220;
       return { size: sz, r: GEAR_RADII[sz], img: GEAR_IMGKEY[sz], hx, hy, x: hx, y: hy, placedAt: null };
     });
-    gears = { hs, sockets, tray, drag: null, solved: false };
+    gears = { hs, sockets, tray, drag: null, solved: false, spin: false, spinT: 0, jamT: 0 };
     elGearTitle.textContent = L(cfg.title || { nl: 'Het Radwerk', en: 'The Gearworks' });
     if (elGearHint) elGearHint.textContent = L(cfg.hint || { nl: '', en: '' });
     elGear.hidden = false;
@@ -2832,12 +2837,13 @@
     sfx('tap');
   }
 
-  function drawCog(cx, cy, r, imgKey) {
+  function drawCog(cx, cy, r, imgKey, ang) {
     const img = art.sprites[imgKey];
     const d = Math.round(r * 2.25);
     if (ready(img)) {
       gctx.save(); gctx.imageSmoothingEnabled = false;
-      gctx.drawImage(img, Math.round(cx - d / 2), Math.round(cy - d / 2), d, d);
+      gctx.translate(cx, cy); if (ang) gctx.rotate(ang);
+      gctx.drawImage(img, Math.round(-d / 2), Math.round(-d / 2), d, d);
       gctx.restore();
     } else {                                  // terugval: simpele cirkel
       gctx.fillStyle = '#caa45a'; gctx.beginPath(); gctx.arc(cx, cy, r, 0, Math.PI * 2); gctx.fill();
@@ -2864,42 +2870,64 @@
       gctx.beginPath(); gctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); gctx.stroke(); gctx.setLineDash([]);
       gctx.fillStyle = 'rgba(231,207,134,0.5)'; gctx.beginPath(); gctx.arc(s.x, s.y, 2, 0, Math.PI * 2); gctx.fill();
     }
-    /* geplaatste radjes (gouden gloed als alles klopt) */
-    for (const s of gears.sockets) {
+    /* het draaien als alles klopt (na de hendel): meshende radjes draaien om-en-om */
+    const spinA = gears.spin ? (now - gears.spinT) / 620 : 0;
+    /* even 'knarsen' (mislukte test): lichte trilling */
+    const jam = (gears.jamT && now - gears.jamT < 420) ? Math.round(Math.sin(now / 35) * 2) : 0;
+    /* geplaatste radjes */
+    for (let k = 0; k < gears.sockets.length; k++) {
+      const s = gears.sockets[k];
       if (s.has == null || (gears.drag && gears.drag.i === s.has)) continue;
       const g = gears.tray[s.has];
-      if (gears.solved) {
+      if (gears.spin) {
         const gl = 16, rg = gctx.createRadialGradient(s.x, s.y, 2, s.x, s.y, g.r + gl);
         rg.addColorStop(0, 'rgba(231,207,134,0.5)'); rg.addColorStop(1, 'rgba(231,207,134,0)');
         gctx.fillStyle = rg; gctx.fillRect(s.x - g.r - gl, s.y - g.r - gl, (g.r + gl) * 2, (g.r + gl) * 2);
       }
-      drawCog(s.x, s.y, g.r, g.img);
+      drawCog(s.x + jam, s.y, g.r, g.img, spinA * (k % 2 ? -1 : 1));
     }
     /* voorraad-radjes */
     for (let i = 0; i < gears.tray.length; i++) {
       const g = gears.tray[i];
       if (g.placedAt != null || (gears.drag && gears.drag.i === i)) continue;
-      drawCog(g.hx, g.hy, g.r, g.img);
+      drawCog(g.hx, g.hy, g.r, g.img, 0);
     }
     /* het gesleepte radje bovenop */
-    if (gears.drag) { const g = gears.tray[gears.drag.i]; drawCog(g.x, g.y, g.r, g.img); }
+    if (gears.drag) { const g = gears.tray[gears.drag.i]; drawCog(g.x, g.y, g.r, g.img, 0); }
   }
 
-  function checkGears() {
-    if (!gears || gears.solved) return;
-    const ok = gears.sockets.every((s) => s.has != null && gears.tray[s.has].size === s.need);
-    if (!ok) return;
-    gears.solved = true;
-    sfx('combine');
-    drawGears(performance.now());
-    const hs = gears.hs;
-    setTimeout(() => {
-      elGear.hidden = true;
-      const cfg = hs.gears;
-      gears = null;
-      if (cfg.setFlag) { state.flags[cfg.setFlag] = true; updateQuest(); }
-      if (cfg.solvedText) say(cfg.solvedText);
-    }, 1200);
+  function allGearsCorrect() {
+    return gears && gears.sockets.every((s) => s.has != null && gears.tray[s.has].size === s.need);
+  }
+
+  /* Hendel overhalen om te testen: klopt alles -> radjes draaien en de poort gaat open;
+     anders knarst het mechaniek even (en blijft de puzzel open). */
+  function testGears() {
+    if (!gears || gears.spin) return;
+    const filled = gears.tray.every((g) => g.placedAt != null);
+    if (allGearsCorrect()) {
+      gears.spin = true; gears.spinT = performance.now();
+      sfx('combine');
+      const hs = gears.hs;
+      setTimeout(() => {
+        elGear.hidden = true;
+        const cfg = hs.gears;
+        gears = null;
+        if (cfg.setFlag) { state.flags[cfg.setFlag] = true; updateQuest(); }
+        if (cfg.solvedText) say(cfg.solvedText);
+      }, 1800);
+    } else {
+      gears.jamT = performance.now();
+      sfx('error');
+      if (elGearHint) {
+        const prev = elGearHint.textContent;
+        elGearHint.textContent = filled
+          ? 'Het knarst — niet elk radje zit op de juiste plek.'
+          : 'Er ontbreken nog radjes — vul alle plekken.';
+        setTimeout(() => { if (gears && elGearHint) elGearHint.textContent = prev; }, 1900);
+      }
+      drawGears(performance.now());
+    }
   }
 
   function gearEvtPos(e) {
@@ -2925,13 +2953,12 @@
       g.x = g.hx; g.y = g.hy; sfx('tap');     // terug naar de voorraad
     }
     gears.drag = null;
-    checkGears();
     if (gears) drawGears(performance.now());
   }
 
   if (elGearCanvas) {
     elGearCanvas.addEventListener('pointerdown', (e) => {
-      if (!gears || elGear.hidden || gears.solved) return;
+      if (!gears || elGear.hidden || gears.spin) return;
       e.preventDefault();
       const p = gearEvtPos(e);
       let pick = -1, best = 1e9;
@@ -2963,11 +2990,14 @@
     elGearCanvas.addEventListener('pointercancel', gearDrop);
   }
 
+  const elGearLever = document.getElementById('gear-lever');
+  if (elGearLever) elGearLever.addEventListener('click', () => { if (gears) testGears(); });
+
   function closeGears() { elGear.hidden = true; gears = null; }
   if (elGearClose) elGearClose.addEventListener('click', closeGears);
   if (elGear) elGear.addEventListener('pointerdown', (e) => { if (e.target === elGear) closeGears(); });
 
-  /* Test-hook: los het radwerk in één keer correct op (voor geautomatiseerde verificatie). */
+  /* Test-hook: leg alle radjes goed en haal de hendel over (voor geautomatiseerde verificatie). */
   function gearAuto() {
     if (!gears) return false;
     for (const s of gears.sockets) {
@@ -2975,7 +3005,8 @@
       const ti = gears.tray.findIndex((g) => g.placedAt == null && g.size === s.need);
       if (ti >= 0) { const idx = gears.sockets.indexOf(s); gears.tray[ti].placedAt = idx; gears.tray[ti].x = s.x; gears.tray[ti].y = s.y; s.has = ti; }
     }
-    checkGears(); if (gears) drawGears(performance.now());
+    drawGears(performance.now());
+    testGears();
     return true;
   }
 
@@ -3482,8 +3513,9 @@
     mazeMove: (dr, dc) => mazeMove(dr, dc),
     isGearShown: () => !!(elGear && !elGear.hidden),
     gearAuto: () => gearAuto(),
-    gearState: () => gears && { placed: gears.tray.filter((g) => g.placedAt != null).length, solved: gears.solved,
-      canvas: elGearCanvas ? { w: elGearCanvas.width, h: elGearCanvas.height } : null },
+    gearState: () => gears && { placed: gears.tray.filter((g) => g.placedAt != null).length, spinning: !!gears.spin,
+      correct: allGearsCorrect(), canvas: elGearCanvas ? { w: elGearCanvas.width, h: elGearCanvas.height } : null },
+    gearTest: () => { if (gears) testGears(); },
     reset: resetGame
   };
 

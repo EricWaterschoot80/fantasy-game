@@ -700,12 +700,18 @@ html, body {
 }
 #gear-canvas {
   display: block;
-  width: min(384px, 82vw, 56vh);
+  width: min(440px, 86vw, 62vh);
   height: auto;
   margin: 4px auto 2px;
   background: #221830;
   box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410, inset 0 0 18px rgba(0,0,0,.8);
   touch-action: none;
+}
+.gear-lever-btn {
+  display: block;
+  margin: 8px auto 2px;
+  font-size: 13px;
+  padding: 7px 18px;
 }
 #maze-dpad {
   display: flex;

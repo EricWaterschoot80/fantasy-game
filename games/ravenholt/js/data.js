@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '10',
+  assetVer: '11',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -31,7 +31,8 @@ const GAME = {
     ravenFly:      'assets/art/raven-fly.png',      // raaf in vlucht (wegvliegen)
     mouse:         'assets/art/mouse.png',          // bruine muis in de molen (praten)
     cogBrass:      'assets/art/cog-brass.png',      // radwerk-puzzel: messing tandwiel
-    cogIron:       'assets/art/cog-iron.png'        // radwerk-puzzel: ijzeren tandwiel
+    cogIron:       'assets/art/cog-iron.png',       // radwerk-puzzel: ijzeren tandwiel
+    guard:         'assets/art/guard.png'           // poortwacht bij het kasteel
   },
   heroWalkFrames: 4,            // aantal frames in hero-walk-sheet.png (vloeiender lopen)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -129,7 +130,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264 },   // burgemeester Bram; wringt af en toe wanhopig met zijn handen
-        { id: 'raven', sprite: 'ravenPerch', x: 36, y: 260, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links)
+        { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
       ],
       fx: {},
 
@@ -195,9 +196,9 @@ const GAME = {
         {
           id: 'toMill',
           name: { nl: 'Pad naar de Molen', en: 'Path to the Mill' },
-          rect: { x: 48, y: 80, w: 124, h: 220 },
+          rect: { x: 64, y: 158, w: 74, h: 138 },
           walkTo: { x: 118, y: 300 },
-          arrow: { x: 96, y: 232, dir: 'up' },
+          arrow: { x: 96, y: 196, dir: 'up' },
           exit: { to: 'mill', travelText: { nl: 'Je volgt het pad naar de oude molen aan de rand van het dorp...', en: 'You follow the path to the old mill at the edge of the village...' } }
         }
       ]
@@ -237,7 +238,7 @@ const GAME = {
         {
           id: 'toMillInside',
           name: { nl: 'Deur van de Molen', en: 'Mill Door' },
-          rect: { x: 246, y: 186, w: 70, h: 86 },
+          rect: { x: 254, y: 198, w: 54, h: 74 },
           walkTo: { x: 280, y: 300 },
           arrow: { x: 280, y: 234, dir: 'up' },
           exit: { to: 'millInside', travelText: { nl: 'Je duwt de zware deur open en stapt de molen binnen...', en: 'You push the heavy door open and step inside the mill...' } }
@@ -245,7 +246,7 @@ const GAME = {
         {
           id: 'toCastle',
           name: { nl: 'Pad naar het Kasteel', en: 'Path to the Castle' },
-          rect: { x: 60, y: 150, w: 90, h: 166 },
+          rect: { x: 64, y: 182, w: 74, h: 130 },
           walkTo: { x: 96, y: 300 },
           arrow: { x: 96, y: 286, dir: 'up' },
           exit: { to: 'castle', travelText: { nl: 'Je neemt het pad over de heuvel naar de kasteelpoort van Eldoria...', en: 'You take the path over the hill to the castle gate of Eldoria...' } }
@@ -253,7 +254,7 @@ const GAME = {
         {
           id: 'toSquare',
           name: { nl: 'Pad naar het Dorp', en: 'Path to the Village' },
-          rect: { x: 422, y: 150, w: 138, h: 166 },
+          rect: { x: 446, y: 182, w: 96, h: 130 },
           walkTo: { x: 470, y: 300 },
           arrow: { x: 486, y: 286, dir: 'up' },
           exit: { to: 'square', travelText: { nl: 'Je volgt het pad terug omhoog naar het dorp.', en: 'You follow the path back up to the village.' } }
@@ -278,7 +279,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mouse', sprite: 'mouse', x: 446, y: 304, scale: 0.5, flip: true }   // klein bruin muisje bij de zakken
+        { id: 'mouse', sprite: 'mouse', x: 182, y: 300, scale: 0.5, flip: true, filter: 'brightness(0.6) saturate(0.9)' }   // muisje bij het holletje naast de wijnton, in de schaduw
       ],
       fx: {},
       hotspots: [
@@ -341,8 +342,8 @@ const GAME = {
         {
           id: 'mouse',
           name: { nl: 'Een Bruine Muis', en: 'A Brown Mouse' },
-          rect: { x: 420, y: 280, w: 56, h: 40 },
-          walkTo: { x: 440, y: 300 },
+          rect: { x: 150, y: 276, w: 66, h: 42 },
+          walkTo: { x: 186, y: 300 },
           look: (state) => state.flags.mouseFed
             ? { nl: 'Het muisje knabbelt tevreden aan het graan. “Mmm, dank je, vriendelijke reus! De molenaar? Die is naar het kasteel om hulp te vragen — volg het pad maar. Piep!”', en: 'The little mouse nibbles the grain happily. “Mmm, thank you, kind giant! The miller? He went to the castle for help — just follow the path. Squeak!”' }
             : { nl: 'Een klein bruin muisje kijkt je met glanzende kraaloogjes aan. “Piep! Niet schrikken, hoor. Het is hier zo stil sinds het rad stilstaat... heb jij misschien iets te knabbelen voor me?”', en: 'A little brown mouse looks up at you with shiny beady eyes. “Squeak! Don’t be startled. It’s been so quiet since the wheel stopped... do you maybe have something to nibble?”' },
@@ -357,7 +358,7 @@ const GAME = {
         {
           id: 'outMill',
           name: { nl: 'Naar Buiten', en: 'Back Outside' },
-          rect: { x: 92, y: 276, w: 130, h: 40 },
+          rect: { x: 108, y: 278, w: 92, h: 38 },
           walkTo: { x: 140, y: 304 },
           arrow: { x: 138, y: 296, dir: 'down' },
           exit: { to: 'mill', travelText: { nl: 'Je stapt de molen weer uit, het ochtendlicht in.', en: 'You step back out of the mill into the morning light.' } }
@@ -381,9 +382,21 @@ const GAME = {
       obstacles: [],
       overlays: [],
       worldItems: [],
-      npcs: [],
+      npcs: [
+        { id: 'guard', sprite: 'guard', x: 412, y: 300 }   // poortwacht vóór de poort, verspert de weg
+      ],
       fx: {},
       hotspots: [
+        {
+          id: 'guard',
+          name: { nl: 'De Poortwacht', en: 'The Gate Guard' },
+          rect: { x: 386, y: 210, w: 58, h: 94 },
+          walkTo: { x: 392, y: 300 },
+          look: (state) => state.flags.gateOpen
+            ? { nl: 'De wacht plant zijn hellebaard steviger neer. “Het radwerk draait weer, knul — knap werk. Maar hier kom je niet door. Bevel van de hofmaarschalk: niemand het kasteel in zonder zegel.” (wordt vervolgd)', en: 'The guard plants his halberd firmer. “The gearworks turns again, lad — fine work. But you don’t pass here. Steward’s orders: no one enters the castle without a seal.” (to be continued)' }
+            : { nl: 'Een strenge poortwacht in een blauw tabbaard verspert de weg. “Halt. Het kasteel is gesloten zolang de bron droog staat — en die poort krijg je toch niet open: het radwerk ernaast is kapot.” Hij knikt naar het mechaniek naast de poort.', en: 'A stern guard in a blue tabard blocks the way. “Halt. The castle is closed while the spring runs dry — and you won’t open that gate anyway: the gearworks beside it is broken.” He nods at the mechanism beside the gate.' },
+          setFlag: 'metGuard'
+        },
         {
           id: 'cart',
           name: { nl: 'De Handkar', en: 'The Handcart' },
@@ -414,7 +427,7 @@ const GAME = {
         {
           id: 'toMill',
           name: { nl: 'Terug naar de Molen', en: 'Back to the Mill' },
-          rect: { x: 120, y: 256, w: 120, h: 60 },
+          rect: { x: 126, y: 262, w: 92, h: 54 },
           walkTo: { x: 156, y: 300 },
           arrow: { x: 150, y: 292, dir: 'down' },
           exit: { to: 'mill', travelText: { nl: 'Je daalt het pad weer af naar de molen.', en: 'You head back down the path to the mill.' } }
