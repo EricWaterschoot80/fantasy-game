@@ -1548,9 +1548,9 @@
   /* Af en toe knipperen: een kort, klein ooglid in de eigen huid-/kapkleur over de oog-lijn.
      eyes=2 tekent twee losse oogleden (bv. de held knippert met beide ogen). */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip, scale) {
+  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip, scale, rot, squash) {
     if (!ready(img)) return;
-    scale = scale || 1;
+    scale = scale || 1; rot = rot || 0; squash = squash || 1;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
     /* Natuurlijk knipperen: af en toe een dubbele knipper, met onregelmatige tussenpozen. */
@@ -1560,8 +1560,12 @@
        niet de donkere oog-pixels — zodat het ooglid echt huidkleurig is. */
     const col = faceColor(img, Math.min(0.95, eyeFrac + 0.07), halfW) || faceColor(img, eyeFrac, halfW);
     if (!col) return;
-    const eh = (img.naturalHeight / (GAME.spriteDetail || 1)) * scale;   // tekenhoogte (2x sprites + diepteschaal)
+    /* Volg Finns beweging: squash (ademhaling) rekt de hoogte, de romp-rotatie schuift de
+       oog-lijn zijwaarts (ogen zitten hoog boven het draaipunt = de voeten). */
+    const eh = (img.naturalHeight / (GAME.spriteDetail || 1)) * scale * squash;
     const ey = Math.round(footY - eh + eh * eyeFrac);
+    const aboveFeet = eh * (1 - eyeFrac);                 // hoogte van de ogen boven de voeten
+    cx = cx - rot * aboveFeet;                            // meekantelen met de schommel
     const lw = Math.max(2, Math.round(3.5 * scale));   // ooglid-breedte ≈ oogbreedte
     const lid = `rgb(${col.r},${col.g},${col.b})`;
     /* Gesloten oog = dun huidkleurig ooglid met een fijne donkere wimperlijn eronder. */
@@ -1697,10 +1701,14 @@
           const foot = Math.round(dh * 2 * D / fh);   // compenseer de lucht onder de voeten
           /* Natuurlijke pas: lichaam wipt 2x per cyclus omhoog (op de 'passing'-frames),
              met een zachte gewichtsverschuiving zijwaarts en een lichte romp-zwaai. */
+          /* Verende pas afgestemd op de 6-frame cyclus [contact, mid, passing, contact, mid, passing]:
+             lichaam het HOOGST op de 'passing'-frames (voeten samen), het LAAGST op de contacten. */
+          const ph = fr % 3;                                  // 0=contact, 1=mid, 2=passing
+          const bobAmt = ph === 2 ? 2.8 : (ph === 1 ? 1.3 : 0);
+          const bob = -Math.round(bobAmt * ds);
           const s = Math.sin(t * Math.PI * 0.5);
-          const bob = -Math.round(Math.abs(s) * 1.6 * ds);   // zachte verende pas
           const sway = Math.round(s * 0.6 * ds);              // subtiele gewichtsverschuiving
-          const lean = s * 0.022;                             // heel lichte romp-zwaai (geen wiebel)
+          const lean = s * 0.02;                              // heel lichte romp-zwaai
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
@@ -1728,7 +1736,7 @@
       }
       /* idle: rustig ademen + regelmatig vrolijk zwaaien (2-frame zwaai). */
       const ds = depthScaleAt(player.y);
-      const g = gestureState('hero', now, 1300, 8000, 15000);    // af en toe ÉÉN keer zwaaien
+      const g = gestureState('hero', now, 850, 8000, 15000);     // af en toe ÉÉN keer zwaaien (sneller)
       const wave1 = art.sprites.heroWave, wave2 = art.sprites.heroWave2;
       if (g > 0 && ready(wave1)) {
         /* Eén zwaai: hand omhoog (begin) en daarna één keer terug omlaag (einde) — geen
@@ -1749,7 +1757,7 @@
       drawArtSprite(idleImg, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
       /* Finns ogen zitten vrijwel in het midden (iets rechts) en hoog; richt de twee
          oogleden daar precies op (gespiegeld als hij naar links kijkt). */
-      eyeBlink('hero', player.x + idleSway + (player.flip ? -3 : 3) * ds, player.y, idleImg, 0.176, 8, now, 2, player.flip, ds);
+      eyeBlink('hero', player.x + idleSway + (player.flip ? -3 : 3) * ds, player.y, idleImg, 0.176, 8, now, 2, player.flip, ds, idleRot, breaths);
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
@@ -1864,7 +1872,10 @@
       /* Blikrichting-sprites: een NPC kan rustig heen en weer 'spieden' (scanSprites,
          bv. de koopman die van zijn kar naar de wacht kijkt) en omschakelen naar een
          verbaasde blik zodra een vlag is gezet (aweSprite, bv. starend naar de dansende bloem). */
-      if (npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
+      if (npc.aweFlag && state.flags[npc.aweFlag] && npc.aweSprites && npc.aweSprites.length) {
+        const a = npc.aweSprites, im = art.sprites[a[Math.floor(now / 480) % a.length]];
+        if (ready(im)) img = im;                          // 2-frame verbaasde reactie
+      } else if (npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
         img = art.sprites[npc.aweSprite];
       } else if (npc.scanSprites && npc.scanSprites.length) {
         const si = Math.floor(now / 1700) % npc.scanSprites.length;
