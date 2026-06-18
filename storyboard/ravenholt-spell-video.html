@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storyboard — Finn schrijft de eerste spreuk · Whispers of Ravenholt</title>
+<style>
+  :root{
+    --gold:#e8c879; --gold-soft:#f0d896; --ink:#13100c; --panel:#1c1813;
+    --panel2:#241f18; --line:#3a3024; --text:#efe6d4; --muted:#b8a987;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 50% -10%, #2a2114 0%, #14110c 55%, #0d0b08 100%);
+    color:var(--text);
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    line-height:1.55; padding:0 0 80px;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:0 22px}
+  header{text-align:center; padding:46px 22px 26px}
+  .eyebrow{letter-spacing:.32em; text-transform:uppercase; font-size:12px; color:var(--gold); font-family:Menlo,monospace}
+  h1{font-size:clamp(28px,4.4vw,46px); margin:.18em 0 .1em; color:#fff;
+     text-shadow:0 2px 18px rgba(232,200,121,.25)}
+  .logline{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:17px}
+  .meta{display:flex; gap:26px; justify-content:center; flex-wrap:wrap; margin-top:18px; color:var(--muted); font-size:13px; font-family:Menlo,monospace}
+  .meta b{color:var(--gold-soft); font-weight:600}
+
+  /* ---- Animatic player ---- */
+  .player{
+    position:relative; aspect-ratio:16/9; margin:14px 0 0; border-radius:16px; overflow:hidden;
+    background:#000; box-shadow:0 24px 70px rgba(0,0,0,.6), 0 0 0 1px var(--line), 0 0 0 6px rgba(232,200,121,.06);
+  }
+  .frame{position:absolute; inset:0; opacity:0; transition:opacity .7s ease; will-change:opacity,transform}
+  .frame img{width:100%; height:100%; object-fit:cover; display:block}
+  .frame.on{opacity:1}
+  .frame.on img{animation:kb 3.4s ease-out both}
+  .frame.on.kbout img{animation:kbout 3.4s ease-out both}
+  @keyframes kb{from{transform:scale(1.0)}to{transform:scale(1.12)}}
+  @keyframes kbout{from{transform:scale(1.13)}to{transform:scale(1.0)}}
+  .vignette{position:absolute; inset:0; pointer-events:none;
+    box-shadow:inset 0 0 160px 30px rgba(0,0,0,.6); background:
+    linear-gradient(to top, rgba(8,6,4,.55), transparent 30%)}
+  .cap{position:absolute; left:0; right:0; bottom:20px; text-align:center; padding:0 30px;
+       font-size:clamp(15px,2.3vw,22px); color:#fff; text-shadow:0 2px 12px #000; opacity:0; transition:opacity .5s; font-style:italic}
+  .cap.show{opacity:1}
+  .tcode{position:absolute; top:12px; left:14px; font-family:Menlo,monospace; font-size:12px; color:var(--gold-soft);
+    background:rgba(0,0,0,.45); padding:3px 8px; border-radius:6px; letter-spacing:.05em}
+  .bar{position:absolute; left:0; bottom:0; height:4px; background:var(--gold); width:0%; box-shadow:0 0 12px var(--gold)}
+  .replay{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; background:rgba(10,8,5,.55); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .4s}
+  .replay.show{opacity:1; pointer-events:auto}
+  .btn{font-family:Menlo,monospace; letter-spacing:.06em; font-size:14px; color:var(--ink); background:var(--gold);
+    border:0; border-radius:30px; padding:11px 22px; cursor:pointer; box-shadow:0 6px 22px rgba(232,200,121,.3)}
+  .btn:hover{background:var(--gold-soft)}
+  .controls{display:flex; gap:14px; align-items:center; justify-content:center; margin-top:14px; color:var(--muted); font-size:13px; font-family:Menlo,monospace}
+
+  /* ---- Shot cards ---- */
+  h2.sec{font-family:Menlo,monospace; letter-spacing:.2em; text-transform:uppercase; font-size:13px;
+    color:var(--gold); margin:48px 0 8px; border-bottom:1px solid var(--line); padding-bottom:10px}
+  .shot{display:grid; grid-template-columns:minmax(0,1.15fr) 1fr; gap:0; background:var(--panel);
+    border:1px solid var(--line); border-radius:14px; overflow:hidden; margin:18px 0;
+    box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .shot .still{position:relative; min-height:200px; background:#000}
+  .shot .still img{width:100%; height:100%; object-fit:cover; display:block}
+  .shot .num{position:absolute; top:10px; left:10px; font-family:Menlo,monospace; font-weight:700; color:var(--ink);
+    background:var(--gold); border-radius:8px; padding:3px 10px; font-size:13px}
+  .shot .time{position:absolute; bottom:10px; right:10px; font-family:Menlo,monospace; font-size:12px; color:#fff;
+    background:rgba(0,0,0,.5); padding:3px 8px; border-radius:6px}
+  .shot .body{padding:18px 20px}
+  .shot .body h3{margin:0 0 4px; color:#fff; font-size:20px}
+  .shot dl{display:grid; grid-template-columns:auto 1fr; gap:5px 12px; margin:12px 0 0; font-size:14.5px}
+  .shot dt{color:var(--gold-soft); font-family:Menlo,monospace; font-size:12px; letter-spacing:.04em; padding-top:2px}
+  .shot dd{margin:0; color:var(--text)}
+  details.prompt{margin-top:14px; border-top:1px dashed var(--line); padding-top:10px}
+  details.prompt summary{cursor:pointer; color:var(--muted); font-family:Menlo,monospace; font-size:12px}
+  details.prompt p{font-size:12.5px; color:var(--muted); background:#0f0d09; border:1px solid var(--line);
+    border-radius:8px; padding:10px 12px; margin:8px 0 0; white-space:pre-wrap; font-family:Menlo,monospace; line-height:1.5}
+  @media(max-width:680px){ .shot{grid-template-columns:1fr} }
+
+  .notes{background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin-top:24px}
+  .notes h3{margin:0 0 8px; color:var(--gold-soft)}
+  .notes ul{margin:6px 0 0; padding-left:20px} .notes li{margin:5px 0; color:var(--text)}
+  .foot{color:var(--muted); font-size:12.5px; text-align:center; margin-top:40px; font-family:Menlo,monospace}
+  code{background:#0f0d09; border:1px solid var(--line); border-radius:5px; padding:1px 6px; color:var(--gold-soft); font-size:12.5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Whispers of Ravenholt · cinematic</div>
+  <h1>De Eerste Spreuk</h1>
+  <p class="logline">In de ochtendzon van de stille molen schrijft Finn — die al zó lang wil leren toveren — met de magische ravenveer voor het eerst een spreuk in het lege toverboek. Zijn houten staf met de gekrulde top ontwaakt en gaat gloeien. Een groots, dolblij moment.</p>
+  <div class="meta">
+    <span><b>Duur</b> ± 12 sec</span>
+    <span><b>Stijl</b> Disney / Pixar 3D</span>
+    <span><b>Locatie</b> Gesloten molenruimte — vroege ochtend</span>
+    <span><b>Shots</b> 6</span>
+    <span><b>Beeld</b> 16:9</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2 class="sec" style="margin-top:8px">De afgewerkte video</h2>
+  <video class="finalvid" src="video/ravenholt-spell-10s.mp4" autoplay muted loop controls playsinline
+    style="width:100%;border-radius:14px;display:block;background:#000;box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 0 1px #3a3024,0 0 0 6px rgba(232,200,121,.06)"></video>
+  <div class="controls"><span>Geanimeerd in Higgsfield (kling 3.0) · stille clip — leg er gerust de spelmuziek onder</span></div>
+
+  <h2 class="sec">Animatic-preview (stills)</h2>
+  <div class="player" id="player">
+    <div class="frame on"><img src="shots/shot1.png" alt="Shot 1"></div>
+    <div class="frame kbout"><img src="shots/shot2.png" alt="Shot 2"></div>
+    <div class="frame"><img src="shots/shot3.png" alt="Shot 3"></div>
+    <div class="frame kbout"><img src="shots/shot4.png" alt="Shot 4"></div>
+    <div class="frame"><img src="shots/shot5.png" alt="Shot 5"></div>
+    <div class="frame kbout"><img src="shots/shot6.png" alt="Shot 6"></div>
+    <div class="vignette"></div>
+    <div class="tcode" id="tcode">00:00</div>
+    <div class="cap" id="cap"></div>
+    <div class="bar" id="bar"></div>
+    <div class="replay" id="replay">
+      <div style="font-style:italic;color:#fff;font-size:18px">De eerste spreuk ✦</div>
+      <button class="btn" id="replayBtn">▶ Speel opnieuw</button>
+    </div>
+  </div>
+  <div class="controls"><span>Animatic-preview · klik op het beeld om te pauzeren</span></div>
+
+  <h2 class="sec">Shotlijst</h2>
+
+  <div class="shot">
+    <div class="still"><img src="shots/shot1.png" alt=""><span class="num">01</span><span class="time">0.0–2.2s</span></div>
+    <div class="body">
+      <h3>Door de boekenkast</h3>
+      <dl>
+        <dt>CAMERA</dt><dd>Alsof je tússen twee boeken door de boekenkast kijkt: een boek links en rechts in beeld, vervaagd; Finn scherp in het gat ertussen. Langzame indolly.</dd>
+        <dt>ACTIE</dt><dd>Finn (kap omlaag, rood golvend haar, sproetjes, bruine ogen) zit enthousiast aan de molenaarstafel; het lege toverboek, het flesje inkt en een brandende kaars staan klaar. Zijn houten staf met gekrulde top gloeit zacht.</dd>
+        <dt>LICHT</dt><dd>Warm gouden ochtendlicht door de raampjes, zachte godrays.</dd>
+        <dt>GELUID</dt><dd>Het kraken van hout, een verre uil; ijl belletje-thema zet in.</dd>
+      </dl>
+      <details class="prompt"><summary>Higgsfield-prompt</summary><p>Disney-Pixar style 3D animated movie still… POV peering THROUGH a wooden bookshelf — a blurred book on the foreground LEFT and RIGHT framing the gap. Through it, FINN (red-orange hair, hood DOWN) at a worn table with a blank ancient book, a glass ink vial, and a PLAIN undecorated wooden staff leaning beside him, inside the windmill.</p></details>
+    </div>
+  </div>
+
+  <div class="shot">
+    <div class="still"><img src="shots/shot2.png" alt=""><span class="num">02</span><span class="time">2.2–4.0s</span></div>
+    <div class="body">
+      <h3>De veer in de inkt</h3>
+      <dl>
+        <dt>CAMERA</dt><dd>Close-up, lichte push-in op zijn gezicht en handen.</dd>
+        <dt>ACTIE</dt><dd>Finn (kap omlaag) doopt de zwarte ravenveer in het flesje zwarte inkt; de punt van de veer wordt nat en glanzend zwart. Het blijft een veer.</dd>
+        <dt>LICHT</dt><dd>Magische gloed uit het inktflesje, warme rand-belichting.</dd>
+        <dt>GELUID</dt><dd>Zacht ‘tsj’ van de inkt, een magische sprankel-toon.</dd>
+      </dl>
+      <details class="prompt"><summary>Higgsfield-prompt</summary><p>Disney-Pixar style 3D animated movie still, cinematic close-up… FINN (hood DOWN) dips a BLACK RAVEN FEATHER (a real feather, NOT a pen) into a glass vial of black ink; the tip is now wet and glossy black, tiny sparkles rising.</p></details>
+    </div>
+  </div>
+
+  <div class="shot">
+    <div class="still"><img src="shots/shot3.png" alt=""><span class="num">03</span><span class="time">4.0–6.6s</span></div>
+    <div class="body">
+      <h3>De spreuk schrijft zichzelf</h3>
+      <dl>
+        <dt>CAMERA</dt><dd>Extreme close-up op de bladzijde; volgt de pen mee (de kernshot).</dd>
+        <dt>ACTIE</dt><dd>Op één pagina verschijnen vanzelf gloeiende blauwe magische tékens — spiralen, runen en sterretjes (geen gewone letters) — terwijl de inktveer ze tekent.</dd>
+        <dt>LICHT</dt><dd>Blauw-gouden gloed weerkaatst op het papier en op Finns gezicht (buiten beeld).</dd>
+        <dt>GELUID</dt><dd>Zwellend ‘shimmer’, fluisterende koorstem, krassende veer.</dd>
+      </dl>
+      <details class="prompt"><summary>Higgsfield-prompt</summary><p>Disney-Pixar style 3D animated movie still, extreme close-up on ONE single page… a BLACK RAVEN FEATHER with an ink tip traces glowing blue-and-gold MAGICAL RUNIC SYMBOLS and swirling arcane glyphs that appear by themselves — sigils and tiny stars, NOT ordinary letters.</p></details>
+    </div>
+  </div>
+
+  <div class="shot">
+    <div class="still"><img src="shots/shot4.png" alt=""><span class="num">04</span><span class="time">6.6–8.6s</span></div>
+    <div class="body">
+      <h3>De staf ontwaakt</h3>
+      <dl>
+        <dt>CAMERA</dt><dd>Snelle rack-focus van het boek naar de staf; Finn op de achtergrond.</dd>
+        <dt>ACTIE</dt><dd>De houten staf met de gekrulde top (géén steen) gloeit nu fel met een warme magische aura; Finn (kap omlaag) kijkt dolblij en verbaasd op.</dd>
+        <dt>LICHT</dt><dd>Zacht goud-blauw magisch licht uit het hout zelf, vonkjes in de lucht.</dd>
+        <dt>GELUID</dt><dd>Diepe, warme ‘whoom’ van ontwakende magie.</dd>
+      </dl>
+      <details class="prompt"><summary>Higgsfield-prompt</summary><p>Disney-Pixar style 3D animated movie still… a PLAIN undecorated WOODEN STAFF (no gem, no crystal, no carvings) begins to glow softly with a warm golden-blue aura from the wood itself; Finn (hood DOWN) looks toward it in astonishment.</p></details>
+    </div>
+  </div>
+
+  <div class="shot">
+    <div class="still"><img src="shots/shot5.png" alt=""><span class="num">05</span><span class="time">8.6–10.4s</span></div>
+    <div class="body">
+      <h3>Eerste magie</h3>
+      <dl>
+        <dt>CAMERA</dt><dd>Heldenshot, langzame uitdolly; sterretjes zweven naar de lens.</dd>
+        <dt>ACTIE</dt><dd>Finn (kap omlaag) houdt het gloeiende toverboek in de ene hand en de zwarte ravenveer in de andere, en staart in pure verwondering — zijn eerste echte magie.</dd>
+        <dt>LICHT</dt><dd>Goud van onderaf (boek) + zachte gloed van de gewone houten staf; zachte bokeh.</dd>
+        <dt>GELUID</dt><dd>Thema zwelt naar een warme piek, dan stilte + één heldere ‘ting’.</dd>
+      </dl>
+      <details class="prompt"><summary>Higgsfield-prompt</summary><p>Disney-Pixar style 3D animated movie still, emotional hero close-up… FINN (hood DOWN) holds the glowing magic book in one hand and a BLACK RAVEN FEATHER (not a pen) in the other, staring in pure wonder, lit by the book’s golden glow and a plain wooden staff.</p></details>
+    </div>
+  </div>
+
+  <div class="shot">
+    <div class="still"><img src="shots/shot6.png" alt=""><span class="num">06</span><span class="time">10.4–12.6s</span></div>
+    <div class="body">
+      <h3>Klaar om te toveren</h3>
+      <dl>
+        <dt>CAMERA</dt><dd>Heldenshot op halve hoogte, hele figuur; zachte langzame inzoom.</dd>
+        <dt>ACTIE</dt><dd>Finn (kap omlaag) staat met het gloeiende toverboek in de ene hand en zijn houten staf met de gekrulde top in de andere; de krul gloeit. Kin omhoog, trotse, vastberaden blik — klaar om te toveren.</dd>
+        <dt>LICHT</dt><dd>Warm goud-blauw van de staf en het boek; zachte ochtendstralen door de raampjes, gesloten molenruimte.</dd>
+        <dt>GELUID</dt><dd>Laatste warme akkoord houdt aan; een heldere magische sprankel.</dd>
+      </dl>
+      <details class="prompt"><summary>Higgsfield-prompt</summary><p>Disney-Pixar 3D still, dual reference (boy + staff). FINN stands holding the open glowing spellbook in one hand and his wooden staff with a COMPACT tight closed spiral curl (glowing) in the other, proud and confident, ready to cast, inside the closed dim stone windmill, candle on the table, morning light.</p></details>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h3>Van storyboard naar video</h3>
+    <ul>
+      <li><b>Bewegende shots:</b> elk still via Higgsfield <code>image → video</code> (of <code>motion_control</code>) animeren: zachte camerabeweging + de gloei/vonken laten leven. ~2 sec per shot, dezelfde volgorde als hierboven.</li>
+      <li><b>Overgangen:</b> shot 1→2→3 vloeiende dissolves; 3→4 een korte gloei-flits op het moment dat de laatste letter staat; 4→5 doorbloeien op het licht.</li>
+      <li><b>Tempo:</b> totaal ± 10 sec — shot 3 (het schrijven) krijgt de meeste tijd; shot 4 het ‘ontwaak’-accent.</li>
+      <li><b>Audio:</b> warm orkestraal sprookjesthema, fluister-koortje bij het schrijven, één diepe ‘whoom’ bij de staf, eindigend op een heldere bel.</li>
+      <li><b>Inzet in het spel:</b> deze video speelt zodra de speler de inktveer voor het eerst op het toverboek gebruikt (de <code>spellWritten</code>-handeling) — bínnen in de molen.</li>
+    </ul>
+  </div>
+
+  <p class="foot">Storyboard · stills gegenereerd in Higgsfield (recraft-v4-1) · niet voor de site — alleen als videoreferentie.</p>
+</div>
+
+<script>
+  const SHOTS = [
+    { dur:2200, cap:'In de stille molen ligt het lege toverboek klaar…' },
+    { dur:1800, cap:'Finn doopt de magische ravenveer in de inkt.' },
+    { dur:2600, cap:'De veer tekent de spreuk vanzelf — in magische tekens.' },
+    { dur:2000, cap:'En de houten staf met de gekrulde top ontwaakt…' },
+    { dur:1800, cap:'Finns allereerste magie. ✦' },
+    { dur:2200, cap:'Klaar om te toveren.' }
+  ];
+  const frames = [...document.querySelectorAll('.player .frame')];
+  const cap = document.getElementById('cap');
+  const bar = document.getElementById('bar');
+  const tcode = document.getElementById('tcode');
+  const replay = document.getElementById('replay');
+  const total = SHOTS.reduce((a,s)=>a+s.dur,0);
+  let idx=0, t0=0, raf=0, paused=false, pausedAt=0, elapsedBefore=0;
+
+  function fmt(ms){ const s=Math.floor(ms/1000), cs=Math.floor((ms%1000)/10);
+    return String(s).padStart(2,'0')+':'+String(cs).padStart(2,'0'); }
+
+  function showFrame(i){
+    frames.forEach((f,k)=>f.classList.toggle('on', k===i));
+    // retrigger Ken Burns
+    const img = frames[i].querySelector('img');
+    img.style.animation='none'; void img.offsetWidth; img.style.animation='';
+    cap.textContent = SHOTS[i].cap; cap.classList.remove('show');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>cap.classList.add('show')));
+  }
+
+  function tick(now){
+    if(!t0) t0=now;
+    const e = elapsedBefore + (now - t0);
+    bar.style.width = Math.min(100, e/total*100)+'%';
+    tcode.textContent = fmt(Math.min(e,total));
+    // determine current shot
+    let acc=0, cur=0;
+    for(let i=0;i<SHOTS.length;i++){ if(e < acc+SHOTS[i].dur){ cur=i; break;} acc+=SHOTS[i].dur; cur=i; }
+    if(cur!==idx){ idx=cur; showFrame(idx); }
+    if(e>=total){ replay.classList.add('show'); cap.classList.remove('show'); return; }
+    raf=requestAnimationFrame(tick);
+  }
+
+  function play(){
+    cancelAnimationFrame(raf); replay.classList.remove('show');
+    idx=0; elapsedBefore=0; t0=0; paused=false; showFrame(0);
+    raf=requestAnimationFrame(tick);
+  }
+  document.getElementById('replayBtn').addEventListener('click', play);
+  document.getElementById('player').addEventListener('click', (e)=>{
+    if(e.target.closest('#replayBtn')) return;
+    if(replay.classList.contains('show')) return;
+    if(!paused){ cancelAnimationFrame(raf); paused=true; elapsedBefore += (performance.now()-t0); }
+    else { paused=false; t0=0; raf=requestAnimationFrame(tick); }
+  });
+  // autostart
+  window.addEventListener('load', ()=>setTimeout(play, 400));
+</script>
+</body>
+</html>

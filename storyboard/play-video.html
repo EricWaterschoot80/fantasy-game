@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Eerste Spreuk — 10s video · Whispers of Ravenholt</title>
+<style>
+  body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    background:radial-gradient(900px 500px at 50% -10%,#2a2114,#14110c 60%,#0c0a07);
+    color:#efe6d4;font-family:"Iowan Old Style",Georgia,serif}
+  h1{margin:0;color:#fff;font-size:clamp(24px,4vw,40px);text-shadow:0 2px 18px rgba(232,200,121,.25)}
+  .sub{color:#b8a987;font-family:Menlo,monospace;letter-spacing:.06em;font-size:13px}
+  video{width:min(92vw,1100px);border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 0 1px #3a3024,0 0 0 6px rgba(232,200,121,.06);background:#000}
+  .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  button{font-family:Menlo,monospace;font-size:14px;color:#13100c;background:#e8c879;border:0;border-radius:30px;padding:10px 20px;cursor:pointer}
+  button:hover{background:#f0d896}
+  .note{color:#8a7d63;font-size:12.5px;font-family:Menlo,monospace}
+</style>
+</head>
+<body>
+  <h1>De Eerste Spreuk</h1>
+  <div class="sub">Whispers of Ravenholt · ~10 sec · 1080p</div>
+  <video id="v" src="video/ravenholt-spell-10s.mp4" autoplay muted loop controls playsinline></video>
+  <div class="row">
+    <button onclick="document.getElementById('v').play()">▶ Afspelen</button>
+    <button onclick="(function(v){v.muted=!v.muted;})(document.getElementById('v'))">🔊 Geluid aan/uit</button>
+  </div>
+  <div class="note">Stille clip — leg er gerust de spelmuziek onder. Bestand: storyboard/video/ravenholt-spell-10s.mp4</div>
+</body>
+</html>
