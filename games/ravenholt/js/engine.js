@@ -2855,7 +2855,7 @@
   const elChessClose = document.getElementById('chess-close');
   const CHESS_GLYPH = { wK: '♔', wR: '♖', bK: '♚', bP: '♟' };
   const CHESS_PROMPT = { nl: 'Wit (jij) aan zet — zet de zwarte koning mat in 3 zetten met je twee torens (ladder naar de bovenrand).', en: 'White (you) to move — mate the black king in 3 moves with your two rooks (ladder to the top edge).' };
-  let chessHs = null, chessSel = null, chessPos = null, chessLock = false, chessStep = 0;
+  let chessHs = null, chessSel = null, chessPos = null, chessLock = false, chessStep = 0, chessLast = null, chessMateSq = null;
   /* Beginstelling (rijen r0=boven..r7=onder, kolommen c0=a..c7=h):
      zwarte koning e6, witte torens a5 (afsnijder) en h3 (geeft schaak), witte koning e1. */
   function chessStart() {
@@ -2888,20 +2888,37 @@
     if (pc.type === 'K') return Math.abs(r - pc.r) <= 1 && Math.abs(c - pc.c) <= 1;
     return false;
   }
+  function chessKing() { return chessPos.find((p) => p.color === 'b' && p.type === 'K'); }
+  function chessKingInCheck() {
+    const k = chessKing();
+    return !!k && chessPos.some((p) => p.color === 'w' && p.type === 'R' && chessLegal(p, k.r, k.c));
+  }
   function renderChess() {
     elChessBoard.innerHTML = '';
+    const inCheck = chessKingInCheck();
+    const k = chessKing();
     for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
       const sq = document.createElement('div');
       sq.className = 'chess-sq ' + (((r + c) % 2 === 0) ? 'lt' : 'dk');
+      if (chessLast && ((chessLast.f[0] === r && chessLast.f[1] === c) || (chessLast.t[0] === r && chessLast.t[1] === c))) sq.classList.add('last');
       if (chessSel && chessSel.r === r && chessSel.c === c) sq.classList.add('sel');
+      if (chessSel && chessLegal(chessSel, r, c)) sq.classList.add('dot');
       const pc = chessAt(r, c);
-      if (pc) { sq.textContent = CHESS_GLYPH[pc.color + pc.type]; sq.classList.add(pc.color === 'w' ? 'wp' : 'bp'); }
+      if (pc) {
+        const g = document.createElement('span');
+        g.className = 'chess-pc ' + (pc.color === 'w' ? 'wp' : 'bp');
+        g.textContent = CHESS_GLYPH[pc.color + pc.type];
+        sq.appendChild(g);
+      }
+      if (inCheck && k && k.r === r && k.c === c) sq.classList.add('check');
+      if (chessMateSq && chessMateSq[0] === r && chessMateSq[1] === c) sq.classList.add('mate');
       sq.addEventListener('click', () => chessClick(r, c));
       elChessBoard.appendChild(sq);
     }
   }
   function openChess(hs) {
     chessHs = hs; chessSel = null; chessLock = false; chessStep = 0; chessPos = chessStart();
+    chessLast = null; chessMateSq = null;
     elChessHint.textContent = L(CHESS_PROMPT);
     renderChess();
     elChess.hidden = false;
@@ -2911,8 +2928,9 @@
     sfx('error');
     elChessHint.textContent = L(msg);
     chessSel = null; chessLock = true;
+    if (elChessBoard) { elChessBoard.classList.remove('shake'); void elChessBoard.offsetWidth; elChessBoard.classList.add('shake'); }
     setTimeout(() => {
-      chessPos = chessStart(); chessStep = 0; chessSel = null; chessLock = false;
+      chessPos = chessStart(); chessStep = 0; chessSel = null; chessLock = false; chessLast = null; chessMateSq = null;
       renderChess();
       elChessHint.textContent = L(CHESS_PROMPT);
     }, 1700);
@@ -2931,23 +2949,30 @@
       }
       /* juiste witte zet */
       const tgt = chessAt(r, c); if (tgt) chessPos.splice(chessPos.indexOf(tgt), 1);
+      chessLast = { f: [step.w[0], step.w[1]], t: [r, c] };
       chessSel.r = r; chessSel.c = c; chessSel = null; chessLock = true; renderChess(); sfx('combine');
       if (!step.b) {                                   // laatste zet = schaakmat
+        const k = chessKing(); chessMateSq = k ? [k.r, k.c] : null;
+        renderChess();
+        elChessHint.textContent = L({ nl: '♚ Schaakmat! De koning kan geen kant meer op.', en: '♚ Checkmate! The king has nowhere left to go.' });
+        sfx('win');
         setTimeout(() => {
           elChess.hidden = true;
           state.flags[chessHs.chess.setFlag] = true;
-          if (chessHs.chess.give) { addItem(chessHs.chess.give); sfx('win'); }
+          if (chessHs.chess.give) { addItem(chessHs.chess.give); sfx('pickup'); }
           say(chessHs.chess.winText, hsSpeaker(chessHs), hsFace(chessHs));
           updateQuest();
-        }, 650);
+        }, 1500);
         return;
       }
       /* zwart antwoordt (gescript) en dan is wit weer aan zet */
       setTimeout(() => {
         const bk = chessAt(step.b[0], step.b[1]);
         if (bk) { bk.r = step.b[2]; bk.c = step.b[3]; }
+        chessLast = { f: [step.b[0], step.b[1]], t: [step.b[2], step.b[3]] };
         chessStep++; chessLock = false; renderChess();
-        elChessHint.textContent = L({ nl: 'Goed! De koning vlucht omhoog. Geef opnieuw schaak met je andere toren...', en: 'Good! The king flees upward. Check again with your other rook...' });
+        sfx('tap');
+        elChessHint.textContent = L({ nl: 'Schaak! De koning vlucht omhoog — drijf hem verder met je andere toren...', en: 'Check! The king flees upward — drive it further with your other rook...' });
       }, 480);
       return;
     }

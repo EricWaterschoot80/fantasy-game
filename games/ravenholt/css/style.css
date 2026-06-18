@@ -1114,24 +1114,48 @@ html, body {
   .win-banner { max-height: 32vh; width: auto; max-width: min(100%, 56vh); margin: 0 auto 8px; }
 }
 
-/* ---- Schaak-uitdaging (mat-in-één) ---- */
-.chess-card { max-width: 380px; }
+/* ---- Schaak-uitdaging (mat-in-drie) ---- */
+.chess-card { max-width: 396px; }
+.chess-card #chess-title { margin-bottom: 2px; }
+.chess-card #chess-hint { min-height: 2.5em; }
 .chess-board {
   display: grid; grid-template-columns: repeat(8, 1fr);
-  width: min(82vw, 320px); aspect-ratio: 1; margin: 10px auto 2px;
-  border: 3px solid #6a5230; border-radius: 6px; overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+  width: min(84vw, 336px); aspect-ratio: 1; margin: 12px auto 4px;
+  border: 4px solid #5a431f; border-radius: 7px; overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0,0,0,.6), inset 0 0 0 2px #2a1d0c, 0 0 0 1px #c9a24b;
+}
+.chess-board.shake { animation: chessShake .42s; }
+@keyframes chessShake {
+  0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); }
 }
 .chess-sq {
+  position: relative;
   display: flex; align-items: center; justify-content: center;
-  font-size: clamp(17px, 6.4vw, 30px); line-height: 1; cursor: pointer;
-  user-select: none; -webkit-user-select: none; aspect-ratio: 1;
+  line-height: 1; cursor: pointer; aspect-ratio: 1;
+  user-select: none; -webkit-user-select: none;
 }
-.chess-sq.lt { background: #e8d6a8; }
-.chess-sq.dk { background: #b07c4a; }
-.chess-sq.sel { box-shadow: inset 0 0 0 3px #5bbd63; }
-.chess-sq.wp { color: #fffef6; text-shadow: 0 1px 1px #000, 0 0 2px #000; }
-.chess-sq.bp { color: #17120d; text-shadow: 0 1px 1px rgba(255,255,255,.35); }
+.chess-sq.lt { background: linear-gradient(145deg, #efe0bb, #e5d09f); }
+.chess-sq.dk { background: linear-gradient(145deg, #bb864f, #a06d3c); }
+.chess-sq.last { box-shadow: inset 0 0 0 3px rgba(232,200,90,.9); }
+.chess-sq.sel  { box-shadow: inset 0 0 0 3px #5bbd63, inset 0 0 12px rgba(91,189,99,.5); }
+.chess-sq.dot::after {
+  content: ''; position: absolute; width: 26%; height: 26%; border-radius: 50%;
+  background: rgba(40,80,40,.4); pointer-events: none;
+}
+.chess-sq.check { animation: chessCheck 1s infinite; }
+@keyframes chessCheck {
+  0%,100% { box-shadow: inset 0 0 0 3px rgba(224,70,55,.95), inset 0 0 14px rgba(255,90,70,.7); }
+  50%     { box-shadow: inset 0 0 0 3px rgba(255,120,90,1), inset 0 0 22px rgba(255,120,90,.95); }
+}
+.chess-sq.mate { animation: chessMate .5s 3; }
+@keyframes chessMate { 0%,100% { background: #d8463a; } 50% { background: #ffd24a; } }
+.chess-pc {
+  font-size: clamp(18px, 6.8vw, 32px); line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.5));
+}
+.chess-pc.wp { color: #fffef6; text-shadow: 0 0 2px #000, 0 1px 1px #000, 1px 0 1px #000, -1px 0 1px #000; }
+.chess-pc.bp { color: #15100a; text-shadow: 0 0 2px rgba(255,255,255,.5), 0 1px 0 rgba(255,255,255,.3); }
 
 /* ---- Tekstwolkje sluit-kruisje ---- */
 #msg { position: relative; padding-right: 26px; }

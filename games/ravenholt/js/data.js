@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '56',
+  assetVer: '57',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -209,7 +209,7 @@ const GAME = {
       fx: {
         /* klaterende fontein op het plein — pas zodra de molen weer draait (anders droog).
            Twee straaltjes (links + rechts); rimpels/knippering iets lager en linkser. */
-        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 242, sy: 198 }, { sx: 262, sy: 198 }], wx: 240, wy: 244 },
+        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 232, sy: 198 }, { sx: 252, sy: 198 }], wx: 230, wy: 244 },
         /* opstijgende rook uit de schoorstenen van de dorpshuizen */
         smoke: [
           { x: 334, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
@@ -368,8 +368,19 @@ const GAME = {
         { item: 'berries', hotspot: 'berries', x: 484, y: 296 }   // bessenstruik rechts van het pad (ver naar rechts)
       ],
       npcs: [],
-      fx: {},
+      fx: { poemGlow: { x: 196, y: 244, flag: 'visited_valley', untilFlag: 'poemRead' } },   // gloeiend gedicht op de grond vóór de molen na de vallei
       hotspots: [
+        {
+          id: 'poem',
+          name: { nl: 'Een Gloeiend Gedicht', en: 'A Glowing Poem' },
+          rect: { x: 150, y: 224, w: 96, h: 48 },
+          walkTo: { x: 196, y: 300 },
+          appearFlag: 'visited_valley',                 // gloeit op de grond vóór de molen zodra je in de vallei bent geweest
+          look: (state) => state.flags.poemRead
+            ? { nl: 'De gloeiende letters op de grond vóór de molen trillen nog zachtjes na. Je kent het gedicht nu uit je hoofd — misschien raakt het iemand.', en: 'The glowing letters on the ground before the mill still tremble softly. You know the poem by heart now — perhaps it will move someone.' }
+            : { nl: 'Op de grond vóór de molen zijn opeens gloeiende letters verschenen. Finn knielt en leest ze zachtjes hardop voor:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDe woorden blijven natrillen in de ochtendlucht. Dit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'Glowing letters have suddenly appeared on the ground before the mill. Finn kneels and softly reads them aloud:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nThe words keep trembling in the morning air. You should read this aloud to someone who carries sorrow...' },
+          setFlag: 'poemRead'
+        },
         {
           id: 'berries',
           name: { nl: 'Zwarte Bessen', en: 'Black Berries' },
@@ -439,7 +450,7 @@ const GAME = {
       npcs: [
         { id: 'mouse', sprite: 'mouse', x: 162, y: 306, scale: 0.55, flip: true, filter: 'brightness(0.82)' }   // muisje bij het holletje naast de wijnton (zichtbaar, licht in de schaduw)
       ],
-      fx: { poemGlow: { x: 232, y: 250, flag: 'visited_valley', untilFlag: 'poemRead' } },   // gloeiend gedicht op de vloer na de vallei
+      fx: {},
       hotspots: [
         {
           id: 'millstone',
@@ -548,17 +559,6 @@ const GAME = {
           }
         },
         {
-          id: 'poem',
-          name: { nl: 'Een Gloeiend Gedicht', en: 'A Glowing Poem' },
-          rect: { x: 188, y: 230, w: 96, h: 46 },
-          walkTo: { x: 232, y: 300 },
-          appearFlag: 'visited_valley',                 // verschijnt op de vloer zodra je in de vallei bent geweest
-          look: (state) => state.flags.poemRead
-            ? { nl: 'De gloeiende letters op de stoffige vloer trillen nog zachtjes na. Je kent het gedicht nu uit je hoofd — misschien raakt het iemand.', en: 'The glowing letters on the dusty floor still tremble softly. You know the poem by heart now — perhaps it will move someone.' }
-            : { nl: 'Op de stoffige vloer zijn opeens gloeiende letters verschenen. Finn knielt en leest ze zachtjes hardop voor:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDe woorden blijven natrillen in de stille molen. Dit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'Glowing letters have suddenly appeared on the dusty floor. Finn kneels and softly reads them aloud:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nThe words keep trembling in the silent mill. You should read this aloud to someone who carries sorrow...' },
-          setFlag: 'poemRead'
-        },
-        {
           id: 'outMill',
           name: { nl: 'Naar Buiten', en: 'Back Outside' },
           rect: { x: 60, y: 286, w: 50, h: 30 },
@@ -588,7 +588,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.12, sway: true },   // poortwacht met hellebaard (iets kleiner); wiegt rustig heen en weer
-        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.2, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
+        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 282, scale: 1.12, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
         { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
         { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // alle bloemen gelig-wit, dicht bij elkaar; dansen mee
