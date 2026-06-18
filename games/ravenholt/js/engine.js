@@ -1762,12 +1762,7 @@
       /* 2-frame stilstaan: wissel rustig tussen twee sta-poses (zacht gewicht verplaatsen). */
       const idleImg = (ready(art.sprites.heroIdle2) && Math.floor(now / 1600) % 2 === 1) ? art.sprites.heroIdle2 : hero;
       drawArtSprite(idleImg, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
-      /* Finns ogen zitten vrijwel in het midden (iets rechts) en hoog; richt de twee
-         oogleden daar precies op (gespiegeld als hij naar links kijkt). */
-      eyeBlink('hero', idleImg, player.x + idleSway, player.y, {
-        now, scale: ds, squashY: breaths, rot: idleRot, flip: player.flip,
-        eyeFrac: 0.179, eyeCxFrac: 0.514, eyeGap: 0.083, eyes: 2
-      });
+      /* (Knipperen bij Finn is uitgezet — op verzoek; de stilstaan-animatie komt nu uit /zwaaien.) */
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];

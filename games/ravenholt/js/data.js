@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '30',
+  assetVer: '31',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -47,7 +47,7 @@ const GAME = {
     flower:        'assets/art/flower.png',          // bloem (oranje accent)
     flowerWhite:   'assets/art/flower-white.png'     // witte bloem (dansende bloem + cluster)
   },
-  heroWalkFrames: 4,            // Seedream-loopcyclus: stap-links, passing, stap-rechts, passing (benen wisselen écht)
+  heroWalkFrames: 20,           // vloeiende 20-frame loopanimatie uit /lopen (benen wisselen écht)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader in zijn tas. */
@@ -460,7 +460,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
-        { id: 'merchant', sprite: 'merchantLeft', x: 282, y: 298, scale: 1.18, scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted' },   // sneaky handelsman (kap op): spiedt afwisselend naar zijn kar (links) en de wacht (rechts); staart verbaasd naar de bloem zodra die danst
+        { id: 'merchant', sprite: 'merchantLeft', x: 282, y: 298, scale: 1.18, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted' },   // sneaky handelsman (kap op) in de schaduw van zijn kar (donkerder); spiedt afwisselend naar zijn kar (links) en de wacht (rechts); staart verbaasd naar de bloem zodra die danst
         { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
         { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21 },   // alle bloemen gelig-wit, dicht bij elkaar
