@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '36',
+  assetVer: '46',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -90,7 +90,10 @@ const GAME = {
     q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
     q_inside:   { nl: 'Zoek binnen in de molen wat het water tegenhoudt', en: 'Search inside the mill for what blocks the water' },
     q_book:     { nl: 'Bevrijd het toverboek in de molen (trek de boeken in de juiste volgorde)', en: 'Free the spellbook in the mill (pull the books in the right order)' },
+    q_writespell:{ nl: 'Het toverboek is leeg — pak de ravenveer, maak inkt (zwarte bessen + flesje) en schrijf de spreuk in het boek', en: 'The spellbook is blank — take the raven feather, make ink (black berries + vial) and write the spell into the book' },
     q_flower:   { nl: 'Bij het kasteel: laat met de spreuk de grote bloem dansen', en: 'At the castle: use the spell to make the big flower dance' },
+    q_tomayor:  { nl: 'De molen draait weer en de fontein stroomt! Ga terug naar het plein, naar burgemeester Bram', en: 'The mill turns again and the fountain flows! Head back to the square, to Mayor Bram' },
+    q_valley:   { nl: 'Je hebt de geheime kaart! Bij de kasteelpoort wijst een pad naar de mistige vallei — ga op onderzoek', en: 'You have the secret map! At the castle gate a path leads to the misty valley — go explore' },
     q_takewheel:{ nl: 'De handelsman kijkt naar de bloem — pak nu het molenrad uit zijn kar', en: 'The merchant is watching the flower — grab the mill wheel from his cart now' },
     q_fixmill:  { nl: 'Breng het molenrad naar het tandrad in de molen en maak het radwerk', en: 'Take the mill wheel to the gear inside the mill and fix the gearworks' }
   },
@@ -108,21 +111,49 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-book.png', zoomImg: 'assets/art/spell-flower.png',
-             look: { nl: 'Het molenaars-toverboek. Eén spreuk licht warm op: “Laat wat stil staat vrolijk dansen.” Richt het op iets levends en het begint te bewegen.', en: 'The miller’s spellbook. One spell glows warm: “Make what stands still dance.” Aim it at something living and it starts to move.' } },
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-book.png', zoomImg: 'assets/art/spell-flower.png', zoomImgFlag: 'spellWritten',
+             look: (state) => state.flags.spellWritten
+               ? { nl: 'Het toverboek. Op de eerste bladzijde staat nu, in glanzende inkt, de spreuk die je schreef: “Laat wat stil staat vrolijk dansen.” Richt het op iets levends en het begint te bewegen.', en: 'The spellbook. On the first page, in glistening ink, stands the spell you wrote: “Make what stands still dance.” Aim it at something living and it starts to move.' }
+               : { nl: 'Het oude toverboek — maar de bladzijden zijn helemaal leeg. Met de juiste pen en inkt zou je er een spreuk in kunnen schrijven... (combineer een inktveer met dit boek)', en: 'The old spellbook — but its pages are completely blank. With the right pen and ink you could write a spell in it... (combine an ink-dipped feather with this book)' } },
+    feather: { name: { nl: 'Magische Ravenveer', en: 'Magic Raven Feather' }, icon: '🪶',
+             look: { nl: 'Een glanzende, blauwzwarte veer die de raaf achterliet. Hij gloeit zachtjes van magie. Met inkt zou je er prachtig mee kunnen schrijven.', en: 'A glossy blue-black feather the raven left behind. It glows faintly with magic. With ink you could write beautifully with it.' } },
+    berries: { name: { nl: 'Zwarte Bessen', en: 'Black Berries' }, icon: '🫐',
+             look: { nl: 'Een handvol diepzwarte bessen, geplukt bij de molen. Geplet geven ze vast een donker, inktachtig sap.', en: 'A handful of deep-black berries, picked by the mill. Crushed, they’d surely give a dark, ink-like juice.' } },
+    ink: { name: { nl: 'Flesje Inkt', en: 'Vial of Ink' }, icon: '🖋️', img: 'assets/art/item-ink.png',
+             look: { nl: 'Het glazen flesje, nu gevuld met diepzwarte bessen-inkt. Perfect om een veer in te dopen.', en: 'The glass vial, now filled with deep-black berry ink. Perfect for dipping a feather.' } },
+    inkFeather: { name: { nl: 'Inktveer', en: 'Ink-dipped Feather' }, icon: '🪄', img: 'assets/art/item-inkfeather.png',
+             look: { nl: 'De magische ravenveer, gedoopt in de bessen-inkt — nog steeds een veer, maar met een glanzende zwarte inktpunt. Klaar om een spreuk in het lege toverboek te schrijven.', en: 'The magic raven feather, dipped in berry ink — still a feather, but with a glossy black ink tip. Ready to write a spell in the empty spellbook.' } },
+    map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png',
+             look: { nl: 'De geheime kaart van burgemeester Bram. Een pad slingert het dorp uit, langs het bos, naar de vallei met de vreemde lichten — met een kruisje bij een grot. (wordt vervolgd)', en: 'Mayor Bram’s secret map. A path winds out of the village, past the wood, to the valley of strange lights — with a cross at a cave. (to be continued)' } },
     millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
              look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen!', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it!' } },
     cheese: { name: { nl: 'Stuk Kaas', en: 'Piece of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
              look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } }
   },
 
-  recipes: [],
+  /* Combinaties. result = nieuw voorwerp; of setFlag (+ keep) voor een handeling
+     die de voorwerpen niet verbruikt (bv. met de inktveer in het boek schrijven). */
+  recipes: [
+    { a: 'berries', b: 'vial', result: 'ink',
+      text: { nl: 'Je plet de zwarte bessen in het lege flesje. Het sap kleurt diep gitzwart — echte inkt!', en: 'You crush the black berries into the empty vial. The juice turns deep jet-black — real ink!' } },
+    { a: 'feather', b: 'ink', result: 'inkFeather',
+      text: { nl: 'Je doopt de magische ravenveer in de inkt. De punt glanst zwart en lijkt bijna te trillen van leven — klaar om te schrijven.', en: 'You dip the magic raven feather into the ink. Its tip glistens black and seems almost to quiver with life — ready to write.' } },
+    { a: 'inkFeather', b: 'spellbook', setFlag: 'spellWritten', keep: true, consume: 'inkFeather', doneFlag: 'spellWritten',
+      requiresScene: 'millInside',
+      cutscene: 'assets/video/spell-cinematic.mp4',   // speelt de eerste-spreuk-video af
+      needSceneText: { nl: 'Om met de veer netjes in het boek te schrijven heb je een stevige tafel nodig — die staat bínnen in de molen.', en: 'To write neatly in the book with the feather you need a sturdy table — there’s one inside the mill.' },
+      text: { nl: 'Je legt het toverboek open op de molenaarstafel en schrijft met de inktveer. Als bij toverslag glijdt de pen vanzelf over het papier en schrijft een spreuk: “Laat wat stil staat vrolijk dansen.” Het toverboek gloeit warm op — de veer heeft zijn werk gedaan.', en: 'You lay the spellbook open on the miller’s table and write with the ink-feather. As if by magic the pen glides on its own and writes a spell: “Make what stands still dance.” The spellbook glows warm — the feather has done its work.' },
+      doneText: { nl: 'De spreuk staat al in het toverboek.', en: 'The spell is already written in the spellbook.' } }
+  ],
 
   questRules: [
-    { when: { flag: 'millFixed' },          quest: null },         // molen gemaakt -> wordt vervolgd
+    { when: { flag: 'sawValleyCave' },      quest: null },         // vallei bereikt -> wordt vervolgd
+    { when: { flag: 'gotMap' },             quest: 'q_valley' },   // kaart ontvangen -> volg het pad naar de vallei
+    { when: { flag: 'millFixed' },          quest: 'q_tomayor' },  // molen draait -> terug naar de burgemeester
     { when: { has: 'millwheel' },           quest: 'q_fixmill' },  // rad in handen -> maak het radwerk in de molen
     { when: { flag: 'merchantDistracted' }, quest: 'q_takewheel' },// bloem danst, handelsman afgeleid -> pak het rad
-    { when: { has: 'spellbook' },           quest: 'q_flower' },   // toverboek -> laat de bloem dansen bij de poort
+    { when: { flag: 'spellWritten' },       quest: 'q_flower' },   // spreuk geschreven -> laat de bloem dansen bij de poort
+    { when: { has: 'spellbook' },           quest: 'q_writespell' },// leeg toverboek -> maak inkt + veer en schrijf de spreuk
     { when: { flag: 'lookedMill' },         quest: 'q_book' },     // rad zit vast -> zoek het toverboek in de molen
     { when: { flag: 'seenFountain' },       quest: 'q_mill' },
     { when: {},                             quest: 'q_explore' }
@@ -152,7 +183,9 @@ const GAME = {
         { x: 452, y: 250, w: 96, h: 68 }     // het kaaskraampje rechts (niet doorheen lopen)
       ],
       overlays: [],
-      worldItems: [],
+      worldItems: [
+        { item: 'feather', hotspot: 'feather', x: 102, y: 270, requiresFlag: 'ravenFed' }   // magische veer die de raaf achterliet (op de keien tussen de ton en de fontein)
+      ],
       npcs: [
         { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264 },   // burgemeester Bram; wringt af en toe wanhopig met zijn handen
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
@@ -166,6 +199,10 @@ const GAME = {
           rect: { x: 346, y: 186, w: 54, h: 80 },
           walkTo: { x: 366, y: 300 },
           face: 'assets/art/face-mayor.png',
+          givesWhen: {
+            flag: 'millFixed', setFlag: 'gotMap', item: 'map',
+            giveText: { nl: 'De fontein op het plein klatert weer volop — het hele dorp juicht! Burgemeester Bram grijpt je bij de schouders: “Finn, je hebt het water teruggebracht! Maar dit is nog niet voorbij... die vreemde lichten in de vallei. Hier — een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos: bij de kasteelpoort wijst nu de weg naar de vallei.” Hij drukt je een vergeelde kaart in handen.', en: 'The fountain on the square gushes again — the whole village cheers! Mayor Bram grips your shoulders: “Finn, you’ve brought the water back! But this isn’t over... those strange lights in the valley. Here — a secret map your father once entrusted to me. Follow the path beyond the wood: at the castle gate the way to the valley is open now.” He presses a yellowed map into your hands.' }
+          },
           look: (state) => state.flags.metMayor
             ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
@@ -183,8 +220,21 @@ const GAME = {
             coin: {
               consume: 'coin',
               setFlag: 'ravenFed',
-              text: { nl: 'De raaf grist het muntje weg en kwettert een tip: “Het mólenrad is weggesleept — het ligt in de kar van de handelsman bij de kasteelpoort. Maar hij bewaakt zijn waren. In de molen ligt een toverboek; daarmee laat je een bloem dansen en leid je hem af...” Dan vliegt hij weg.', en: 'The raven snatches the coin and chatters a tip: “The mill WHEEL was hauled off — it’s in the merchant’s cart by the castle gate. But he guards his wares. In the mill lies a spellbook; with it you can make a flower dance and distract him...” Then it flies off.' }
+              text: { nl: 'De raaf grist het muntje weg en kwettert schor: “Die handelsman bij de kasteelpoort? Geen eerlijke koopman — een díef. Hij heeft iets gestolen wat van het dorp is en verstopt het tussen de vaten op zijn kar. Maar hij houdt zijn waar scherp in de gaten; je moet hem éérst weg zien te lokken. In de molen ligt een oud toverboek dat daarbij kan helpen...” Dan klapwiekt hij weg.', en: 'The raven snatches the coin and rasps: “That merchant by the castle gate? No honest trader — a THIEF. He stole something that belongs to the village and hides it among the barrels on his cart. But he keeps a sharp eye on his wares; you must lure him away first. An old spellbook in the mill might help with that...” Then it flaps off.' }
             }
+          }
+        },
+        {
+          id: 'feather',
+          name: { nl: 'Glanzende Veer', en: 'Glossy Feather' },
+          rect: { x: 80, y: 248, w: 48, h: 46 },
+          walkTo: { x: 102, y: 300 },
+          appearFlag: 'ravenFed',                        // verschijnt zodra de raaf is weggevlogen
+          hideFlag: 'taken_square_feather',
+          gives: {
+            item: 'feather',
+            giveText: { nl: 'Op de keien tussen de ton en de fontein ligt een glanzende blauwzwarte ravenveer zachtjes na te trillen van magie. Je raapt hem voorzichtig op.', en: 'On the cobbles between the barrel and the fountain lies a glossy blue-black raven feather, still quivering faintly with magic. You carefully pick it up.' },
+            emptyText: { nl: 'Er ligt verder niets op de ton.', en: 'There’s nothing else on the barrel.' }
           }
         },
         {
@@ -264,10 +314,24 @@ const GAME = {
       ],
       obstacles: [],
       overlays: [],
-      worldItems: [],
+      worldItems: [
+        { item: 'berries', hotspot: 'berries', x: 484, y: 296 }   // bessenstruik rechts van het pad (ver naar rechts)
+      ],
       npcs: [],
       fx: {},
       hotspots: [
+        {
+          id: 'berries',
+          name: { nl: 'Zwarte Bessen', en: 'Black Berries' },
+          rect: { x: 462, y: 278, w: 56, h: 38 },
+          walkTo: { x: 474, y: 306 },
+          hideFlag: 'taken_mill_berries',
+          gives: {
+            item: 'berries',
+            giveText: { nl: 'Rechts van de molen hangt een struik vol diepzwarte bessen. Je plukt er een handvol van — je vingers kleuren meteen donkerpaars. Hier maak je vast inkt van.', en: 'To the right of the mill grows a bush full of deep-black berries. You pick a handful — your fingers stain dark purple at once. These would surely make ink.' },
+            emptyText: { nl: 'De struik is nu leeggeplukt.', en: 'The bush is picked clean now.' }
+          }
+        },
         {
           id: 'wheel',
           name: { nl: 'Het Waterrad', en: 'The Water Wheel' },
@@ -377,8 +441,8 @@ const GAME = {
           rect: { x: 18, y: 172, w: 120, h: 42 },
           walkTo: { x: 108, y: 300 },
           look: {
-            nl: 'Het opengeslagen molenaarsboek. In de kantlijn staat gekrabbeld: “De vastzittende boeken op de plank — trek ze zó los: eerst ROOD, dan BLAUW, dan GEEL, als laatste GROEN. Dan geeft de plank haar geheim.”',
-            en: 'The open miller’s book. Scrawled in the margin: “The stuck books on the shelf — pull them loose in this order: first RED, then BLUE, then YELLOW, lastly GREEN. Then the shelf gives up its secret.”'
+            nl: 'Finn buigt zich over het opengeslagen molenaarsboek en leest de gekrabbelde kantlijn hardop voor: “De vastzittende boeken op de plank — trek ze zó los: eerst BLAUW, dan GROEN, dan ROOD, als laatste GEEL. Alleen díe volgorde geeft de plank haar geheim.” “Aha,” mompelt hij, “dát moet ik onthouden.”',
+            en: 'Finn leans over the open miller’s book and reads the scrawled margin aloud: “The stuck books on the shelf — pull them loose like so: first BLUE, then GREEN, then RED, lastly YELLOW. Only that order makes the shelf give up its secret.” “Aha,” he mutters, “I’d better remember that.”'
           },
           setFlag: 'readMillBook'
         },
@@ -389,17 +453,17 @@ const GAME = {
           walkTo: { x: 96, y: 300 },
           bookPuzzle: {
             title: { nl: 'De Vastzittende Boeken', en: 'The Stuck Books' },
-            hint: { nl: 'Trek de boeken in de juiste volgorde (zie het boek op de tafel).', en: 'Pull the books in the right order (see the book on the table).' },
+            hint: { nl: 'Trek de boeken in de juiste volgorde — lees eerst het opengeslagen boek eronder.', en: 'Pull the books in the right order — first read the open book below.' },
             setFlag: 'gotSpellbook',
             gives: 'spellbook',
-            sequence: ['rood', 'blauw', 'geel', 'groen'],
+            sequence: ['blauw', 'groen', 'rood', 'geel'],
             books: [
               { key: 'groen', label: { nl: 'Groen', en: 'Green' }, color: '#84c06f' },
               { key: 'rood',  label: { nl: 'Rood',  en: 'Red' },   color: '#e07a64' },
               { key: 'geel',  label: { nl: 'Geel',  en: 'Yellow' },color: '#e8cc5a' },
               { key: 'blauw', label: { nl: 'Blauw', en: 'Blue' },  color: '#79ace8' }
             ],
-            solvedText: { nl: 'Met een klik schiet de laatste band los en een verborgen vakje klapt open — het oude TOVERBOEK glijdt in je handen! Eén spreuk gloeit warm op: “laat wat stil staat dansen.”', en: 'With a click the last spine springs loose and a hidden compartment pops open — the old SPELLBOOK slides into your hands! One spell glows warm: “make what stands still dance.”' },
+            solvedText: { nl: 'Met een klik schiet de laatste band los en een verborgen vakje klapt open — een oud TOVERBOEK glijdt in je handen! Maar als je het opent zijn alle bladzijden léég... Hier hoort een spreuk geschreven te worden, met de juiste pen en inkt.', en: 'With a click the last spine springs loose and a hidden compartment pops open — an old SPELLBOOK slides into your hands! But when you open it every page is blank... A spell needs to be written here, with the right pen and ink.' },
             resetText: { nl: 'Knars! De boeken klemmen weer vast. Begin opnieuw.', en: 'Crunch! The books jam shut again. Start over.' }
           }
         },
@@ -462,13 +526,13 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
-        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.0, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted' },   // sneaky handelsman (kap op) in de schaduw van zijn kar: iets naar achter + kleiner; spiedt afwisselend naar zijn kar (links) en de wacht (rechts); staart verbaasd naar de bloem zodra die danst
-        { id: 'ravenCart', sprite: 'ravenPerch', x: 98, y: 198, scale: 0.95, appearFlag: 'ravenFed' },   // de raaf landt op de kar en wijst het rad aan
+        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.0, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted' },   // sneaky handelsman (kap op) in de schaduw van zijn kar: iets naar achter + kleiner; spiedt afwisselend naar zijn kar (links) en de wacht (rechts); draait zich verbaasd óm naar de dansende bloem zodra die danst
+        { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
-        { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21 },   // alle bloemen gelig-wit, dicht bij elkaar
-        { id: 'flower3', sprite: 'flowerWhite', x: 457, y: 267, scale: 0.2 },
-        { id: 'flower4', sprite: 'flowerWhite', x: 420, y: 263, scale: 0.18 },
-        { id: 'flower5', sprite: 'flowerWhite', x: 468, y: 262, scale: 0.19 }
+        { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, danceFlag: 'flowerDancing' },   // alle bloemen gelig-wit, dicht bij elkaar; dansen mee
+        { id: 'flower3', sprite: 'flowerWhite', x: 457, y: 267, scale: 0.2, danceFlag: 'flowerDancing' },
+        { id: 'flower4', sprite: 'flowerWhite', x: 420, y: 263, scale: 0.18, danceFlag: 'flowerDancing' },
+        { id: 'flower5', sprite: 'flowerWhite', x: 468, y: 262, scale: 0.19, danceFlag: 'flowerDancing' }
       ],
       fx: {},
       hotspots: [
@@ -509,8 +573,10 @@ const GAME = {
             : { nl: 'Een groep bloemen naast de poort, met één grote ertussen. Als die eens zouden gaan dansen... (lees je toverboek)', en: 'A cluster of flowers by the gate, one big one among them. If only they would dance... (read your spellbook)' },
           castWith: {
             item: 'spellbook',
+            requiresFlag: 'spellWritten',
             setFlag: ['flowerDancing', 'merchantDistracted'],
             needText: { nl: 'Je voelt dat hier magie kan werken, maar je kent de spreuk nog niet. Misschien staat er iets in een toverboek...', en: 'You sense magic could work here, but you don’t know the spell yet. Perhaps a spellbook holds one...' },
+            emptyText: { nl: 'Je slaat het toverboek open, maar de bladzijden zijn leeg — je moet de spreuk er eerst nog ín schrijven (met een inktveer).', en: 'You open the spellbook, but the pages are blank — you must write the spell into it first (with an ink-dipped feather).' },
             text: { nl: 'Je slaat het toverboek open en spreekt de spreuk uit. De grote bloem schiet wakker en begint uitbundig te DANSEN! De handelsman draait zich verbaasd om en loopt er gebiologeerd naartoe — zijn kar staat nu onbewaakt.', en: 'You open the spellbook and speak the spell. The big flower springs awake and begins to DANCE wildly! The merchant turns in astonishment and wanders over, transfixed — his cart now stands unguarded.' }
           }
         },
@@ -543,6 +609,69 @@ const GAME = {
           walkTo: { x: 156, y: 300 },
           arrow: { x: 150, y: 292, dir: 'down' },
           exit: { to: 'mill', travelText: { nl: 'Je daalt het pad weer af naar de molen.', en: 'You head back down the path to the mill.' } }
+        },
+        {
+          id: 'toValley',
+          name: { nl: 'Het Pad naar de Vallei', en: 'The Path to the Valley' },
+          rect: { x: 22, y: 112, w: 132, h: 62 },        // achter de handkar (links), wijst weg de vallei in
+          walkTo: { x: 150, y: 284 },
+          arrow: { x: 74, y: 138, dir: 'up' },
+          appearFlag: 'gotMap',                          // verschijnt zodra je de geheime kaart hebt
+          exit: { to: 'valley', travelText: { nl: 'Met de geheime kaart in de hand volg je het pad achter de kar langs, voorbij het bos, de mistige vallei in...', en: 'With the secret map in hand you follow the path past the cart, beyond the wood, into the misty valley...' } }
+        }
+      ]
+    },
+
+    valley: {
+      name: { nl: 'De Mistige Vallei', en: 'The Misty Valley' },
+      bg: 'assets/art/scene-valley.png',
+      charFilter: 'sepia(0.12) saturate(1.05) brightness(1.0)',   // koeler, mistig ochtendlicht
+      entryText: {
+        nl: 'Voorbij het bos opent zich de vallei uit de geheime kaart. Vreemde blauwe lichten dwalen boven de mist en in de verte gloeit een grot. Hier, waar je vaders kaart eindigt, begint Finns volgende avontuur...',
+        en: 'Beyond the wood the valley from the secret map opens up. Strange blue lights wander over the mist, and far off a cave glows. Here, where your father’s map ends, Finn’s next adventure begins...'
+      },
+      playerStart: { x: 120, y: 288 },
+      spawnFrom: { castle: { x: 120, y: 288 } },
+      depth: { far: 252, near: 304, sFar: 0.8, sNear: 1.06 },
+      walkable: [
+        { x: 56, y: 270, w: 452, h: 46 }    // het pad onder in de vallei
+      ],
+      obstacles: [],
+      overlays: [],
+      worldItems: [],
+      npcs: [],
+      fx: { fireflies: 7 },                  // dwaallichtjes boven de mist
+      hotspots: [
+        {
+          id: 'lights',
+          name: { nl: 'De Dwaallichten', en: 'The Wandering Lights' },
+          rect: { x: 196, y: 110, w: 200, h: 96 },
+          walkTo: { x: 296, y: 300 },
+          look: {
+            nl: 'Zachtblauwe lichtjes zweven boven het moeras, alsof ze je verder de vallei in willen lokken. Het briefje had gelijk: “volg de lichten in de vallei.”',
+            en: 'Soft blue lights hover over the marsh, as if luring you deeper into the valley. The note was right: “follow the lights in the valley.”'
+          },
+          setFlag: 'sawValleyLights'
+        },
+        {
+          id: 'cave',
+          name: { nl: 'De Gloeiende Grot', en: 'The Glowing Cave' },
+          rect: { x: 392, y: 120, w: 110, h: 90 },
+          walkTo: { x: 430, y: 300 },
+          look: {
+            nl: 'Diep in de vallei gloeit de grot uit het molenaarsboek met een blauwe schijn — daar moet de magische steen liggen die de staf van je vader weer tot leven wekt. Maar dat is een avontuur voor de volgende keer... (wordt vervolgd)',
+            en: 'Deep in the valley the cave from the miller’s book glows with a blue shimmer — the magic stone that wakes your father’s staff must lie there. But that is an adventure for next time... (to be continued)'
+          },
+          setFlag: 'sawValleyCave',
+          win: true
+        },
+        {
+          id: 'toCastle',
+          name: { nl: 'Terug naar de Poort', en: 'Back to the Gate' },
+          rect: { x: 36, y: 200, w: 80, h: 116 },
+          walkTo: { x: 92, y: 300 },
+          arrow: { x: 70, y: 252, dir: 'down' },
+          exit: { to: 'castle', travelText: { nl: 'Je keert terug langs het pad naar de kasteelpoort.', en: 'You head back up the path to the castle gate.' } }
         }
       ]
     }

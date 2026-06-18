@@ -13,10 +13,24 @@ referentie-afbeelding** (anders verschillen outfit/proporties en moet je opnieuw
 - Sprites worden op 2× opgeslagen en op halve maat getekend (`spriteDetail:2`).
 
 ## Finn (de hoofdpersoon) — VASTE beschrijving
-Roodharige jongen, ~4 hoofden hoog (chibi-held). **Kap ALTIJD OMLAAG** op de schouders,
-volle warrige **rode haren** zichtbaar bovenop (nooit een capuchon over zijn hoofd).
-Blauwe kapmantel/cape, **crème/wit ondertuniek**, bruin leren **schoudertas**, bruine
-broek/laarzen, draagt een **houten staf** met gekrulde top in één hand.
+**11 jaar oud** (iets ouder/stoerder ogend dan een klein kind), met **sproetjes** over neus
+en wangen, **rood SPITS/PIEKERIG, warrig haar** — puntige plukken die omhoog en naar buiten
+staan, met een paar scherpe pieken over het voorhoofd (klassiek 16-bit JRPG/shounen-heldenkapsel;
+vol en gelaagd, niet te lang, géén zachte ronde krullen) — en **BRUINE ogen** (nooit blauw). ~4 hoofden hoog (chibi-held). **Kap ALTIJD OMLAAG** op de
+schouders, rode haren zichtbaar bovenop (nooit een capuchon over zijn hoofd). Blauwe
+kapmantel/cape, **crème/wit ondertuniek**, bruin leren **schoudertas**, bruine broek/laarzen,
+draagt een **houten staf met een COMPACTE, dicht gekrulde top** (strakke spiraal — niet een
+losse/open krul; **géén steen, géén versiering**) in één hand. De staf kán **gloeien** op
+magische momenten (warm goud-blauw licht uit de krul en de schacht).
+Uitdrukking: een dromer die al lang wil leren toveren — meestal **enthousiast/nieuwsgierig**,
+op magische momenten **verbaasd én dolblij**.
+
+### Belichting, sfeer & molen-interieur (VASTE wereldregel)
+Het hele spel speelt **overdag, in de vroege ochtend**: warm **gouden ochtendlicht** valt naar
+binnen. Zachte, lange schaduwen. De **molen-binnenruimte is GESLOTEN**: massieve steen- en
+houtwanden, **géén open doorgangen of gaten naar buiten**, en **géén molen in de verte
+zichtbaar** — licht komt **alléén door de kleine boogramen**. Houd `molen-binnen-Jun-17,-2026,-11_08_06-AM.png`
+aan als referentie voor die ruimte (maalsteen, groot houten rad, boekenkast, vaten, graanzakken).
 - **Referentie-media (Higgsfield):** `4bda7dca-302d-44cd-b02a-646f94ca5421` (hood-down loopframe).
   Gebruik die als `medias:[{role:image,value:...}]` voor ELKE Finn-generatie.
 - Idle = staand, voeten bij elkaar. Lopen = zijaanzicht naar rechts (engine spiegelt links).

@@ -28,6 +28,7 @@
   const elMsgFace   = document.getElementById('msgFace');
   const elToast     = document.getElementById('toast');
   const elInvbar    = document.getElementById('invbar');
+  const elSpellBtn  = document.getElementById('spellBtn');
   const elTitle     = document.getElementById('title-screen');
   const elWin       = document.getElementById('win-screen');
   const elWinText   = document.getElementById('winText');
@@ -39,6 +40,9 @@
   const elRetryBtn  = document.getElementById('retryBtn');
   const elZoom      = document.getElementById('zoom-screen');
   const elZoomImg   = document.getElementById('zoom-img');
+  const elCutscene  = document.getElementById('cutscene-screen');
+  const elCutsceneVid = document.getElementById('cutscene-video');
+  const elCutsceneSkip = document.getElementById('cutscene-skip');
 
   const MIN_SLOTS = 6;
   const WALK_SPEED = 80;
@@ -157,6 +161,7 @@
   let pendingWin = false;
   let minoWalk = null;        // animatie: minotaur loopt naar de schaal en valt in slaap
   let ravenFly = null;        // animatie: de raaf vliegt weg richting de molen
+  let castGlow = null;        // animatie: Finns staf gloeit op wanneer hij de spreuk uitspreekt
   let amuletRiseT0 = 0;       // moment waarop de amulet omhoog begint te schuiven
   let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
@@ -915,27 +920,50 @@
     ents.sort((a, b) => a.y - b.y);
     for (const e of ents) e.draw();
 
-    /* De raaf vliegt weg: stijgt op en zweeft naar de rand van het beeld (richting het molenpad). */
+    /* Staf-gloed: warme goud-blauwe aura rond Finn wanneer hij de spreuk uitspreekt. */
+    if (castGlow) {
+      const el = (now - castGlow.t0) / 2600;
+      if (el >= 1) { castGlow = null; }
+      else {
+        const a = Math.sin(el * Math.PI) * 0.7;
+        const gx = Math.round(player.x), gy = Math.round(player.y - 30);
+        const r = 20 + 6 * Math.sin(now / 110);
+        const g = fctx.createRadialGradient(gx, gy, 1, gx, gy, r);
+        g.addColorStop(0, `rgba(190,215,255,${a})`);
+        g.addColorStop(0.45, `rgba(150,190,255,${a * 0.4})`);
+        g.addColorStop(0.8, `rgba(255,225,150,${a * 0.18})`);
+        g.addColorStop(1, 'rgba(150,190,255,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(gx - r, gy - r, r * 2, r * 2);
+        for (let k = 0; k < 3; k++) {
+          const ang = now / 280 + k * 2.1;
+          twinkle(gx + Math.cos(ang) * 13, gy + Math.sin(ang * 1.3) * 11, a * (0.6 + 0.4 * Math.sin(now / 160 + k)));
+        }
+      }
+    }
+
+    /* De raaf vliegt weg: zet zich rustig af, klapwiekt en zweeft naar rechts het beeld uit. */
     if (ravenFly) {
-      const el = (now - ravenFly.t) / 2100;
+      const el = (now - ravenFly.t) / 2300;
       if (el >= 1) { ravenFly = null; }
       else {
         const img = art.sprites.ravenFly || art.sprites.ravenPerch;
         const ease = el * el * (3 - 2 * el);                                // smoothstep: rustige afzet, dan versnellen
-        const flap = Math.sin(now / 95);                                    // wiekslag-fase
-        const fx_ = ravenFly.x - ease * 130;                               // wegvliegen naar links (molenpad)
-        const fy_ = ravenFly.y - el * 132                                   // gestaag opstijgen
-                  - Math.sin(el * Math.PI) * 10                             // zachte boog
-                  + flap * 5 * (1 - el * 0.55);                             // op-en-neer golven per wiekslag
-        const bank = -0.13 + flap * 0.11;                                   // licht kantelen op de slag
+        const flap = Math.sin(now / 115);                                   // wat tragere, rustigere wiekslag
+        const fx_ = ravenFly.x + ease * 180;                               // wegvliegen naar RECHTS, het beeld uit
+        const fy_ = ravenFly.y - el * 120                                   // gestaag opstijgen
+                  - Math.sin(el * Math.PI) * 14                             // ruimere, natuurlijke boog omhoog
+                  + flap * 6 * (1 - el * 0.5);                              // op-en-neer deinen per wiekslag
+        const bank = 0.12 - flap * 0.13;                                    // kantelt mee naar rechts op de slag
         fctx.save();
-        fctx.globalAlpha = el < 0.82 ? 1 : Math.max(0, 1 - (el - 0.82) / 0.18);
+        fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
           const D = GAME.spriteDetail || 1;
           const af = Math.abs(flap);
           const w = Math.round(img.naturalWidth / D * (0.74 + 0.32 * af));  // vleugels open/dicht -> breedte pulseert
           const h = Math.round(img.naturalHeight / D * (0.94 + 0.06 * af));
           fctx.translate(Math.round(fx_), Math.round(fy_));
+          /* raven-fly.png kijkt van zichzelf al naar rechts → NIET spiegelen bij vlucht naar rechts (kop vooraan) */
           fctx.rotate(bank);
           fctx.imageSmoothingEnabled = false;
           fctx.drawImage(img, Math.round(-w / 2), Math.round(-h / 2), w, h);
@@ -947,6 +975,8 @@
       }
     }
 
+    /* Bijtjes en vlinders dansen mee rond de betoverde bloemen (zodra ze dansen). */
+    if (state.currentScene === 'castle' && state.flags.flowerDancing) drawCastleDancers(now);
 
     /* gloeiende partikels bovenop */
     for (const e of embers) {
@@ -1449,13 +1479,60 @@
   }
 
   /* Items die je subtiel ziet liggen tot je ze pakt */
+  /* Klein procedureel pixelwerk voor wereld-voorwerpen zonder eigen PNG. */
+  function paintWorldGlyph(item, x, y, now) {
+    fctx.save();
+    fctx.imageSmoothingEnabled = false;
+    if (item === 'berries') {
+      /* trosje gitzwarte bessen + een paar blaadjes */
+      fctx.fillStyle = '#3f6a32'; fctx.fillRect(x - 5, y - 6, 3, 2); fctx.fillRect(x + 2, y - 7, 3, 2);
+      const berry = (bx, by) => {
+        fctx.fillStyle = '#160d20'; fctx.fillRect(bx, by, 4, 4);
+        fctx.fillStyle = '#3a2350'; fctx.fillRect(bx, by, 3, 3);
+        fctx.fillStyle = '#8a5fb0'; fctx.fillRect(bx + 1, by, 1, 1);
+      };
+      berry(x - 5, y - 3); berry(x - 1, y - 4); berry(x + 2, y - 2); berry(x - 3, y + 1); berry(x + 1, y + 2);
+    } else if (item === 'feather') {
+      /* magische blauwzwarte ravenveer: gebogen schacht met taps toelopende baarden,
+         iriserende glans. */
+      const tw = 0.45 + 0.4 * Math.sin(now / 280);
+      fctx.translate(x, y); fctx.rotate(-0.42);
+      for (let i = -8; i <= 4; i++) {                                    // baarden: smalle puntjes boven/onder, breed in het midden
+        const t = (i + 8) / 12;
+        const w = Math.max(1, Math.round(Math.sin(t * Math.PI) * 4));
+        fctx.fillStyle = '#1f2746'; fctx.fillRect(-w, i, w, 1);          // linker baard (donker blauwzwart)
+        fctx.fillStyle = (i & 1) ? '#2e3b66' : '#3a4a7e'; fctx.fillRect(1, i, w, 1);   // rechter baard, licht gebandeerd
+      }
+      fctx.fillStyle = '#cdd6ee'; fctx.fillRect(0, -8, 1, 14);           // schacht (rachis)
+      fctx.fillStyle = '#eaf0ff'; fctx.fillRect(0, -8, 1, 3);            // lichte punt
+      fctx.fillStyle = `rgba(130,160,240,${tw})`; fctx.fillRect(-3, -1, 2, 4);          // blauwe glans
+      fctx.fillStyle = `rgba(170,120,225,${tw * 0.7})`; fctx.fillRect(2, -3, 2, 3);     // paarse glans
+    }
+    fctx.restore();
+  }
+
   function drawWorldItems(scene, now) {
     if (!scene.worldItems) return;
     for (const wi of scene.worldItems) {
       if (state.flags['taken_' + state.currentScene + '_' + wi.hotspot]) continue;
       if (wi.requiresFlag && !state.flags[wi.requiresFlag]) continue;
       const img = art.items[wi.item];
-      if (!ready(img)) continue;
+      if (!ready(img)) {
+        /* geen PNG: procedureel tekenen met een zachte gloed + fonkeling */
+        const r = 13, glow = 0.16 + 0.09 * Math.sin(now / 480 + wi.x);
+        const col = wi.item === 'feather' ? '150,180,255' : '150,90,170';
+        const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, r);
+        g.addColorStop(0, `rgba(${col},${glow})`); g.addColorStop(1, `rgba(${col},0)`);
+        fctx.fillStyle = g; fctx.fillRect(wi.x - r, wi.y - r, r * 2, r * 2);
+        paintWorldGlyph(wi.item, wi.x, wi.y, now);
+        if (wi.item === 'feather') {                       // magische glitter rond de veer
+          for (let k = 0; k < 3; k++) {
+            const a2 = now / 300 + k * 2.1;
+            twinkle(wi.x + Math.cos(a2) * 7, wi.y - 4 + Math.sin(a2 * 1.3) * 6, 0.3 + 0.45 * Math.sin(now / 200 + k * 2));
+          }
+        }
+        continue;
+      }
       const big = !!wi.highlight;                       // extra opvallend item (bv. de slaapbloem)
       const hgt = big ? 26 : 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
       const bob = big ? Math.round(Math.sin(now / 600) * 1.5) : 0;   // zachte deining trekt de aandacht
@@ -1898,11 +1975,20 @@
         const swayRot = npc.sway ? Math.sin(now / 650 + (npc.x || 0)) * 0.035 : 0;
         const ges = npc.gestureSprite && art.sprites[npc.gestureSprite];
         if (npc.danceFlag && state.flags[npc.danceFlag]) {
-          /* Dansende bloem: vrolijk heen-en-weer wiegen vanaf de wortel + verende squash. */
-          const sway = Math.sin(now / 170);
+          /* Dansende bloemen: vrolijk heen-en-weer wiegen + verende squash + opwippen.
+             Elke bloem krijgt via haar x een eigen fase, zodat ze niet als één blok bewegen. */
+          const ph = (npc.x || 0) * 0.5;
+          const sway = Math.sin(now / 170 + ph);
+          const bounce = -Math.abs(Math.sin(now / 150 + ph)) * 2;
           drawArtSprite(img, rt.x + Math.round(sway * 3), rt.y, {
-            flip: fl, scale: sc2, rot: sway * 0.17, squashY: 1 + 0.07 * Math.sin(now / 120)
+            flip: fl, scale: sc2, rot: sway * 0.17, bob: bounce, squashY: 1 + 0.07 * Math.sin(now / 120 + ph)
           });
+        } else if (npc.peck) {
+          /* Raaf op de kar: pikt steeds met een snelle kopduik naar één plek tussen de
+             vaten — een hint waar het molenrad ligt. */
+          const cyc = (now % 1600) / 1600;
+          const dip = cyc < 0.20 ? Math.sin(cyc / 0.20 * Math.PI) : 0;
+          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot + dip * 0.26, bob: dip * 5, squashY: breaths });
         } else if (ges && ready(ges) && gestureState(npc.id, now, 1100, 2400, 5200) > 0) {
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
@@ -1939,6 +2025,42 @@
     const hop = moving ? -Math.round(Math.abs(Math.sin(follower.phase * 1.1)) * 2) : 0;
     const wag = moving ? 0 : Math.sin(now / 160) * 0.06;
     if (ready(img)) drawArtSprite(img, follower.x, follower.y, { flip: follower.flip, bob: hop, rot: wag });
+  }
+
+  /* Vrolijke dansende bijtjes en vlinders rond de betoverde bloemen bij de kasteelpoort.
+     Klein pixelwerk, deinend op de maat van de dans; volgt de warme scène-belichting. */
+  function drawCastleDancers(now) {
+    const cx = 444, cy = 244;
+    const f = sceneFilter();
+    fctx.save();
+    fctx.imageSmoothingEnabled = false;
+    if (f !== 'none') fctx.filter = f;
+    /* --- bijtjes: rustige, kleine figuur-acht --- */
+    const BEES = [{ r: 26, ry: 9, sp: 470, ph: 0 }, { r: 20, ry: 12, sp: 430, ph: 2.1 }, { r: 31, ry: 7, sp: 520, ph: 4.0 }];
+    for (const b of BEES) {
+      const t = now / b.sp + b.ph;
+      const bx = Math.round(cx + Math.cos(t) * b.r);
+      const by = Math.round(cy + Math.sin(t * 1.5) * b.ry - Math.abs(Math.sin(now / 230 + b.ph)) * 2.5);
+      fctx.fillStyle = '#3a2c10'; fctx.fillRect(bx, by, 3, 2);            // klein donker lijfje
+      fctx.fillStyle = '#f4c63a'; fctx.fillRect(bx, by, 1, 2); fctx.fillRect(bx + 2, by, 1, 2);   // gele strepen
+      if (((now / 70) | 0) % 2 === 0) {                                   // zachte vleugel-flikker
+        fctx.fillStyle = 'rgba(255,255,255,0.45)';
+        fctx.fillRect(bx, by - 1, 3, 1);
+      }
+    }
+    /* --- vlinders: traag zwierig, klein, zachte vleugelslag --- */
+    const FLIES = [{ r: 23, ry: 14, sp: 820, ph: 1.0, w: '#e6824a' }, { r: 16, ry: 17, sp: 920, ph: 3.4, w: '#79ace8' }];
+    for (const v of FLIES) {
+      const t = now / v.sp + v.ph;
+      const vx = Math.round(cx + Math.sin(t) * v.r);
+      const vy = Math.round(cy - 6 + Math.cos(t * 1.2) * v.ry - Math.abs(Math.sin(now / 250 + v.ph)) * 3);
+      const ww = 1 + Math.round(Math.abs(Math.sin(now / 120 + v.ph)));    // smalle, rustige vleugelslag (1..2)
+      fctx.fillStyle = '#2a1c12'; fctx.fillRect(vx, vy, 1, 3);            // lijfje
+      fctx.fillStyle = v.w;
+      fctx.fillRect(vx - ww, vy, ww, 1); fctx.fillRect(vx - ww, vy + 1, ww, 1);
+      fctx.fillRect(vx + 1, vy, ww, 1); fctx.fillRect(vx + 1, vy + 1, ww, 1);
+    }
+    fctx.restore();
   }
 
   function drawHints(now, scale) {
@@ -1990,7 +2112,41 @@
     }
     return null;
   }
+  /* Spreuk-knop: verschijnt naast de inventaris zodra de dans-spreuk in het
+     toverboek geschreven is; klikken spreekt de spreuk uit. */
+  function updateSpellBtn() {
+    if (!elSpellBtn) return;
+    elSpellBtn.hidden = !(started && state.flags.spellWritten);
+  }
+  function castSpell() {
+    if (!state.flags.spellWritten) return;
+    if (msgOpen()) showNextMsg();
+    /* niet casten terwijl een popup open is */
+    if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden)) return;
+    const scene = GAME.scenes[state.currentScene];
+    const hs = (scene.hotspots || []).find(h => h.castWith);
+    if (hs) {
+      const c = hs.castWith;
+      const fls = Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag];
+      if (fls.some((f) => state.flags[f])) {            // al gedanst
+        say(lookText(hs), hsSpeaker(hs), hsFace(hs));
+        return;
+      }
+      fls.forEach((f) => { state.flags[f] = true; });
+      sfx('combine'); triggerCastFx(); updateQuest();
+      say(c.text, hsSpeaker(hs), hsFace(hs));
+      return;
+    }
+    say({ nl: 'Je voelt de dans-spreuk tintelen op je vingertoppen... maar hier is niets levends om te laten dansen.', en: 'You feel the dance-spell tingle at your fingertips... but there’s nothing alive here to make dance.' });
+  }
+  if (elSpellBtn) elSpellBtn.addEventListener('click', () => {
+    elSpellBtn.classList.remove('cast'); void elSpellBtn.offsetWidth; elSpellBtn.classList.add('cast');
+    setTimeout(() => elSpellBtn.classList.remove('cast'), 660);
+    castSpell();
+  });
+
   function updateQuest(force) {
+    updateSpellBtn();
     const key = started ? questKey() : null;
     if (!key) { elQuest.hidden = true; return; }
     const t = L(GAME.ui[key]);
@@ -2094,12 +2250,13 @@
       elInvbar.appendChild(slot);
     }
     lastPopItem = null;
+    updateSpellBtn();
   }
 
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
     const item = GAME.items[itemId];
-    if (item && item.zoomImg) {     // leesbaar item (bv. receptkaart): toon vergroot
+    if (item && item.zoomImg && (!item.zoomImgFlag || state.flags[item.zoomImgFlag])) {   // leesbaar item; leeg toverboek nog niet (dan combineerbaar)
       state.selectedItem = null;
       sfx('tap');
       openZoom(item.zoomImg);
@@ -2126,6 +2283,28 @@
       (r.a === a && r.b === b) || (r.a === b && r.b === a));
     state.selectedItem = null;
     if (!recipe) { sfx('error'); say(GAME.strings.noCombine); return; }
+    /* Sommige combinaties kunnen alleen op een bepaalde plek (bv. schrijven aan de
+       molenaarstafel). De voorwerpen blijven behouden zodat je het elders kunt proberen. */
+    if (recipe.requiresScene && state.currentScene !== recipe.requiresScene) {
+      sfx('error'); say(recipe.needSceneText || GAME.strings.noEffect); return;
+    }
+    /* Vlag-zettende combinatie (bv. met de inktveer in het toverboek schrijven):
+       zet de vlag i.p.v. een nieuw voorwerp te maken; met keep blijven de voorwerpen. */
+    if (recipe.setFlag) {
+      const fls = Array.isArray(recipe.setFlag) ? recipe.setFlag : [recipe.setFlag];
+      if (recipe.doneFlag && state.flags[recipe.doneFlag]) { say(recipe.doneText || recipe.text); return; }
+      fls.forEach((f) => { state.flags[f] = true; });
+      if (recipe.consume) (Array.isArray(recipe.consume) ? recipe.consume : [recipe.consume]).forEach(removeItem);
+      else if (!recipe.keep) { removeItem(recipe.a); removeItem(recipe.b); }
+      if (recipe.result) addItem(recipe.result);
+      updateQuest();
+      sfx('combine');
+      /* Cinematic: speel eerst de spreuk-video af, dáárna de tekst (de vlag is al gezet,
+         dus ook bij overslaan heb je je eerste spreuk). */
+      if (recipe.cutscene) { playCutscene(recipe.cutscene, () => say(recipe.text)); }
+      else say(recipe.text);
+      return;
+    }
     removeItem(recipe.a);
     removeItem(recipe.b);
     addItem(recipe.result);
@@ -2596,7 +2775,19 @@
   const elRuneHint   = document.getElementById('rune-hint');
   const elRuneBtns   = document.getElementById('rune-btns');
   const elRuneStatus = document.getElementById('rune-status');
+  const elRuneImg    = document.getElementById('rune-img');
+  const elRuneImgWrap = document.getElementById('rune-imgwrap');
+  const elRuneHotspots = document.getElementById('rune-hotspots');
   const elRuneClose  = document.getElementById('rune-close');
+
+  /* Klikbare boek-zones over de puzzel-afbeelding (puzzle-books.png), gemeten als
+     percentages van de afbeelding. Links→rechts: rood, blauw, geel, groen. */
+  const BOOK_HOTSPOTS = [
+    { key: 'rood',  left: 19.5, top: 9, width: 12,   height: 81 },
+    { key: 'blauw', left: 36,   top: 9, width: 11,   height: 81 },
+    { key: 'geel',  left: 50.5, top: 9, width: 12,   height: 81 },
+    { key: 'groen', left: 65.5, top: 9, width: 12,   height: 81 }
+  ];
 
   const RUNE_DEFS = [
     { key: 'leaf', nl: '🍃\nBlad',  en: '🍃\nLeaf'  },
@@ -2610,6 +2801,8 @@
     if (!pz) return;
     if (state.flags[pz.setFlag]) { say(pz.doneText || GAME.strings.nothingThere); return; }
     if (!state.flags[pz.requiresFlag]) { sfx('error'); say(pz.blockedText); return; }
+    if (elRuneImgWrap) elRuneImgWrap.hidden = true;
+    if (elRuneBtns) elRuneBtns.hidden = false;
     elRuneTitle.textContent = lang === 'nl' ? 'De Runenstenen' : 'The Rune Stones';
     elRuneHint.textContent  = lang === 'nl' ? 'Tik de stenen in de juiste volgorde aan' : 'Tap the stones in the right order';
     renderRunePopup();
@@ -2670,6 +2863,9 @@
     const pz = hs.bookPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
     state.flags['puzzle_books'] = 0;
+    if (elRuneImg) elRuneImg.src = 'assets/art/puzzle-books.png' + AV;
+    if (elRuneImgWrap) elRuneImgWrap.hidden = false;
+    if (elRuneBtns) { elRuneBtns.innerHTML = ''; elRuneBtns.hidden = true; }   // niet de knoppen, maar de boeken zelf zijn klikbaar
     elRuneTitle.textContent = L(pz.title);
     if (elRuneHint) elRuneHint.textContent = L(pz.hint);
     renderBookPuzzle(hs);
@@ -2678,16 +2874,23 @@
   }
   function renderBookPuzzle(hs) {
     const pz = hs.bookPuzzle, prog = state.flags['puzzle_books'] || 0;
-    elRuneBtns.className = 'rune-btn-row';
-    elRuneBtns.innerHTML = '';
-    pz.books.forEach((b) => {
-      const done = pz.sequence.indexOf(b.key) < prog;
+    /* Je klikt rechtstreeks op de boeken in de afbeelding (niet op knoppen). */
+    if (!elRuneHotspots) return;
+    elRuneHotspots.innerHTML = '';
+    const byKey = {};
+    pz.books.forEach((b) => { byKey[b.key] = b; });
+    BOOK_HOTSPOTS.forEach((h) => {
+      const b = byKey[h.key];
+      const done = pz.sequence.indexOf(h.key) < prog;
       const btn = document.createElement('button');
-      btn.className = 'rune-stone-btn' + (done ? ' lit' : '');
-      btn.textContent = L(b.label);
-      if (b.color) btn.style.color = b.color;
-      if (!done) btn.addEventListener('click', () => bookTap(hs, b.key));
-      elRuneBtns.appendChild(btn);
+      btn.className = 'book-hot' + (done ? ' pulled' : '');
+      btn.style.left = h.left + '%';
+      btn.style.top = h.top + '%';
+      btn.style.width = h.width + '%';
+      btn.style.height = h.height + '%';
+      btn.setAttribute('aria-label', b ? L(b.label) : h.key);
+      if (!done) btn.addEventListener('click', () => bookTap(hs, h.key));
+      elRuneHotspots.appendChild(btn);
     });
     elRuneStatus.textContent = '';
   }
@@ -2721,6 +2924,8 @@
     if (!pz) return;
     if (state.flags[pz.setFlag]) { say(pz.doneText || GAME.strings.nothingThere); return; }
     if (pz.requiresFlag && !state.flags[pz.requiresFlag]) { sfx('error'); say(pz.blockedText); return; }
+    if (elRuneImgWrap) elRuneImgWrap.hidden = true;
+    if (elRuneBtns) elRuneBtns.hidden = false;
     elRuneTitle.textContent = lang === 'nl' ? 'De Tegels' : 'The Tiles';
     elRuneHint.textContent  = lang === 'nl' ? 'Druk de tegels in de juiste volgorde in (zie de muur)' : 'Press the tiles in the right order (see the wall)';
     renderTilePopup();
@@ -3037,6 +3242,7 @@
         elGear.hidden = true;
         const cfg = hs.gears;
         gears = null;
+        if (cfg.needItem) removeItem(cfg.needItem);   // het molenrad is nu ingebouwd → uit de tas
         if (cfg.setFlag) { state.flags[cfg.setFlag] = true; updateQuest(); }
         if (cfg.solvedText) say(cfg.solvedText);
       }, 1800);
@@ -3171,6 +3377,13 @@
       });
     }
   }
+  /* De staf van Finn gloeit op wanneer hij de dans-spreuk uitspreekt. */
+  function triggerCastFx() {
+    castGlow = { t0: performance.now() };
+    burstAt(player.x, player.y - 24, { n: 16, col: '160,195,255', up: 16, life: 1.0 });
+    burstAt(player.x, player.y - 24, { n: 9, col: '255,232,150', up: 13, life: 1.1 });
+  }
+
   /* hartjes/lik-spetters bij het hondje */
   function lickAt(x, y) {
     burstAt(x, y, { n: 14, col: '205,235,255', spMin: 10, spRange: 26, grav: 70, up: 22, life: 0.6, size: 2 });
@@ -3310,8 +3523,10 @@
       const fls = Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag];
       if (fls.some((f) => state.flags[f])) { say(lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
       if (!state.inventory.includes(c.item)) { sfx('error'); say(c.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
+      if (c.requiresFlag && !state.flags[c.requiresFlag]) { sfx('error'); say(c.emptyText || c.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
       fls.forEach((f) => { state.flags[f] = true; });
       sfx('combine');
+      if (c.setFlag && (Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag]).includes('flowerDancing')) triggerCastFx();
       updateQuest();
       say(c.text, hsSpeaker(hs), hsFace(hs));
       return;
@@ -3328,6 +3543,19 @@
         return;
       }
       /* eerste keer: gewone beschrijving */
+    }
+
+    /* Voorwerp dat een NPC pas geeft zodra een vlag gezet is (bv. de burgemeester
+       overhandigt de geheime kaart zodra de molen weer draait). Eenmalig. */
+    if (hs.givesWhen && state.flags[hs.givesWhen.flag] && !state.flags[hs.givesWhen.setFlag]) {
+      const g = hs.givesWhen;
+      state.flags[g.setFlag] = true;
+      if (g.item) addItem(g.item);
+      sfx('pickup');
+      say(g.giveText, hsSpeaker(hs), hsFace(hs));
+      if (g.win) { pendingWin = true; sfx('win'); }
+      updateQuest();
+      return;
     }
 
     if (hs.gives) {
@@ -3365,6 +3593,7 @@
     const lt = lookText(hs);
     if (hs.setFlag && !state.flags[hs.setFlag]) { state.flags[hs.setFlag] = true; updateQuest(); }
     say(lt, hsSpeaker(hs), hsFace(hs));
+    if (hs.win) { pendingWin = true; sfx('win'); }
   }
 
   function runAction(a, anchor, face) {
@@ -3581,6 +3810,30 @@
   }
   function closeZoom() { if (elZoom) elZoom.hidden = true; }
   if (elZoom) elZoom.addEventListener('pointerdown', closeZoom);
+
+  /* ---------- Cinematic-cutscene (fullscreen video) ----------
+     De spelmuziek blijft gewoon doorlopen onder de stille clip. */
+  let cutsceneDone = null;
+  function endCutscene() {
+    if (!cutsceneDone) return;
+    const cb = cutsceneDone; cutsceneDone = null;
+    try { elCutsceneVid.pause(); } catch (e) {}
+    elCutsceneVid.removeAttribute('src');
+    try { elCutsceneVid.load(); } catch (e) {}
+    elCutscene.hidden = true;
+    cb && cb();
+  }
+  function playCutscene(src, onDone) {
+    if (!elCutscene || !elCutsceneVid) { onDone && onDone(); return; }
+    cutsceneDone = onDone || (() => {});
+    elCutsceneVid.src = src + AV;
+    elCutscene.hidden = false;
+    elCutsceneVid.currentTime = 0;
+    const p = elCutsceneVid.play();
+    if (p && p.catch) p.catch(() => {});   // autoplay-blokkade mag het spel niet breken
+  }
+  if (elCutsceneVid) elCutsceneVid.addEventListener('ended', endCutscene);
+  if (elCutsceneSkip) elCutsceneSkip.addEventListener('click', endCutscene);
 
   /* ---------- Winst & herstart ---------- */
   function showWin() {
