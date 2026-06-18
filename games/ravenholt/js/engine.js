@@ -948,13 +948,14 @@
       if (el >= 1) { ravenFly = null; }
       else {
         const img = art.sprites.ravenFly || art.sprites.ravenPerch;
+        const dir = ravenFly.dir === 'left' ? -1 : 1;                       // vliegrichting
         const ease = el * el * (3 - 2 * el);                                // smoothstep: rustige afzet, dan versnellen
         const flap = Math.sin(now / 115);                                   // wat tragere, rustigere wiekslag
-        const fx_ = ravenFly.x + ease * 180;                               // wegvliegen naar RECHTS, het beeld uit
+        const fx_ = ravenFly.x + dir * ease * 180;                          // het beeld uit (rechts of links)
         const fy_ = ravenFly.y - el * 120                                   // gestaag opstijgen
                   - Math.sin(el * Math.PI) * 14                             // ruimere, natuurlijke boog omhoog
                   + flap * 6 * (1 - el * 0.5);                              // op-en-neer deinen per wiekslag
-        const bank = 0.12 - flap * 0.13;                                    // kantelt mee naar rechts op de slag
+        const bank = 0.12 - flap * 0.13;                                    // kantelt mee op de slag
         fctx.save();
         fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
@@ -963,7 +964,8 @@
           const w = Math.round(img.naturalWidth / D * (0.74 + 0.32 * af));  // vleugels open/dicht -> breedte pulseert
           const h = Math.round(img.naturalHeight / D * (0.94 + 0.06 * af));
           fctx.translate(Math.round(fx_), Math.round(fy_));
-          /* raven-fly.png kijkt van zichzelf al naar rechts → NIET spiegelen bij vlucht naar rechts (kop vooraan) */
+          /* raven-fly.png kijkt naar rechts → spiegel alleen bij vlucht naar LINKS (kop vooraan) */
+          if (dir < 0) fctx.scale(-1, 1);
           fctx.rotate(bank);
           fctx.imageSmoothingEnabled = false;
           fctx.drawImage(img, Math.round(-w / 2), Math.round(-h / 2), w, h);
@@ -976,7 +978,7 @@
     }
 
     /* Bijtjes en vlinders dansen mee rond de betoverde bloemen (zodra ze dansen). */
-    if (state.currentScene === 'castle' && state.flags.flowerDancing) drawCastleDancers(now);
+    if (state.currentScene === 'castle' && state.flags.flowerDancing && !state.flags.taken_castle_cart) drawCastleDancers(now);
 
     /* gloeiende partikels bovenop */
     for (const e of embers) {
@@ -1974,7 +1976,7 @@
         /* Lichte, doorlopende wieg voor wat 'leven' (bv. de wacht). */
         const swayRot = npc.sway ? Math.sin(now / 650 + (npc.x || 0)) * 0.035 : 0;
         const ges = npc.gestureSprite && art.sprites[npc.gestureSprite];
-        if (npc.danceFlag && state.flags[npc.danceFlag]) {
+        if (npc.danceFlag && state.flags[npc.danceFlag] && !(npc.danceStopFlag && state.flags[npc.danceStopFlag])) {
           /* Dansende bloemen: vrolijk heen-en-weer wiegen + verende squash + opwippen.
              Elke bloem krijgt via haar x een eigen fase, zodat ze niet als één blok bewegen. */
           const ph = (npc.x || 0) * 0.5;
@@ -3584,6 +3586,12 @@
       addItem(hs.gives.item);
       sfx('pickup');
       say(hs.gives.giveText);
+      /* Een NPC kan wegvliegen zodra dit voorwerp gepakt is (bv. de raaf op de
+         kar die wegvliegt naar de vallei zodra je het molenrad pakt). */
+      if (hs.gives.flyNpc) {
+        const rt = npcRt[hs.gives.flyNpc];
+        if (rt) ravenFly = { x: rt.x, y: rt.y - 8, t: performance.now(), dir: hs.gives.flyDir || 'left' };
+      }
       if (hs.gives.win) { pendingWin = true; sfx('win'); }
       return;
     }

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '47',
+  assetVer: '48',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -527,12 +527,12 @@ const GAME = {
       npcs: [
         { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
         { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.0, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted' },   // sneaky handelsman (kap op) in de schaduw van zijn kar: iets naar achter + kleiner; spiedt afwisselend naar zijn kar (links) en de wacht (rechts); draait zich verbaasd óm naar de dansende bloem zodra die danst
-        { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
-        { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
-        { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, danceFlag: 'flowerDancing' },   // alle bloemen gelig-wit, dicht bij elkaar; dansen mee
-        { id: 'flower3', sprite: 'flowerWhite', x: 457, y: 267, scale: 0.2, danceFlag: 'flowerDancing' },
-        { id: 'flower4', sprite: 'flowerWhite', x: 420, y: 263, scale: 0.18, danceFlag: 'flowerDancing' },
-        { id: 'flower5', sprite: 'flowerWhite', x: 468, y: 262, scale: 0.19, danceFlag: 'flowerDancing' }
+        { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
+        { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
+        { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // alle bloemen gelig-wit, dicht bij elkaar; dansen mee
+        { id: 'flower3', sprite: 'flowerWhite', x: 457, y: 267, scale: 0.2, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },
+        { id: 'flower4', sprite: 'flowerWhite', x: 420, y: 263, scale: 0.18, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },
+        { id: 'flower5', sprite: 'flowerWhite', x: 468, y: 262, scale: 0.19, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' }
       ],
       fx: {},
       hotspots: [
@@ -559,7 +559,8 @@ const GAME = {
           },
           gives: {
             item: 'millwheel',
-            giveText: { nl: 'De handelsman staart gebiologeerd naar de dansende bloem. Snel grist je het zware ijzeren molenrad tussen de vaten vandaan en stopt het weg. Hebbes!', en: 'The merchant gawks at the dancing flower. Quickly you snatch the heavy iron mill wheel from between the barrels and stash it. Got it!' },
+            flyNpc: 'ravenCart', flyDir: 'left',         // de raaf wiekt op en vliegt weg naar de vallei
+            giveText: { nl: 'De handelsman staart gebiologeerd naar de dansende bloem. Snel grist je het zware ijzeren molenrad tussen de vaten vandaan en stopt het weg. Hebbes! De betovering ebt weg — de bloemen vallen stil — en de raaf wiekt op en vliegt weg, richting de mistige vallei.', en: 'The merchant gawks at the dancing flower. Quickly you snatch the heavy iron mill wheel from between the barrels and stash it. Got it! The enchantment fades — the flowers fall still — and the raven takes wing, flying off toward the misty valley.' },
             emptyText: { nl: 'Verder ligt er niets bruikbaars in de kar.', en: 'Nothing else useful is in the cart.' }
           }
         },
