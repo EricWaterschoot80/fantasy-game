@@ -256,7 +256,7 @@
   /* Achtergrondmuziek: 'Cistern Syntax' in een lus; valt terug op de generatieve
      ambient-synth als het mp3-bestand (nog) ontbreekt. */
   let bgMusic = null;
-  const DEFAULT_MUSIC = 'assets/audio/cistern-syntax.mp3';
+  const DEFAULT_MUSIC = 'assets/audio/whispers-of-the-forgotten.mp3';
   function startSynthFallback() {
     const a = ac(); if (!a || music.master) return;
     music.master = a.createGain();
@@ -278,7 +278,7 @@
     try {
       bgMusic = new Audio(DEFAULT_MUSIC + AV);
       bgMusic.loop = true;
-      bgMusic.volume = soundOn ? 0.07 : 0;
+      bgMusic.volume = soundOn ? 0.18 : 0;
       bgMusic.addEventListener('error', startSynthFallback, { once: true });
       bgMusic.play().catch(() => {});
     } catch (e) { startSynthFallback(); }
@@ -295,7 +295,7 @@
     if (music.master) music.master.gain.value = soundOn ? 1 : 0;
     /* iOS negeert audio.volume → ook pauzeren zodat 'uit' echt stil is */
     if (bgMusic) {
-      bgMusic.volume = soundOn ? 0.07 : 0;
+      bgMusic.volume = soundOn ? 0.18 : 0;
       if (soundOn) bgMusic.play().catch(() => {}); else { try { bgMusic.pause(); } catch (e) {} }
     }
     if (soundOn) sfx('tap');

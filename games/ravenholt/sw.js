@@ -4,7 +4,7 @@
    offline beschikbaar wilt hebben (optioneel — niet-vermelde bestanden worden bij
    eerste gebruik alsnog gecachet). */
 
-const CACHE = 'ravenholt-v33';
+const CACHE = 'ravenholt-v34';
 
 const PRECACHE = [
   './',
