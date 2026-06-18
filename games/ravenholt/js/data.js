@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '48',
+  assetVer: '52',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -47,7 +47,9 @@ const GAME = {
     merchantAwe:   'assets/art/merchant-awe.png',    // verbaasd/betoverd starend naar de dansende bloem (2)
     heroWalkDiag:  'assets/art/hero-walk-diag.png',  // schuin lopen (3/4 naar de speler toe)
     flower:        'assets/art/flower.png',          // bloem (oranje accent)
-    flowerWhite:   'assets/art/flower-white.png'     // witte bloem (dansende bloem + cluster)
+    flowerWhite:   'assets/art/flower-white.png',    // witte bloem (dansende bloem + cluster)
+    witch:         'assets/art/npc-witch.png',       // de heks bij de ketel (rust-frame)
+    witchBeckon:   'assets/art/npc-witch-beckon.png' // heks wenkt de jongen ('kom hier'-gebaar)
   },
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -93,7 +95,7 @@ const GAME = {
     q_writespell:{ nl: 'Het toverboek is leeg — pak de ravenveer, maak inkt (zwarte bessen + flesje) en schrijf de spreuk in het boek', en: 'The spellbook is blank — take the raven feather, make ink (black berries + vial) and write the spell into the book' },
     q_flower:   { nl: 'Bij het kasteel: laat met de spreuk de grote bloem dansen', en: 'At the castle: use the spell to make the big flower dance' },
     q_tomayor:  { nl: 'De molen draait weer en de fontein stroomt! Ga terug naar het plein, naar burgemeester Bram', en: 'The mill turns again and the fountain flows! Head back to the square, to Mayor Bram' },
-    q_valley:   { nl: 'Je hebt de geheime kaart! Bij de kasteelpoort wijst een pad naar de mistige vallei — ga op onderzoek', en: 'You have the secret map! At the castle gate a path leads to the misty valley — go explore' },
+    q_valley:   { nl: 'In de runencirkel: vind de drie ingrediënten (een traan, maanstof en een drakenschub) bij de stenen en gooi ze in de ketel', en: 'In the rune circle: find the three ingredients (a tear, moondust and a dragon scale) by the stones and throw them in the cauldron' },
     q_takewheel:{ nl: 'De handelsman kijkt naar de bloem — pak nu het molenrad uit zijn kar', en: 'The merchant is watching the flower — grab the mill wheel from his cart now' },
     q_fixmill:  { nl: 'Breng het molenrad naar het tandrad in de molen en maak het radwerk', en: 'Take the mill wheel to the gear inside the mill and fix the gearworks' }
   },
@@ -128,7 +130,13 @@ const GAME = {
     millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
              look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen!', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it!' } },
     cheese: { name: { nl: 'Stuk Kaas', en: 'Piece of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
-             look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } }
+             look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } },
+    tear: { name: { nl: 'Traan in een Flesje', en: 'Tear in a Vial' }, icon: '💧', img: 'assets/art/item-vial.png',
+             look: { nl: 'Een glazen flesje met één heldere, glinsterende traan erin. Eén van de drie ingrediënten voor de ketel in de runencirkel.', en: 'A glass vial holding a single clear, glistening tear. One of the three ingredients for the cauldron in the rune circle.' } },
+    moondust: { name: { nl: 'Maanstof', en: 'Moondust' }, icon: '🌙',
+             look: { nl: 'Fijn zilverig stof dat zacht oplicht in het donker, alsof het stukjes maan zijn. Een ingrediënt voor de ketel.', en: 'Fine silvery dust that softly glows in the dark, like flecks of the moon. An ingredient for the cauldron.' } },
+    dragonscale: { name: { nl: 'Drakenschub', en: 'Dragon Scale' }, icon: '🐲',
+             look: { nl: 'Een harde, glanzende schub, warm als sintels. Wie weet welk wezen hem verloor... Het laatste ingrediënt voor de ketel.', en: 'A hard, gleaming scale, warm as embers. Who knows what creature lost it... The last ingredient for the cauldron.' } }
   },
 
   /* Combinaties. result = nieuw voorwerp; of setFlag (+ keep) voor een handeling
@@ -147,7 +155,7 @@ const GAME = {
   ],
 
   questRules: [
-    { when: { flag: 'sawValleyCave' },      quest: null },         // vallei bereikt -> wordt vervolgd
+    { when: { flag: 'valleyMagic' },        quest: null },         // ketel ontstoken -> wordt vervolgd
     { when: { flag: 'gotMap' },             quest: 'q_valley' },   // kaart ontvangen -> volg het pad naar de vallei
     { when: { flag: 'millFixed' },          quest: 'q_tomayor' },  // molen draait -> terug naar de burgemeester
     { when: { has: 'millwheel' },           quest: 'q_fixmill' },  // rad in handen -> maak het radwerk in de molen
@@ -190,7 +198,16 @@ const GAME = {
         { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264 },   // burgemeester Bram; wringt af en toe wanhopig met zijn handen
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
       ],
-      fx: {},
+      fx: {
+        /* klaterende fontein op het plein */
+        fountain: { sx: 242, sy: 196, wx: 234, wy: 236 },
+        /* opstijgende rook uit de schoorstenen van de dorpshuizen */
+        smoke: [
+          { x: 334, y: 50, rise: 42, spread: 8, speed: 1500, puffs: 6 },
+          { x: 470, y: 56, rise: 34, spread: 7, speed: 1750, puffs: 5 },
+          { x: 408, y: 52, rise: 30, spread: 6, speed: 1950, puffs: 5 }
+        ]
+      },
 
       hotspots: [
         {
@@ -625,53 +642,116 @@ const GAME = {
 
     valley: {
       name: { nl: 'De Mistige Vallei', en: 'The Misty Valley' },
-      bg: 'assets/art/scene-valley.png',
+      bg: 'assets/art/scene-valley.jpg',
+      bgVariants: [
+        { img: 'assets/art/scene-valley-magic.jpg', flag: 'valleyMagic' },   // ketel ontstoken → alles gloeit blauw
+        { img: 'assets/art/scene-valley.jpg' }
+      ],
       charFilter: 'sepia(0.12) saturate(1.05) brightness(1.0)',   // koeler, mistig ochtendlicht
       entryText: {
-        nl: 'Voorbij het bos opent zich de vallei uit de geheime kaart. Vreemde blauwe lichten dwalen boven de mist en in de verte gloeit een grot. Hier, waar je vaders kaart eindigt, begint Finns volgende avontuur...',
-        en: 'Beyond the wood the valley from the secret map opens up. Strange blue lights wander over the mist, and far off a cave glows. Here, where your father’s map ends, Finn’s next adventure begins...'
+        nl: 'Voorbij het bos opent zich de vallei uit de geheime kaart: een oude runencirkel van steen, met staande runenstenen en in het hart een grote stenen ketel. Hier, waar je vaders kaart eindigt, begint Finns volgende avontuur...',
+        en: 'Beyond the wood the valley from the secret map opens up: an ancient rune circle of stone, with standing rune-stones and a great stone cauldron at its heart. Here, where your father’s map ends, Finn’s next adventure begins...'
       },
       playerStart: { x: 120, y: 288 },
       spawnFrom: { castle: { x: 120, y: 288 } },
       depth: { far: 252, near: 304, sFar: 0.8, sNear: 1.06 },
       walkable: [
-        { x: 56, y: 270, w: 452, h: 46 }    // het pad onder in de vallei
+        { x: 56, y: 270, w: 452, h: 46 }    // de rand van de runencirkel
       ],
       obstacles: [],
       overlays: [],
       worldItems: [],
-      npcs: [],
+      npcs: [
+        /* De heks staat naast de ketel en probeert Finn dichterbij te lokken (wenk-frames). */
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 392, y: 258, scale: 1.12 }
+      ],
       fx: { fireflies: 7 },                  // dwaallichtjes boven de mist
       hotspots: [
         {
+          id: 'witch',
+          name: { nl: 'De Oude Heks', en: 'The Old Witch' },
+          rect: { x: 356, y: 150, w: 78, h: 120 },
+          walkTo: { x: 344, y: 300 },
+          look: {
+            nl: 'Een kromme oude heks met een punthoed leunt op haar pollepel-staf naast de ketel. Ze wenkt je met een knokige vinger en grijnst: “Kom dichterbij, jongen... gooi de juiste ingrediënten in mijn ketel, dan laat ik je échte magie zien.” Er loopt een rilling over je rug.',
+            en: 'A hunched old witch with a pointed hat leans on her ladle-staff beside the cauldron. She beckons you with a bony finger and grins: “Come closer, boy... throw the right ingredients into my cauldron, and I’ll show you real magic.” A shiver runs down your spine.'
+          },
+          setFlag: 'metWitch'
+        },
+        {
+          id: 'cauldron',
+          name: { nl: 'De Stenen Ketel', en: 'The Stone Cauldron' },
+          rect: { x: 248, y: 150, w: 74, h: 90 },
+          walkTo: { x: 286, y: 300 },
+          look: (state) => state.flags.valleyMagic
+            ? { nl: 'De ketel laait met blauw vuur en de runen op alle stenen gloeien. De magie van de vallei is ontwaakt... (wordt vervolgd)', en: 'The cauldron blazes with blue fire and the runes on every stone glow. The valley’s magic has awoken... (to be continued)' }
+            : { nl: 'Een oude stenen ketel in het hart van de runencirkel. In de rand staan tekens gekrast: een traan, een maan en een draak. Gooi de drie ingrediënten erin om de magie te wekken.', en: 'An ancient stone cauldron at the heart of the rune circle. Symbols are carved into its rim: a tear, a moon and a dragon. Throw the three ingredients in to wake the magic.' },
+          use: {
+            tear:        { consume: 'tear',        setFlag: 'cauldron_tear',        text: { nl: 'Je giet de traan uit het flesje in de ketel. Het water rimpelt zilverig.', en: 'You pour the tear from the vial into the cauldron. The water ripples silver.' } },
+            moondust:    { consume: 'moondust',    setFlag: 'cauldron_moondust',    text: { nl: 'Je strooit de maanstof over de ketel. Het glinstert en zinkt langzaam weg.', en: 'You scatter the moondust over the cauldron. It glitters and slowly sinks away.' } },
+            dragonscale: { consume: 'dragonscale', setFlag: 'cauldron_dragonscale', text: { nl: 'Je laat de drakenschub in de ketel zakken. Het sist zacht en dampt.', en: 'You lower the dragon scale into the cauldron. It hisses softly and steams.' } }
+          },
+          combo: {
+            needFlags: ['cauldron_tear', 'cauldron_moondust', 'cauldron_dragonscale'],
+            setFlag: 'valleyMagic',
+            win: true,
+            burst: { x: 286, y: 175 },
+            text: {
+              nl: 'Zodra het laatste ingrediënt de ketel raakt, laait er blauw vuur op! De runen op de stenen en de hele cirkel beginnen fel te gloeien — de magie van de vallei ontwaakt. (wordt vervolgd)',
+              en: 'The moment the last ingredient hits the cauldron, blue fire erupts! The runes on the stones and the whole circle blaze with light — the valley’s magic awakens. (to be continued)'
+            }
+          }
+        },
+        {
+          id: 'tear',
+          name: { nl: 'Een Glinsterend Flesje', en: 'A Glistening Vial' },
+          rect: { x: 20, y: 110, w: 84, h: 96 },
+          walkTo: { x: 100, y: 300 },
+          gives: {
+            item: 'tear',
+            giveText: { nl: 'Aan de voet van de linker runensteen ligt een glazen flesje met één glinsterende traan erin. Eén van de ingrediënten voor de ketel!', en: 'At the foot of the left rune-stone lies a glass vial with a single glistening tear inside. One of the ingredients for the cauldron!' },
+            emptyText: { nl: 'De linker runensteen — je hebt het flesje al gevonden.', en: 'The left rune-stone — you already found the vial.' }
+          }
+        },
+        {
+          id: 'moondust',
+          name: { nl: 'Glinsterend Stof', en: 'Glistening Dust' },
+          rect: { x: 150, y: 150, w: 64, h: 92 },
+          walkTo: { x: 182, y: 300 },
+          gives: {
+            item: 'moondust',
+            giveText: { nl: 'Op een platte offersteen ligt een hoopje fijn zilverig stof dat zacht oplicht — maanstof. Het tweede ingrediënt.', en: 'On a flat offering-stone lies a heap of fine silvery dust that softly glows — moondust. The second ingredient.' },
+            emptyText: { nl: 'De offersteen is leeg — de maanstof zit al in je tas.', en: 'The offering-stone is empty — the moondust is already in your bag.' }
+          }
+        },
+        {
+          id: 'dragonscale',
+          name: { nl: 'Iets Glanzends', en: 'Something Gleaming' },
+          rect: { x: 476, y: 120, w: 72, h: 120 },
+          walkTo: { x: 474, y: 300 },
+          gives: {
+            item: 'dragonscale',
+            giveText: { nl: 'Tegen de rechter runensteen glanst een harde, warme schub — een echte drakenschub! Het derde en laatste ingrediënt.', en: 'Against the right rune-stone gleams a hard, warm scale — a real dragon scale! The third and final ingredient.' },
+            emptyText: { nl: 'De rechter runensteen — de drakenschub heb je al.', en: 'The right rune-stone — you already have the dragon scale.' }
+          }
+        },
+        {
           id: 'lights',
           name: { nl: 'De Dwaallichten', en: 'The Wandering Lights' },
-          rect: { x: 196, y: 110, w: 200, h: 96 },
+          rect: { x: 226, y: 92, w: 130, h: 46 },
           walkTo: { x: 296, y: 300 },
           look: {
-            nl: 'Zachtblauwe lichtjes zweven boven het moeras, alsof ze je verder de vallei in willen lokken. Het briefje had gelijk: “volg de lichten in de vallei.”',
-            en: 'Soft blue lights hover over the marsh, as if luring you deeper into the valley. The note was right: “follow the lights in the valley.”'
+            nl: 'Zachtblauwe lichtjes zweven boven de mist achter de cirkel, alsof ze je dieper de vallei in willen lokken. Het briefje had gelijk: “volg de lichten in de vallei.”',
+            en: 'Soft blue lights hover over the mist behind the circle, as if luring you deeper into the valley. The note was right: “follow the lights in the valley.”'
           },
           setFlag: 'sawValleyLights'
         },
         {
-          id: 'cave',
-          name: { nl: 'De Gloeiende Grot', en: 'The Glowing Cave' },
-          rect: { x: 392, y: 120, w: 110, h: 90 },
-          walkTo: { x: 430, y: 300 },
-          look: {
-            nl: 'Diep in de vallei gloeit de grot uit het molenaarsboek met een blauwe schijn — daar moet de magische steen liggen die de staf van je vader weer tot leven wekt. Maar dat is een avontuur voor de volgende keer... (wordt vervolgd)',
-            en: 'Deep in the valley the cave from the miller’s book glows with a blue shimmer — the magic stone that wakes your father’s staff must lie there. But that is an adventure for next time... (to be continued)'
-          },
-          setFlag: 'sawValleyCave',
-          win: true
-        },
-        {
           id: 'toCastle',
           name: { nl: 'Terug naar de Poort', en: 'Back to the Gate' },
-          rect: { x: 36, y: 200, w: 80, h: 116 },
+          rect: { x: 36, y: 210, w: 70, h: 106 },
           walkTo: { x: 92, y: 300 },
-          arrow: { x: 70, y: 252, dir: 'down' },
+          arrow: { x: 64, y: 256, dir: 'down' },
           exit: { to: 'castle', travelText: { nl: 'Je keert terug langs het pad naar de kasteelpoort.', en: 'You head back up the path to the castle gate.' } }
         }
       ]

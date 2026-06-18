@@ -1303,6 +1303,25 @@
         fctx.fillRect(Math.round(f.wx + off), yy, 7, 1);
       }
     }
+    /* Opstijgende schoorsteenrook boven de daken (zachte grijze pluimpjes). */
+    if (fx.smoke && !dark) {
+      for (const c of fx.smoke) {
+        const n = c.puffs || 5;
+        for (let i = 0; i < n; i++) {
+          const t = ((now / (c.speed || 1500)) + i / n) % 1;     // levensduur 0..1
+          const rise = t * (c.rise || 34);
+          const x = c.x + Math.sin(t * 5 + i * 1.3) * (1.5 + t * (c.spread || 7));
+          const y = c.y - rise;
+          const r = (c.r0 || 1.1) + t * (c.r1 || 3.4);
+          const al = (c.alpha || 0.26) * (1 - t) * Math.min(1, t * 5);   // in- en uitfaden
+          if (al <= 0.01) continue;
+          fctx.fillStyle = `rgba(226,223,214,${al})`;
+          fctx.beginPath();
+          fctx.arc(Math.round(x), Math.round(y), r, 0, Math.PI * 2);
+          fctx.fill();
+        }
+      }
+    }
     if (fx.bowlEmpty && state.flags.minotaurAsleep) {
       const b = fx.bowlEmpty;
       fctx.save();
@@ -1965,6 +1984,10 @@
         const si = Math.floor(now / 1700) % npc.scanSprites.length;
         const ss = art.sprites[npc.scanSprites[si]];
         if (ready(ss)) img = ss;
+      } else if (npc.lure && ready(art.sprites[npc.lure])) {
+        /* Lokken: meestal rust, af en toe een 'kom hier'-wenk (de heks bij de ketel). */
+        const cyc = (now % 2600) / 2600;
+        if (cyc > 0.58 && cyc < 0.90) img = art.sprites[npc.lure];
       }
       if (ready(img)) {
         const sc2 = depthScaleAt(rt.y) * (npc.scale || 1);
@@ -3433,6 +3456,18 @@
           say(action.requiresText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
         } else {
           runAction(action, hsSpeaker(hs), hsFace(hs));
+          /* Meer-ingrediënten-combo (de ketel): zodra alle nodige vlaggen gezet zijn,
+             ontsteekt de ketel en wisselt de achtergrond naar de magische vallei. */
+          const cb = hs.combo;
+          if (cb && !state.flags[cb.setFlag] && cb.needFlags.every((f) => state.flags[f])) {
+            state.flags[cb.setFlag] = true;
+            paintBackground();
+            if (cb.burst) burstAt(cb.burst.x, cb.burst.y, { n: 24, col: '120,180,255', up: 18, life: 1.2 });
+            sfx('combine');
+            if (cb.text) say(cb.text, hsSpeaker(hs), hsFace(hs));
+            updateQuest();
+            if (cb.win) { pendingWin = true; sfx('win'); }
+          }
         }
       } else {
         sfx('error');
@@ -3929,6 +3964,8 @@
     gearState: () => gears && { placed: gears.tray.filter((g) => g.placedAt != null).length, spinning: !!gears.spin,
       correct: allGearsCorrect(), canvas: elGearCanvas ? { w: elGearCanvas.width, h: elGearCanvas.height } : null },
     gearTest: () => { if (gears) testGears(); },
+    paint: () => paintBackground(),
+    enterScene: (id) => { if (GAME.scenes[id]) { state.currentScene = id; const sc = GAME.scenes[id]; if (sc.fx && sc.fx.fireflies) initFireflies(sc.fx.fireflies); paintBackground(); } },
     reset: resetGame
   };
 
