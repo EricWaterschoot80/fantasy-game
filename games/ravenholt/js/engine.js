@@ -2288,11 +2288,14 @@
   /* ---------- Inventaris ---------- */
   function renderInventory() {
     elInvbar.innerHTML = '';
-    const slots = Math.max(MIN_SLOTS, state.inventory.length);
+    /* De dans-spreuk staat altijd in het laatste (meest rechtse) vakje; de rest links. */
+    const hasSpell = state.inventory.includes('spell');
+    const others = state.inventory.filter((id) => id !== 'spell');
+    const slots = Math.max(MIN_SLOTS, others.length + (hasSpell ? 1 : 0));
     for (let i = 0; i < slots; i++) {
       const slot = document.createElement('div');
       slot.className = 'inv-slot';
-      const itemId = state.inventory[i];
+      const itemId = (hasSpell && i === slots - 1) ? 'spell' : (i < others.length ? others[i] : undefined);
       if (itemId) {
         const item = GAME.items[itemId];
         slot.classList.add('filled');
@@ -2322,6 +2325,15 @@
 
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
+    /* De dans-spreuk werkt rechtstreeks vanuit je tas: tik = uitspreken. */
+    if (itemId === 'spell') {
+      state.selectedItem = null;
+      const sl = elInvbar.querySelector('.inv-slot[data-item="spell"]');
+      if (sl) { sl.classList.remove('cast'); void sl.offsetWidth; sl.classList.add('cast'); setTimeout(() => sl.classList.remove('cast'), 660); }
+      castSpell();
+      renderInventory();
+      return;
+    }
     const item = GAME.items[itemId];
     if (item && item.zoomImg && (!item.zoomImgFlag || state.flags[item.zoomImgFlag])) {   // leesbaar item; leeg toverboek nog niet (dan combineerbaar)
       state.selectedItem = null;

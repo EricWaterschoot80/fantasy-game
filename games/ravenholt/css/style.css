@@ -1146,9 +1146,15 @@ html, body {
 }
 .bubble-x:hover { background: rgba(0,0,0,.24); color: #2a1c0c; }
 
-/* ---- Spreuk in de tas: blauwe rand ---- */
+/* ---- Spreuk in de tas: dunne blauwe rand + cast-flits ---- */
 .inv-slot.border-blue {
   border-color: #5aa0ff;
-  box-shadow: inset 0 0 0 2px #5aa0ff, 0 0 8px rgba(90,160,255,.65);
+  box-shadow: inset 0 0 0 1px #5aa0ff, 0 0 5px rgba(90,160,255,.5);
 }
 .inv-slot.border-blue.filled { color: #cfe4ff; }
+.inv-slot.cast { animation: invCast .6s ease-out; }
+@keyframes invCast {
+  0%   { box-shadow: inset 0 0 0 1px #5aa0ff, 0 0 4px rgba(90,160,255,.5); }
+  40%  { box-shadow: inset 0 0 0 2px #c2e2ff, 0 0 16px rgba(150,200,255,.95); }
+  100% { box-shadow: inset 0 0 0 1px #5aa0ff, 0 0 5px rgba(90,160,255,.5); }
+}

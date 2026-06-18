@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '55',
+  assetVer: '56',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -107,8 +107,8 @@ const GAME = {
             look: { nl: 'Een oud, mat muntje — maar in het zonlicht glinstert het nog mooi. Precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old, dull coin — but it still glints prettily in the sunlight. Just the kind of shiny thing a magpie or raven can’t resist.' } },
     note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
             look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } },
-    vial:  { name: { nl: 'Drie Lege Flesjes', en: 'Three Empty Vials' }, icon: '🧪', img: 'assets/art/item-vial.png',
-             look: { nl: 'Drie lege glazen flesjes met kurk, van de stoffige plank in de molen. Eentje is mooi voor inkt — de andere bewaar je om straks iets bijzonders in te vangen.', en: 'Three empty corked glass vials from the dusty shelf in the mill. One is perfect for ink — the others you keep to catch something special later.' } },
+    vial:  { name: { nl: 'Twee Lege Flesjes', en: 'Two Empty Vials' }, icon: '🧪', img: 'assets/art/item-vial.png',
+             look: { nl: 'Twee lege glazen flesjes met kurk, uit de kast in de molen. Eentje is voor de inkt (bessen) en eentje om de traan van het meisje bij de kraam in op te vangen.', en: 'Two empty corked glass vials from the cupboard in the mill. One is for the ink (berries) and one to catch the tear of the girl at the stall.' } },
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
@@ -175,8 +175,9 @@ const GAME = {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
       bg: 'assets/art/scene-square.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-square-chess.jpg', flag: 'visited_valley' },   // na de vallei: oude man schaakt bij de fontein
-        { img: 'assets/art/scene-square.jpg' }
+        { img: 'assets/art/scene-square-chess.jpg', flag: 'visited_valley' },   // na de vallei: oude man schaakt + fontein klatert
+        { img: 'assets/art/scene-square-mill.jpg', flag: 'millFixed' },          // molen gemaakt: fontein klatert weer
+        { img: 'assets/art/scene-square.jpg' }                                    // begin: droge fontein
       ],
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // warm-gouden opkomende zon, geeliger
       entryText: {
@@ -208,7 +209,7 @@ const GAME = {
       fx: {
         /* klaterende fontein op het plein — pas zodra de molen weer draait (anders droog).
            Twee straaltjes (links + rechts); rimpels/knippering iets lager en linkser. */
-        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 228, sy: 198 }, { sx: 250, sy: 198 }], wx: 224, wy: 244 },
+        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 242, sy: 198 }, { sx: 262, sy: 198 }], wx: 240, wy: 244 },
         /* opstijgende rook uit de schoorstenen van de dorpshuizen */
         smoke: [
           { x: 334, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
@@ -481,7 +482,7 @@ const GAME = {
           gives: {
             item: 'vial',
             setFlag: 'gotVials',
-            giveText: { nl: 'Op de bovenste plank staan oude flesjes. Je grist er meteen drie lege glazen flesjes met kurk mee — eentje voor inkt en twee om te bewaren.', en: 'Old bottles line the top shelf. You grab three empty corked glass vials at once — one for ink and two to keep.' },
+            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er twee lege glazen flesjes met kurk mee — eentje voor de inkt en eentje om straks een traan in op te vangen.', en: 'Old bottles stand in the cupboard. You take two empty corked glass vials — one for the ink and one to catch a tear in later.' },
             emptyText: { nl: 'De andere flesjes zijn gebarsten of vol spinrag.', en: 'The other bottles are cracked or full of cobwebs.' }
           }
         },
@@ -586,8 +587,8 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.30, sway: true },   // poortwacht met hellebaard; wiegt rustig heen en weer
-        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.0, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
+        { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.12, sway: true },   // poortwacht met hellebaard (iets kleiner); wiegt rustig heen en weer
+        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.2, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
         { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
         { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // alle bloemen gelig-wit, dicht bij elkaar; dansen mee
