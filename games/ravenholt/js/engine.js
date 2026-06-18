@@ -1698,7 +1698,10 @@
         if (ready(sheet)) {
           const D = GAME.spriteDetail || 1;
           const NF = (GAME.heroWalkFrames || 8), fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
-          const t = player.phase * 0.9;            // doorlopende loop-fase (sneller -> benen bewegen duidelijk)
+          /* Frame-timing op TIJD (niet op afgelegde afstand): zo blijft de loop altijd
+             vloeiend doorlopen — ook als Finn langzaam loopt of afremt bij een waypoint
+             (geen plots "stilstaan" meer). ~11 fps over de 20 frames. */
+          const t = now / 90;
           const fr = Math.floor(t) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
              de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven.
@@ -1707,21 +1710,13 @@
           const dh = Math.round((ready(hero) ? hero.naturalHeight : 56) / D * ds);
           const dw = Math.round(fw * dh / fh);
           const foot = Math.round(dh * 2 * D / fh);   // compenseer de lucht onder de voeten
-          /* Natuurlijke pas: lichaam wipt 2x per cyclus omhoog (op de 'passing'-frames),
-             met een zachte gewichtsverschuiving zijwaarts en een lichte romp-zwaai. */
-          /* Doorlopende verende pas (2x wippen per cyclus) + gewichtsverschuiving + een
-             duidelijker romp-/staf-zwaai (de staf steekt omhoog, dus de rotatie laat de
-             arm/staf zichtbaar meewiegen terwijl de voeten op de grond blijven). */
-          const s = Math.sin(t * Math.PI * 0.5);
-          const bob = -Math.round(Math.abs(s) * 1.8 * ds);
-          const sway = Math.round(s * 0.8 * ds);              // gewichtsverschuiving
-          const lean = s * 0.045;                             // duidelijke arm-/staf-zwaai
+          /* De /lopen-animatie heeft zelf al de natuurlijke beweging (lichaam, benen, arm/staf),
+             dus de engine voegt GEEN extra wip/zwaai toe (anders gaat het dubbel wiebelen). */
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
-          fctx.translate(Math.round(player.x) + (player.flip ? -sway : sway), Math.round(player.y) + bob);
+          fctx.translate(Math.round(player.x), Math.round(player.y));
           if (player.flip) fctx.scale(-1, 1);
-          fctx.rotate(lean);
           fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
           fctx.restore();
           return;
