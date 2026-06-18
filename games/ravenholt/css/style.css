@@ -1113,3 +1113,22 @@ html, body {
   .ornament { font-size: 30px; }
   .win-banner { max-height: 32vh; width: auto; max-width: min(100%, 56vh); margin: 0 auto 8px; }
 }
+
+/* ---- Schaak-uitdaging (mat-in-één) ---- */
+.chess-card { max-width: 380px; }
+.chess-board {
+  display: grid; grid-template-columns: repeat(8, 1fr);
+  width: min(82vw, 320px); aspect-ratio: 1; margin: 10px auto 2px;
+  border: 3px solid #6a5230; border-radius: 6px; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+}
+.chess-sq {
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(17px, 6.4vw, 30px); line-height: 1; cursor: pointer;
+  user-select: none; -webkit-user-select: none; aspect-ratio: 1;
+}
+.chess-sq.lt { background: #e8d6a8; }
+.chess-sq.dk { background: #b07c4a; }
+.chess-sq.sel { box-shadow: inset 0 0 0 3px #5bbd63; }
+.chess-sq.wp { color: #fffef6; text-shadow: 0 1px 1px #000, 0 0 2px #000; }
+.chess-sq.bp { color: #17120d; text-shadow: 0 1px 1px rgba(255,255,255,.35); }

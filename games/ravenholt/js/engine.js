@@ -635,7 +635,7 @@
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
-    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden && elMaze.hidden && (!elGear || elGear.hidden)) {
+    if (started && elDeath.hidden && elWin.hidden && elPuzzle.hidden && elRiddle.hidden && elRune.hidden && elMaze.hidden && (!elGear || elGear.hidden) && (!elChess || elChess.hidden)) {
       const { vx, vy } = keyVector();
       if (vx || vy) {
         if (msgOpen()) showNextMsg();    // tekst weg én meteen lopen
@@ -1307,23 +1307,49 @@
         fctx.fillRect(Math.round(f.wx + off), yy, 7, 1);
       }
     }
-    /* Opstijgende schoorsteenrook boven de daken (zachte grijze pluimpjes). */
+    /* Opstijgende schoorsteenrook boven de daken — trage, zachte, realistische pluim:
+       elk pluimpje dijt uit en wordt ijler terwijl het stijgt, met twee grijstinten en
+       een lichte zijwaartse drift (alsof er een zacht briesje staat). */
     if (fx.smoke && !dark) {
       for (const c of fx.smoke) {
-        const n = c.puffs || 5;
+        const n = c.puffs || 7;
+        const speed = c.speed || 3000;          // trager = realistischer (langere levensduur)
+        const rise = c.rise || 40, spread = c.spread || 9, drift = c.drift || 5;
         for (let i = 0; i < n; i++) {
-          const t = ((now / (c.speed || 1500)) + i / n) % 1;     // levensduur 0..1
-          const rise = t * (c.rise || 34);
-          const x = c.x + Math.sin(t * 5 + i * 1.3) * (1.5 + t * (c.spread || 7));
-          const y = c.y - rise;
-          const r = (c.r0 || 1.1) + t * (c.r1 || 3.4);
-          const al = (c.alpha || 0.26) * (1 - t) * Math.min(1, t * 5);   // in- en uitfaden
-          if (al <= 0.01) continue;
-          fctx.fillStyle = `rgba(226,223,214,${al})`;
-          fctx.beginPath();
-          fctx.arc(Math.round(x), Math.round(y), r, 0, Math.PI * 2);
-          fctx.fill();
+          const t = ((now / speed) + i / n) % 1;            // levensduur 0..1
+          const ry = t * rise;
+          // langzaam wiegende zijwaartse drift die met de hoogte toeneemt
+          const sway = Math.sin(t * 3.0 + i * 1.7 + c.x) * (1 + t * spread) + t * drift;
+          const x = c.x + sway;
+          const y = c.y - ry;
+          const r = (c.r0 || 1.4) + t * (c.r1 || 5.5);      // dijt uit bij het stijgen
+          const fade = Math.min(1, t * 6) * (1 - t) * (1 - t);  // zacht in, traag uit
+          const al = (c.alpha || 0.22) * fade;
+          if (al <= 0.012) continue;
+          // donkere kern + lichtere, bredere halo = pluizige rook
+          fctx.fillStyle = `rgba(150,148,142,${al * 0.55})`;
+          fctx.beginPath(); fctx.arc(Math.round(x), Math.round(y), r * 0.7, 0, Math.PI * 2); fctx.fill();
+          fctx.fillStyle = `rgba(214,212,205,${al})`;
+          fctx.beginPath(); fctx.arc(Math.round(x), Math.round(y), r, 0, Math.PI * 2); fctx.fill();
         }
+      }
+    }
+    /* Gloeiend gedicht op de molenvloer (zodra je in de vallei bent geweest, tot voorgelezen). */
+    if (fx.poemGlow && state.flags[fx.poemGlow.flag] && !state.flags[fx.poemGlow.untilFlag]) {
+      const p = fx.poemGlow;
+      const pulse = 0.5 + 0.5 * Math.sin(now / 520);
+      const g = fctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 30);
+      g.addColorStop(0, `rgba(255,225,140,${0.22 + 0.16 * pulse})`);
+      g.addColorStop(0.6, `rgba(220,180,90,${0.08 + 0.06 * pulse})`);
+      g.addColorStop(1, 'rgba(220,180,90,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(p.x - 30, p.y - 18, 60, 36);
+      // een paar zwevende gouden lettertekens/vonkjes
+      for (let k = 0; k < 5; k++) {
+        const ang = now / 700 + k * 1.7;
+        const tx = p.x + Math.cos(ang) * (10 + k * 2);
+        const ty = p.y - 2 + Math.sin(ang * 1.3) * 5;
+        twinkle(tx, ty, 0.3 + 0.5 * Math.sin(now / 200 + k * 2), '255,228,150');
       }
     }
     if (fx.bowlEmpty && state.flags.minotaurAsleep) {
@@ -2151,7 +2177,7 @@
     if (!state.flags.spellWritten) return;
     if (msgOpen()) showNextMsg();
     /* niet casten terwijl een popup open is */
-    if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden)) return;
+    if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
     const scene = GAME.scenes[state.currentScene];
     const hs = (scene.hotspots || []).find(h => h.castWith);
     if (hs) {
@@ -2797,6 +2823,95 @@
     }
   }
   elRiddleClose.addEventListener('click', () => { elRiddle.hidden = true; });
+
+  /* ---------- Schaak-uitdaging (mat-in-één) ---------- */
+  const elChess      = document.getElementById('chess-screen');
+  const elChessBoard = document.getElementById('chess-board');
+  const elChessHint  = document.getElementById('chess-hint');
+  const elChessClose = document.getElementById('chess-close');
+  const CHESS_GLYPH = { wK: '♔', wR: '♖', bK: '♚', bP: '♟' };
+  let chessHs = null, chessSel = null, chessPos = null, chessLock = false;
+  /* Vaste mat-in-één-stelling (rugrij-mat): wit speelt Ta1–a8 mat. */
+  function chessStart() {
+    return [
+      { color: 'b', type: 'K', r: 0, c: 6 },   // zwarte koning op g8
+      { color: 'b', type: 'P', r: 1, c: 5 },   // pionnen f7,g7,h7 sluiten de koning in
+      { color: 'b', type: 'P', r: 1, c: 6 },
+      { color: 'b', type: 'P', r: 1, c: 7 },
+      { color: 'w', type: 'K', r: 7, c: 4 },   // witte koning e1
+      { color: 'w', type: 'R', r: 7, c: 0 }    // witte toren a1  ->  a8 = mat
+    ];
+  }
+  function chessAt(r, c) { return chessPos.find((p) => p.r === r && p.c === c); }
+  function chessLegal(pc, r, c) {
+    if (pc.r === r && pc.c === c) return false;
+    const tgt = chessAt(r, c);
+    if (tgt && tgt.color === pc.color) return false;
+    if (pc.type === 'R') {
+      if (pc.r !== r && pc.c !== c) return false;
+      const dr = Math.sign(r - pc.r), dc = Math.sign(c - pc.c);
+      let rr = pc.r + dr, cc = pc.c + dc;
+      while (rr !== r || cc !== c) { if (chessAt(rr, cc)) return false; rr += dr; cc += dc; }
+      return true;
+    }
+    if (pc.type === 'K') return Math.abs(r - pc.r) <= 1 && Math.abs(c - pc.c) <= 1;
+    return false;
+  }
+  function renderChess() {
+    elChessBoard.innerHTML = '';
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const sq = document.createElement('div');
+      sq.className = 'chess-sq ' + (((r + c) % 2 === 0) ? 'lt' : 'dk');
+      if (chessSel && chessSel.r === r && chessSel.c === c) sq.classList.add('sel');
+      const pc = chessAt(r, c);
+      if (pc) { sq.textContent = CHESS_GLYPH[pc.color + pc.type]; sq.classList.add(pc.color === 'w' ? 'wp' : 'bp'); }
+      sq.addEventListener('click', () => chessClick(r, c));
+      elChessBoard.appendChild(sq);
+    }
+  }
+  function openChess(hs) {
+    chessHs = hs; chessSel = null; chessLock = false; chessPos = chessStart();
+    elChessHint.textContent = L({ nl: 'Wit (jij) aan zet — geef de oude man mat in één zet!', en: 'White (you) to move — checkmate the old man in one move!' });
+    renderChess();
+    elChess.hidden = false;
+    sfx('tap');
+  }
+  function chessClick(r, c) {
+    if (chessLock) return;
+    const pc = chessAt(r, c);
+    if (chessSel) {
+      if (pc && pc.color === 'w') { chessSel = pc; renderChess(); sfx('tap'); return; }
+      if (chessLegal(chessSel, r, c)) {
+        const wasRook = chessSel.type === 'R';
+        const tgt = chessAt(r, c);
+        if (tgt) chessPos.splice(chessPos.indexOf(tgt), 1);
+        chessSel.r = r; chessSel.c = c;
+        const mate = wasRook && r === 0 && c === 0;   // Ta8#
+        chessSel = null; chessLock = true; renderChess();
+        if (mate) {
+          sfx('combine');
+          setTimeout(() => {
+            elChess.hidden = true;
+            state.flags[chessHs.chess.setFlag] = true;
+            if (chessHs.chess.give) { addItem(chessHs.chess.give); sfx('win'); }
+            say(chessHs.chess.winText, hsSpeaker(chessHs), hsFace(chessHs));
+            updateQuest();
+          }, 650);
+        } else {
+          sfx('error');
+          elChessHint.textContent = L({ nl: 'De oude man grinnikt: “Geen mat, jongen. Kijk eens goed naar je toren...” Het bord wordt teruggezet.', en: 'The old man chuckles: “No mate, lad. Look closely at your rook...” The board resets.' });
+          setTimeout(() => {
+            chessPos = chessStart(); chessSel = null; chessLock = false; renderChess();
+            elChessHint.textContent = L({ nl: 'Wit (jij) aan zet — mat in één zet!', en: 'White (you) to move — mate in one!' });
+          }, 1700);
+        }
+        return;
+      }
+      chessSel = null; renderChess(); return;
+    }
+    if (pc && pc.color === 'w') { chessSel = pc; renderChess(); sfx('tap'); }
+  }
+  elChessClose.addEventListener('click', () => { elChess.hidden = true; });
 
   /* ---------- Runenstenen-popup (mobiel: klik volgorde in popup) ---------- */
   const elRune       = document.getElementById('rune-screen');
@@ -3485,6 +3600,11 @@
       openZoom(hs.zoomImg);
       return;
     }
+    if (hs.chess) {
+      if (state.flags[hs.chess.setFlag]) { say(hs.chess.doneText || lookText(hs), hsSpeaker(hs)); return; }
+      openChess(hs);
+      return;
+    }
     if (hs.tile && hs.puzzleKey) {
       openTilePopup();
       return;
@@ -3590,6 +3710,9 @@
        overhandigt de geheime kaart zodra de molen weer draait). Eenmalig. */
     if (hs.givesWhen && state.flags[hs.givesWhen.flag] && !state.flags[hs.givesWhen.setFlag]) {
       const g = hs.givesWhen;
+      if (g.needFlag && !state.flags[g.needFlag]) {     // tweede voorwaarde (bv. eerst een leeg flesje hebben)
+        sfx('error'); say(g.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return;
+      }
       state.flags[g.setFlag] = true;
       if (g.item) addItem(g.item);
       sfx('pickup');
@@ -3622,6 +3745,7 @@
         return;
       }
       if (!repeat) state.flags[takenFlag(hs)] = true;
+      if (hs.gives.setFlag) state.flags[hs.gives.setFlag] = true;   // bv. drie flesjes pakken zet 'gotVials'
       addItem(hs.gives.item);
       sfx('pickup');
       say(hs.gives.giveText);

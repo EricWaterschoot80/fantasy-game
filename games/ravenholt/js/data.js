@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '53',
+  assetVer: '54',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -95,7 +95,7 @@ const GAME = {
     q_writespell:{ nl: 'Het toverboek is leeg — pak de ravenveer, maak inkt (zwarte bessen + flesje) en schrijf de spreuk in het boek', en: 'The spellbook is blank — take the raven feather, make ink (black berries + vial) and write the spell into the book' },
     q_flower:   { nl: 'Bij het kasteel: laat met de spreuk de grote bloem dansen', en: 'At the castle: use the spell to make the big flower dance' },
     q_tomayor:  { nl: 'De molen draait weer en de fontein stroomt! Ga terug naar het plein, naar burgemeester Bram', en: 'The mill turns again and the fountain flows! Head back to the square, to Mayor Bram' },
-    q_valley:   { nl: 'In de runencirkel: vind de drie ingrediënten (een traan, maanstof en een drakenschub) bij de stenen en gooi ze in de ketel', en: 'In the rune circle: find the three ingredients (a tear, moondust and a dragon scale) by the stones and throw them in the cauldron' },
+    q_valley:   { nl: 'Verzamel de 3 ingrediënten voor de ketel: maanstof (in de vallei), een traan (lees het gedicht in de molen voor aan het meisje) en een drakenschub (versla de oude schaker) — gooi ze dan in de ketel', en: 'Gather the 3 ingredients for the cauldron: moondust (in the valley), a tear (read the mill poem to the girl) and a dragon scale (beat the old chess player) — then throw them in the cauldron' },
     q_takewheel:{ nl: 'De handelsman kijkt naar de bloem — pak nu het molenrad uit zijn kar', en: 'The merchant is watching the flower — grab the mill wheel from his cart now' },
     q_fixmill:  { nl: 'Breng het molenrad naar het tandrad in de molen en maak het radwerk', en: 'Take the mill wheel to the gear inside the mill and fix the gearworks' }
   },
@@ -107,8 +107,8 @@ const GAME = {
             look: { nl: 'Een oud, mat muntje — maar in het zonlicht glinstert het nog mooi. Precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old, dull coin — but it still glints prettily in the sunlight. Just the kind of shiny thing a magpie or raven can’t resist.' } },
     note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
             look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } },
-    vial:  { name: { nl: 'Leeg Flesje', en: 'Empty Vial' }, icon: '🧪', img: 'assets/art/item-vial.png',
-             look: { nl: 'Een leeg glazen flesje met kurk, van de stoffige plank in de molen. Handig om straks iets in te bewaren.', en: 'An empty corked glass vial from the dusty shelf in the mill. Handy for storing something later.' } },
+    vial:  { name: { nl: 'Drie Lege Flesjes', en: 'Three Empty Vials' }, icon: '🧪', img: 'assets/art/item-vial.png',
+             look: { nl: 'Drie lege glazen flesjes met kurk, van de stoffige plank in de molen. Eentje is mooi voor inkt — de andere bewaar je om straks iets bijzonders in te vangen.', en: 'Three empty corked glass vials from the dusty shelf in the mill. One is perfect for ink — the others you keep to catch something special later.' } },
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
@@ -170,7 +170,11 @@ const GAME = {
   scenes: {
     square: {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
-      bg: 'assets/art/scene-square.png',
+      bg: 'assets/art/scene-square.jpg',
+      bgVariants: [
+        { img: 'assets/art/scene-square-chess.jpg', flag: 'visited_valley' },   // na de vallei: oude man schaakt bij de fontein
+        { img: 'assets/art/scene-square.jpg' }
+      ],
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // warm-gouden opkomende zon, geeliger
       entryText: {
         nl: 'Het dorpsplein van Eldoria baadt in het ochtendlicht. De fontein klatert nog wat na, maar het water zakt zienderogen. Aan de rand staat de oude molen stil.',
@@ -195,7 +199,7 @@ const GAME = {
         { item: 'feather', hotspot: 'feather', x: 102, y: 270, requiresFlag: 'ravenFed' }   // magische veer die de raaf achterliet (op de keien tussen de ton en de fontein)
       ],
       npcs: [
-        { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264, scale: 1.18 },   // burgemeester Bram; wringt af en toe wanhopig met zijn handen (iets groter)
+        { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264, scale: 1.18, hideFlag: 'visited_valley' },   // burgemeester Bram; weg zodra je in de vallei bent geweest (dan zit de oude man er)
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
       ],
       fx: {
@@ -203,9 +207,9 @@ const GAME = {
         fountain: { sx: 242, sy: 196, wx: 234, wy: 236 },
         /* opstijgende rook uit de schoorstenen van de dorpshuizen */
         smoke: [
-          { x: 334, y: 50, rise: 42, spread: 8, speed: 1500, puffs: 6 },
-          { x: 470, y: 56, rise: 34, spread: 7, speed: 1750, puffs: 5 },
-          { x: 408, y: 52, rise: 30, spread: 6, speed: 1950, puffs: 5 }
+          { x: 334, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
+          { x: 470, y: 56, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 },
+          { x: 408, y: 52, rise: 34, spread: 7, drift: 4, speed: 3900, puffs: 6 }
         ]
       },
 
@@ -216,6 +220,7 @@ const GAME = {
           rect: { x: 346, y: 186, w: 54, h: 80 },
           walkTo: { x: 366, y: 300 },
           face: 'assets/art/face-mayor.png',
+          hideFlag: 'visited_valley',                  // weg zodra je in de vallei bent geweest
           givesWhen: {
             flag: 'millFixed', setFlag: 'gotMap', item: 'map',
             giveText: { nl: 'De fontein op het plein klatert weer volop — het hele dorp juicht! Burgemeester Bram grijpt je bij de schouders: “Finn, je hebt het water teruggebracht! Maar dit is nog niet voorbij... die vreemde lichten in de vallei. Hier — een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos: bij de kasteelpoort wijst nu de weg naar de vallei.” Hij drukt je een vergeelde kaart in handen.', en: 'The fountain on the square gushes again — the whole village cheers! Mayor Bram grips your shoulders: “Finn, you’ve brought the water back! But this isn’t over... those strange lights in the valley. Here — a secret map your father once entrusted to me. Follow the path beyond the wood: at the castle gate the way to the valley is open now.” He presses a yellowed map into your hands.' }
@@ -289,19 +294,42 @@ const GAME = {
         },
         {
           id: 'stall',
-          name: { nl: 'Het Kaaskraampje', en: 'The Cheese Stall' },
+          name: { nl: 'Het Meisje bij de Kraam', en: 'The Girl at the Stall' },
           rect: { x: 452, y: 226, w: 100, h: 70 },
           walkTo: { x: 436, y: 306 },
-          look: (state) => state.flags.gotCheese
-            ? { nl: 'De kaasboer knikt tevreden achter zijn stapels gele kazen. “Smakelijk eten met dat ruiltje, jongen!”', en: 'The cheesemonger nods contentedly behind his stacks of yellow cheese. “Enjoy that trade, lad!”' }
-            : { nl: 'Een kraampje vol geurige gele boerenkazen. De kaasboer wenkt: “Geld hoef ik niet, knul — maar voor een handvol vers graan ruil ik je graag een mooi stuk kaas.” (gebruik graan op het kraampje)', en: 'A stall full of fragrant yellow farmhouse cheeses. The cheesemonger beckons: “I don’t need coin, lad — but for a handful of fresh grain I’ll happily trade you a fine wedge of cheese.” (use grain on the stall)' },
+          look: (state) => state.flags.gotTear
+            ? { nl: 'Het meisje veegt haar ogen droog en glimlacht dapper naar je. “Dank je voor dat mooie gedicht.”', en: 'The girl dries her eyes and smiles bravely at you. “Thank you for that lovely poem.”' }
+            : state.flags.gotCheese
+            ? { nl: 'Het meisje knikt vriendelijk achter haar kraam vol kaas en fruit. “Smakelijk eten met dat ruiltje!”', en: 'The girl nods kindly behind her stall of cheese and fruit. “Enjoy that trade!”' }
+            : { nl: 'Een meisje staat achter haar kraam vol gele kazen en fruit. Ze kijkt een beetje weemoedig. “Geld hoef ik niet — maar voor een handvol vers graan ruil ik je graag een stuk kaas.” (gebruik graan op de kraam)', en: 'A girl stands behind her stall of yellow cheeses and fruit. She looks a little wistful. “I don’t need coin — but for a handful of fresh grain I’ll gladly trade you a wedge of cheese.” (use grain on the stall)' },
+          givesWhen: {
+            flag: 'poemRead', needFlag: 'gotVials', setFlag: 'gotTear', item: 'tear',
+            needText: { nl: 'Je zou haar traan willen opvangen, maar je hebt er een leeg flesje voor nodig. (er staan flesjes in de molen)', en: 'You’d love to catch her tear, but you need an empty vial for it. (there are vials in the mill)' },
+            giveText: { nl: 'Je leest het gloeiende gedicht uit de molen zachtjes voor aan het meisje. Haar ogen worden vochtig en er rolt één glinsterende traan over haar wang. Snel vang je hem op in een leeg flesje — een echte traan van het meisje! (een ingrediënt voor de ketel)', en: 'You softly read the glowing poem from the mill to the girl. Her eyes well up and a single glistening tear rolls down her cheek. Quickly you catch it in an empty vial — a real tear of the girl! (an ingredient for the cauldron)' }
+          },
           use: {
             grain: {
               consume: 'grain',
               give: 'cheese',
               setFlag: 'gotCheese',
-              text: { nl: 'Je legt de handvol graan op de toonbank. De kaasboer lacht breed, weegt een fors stuk gele kaas af en drukt het je in handen. “Eerlijke ruil!”', en: 'You set the handful of grain on the counter. The cheesemonger grins, weighs out a hefty wedge of yellow cheese and presses it into your hands. “A fair trade!”' }
+              text: { nl: 'Je legt de handvol graan op de toonbank. Het meisje glimlacht, weegt een fors stuk gele kaas af en drukt het je in handen. “Eerlijke ruil!”', en: 'You set the handful of grain on the counter. The girl smiles, weighs out a hefty wedge of yellow cheese and presses it into your hands. “A fair trade!”' }
             }
+          }
+        },
+        {
+          id: 'chessman',
+          name: { nl: 'De Oude Schaker', en: 'The Old Chess Player' },
+          rect: { x: 312, y: 182, w: 86, h: 92 },
+          walkTo: { x: 330, y: 300 },
+          appearFlag: 'visited_valley',                 // verschijnt zodra de burgemeester weg is
+          look: (state) => state.flags.wonChess
+            ? { nl: 'De oude man leunt tevreden achterover bij zijn schaakbord. “Goed gespeeld, jongen. Die drakenschub is eerlijk verdiend.”', en: 'The old man leans back contentedly by his chessboard. “Well played, lad. That dragon scale is fairly earned.”' }
+            : { nl: 'Op het bankje bij de fontein zit een oude man over een schaakbord gebogen. Hij kijkt op met fonkelende ogen: “De burgemeester? Die is op reis. Maar kom — versla mij in één zet en ik geef je iets ouds en kostbaars...” (tik hem aan)', en: 'On the bench by the fountain sits an old man hunched over a chessboard. He looks up with twinkling eyes: “The mayor? Off travelling. But come — beat me in one move and I’ll give you something old and precious...” (tap him)' },
+          chess: {
+            setFlag: 'wonChess',
+            give: 'dragonscale',
+            doneText: { nl: 'De oude man schuift het schaakbord opzij. “Eén partij per dag, jongen.”', en: 'The old man pushes the board aside. “One game a day, lad.”' },
+            winText: { nl: 'Schaakmat! De oude man bulderlacht en klopt je op de schouder. “Briljant! Een belofte is een belofte.” Hij haalt een harde, glanzende DRAKENSCHUB uit zijn jaszak en legt hem in je hand. (een ingrediënt voor de ketel)', en: 'Checkmate! The old man bursts out laughing and pats your shoulder. “Brilliant! A promise is a promise.” He pulls a hard, gleaming DRAGON SCALE from his coat pocket and places it in your hand. (an ingredient for the cauldron)' }
           }
         },
         {
@@ -406,7 +434,7 @@ const GAME = {
       npcs: [
         { id: 'mouse', sprite: 'mouse', x: 162, y: 306, scale: 0.55, flip: true, filter: 'brightness(0.82)' }   // muisje bij het holletje naast de wijnton (zichtbaar, licht in de schaduw)
       ],
-      fx: {},
+      fx: { poemGlow: { x: 232, y: 250, flag: 'visited_valley', untilFlag: 'poemRead' } },   // gloeiend gedicht op de vloer na de vallei
       hotspots: [
         {
           id: 'millstone',
@@ -448,7 +476,8 @@ const GAME = {
           walkTo: { x: 96, y: 300 },
           gives: {
             item: 'vial',
-            giveText: { nl: 'Op de bovenste plank staan oude flesjes. Je neemt een leeg glazen flesje met kurk mee.', en: 'Old bottles line the top shelf. You take an empty corked glass vial.' },
+            setFlag: 'gotVials',
+            giveText: { nl: 'Op de bovenste plank staan oude flesjes. Je grist er meteen drie lege glazen flesjes met kurk mee — eentje voor inkt en twee om te bewaren.', en: 'Old bottles line the top shelf. You grab three empty corked glass vials at once — one for ink and two to keep.' },
             emptyText: { nl: 'De andere flesjes zijn gebarsten of vol spinrag.', en: 'The other bottles are cracked or full of cobwebs.' }
           }
         },
@@ -512,6 +541,17 @@ const GAME = {
               text: { nl: 'Je strooit wat graan voor het muisje. Het knabbelt blij en piept: “Heerlijk! Zoek je de molenaar? Hij ging het pad op naar het kasteel — daar zoeken ze ook naar de bron.”', en: 'You scatter some grain for the mouse. It nibbles happily and squeaks: “Delicious! Looking for the miller? He took the path to the castle — they’re searching for the spring there too.”' }
             }
           }
+        },
+        {
+          id: 'poem',
+          name: { nl: 'Een Gloeiend Gedicht', en: 'A Glowing Poem' },
+          rect: { x: 188, y: 230, w: 96, h: 46 },
+          walkTo: { x: 232, y: 300 },
+          appearFlag: 'visited_valley',                 // verschijnt op de vloer zodra je in de vallei bent geweest
+          look: (state) => state.flags.poemRead
+            ? { nl: 'De gloeiende letters op de stoffige vloer trillen nog zachtjes na. Je kent het gedicht nu uit je hoofd — misschien raakt het iemand.', en: 'The glowing letters on the dusty floor still tremble softly. You know the poem by heart now — perhaps it will move someone.' }
+            : { nl: 'Op de stoffige vloer zijn opeens gloeiende letters verschenen. Finn knielt en leest ze zachtjes hardop voor:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDe woorden blijven natrillen in de stille molen. Dit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'Glowing letters have suddenly appeared on the dusty floor. Finn kneels and softly reads them aloud:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nThe words keep trembling in the silent mill. You should read this aloud to someone who carries sorrow...' },
+          setFlag: 'poemRead'
         },
         {
           id: 'outMill',
@@ -706,17 +746,6 @@ const GAME = {
           }
         },
         {
-          id: 'tear',
-          name: { nl: 'Een Glinsterend Flesje', en: 'A Glistening Vial' },
-          rect: { x: 20, y: 110, w: 84, h: 96 },
-          walkTo: { x: 100, y: 300 },
-          gives: {
-            item: 'tear',
-            giveText: { nl: 'Aan de voet van de linker runensteen ligt een glazen flesje met één glinsterende traan erin. Eén van de ingrediënten voor de ketel!', en: 'At the foot of the left rune-stone lies a glass vial with a single glistening tear inside. One of the ingredients for the cauldron!' },
-            emptyText: { nl: 'De linker runensteen — je hebt het flesje al gevonden.', en: 'The left rune-stone — you already found the vial.' }
-          }
-        },
-        {
           id: 'moondust',
           name: { nl: 'Glinsterend Stof', en: 'Glistening Dust' },
           rect: { x: 150, y: 150, w: 64, h: 92 },
@@ -725,17 +754,6 @@ const GAME = {
             item: 'moondust',
             giveText: { nl: 'Op een platte offersteen ligt een hoopje fijn zilverig stof dat zacht oplicht — maanstof. Het tweede ingrediënt.', en: 'On a flat offering-stone lies a heap of fine silvery dust that softly glows — moondust. The second ingredient.' },
             emptyText: { nl: 'De offersteen is leeg — de maanstof zit al in je tas.', en: 'The offering-stone is empty — the moondust is already in your bag.' }
-          }
-        },
-        {
-          id: 'dragonscale',
-          name: { nl: 'Iets Glanzends', en: 'Something Gleaming' },
-          rect: { x: 476, y: 120, w: 72, h: 120 },
-          walkTo: { x: 474, y: 300 },
-          gives: {
-            item: 'dragonscale',
-            giveText: { nl: 'Tegen de rechter runensteen glanst een harde, warme schub — een echte drakenschub! Het derde en laatste ingrediënt.', en: 'Against the right rune-stone gleams a hard, warm scale — a real dragon scale! The third and final ingredient.' },
-            emptyText: { nl: 'De rechter runensteen — de drakenschub heb je al.', en: 'The right rune-stone — you already have the dragon scale.' }
           }
         },
         {
