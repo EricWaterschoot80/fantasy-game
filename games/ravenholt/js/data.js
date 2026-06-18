@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '52',
+  assetVer: '53',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -195,7 +195,7 @@ const GAME = {
         { item: 'feather', hotspot: 'feather', x: 102, y: 270, requiresFlag: 'ravenFed' }   // magische veer die de raaf achterliet (op de keien tussen de ton en de fontein)
       ],
       npcs: [
-        { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264 },   // burgemeester Bram; wringt af en toe wanhopig met zijn handen
+        { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264, scale: 1.18 },   // burgemeester Bram; wringt af en toe wanhopig met zijn handen (iets groter)
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
       ],
       fx: {
@@ -665,7 +665,10 @@ const GAME = {
         /* De heks staat naast de ketel en probeert Finn dichterbij te lokken (wenk-frames). */
         { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 392, y: 258, scale: 1.12 }
       ],
-      fx: { fireflies: 7 },                  // dwaallichtjes boven de mist
+      fx: {
+        fireflies: 10,                                       // dwaallichtjes boven de mist
+        fireflyCols: ['120,180,255', '150,230,120']          // afwisselend blauw en groen
+      },
       hotspots: [
         {
           id: 'witch',

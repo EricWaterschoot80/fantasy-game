@@ -374,6 +374,8 @@
   }
   function initFireflies(n) {
     fireflies = [];
+    const sc = GAME.scenes[state.currentScene];
+    const cols = (sc && sc.fx && sc.fx.fireflyCols) || ['150,230,120'];   // standaard groen-geel
     for (let i = 0; i < n; i++) {
       fireflies.push({
         x: 100 + Math.random() * (SCENE_W - 200),
@@ -381,7 +383,8 @@
         ax: Math.random() * Math.PI * 2,
         ay: Math.random() * Math.PI * 2,
         sp: 0.2 + Math.random() * 0.5,
-        ph: Math.random() * Math.PI * 2
+        ph: Math.random() * Math.PI * 2,
+        col: cols[i % cols.length]            // afwisselend uit het palet (bv. blauw + groen)
       });
     }
   }
@@ -991,14 +994,15 @@
       const fx2 = f.x | 0, fy2 = f.y | 0;
       // zachte gloed eromheen (geeft licht)
       const r = 9 + 3 * Math.sin(f.ph);
+      const col = f.col || '150,230,120';
       const g = fctx.createRadialGradient(fx2, fy2, 0, fx2, fy2, r);
-      g.addColorStop(0, `rgba(186,255,150,${a * 0.42})`);
-      g.addColorStop(0.5, `rgba(150,230,120,${a * 0.16})`);
-      g.addColorStop(1, 'rgba(150,230,120,0)');
+      g.addColorStop(0, `rgba(${col},${a * 0.5})`);
+      g.addColorStop(0.5, `rgba(${col},${a * 0.18})`);
+      g.addColorStop(1, `rgba(${col},0)`);
       fctx.fillStyle = g;
       fctx.fillRect(fx2 - r, fy2 - r, r * 2, r * 2);
-      // heldere kern
-      fctx.fillStyle = `rgba(236,255,196,${Math.min(1, a + 0.25)})`;
+      // heldere kern (lichte tint van de eigen kleur)
+      fctx.fillStyle = `rgba(${col},${Math.min(1, a + 0.35)})`;
       fctx.fillRect(fx2, fy2, 2, 2);
       fctx.fillStyle = `rgba(255,255,235,${a})`;
       fctx.fillRect(fx2, fy2, 1, 1);
