@@ -1503,7 +1503,7 @@
   }
 
   /* Idle-gebaren: af en toe doet een figuur iets grappigs. */
-  const gesture = { hero: { next: 4000, until: 0 }, seer: { next: 7000, until: 0 }, minotaur: { next: 9000, until: 0 } };
+  const gesture = { hero: { next: 7000, until: 0 }, seer: { next: 7000, until: 0 }, minotaur: { next: 9000, until: 0 } };
   function gestureState(id, now, durMs, minGap, maxGap) {
     let g = gesture[id]; if (!g) g = gesture[id] = { next: 0, until: 0 };
     if (now > g.next && now > g.until) {
@@ -1738,26 +1738,29 @@
       }
       /* idle: rustig ademen + regelmatig vrolijk zwaaien (2-frame zwaai). */
       const ds = depthScaleAt(player.y);
-      const g = gestureState('hero', now, 550, 8000, 15000);     // af en toe ÉÉN keer zwaaien (vlotte zwaai)
+      /* Af en toe ÉÉN keer zwaaien — pas na ~7s, en daarna met ruime tussenpozen.
+         De zwaai-sprite kijkt dezelfde kant op als de idle (flip = player.flip), dus
+         Finn draait NIET om om te zwaaien: links blijft links, rechts blijft rechts. */
+      const g = gestureState('hero', now, 650, 7000, 13000);
       const wave1 = art.sprites.heroWave, wave2 = art.sprites.heroWave2;
       if (g > 0 && ready(wave1)) {
-        /* Eén zwaai: hand omhoog (begin) en daarna één keer terug omlaag (einde) — geen
-           herhaald heen-en-weer. g loopt van 1 -> 0 over het gebaar. */
-        const wf = (ready(wave2) && g < 0.5) ? wave2 : wave1;
+        const wf = (ready(wave2) && g < 0.5) ? wave2 : wave1;   // hand omhoog -> half (één zwaai)
         const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI)) * 2);
         drawArtSprite(wf, player.x, player.y, { flip: player.flip, bob: bounce, scale: ds });
         return;
       }
-      /* Rustig staan: heel subtiele ademhaling (squashY) + een zachte, doorlopende wieg
-         zoals de wacht (lichte romp-zwaai met een minimale gewichtsverschuiving), verankerd
-         op de voeten. Geen verticale hobbel. */
+      /* Rustig staan: subtiele ademhaling + zachte wieg; 2-frame sta-pose. */
       const breaths = 1 + 0.012 * Math.sin(now / 1500);
-      const idleRot = Math.sin(now / 720) * 0.03;                 // zachte schommel net als de wachter
-      const idleSway = Math.round(Math.sin(now / 720) * 0.8 * ds);// minimale gewichtsverschuiving
-      /* 2-frame stilstaan: wissel rustig tussen twee sta-poses (zacht gewicht verplaatsen). */
-      const idleImg = (ready(art.sprites.heroIdle2) && Math.floor(now / 1600) % 2 === 1) ? art.sprites.heroIdle2 : hero;
+      const idleRot = Math.sin(now / 720) * 0.03;
+      const idleSway = Math.round(Math.sin(now / 720) * 0.8 * ds);
+      const baseIdle = (ready(art.sprites.heroIdle2) && Math.floor(now / 1500) % 2 === 1) ? art.sprites.heroIdle2 : hero;
+      /* Knipperen: kort de ogen-dicht-sprite tonen (zelfde sta-pose). Snel (~70 ms) en
+         niet te vaak (ruime, onregelmatige tussenpozen), af en toe een dubbele knipper. */
+      let bk = blinkT.hero;
+      if (!bk) bk = blinkT.hero = { next: now + 2500 + Math.random() * 2500, until: 0 };
+      if (now >= bk.next) { bk.until = now + 70; bk.next = now + 3200 + Math.random() * 3600 + (Math.random() < 0.3 ? -2500 : 0); }
+      const idleImg = (now < bk.until && ready(art.sprites.heroBlink)) ? art.sprites.heroBlink : baseIdle;
       drawArtSprite(idleImg, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
-      /* (Knipperen bij Finn is uitgezet — op verzoek; de stilstaan-animatie komt nu uit /zwaaien.) */
       return;
     }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];

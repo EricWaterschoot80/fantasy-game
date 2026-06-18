@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '33',
+  assetVer: '34',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -22,6 +22,7 @@ const GAME = {
   sprites: {
     hero:          'assets/art/hero.png',
     heroIdle2:     'assets/art/hero-idle2.png',     // 2e stilstaan-frame (zacht gewicht verplaatsen)
+    heroBlink:     'assets/art/hero-blink.png',     // ogen dicht (knipper) — zelfde sta-pose als idle
     heroWalk:      'assets/art/hero-walk.png',
     heroWalk2:     'assets/art/hero-walk2.png',
     heroWave:      'assets/art/hero-wave.png',
@@ -47,7 +48,7 @@ const GAME = {
     flower:        'assets/art/flower.png',          // bloem (oranje accent)
     flowerWhite:   'assets/art/flower-white.png'     // witte bloem (dansende bloem + cluster)
   },
-  heroWalkFrames: 20,           // vloeiende 20-frame loopanimatie uit /lopen (benen wisselen écht)
+  heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader in zijn tas. */
