@@ -1284,20 +1284,25 @@
       fctx.fillStyle = g;
       fctx.fillRect(e.x - (e.r || 18), e.y - (e.r || 18), (e.r || 18) * 2, (e.r || 18) * 2);
     }
-    if (fx.fountain) {
+    /* Fontein klatert alléén als de molen weer draait (requiresFlag, bv. millFixed);
+       daarvoor staat de bron droog. Meerdere straaltjes mogelijk (links + rechts). */
+    if (fx.fountain && (!fx.fountain.requiresFlag || state.flags[fx.fountain.requiresFlag])) {
       const f = fx.fountain;
-      /* vallende waterstraal uit de tap */
-      for (let i = 0; i < 5; i++) {
-        const t = ((now / 42) + i * 4) % 22;
-        const al = 0.45 - t / 52;
-        fctx.fillStyle = `rgba(186,228,242,${al})`;
-        fctx.fillRect(Math.round(f.sx + Math.sin(t / 3) * 0.4), Math.round(f.sy + t), 1, 1);
+      const jets = f.jets || [{ sx: f.sx, sy: f.sy }];
+      /* vallende waterstraaltjes uit de tappen */
+      for (const j of jets) {
+        for (let i = 0; i < 5; i++) {
+          const t = ((now / 42) + i * 4) % 22;
+          const al = 0.45 - t / 52;
+          fctx.fillStyle = `rgba(186,228,242,${al})`;
+          fctx.fillRect(Math.round(j.sx + Math.sin(t / 3) * 0.4), Math.round(j.sy + t), 1, 1);
+        }
       }
-      /* opspattend bij het water */
+      /* opspattend / knipperend bij het wateroppervlak */
       if (((now / 120) | 0) % 2 === 0) {
         fctx.fillStyle = 'rgba(220,242,250,0.6)';
-        fctx.fillRect(f.sx - 1, f.wy, 1, 1);
-        fctx.fillRect(f.sx + 2, f.wy + 1, 1, 1);
+        fctx.fillRect(f.wx - 1, f.wy, 1, 1);
+        fctx.fillRect(f.wx + 2, f.wy + 1, 1, 1);
       }
       /* drijvende rimpels op het oppervlak (klein, binnen de rand) */
       for (let i = 0; i < 2; i++) {
@@ -2005,10 +2010,11 @@
       /* Blikrichting-sprites: een NPC kan rustig heen en weer 'spieden' (scanSprites,
          bv. de koopman die van zijn kar naar de wacht kijkt) en omschakelen naar een
          verbaasde blik zodra een vlag is gezet (aweSprite, bv. starend naar de dansende bloem). */
-      if (npc.aweFlag && state.flags[npc.aweFlag] && npc.aweSprites && npc.aweSprites.length) {
+      const npcStopped = npc.stopFlag && state.flags[npc.stopFlag];   // bv. koopman weer normaal zodra het rad uit de kar is
+      if (!npcStopped && npc.aweFlag && state.flags[npc.aweFlag] && npc.aweSprites && npc.aweSprites.length) {
         const a = npc.aweSprites, im = art.sprites[a[Math.floor(now / 480) % a.length]];
         if (ready(im)) img = im;                          // 2-frame verbaasde reactie
-      } else if (npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
+      } else if (!npcStopped && npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
         img = art.sprites[npc.aweSprite];
       } else if (npc.scanSprites && npc.scanSprites.length) {
         const si = Math.floor(now / 1700) % npc.scanSprites.length;
@@ -2025,7 +2031,7 @@
         /* Kijkrichting kan omdraaien zodra een vlag is gezet (bv. de koopman kijkt naar zijn
            kar tot de bloem danst). */
         let fl = !!npc.flip;
-        if (npc.turnFlag && state.flags[npc.turnFlag]) fl = !fl;
+        if (npc.turnFlag && state.flags[npc.turnFlag] && !npcStopped) fl = !fl;
         /* Lichte, doorlopende wieg voor wat 'leven' (bv. de wacht). */
         const swayRot = npc.sway ? Math.sin(now / 650 + (npc.x || 0)) * 0.035 : 0;
         const ges = npc.gestureSprite && art.sprites[npc.gestureSprite];
@@ -2254,6 +2260,11 @@
 
   elMsg.addEventListener('click', showNextMsg);
   elBubble.addEventListener('click', showNextMsg);
+  /* Tekstwolkje wegklikken met het kruisje (stopPropagation: niet dubbel doorspoelen). */
+  const elMsgClose = document.getElementById('msgClose');
+  const elBubbleClose = document.getElementById('bubbleClose');
+  if (elMsgClose) elMsgClose.addEventListener('click', (e) => { e.stopPropagation(); showNextMsg(); });
+  if (elBubbleClose) elBubbleClose.addEventListener('click', (e) => { e.stopPropagation(); showNextMsg(); });
 
   /* ---------- Hotspot-label ---------- */
   function showLabel(text, sticky) {
@@ -2286,6 +2297,7 @@
         const item = GAME.items[itemId];
         slot.classList.add('filled');
         if (item.sparkle) slot.classList.add('sparkle');
+        if (item.border) slot.classList.add('border-' + item.border);   // bv. de spreuk met een blauwe rand
         if (item.img) {
           const im = document.createElement('img');
           im.src = item.img + AV;
@@ -2824,24 +2836,31 @@
   }
   elRiddleClose.addEventListener('click', () => { elRiddle.hidden = true; });
 
-  /* ---------- Schaak-uitdaging (mat-in-één) ---------- */
+  /* ---------- Schaak-uitdaging (mat-in-drie, torenladder) ---------- */
   const elChess      = document.getElementById('chess-screen');
   const elChessBoard = document.getElementById('chess-board');
   const elChessHint  = document.getElementById('chess-hint');
   const elChessClose = document.getElementById('chess-close');
   const CHESS_GLYPH = { wK: '♔', wR: '♖', bK: '♚', bP: '♟' };
-  let chessHs = null, chessSel = null, chessPos = null, chessLock = false;
-  /* Vaste mat-in-één-stelling (rugrij-mat): wit speelt Ta1–a8 mat. */
+  const CHESS_PROMPT = { nl: 'Wit (jij) aan zet — zet de zwarte koning mat in 3 zetten met je twee torens (ladder naar de bovenrand).', en: 'White (you) to move — mate the black king in 3 moves with your two rooks (ladder to the top edge).' };
+  let chessHs = null, chessSel = null, chessPos = null, chessLock = false, chessStep = 0;
+  /* Beginstelling (rijen r0=boven..r7=onder, kolommen c0=a..c7=h):
+     zwarte koning e6, witte torens a5 (afsnijder) en h3 (geeft schaak), witte koning e1. */
   function chessStart() {
     return [
-      { color: 'b', type: 'K', r: 0, c: 6 },   // zwarte koning op g8
-      { color: 'b', type: 'P', r: 1, c: 5 },   // pionnen f7,g7,h7 sluiten de koning in
-      { color: 'b', type: 'P', r: 1, c: 6 },
-      { color: 'b', type: 'P', r: 1, c: 7 },
-      { color: 'w', type: 'K', r: 7, c: 4 },   // witte koning e1
-      { color: 'w', type: 'R', r: 7, c: 0 }    // witte toren a1  ->  a8 = mat
+      { color: 'b', type: 'K', r: 2, c: 4 },
+      { color: 'w', type: 'R', r: 3, c: 0 },
+      { color: 'w', type: 'R', r: 5, c: 7 },
+      { color: 'w', type: 'K', r: 7, c: 4 }
     ];
   }
+  /* De drie zetten: telkens [vanR,vanC, naarR,naarC] voor wit + het gescripte
+     antwoord van de zwarte koning (b). Laatste zet heeft geen antwoord = mat. */
+  const CHESS_LINE = [
+    { w: [5, 7, 2, 7], b: [2, 4, 1, 4] },   // 1. Th6+  Ke7
+    { w: [3, 0, 1, 0], b: [1, 4, 0, 4] },   // 2. Ta7+  Ke8
+    { w: [2, 7, 0, 7], b: null }            // 3. Th8#  (mat)
+  ];
   function chessAt(r, c) { return chessPos.find((p) => p.r === r && p.c === c); }
   function chessLegal(pc, r, c) {
     if (pc.r === r && pc.c === c) return false;
@@ -2870,44 +2889,55 @@
     }
   }
   function openChess(hs) {
-    chessHs = hs; chessSel = null; chessLock = false; chessPos = chessStart();
-    elChessHint.textContent = L({ nl: 'Wit (jij) aan zet — geef de oude man mat in één zet!', en: 'White (you) to move — checkmate the old man in one move!' });
+    chessHs = hs; chessSel = null; chessLock = false; chessStep = 0; chessPos = chessStart();
+    elChessHint.textContent = L(CHESS_PROMPT);
     renderChess();
     elChess.hidden = false;
     sfx('tap');
+  }
+  function chessReset(msg) {
+    sfx('error');
+    elChessHint.textContent = L(msg);
+    chessSel = null; chessLock = true;
+    setTimeout(() => {
+      chessPos = chessStart(); chessStep = 0; chessSel = null; chessLock = false;
+      renderChess();
+      elChessHint.textContent = L(CHESS_PROMPT);
+    }, 1700);
   }
   function chessClick(r, c) {
     if (chessLock) return;
     const pc = chessAt(r, c);
     if (chessSel) {
       if (pc && pc.color === 'w') { chessSel = pc; renderChess(); sfx('tap'); return; }
-      if (chessLegal(chessSel, r, c)) {
-        const wasRook = chessSel.type === 'R';
-        const tgt = chessAt(r, c);
-        if (tgt) chessPos.splice(chessPos.indexOf(tgt), 1);
-        chessSel.r = r; chessSel.c = c;
-        const mate = wasRook && r === 0 && c === 0;   // Ta8#
-        chessSel = null; chessLock = true; renderChess();
-        if (mate) {
-          sfx('combine');
-          setTimeout(() => {
-            elChess.hidden = true;
-            state.flags[chessHs.chess.setFlag] = true;
-            if (chessHs.chess.give) { addItem(chessHs.chess.give); sfx('win'); }
-            say(chessHs.chess.winText, hsSpeaker(chessHs), hsFace(chessHs));
-            updateQuest();
-          }, 650);
-        } else {
-          sfx('error');
-          elChessHint.textContent = L({ nl: 'De oude man grinnikt: “Geen mat, jongen. Kijk eens goed naar je toren...” Het bord wordt teruggezet.', en: 'The old man chuckles: “No mate, lad. Look closely at your rook...” The board resets.' });
-          setTimeout(() => {
-            chessPos = chessStart(); chessSel = null; chessLock = false; renderChess();
-            elChessHint.textContent = L({ nl: 'Wit (jij) aan zet — mat in één zet!', en: 'White (you) to move — mate in one!' });
-          }, 1700);
-        }
+      if (!chessLegal(chessSel, r, c)) { chessSel = null; renderChess(); return; }
+      const step = CHESS_LINE[chessStep];
+      const ok = chessSel.r === step.w[0] && chessSel.c === step.w[1] && r === step.w[2] && c === step.w[3];
+      if (!ok) {
+        chessReset({ nl: 'De oude man grinnikt: “Dat geeft geen mat, jongen. Denk aan de ladder — drijf de koning met je twee torens naar de bovenrand.” Het bord wordt teruggezet.', en: 'The old man chuckles: “That’s no mate, lad. Think of the ladder — drive the king to the top edge with your two rooks.” The board resets.' });
         return;
       }
-      chessSel = null; renderChess(); return;
+      /* juiste witte zet */
+      const tgt = chessAt(r, c); if (tgt) chessPos.splice(chessPos.indexOf(tgt), 1);
+      chessSel.r = r; chessSel.c = c; chessSel = null; chessLock = true; renderChess(); sfx('combine');
+      if (!step.b) {                                   // laatste zet = schaakmat
+        setTimeout(() => {
+          elChess.hidden = true;
+          state.flags[chessHs.chess.setFlag] = true;
+          if (chessHs.chess.give) { addItem(chessHs.chess.give); sfx('win'); }
+          say(chessHs.chess.winText, hsSpeaker(chessHs), hsFace(chessHs));
+          updateQuest();
+        }, 650);
+        return;
+      }
+      /* zwart antwoordt (gescript) en dan is wit weer aan zet */
+      setTimeout(() => {
+        const bk = chessAt(step.b[0], step.b[1]);
+        if (bk) { bk.r = step.b[2]; bk.c = step.b[3]; }
+        chessStep++; chessLock = false; renderChess();
+        elChessHint.textContent = L({ nl: 'Goed! De koning vlucht omhoog. Geef opnieuw schaak met je andere toren...', en: 'Good! The king flees upward. Check again with your other rook...' });
+      }, 480);
+      return;
     }
     if (pc && pc.color === 'w') { chessSel = pc; renderChess(); sfx('tap'); }
   }

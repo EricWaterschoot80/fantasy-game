@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=54">
+  <link rel="stylesheet" href="css/style.css?v=55">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -59,6 +59,7 @@
     <a id="homeBtn" class="round-btn home" href="../../index.html" title="Home" aria-label="Terug naar de homepagina">⌂</a>
 
     <div id="bubble" class="speech" hidden>
+      <button id="bubbleClose" class="bubble-x" aria-label="Sluiten">✕</button>
       <img id="bubbleFace" alt="" hidden>
       <p id="bubbleText"></p>
       <span class="tail"></span>
@@ -67,6 +68,7 @@
 
     <div id="bottomui">
       <div id="msg" class="panel" hidden>
+        <button id="msgClose" class="bubble-x" aria-label="Sluiten">✕</button>
         <img id="msgFace" alt="" hidden>
         <div class="msg-body">
           <p id="msgText"></p>
@@ -95,7 +97,7 @@
 
   <div id="win-screen" class="overlay" hidden>
     <div class="overlay-card panel">
-      <img class="win-banner" src="assets/art/win-emberfall.png?v=54" alt="" onerror="this.remove()">
+      <img class="win-banner" src="assets/art/win-emberfall.png?v=55" alt="" onerror="this.remove()">
       <h1 id="win-h1">De Lantaarn Brandt</h1>
       <p class="intro" id="winText"></p>
       <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
@@ -142,7 +144,7 @@
   <div id="chess-screen" class="overlay" hidden>
     <div class="overlay-card panel puzzle-card chess-card">
       <button id="chess-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
-      <h2 id="chess-title">Schaakmat in Één</h2>
+      <h2 id="chess-title">Schaakmat in Drie</h2>
       <p id="chess-hint" class="maze-hint"></p>
       <div id="chess-board" class="chess-board"></div>
     </div>
@@ -204,10 +206,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=54"></script>
-  <script src="js/scenes.js?v=54"></script>
-  <script src="js/data.js?v=54"></script>
-  <script src="js/engine.js?v=54"></script>
+  <script src="js/sprites.js?v=55"></script>
+  <script src="js/scenes.js?v=55"></script>
+  <script src="js/data.js?v=55"></script>
+  <script src="js/engine.js?v=55"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

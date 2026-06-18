@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '54',
+  assetVer: '55',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -125,6 +125,8 @@ const GAME = {
              look: { nl: 'Het glazen flesje, nu gevuld met diepzwarte bessen-inkt. Perfect om een veer in te dopen.', en: 'The glass vial, now filled with deep-black berry ink. Perfect for dipping a feather.' } },
     inkFeather: { name: { nl: 'Inktveer', en: 'Ink-dipped Feather' }, icon: '🪄', img: 'assets/art/item-inkfeather.png',
              look: { nl: 'De magische ravenveer, gedoopt in de bessen-inkt — nog steeds een veer, maar met een glanzende zwarte inktpunt. Klaar om een spreuk in het lege toverboek te schrijven.', en: 'The magic raven feather, dipped in berry ink — still a feather, but with a glossy black ink tip. Ready to write a spell in the empty spellbook.' } },
+    spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', border: 'blue',
+             look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
     map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png',
              look: { nl: 'De geheime kaart van burgemeester Bram. Een pad slingert het dorp uit, langs het bos, naar de vallei met de vreemde lichten — met een kruisje bij een grot. (wordt vervolgd)', en: 'Mayor Bram’s secret map. A path winds out of the village, past the wood, to the valley of strange lights — with a cross at a cave. (to be continued)' } },
     millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
@@ -147,6 +149,7 @@ const GAME = {
     { a: 'feather', b: 'ink', result: 'inkFeather',
       text: { nl: 'Je doopt de magische ravenveer in de inkt. De punt glanst zwart en lijkt bijna te trillen van leven — klaar om te schrijven.', en: 'You dip the magic raven feather into the ink. Its tip glistens black and seems almost to quiver with life — ready to write.' } },
     { a: 'inkFeather', b: 'spellbook', setFlag: 'spellWritten', keep: true, consume: 'inkFeather', doneFlag: 'spellWritten',
+      result: 'spell',                                 // de geschreven spreuk komt in je tas (blauwe rand)
       requiresScene: 'millInside',
       cutscene: 'assets/video/spell-cinematic.mp4',   // speelt de eerste-spreuk-video af
       needSceneText: { nl: 'Om met de veer netjes in het boek te schrijven heb je een stevige tafel nodig — die staat bínnen in de molen.', en: 'To write neatly in the book with the feather you need a sturdy table — there’s one inside the mill.' },
@@ -203,8 +206,9 @@ const GAME = {
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
       ],
       fx: {
-        /* klaterende fontein op het plein */
-        fountain: { sx: 242, sy: 196, wx: 234, wy: 236 },
+        /* klaterende fontein op het plein — pas zodra de molen weer draait (anders droog).
+           Twee straaltjes (links + rechts); rimpels/knippering iets lager en linkser. */
+        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 228, sy: 198 }, { sx: 250, sy: 198 }], wx: 224, wy: 244 },
         /* opstijgende rook uit de schoorstenen van de dorpshuizen */
         smoke: [
           { x: 334, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
@@ -324,7 +328,7 @@ const GAME = {
           appearFlag: 'visited_valley',                 // verschijnt zodra de burgemeester weg is
           look: (state) => state.flags.wonChess
             ? { nl: 'De oude man leunt tevreden achterover bij zijn schaakbord. “Goed gespeeld, jongen. Die drakenschub is eerlijk verdiend.”', en: 'The old man leans back contentedly by his chessboard. “Well played, lad. That dragon scale is fairly earned.”' }
-            : { nl: 'Op het bankje bij de fontein zit een oude man over een schaakbord gebogen. Hij kijkt op met fonkelende ogen: “De burgemeester? Die is op reis. Maar kom — versla mij in één zet en ik geef je iets ouds en kostbaars...” (tik hem aan)', en: 'On the bench by the fountain sits an old man hunched over a chessboard. He looks up with twinkling eyes: “The mayor? Off travelling. But come — beat me in one move and I’ll give you something old and precious...” (tap him)' },
+            : { nl: 'Op het bankje bij de fontein zit een oude man over een schaakbord gebogen. Hij kijkt op met fonkelende ogen: “De burgemeester? Die is op reis. Maar kom — zet mij mat in drie zetten en ik geef je iets ouds en kostbaars...” (tik hem aan)', en: 'On the bench by the fountain sits an old man hunched over a chessboard. He looks up with twinkling eyes: “The mayor? Off travelling. But come — checkmate me in three moves and I’ll give you something old and precious...” (tap him)' },
           chess: {
             setFlag: 'wonChess',
             give: 'dragonscale',
@@ -582,8 +586,8 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', gestureSprite: 'guardGesture', x: 402, y: 218, scale: 1.40, sway: true },   // wacht iets kleiner + verder naar achter; wiegt + verzet hellebaard
-        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.0, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted' },   // sneaky handelsman (kap op) in de schaduw van zijn kar: iets naar achter + kleiner; spiedt afwisselend naar zijn kar (links) en de wacht (rechts); draait zich verbaasd óm naar de dansende bloem zodra die danst
+        { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.30, sway: true },   // poortwacht met hellebaard; wiegt rustig heen en weer
+        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 290, scale: 1.0, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
         { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
         { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // alle bloemen gelig-wit, dicht bij elkaar; dansen mee
@@ -702,8 +706,10 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        /* De heks staat naast de ketel en probeert Finn dichterbij te lokken (wenk-frames). */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 392, y: 258, scale: 1.12 }
+        /* De heks staat naast de ketel en probeert Finn dichterbij te lokken (wenk-frames) — wat verder naar achteren. */
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 398, y: 246, scale: 0.98 },
+        /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel. */
+        { id: 'ravenValley', sprite: 'ravenPerch', x: 62, y: 210, scale: 0.95 }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
