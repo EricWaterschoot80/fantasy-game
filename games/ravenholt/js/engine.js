@@ -1741,7 +1741,7 @@
       /* Af en toe ÉÉN keer zwaaien — pas na ~7s, en daarna met ruime tussenpozen.
          De zwaai-sprite kijkt dezelfde kant op als de idle (flip = player.flip), dus
          Finn draait NIET om om te zwaaien: links blijft links, rechts blijft rechts. */
-      const g = gestureState('hero', now, 650, 7000, 13000);
+      const g = gestureState('hero', now, 450, 13000, 22000);   // zwaai: sneller (450ms) en minder vaak (13-22s)
       const wave1 = art.sprites.heroWave, wave2 = art.sprites.heroWave2;
       if (g > 0 && ready(wave1)) {
         const wf = (ready(wave2) && g < 0.5) ? wave2 : wave1;   // hand omhoog -> half (één zwaai)
@@ -1751,14 +1751,14 @@
       }
       /* Rustig staan: subtiele ademhaling + zachte wieg; 2-frame sta-pose. */
       const breaths = 1 + 0.012 * Math.sin(now / 1500);
-      const idleRot = Math.sin(now / 720) * 0.03;
-      const idleSway = Math.round(Math.sin(now / 720) * 0.8 * ds);
+      const idleRot = Math.sin(now / 760) * 0.018;               // iets minder schommelen
+      const idleSway = Math.round(Math.sin(now / 760) * 0.5 * ds);
       const baseIdle = (ready(art.sprites.heroIdle2) && Math.floor(now / 1500) % 2 === 1) ? art.sprites.heroIdle2 : hero;
       /* Knipperen: kort de ogen-dicht-sprite tonen (zelfde sta-pose). Snel (~70 ms) en
          niet te vaak (ruime, onregelmatige tussenpozen), af en toe een dubbele knipper. */
       let bk = blinkT.hero;
       if (!bk) bk = blinkT.hero = { next: now + 2500 + Math.random() * 2500, until: 0 };
-      if (now >= bk.next) { bk.until = now + 70; bk.next = now + 3200 + Math.random() * 3600 + (Math.random() < 0.3 ? -2500 : 0); }
+      if (now >= bk.next) { bk.until = now + 50; bk.next = now + 5200 + Math.random() * 4500 + (Math.random() < 0.25 ? -3200 : 0); }
       const idleImg = (now < bk.until && ready(art.sprites.heroBlink)) ? art.sprites.heroBlink : baseIdle;
       drawArtSprite(idleImg, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
       return;
