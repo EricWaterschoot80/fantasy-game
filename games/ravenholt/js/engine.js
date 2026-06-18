@@ -1753,13 +1753,15 @@
       const breaths = 1 + 0.012 * Math.sin(now / 1500);
       const idleRot = Math.sin(now / 760) * 0.018;               // iets minder schommelen
       const idleSway = Math.round(Math.sin(now / 760) * 0.5 * ds);
-      const baseIdle = (ready(art.sprites.heroIdle2) && Math.floor(now / 1500) % 2 === 1) ? art.sprites.heroIdle2 : hero;
-      /* Knipperen: kort de ogen-dicht-sprite tonen (zelfde sta-pose). Snel (~70 ms) en
-         niet te vaak (ruime, onregelmatige tussenpozen), af en toe een dubbele knipper. */
+      /* Staan-stand = /lopen 21. Knipperen: om de 4 s twee frames snel achter elkaar
+         (19 = ogen dicht, 20 = ogen weer open), elk ~55 ms -> korte, snelle knipper. */
       let bk = blinkT.hero;
-      if (!bk) bk = blinkT.hero = { next: now + 2500 + Math.random() * 2500, until: 0 };
-      if (now >= bk.next) { bk.until = now + 50; bk.next = now + 5200 + Math.random() * 4500 + (Math.random() < 0.25 ? -3200 : 0); }
-      const idleImg = (now < bk.until && ready(art.sprites.heroBlink)) ? art.sprites.heroBlink : baseIdle;
+      if (!bk) bk = blinkT.hero = { last: now };
+      if (now - bk.last >= 4000) bk.last = now;
+      const bt = now - bk.last;
+      let idleImg = hero;
+      if (bt < 55 && ready(art.sprites.heroBlink)) idleImg = art.sprites.heroBlink;
+      else if (bt < 110 && ready(art.sprites.heroBlink2)) idleImg = art.sprites.heroBlink2;
       drawArtSprite(idleImg, player.x + idleSway, player.y, { flip: player.flip, scale: ds, squashY: breaths, rot: idleRot });
       return;
     }
