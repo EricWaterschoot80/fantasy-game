@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '57',
+  assetVer: '58',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -210,11 +210,10 @@ const GAME = {
         /* klaterende fontein op het plein — pas zodra de molen weer draait (anders droog).
            Twee straaltjes (links + rechts); rimpels/knippering iets lager en linkser. */
         fountain: { requiresFlag: 'millFixed', jets: [{ sx: 232, sy: 198 }, { sx: 252, sy: 198 }], wx: 230, wy: 244 },
-        /* opstijgende rook uit de schoorstenen van de dorpshuizen */
+        /* opstijgende (donkere) rook uit twee schoorstenen van de dorpshuizen */
         smoke: [
           { x: 334, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
-          { x: 470, y: 56, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 },
-          { x: 408, y: 52, rise: 34, spread: 7, drift: 4, speed: 3900, puffs: 6 }
+          { x: 470, y: 56, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 }
         ]
       },
 
@@ -350,7 +349,11 @@ const GAME = {
 
     mill: {
       name: { nl: 'De Oude Molen', en: 'The Old Mill' },
-      bg: 'assets/art/scene-mill.png',
+      bg: 'assets/art/scene-mill.jpg',
+      bgVariants: [
+        { img: 'assets/art/scene-mill-poem.jpg', flag: 'visited_valley' },   // terug uit de vallei: vlag van de brievenbus omhoog (er zit een gedicht in)
+        { img: 'assets/art/scene-mill.jpg' }
+      ],
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // warm-gouden opkomende zon, geeliger
       entryText: {
         nl: 'De oude molen op de heuvel. De wieken staan stil en het waterrad aan de zijkant beweegt niet. De deur staat op een kier — hier moet het misgaan met de waterbron.',
@@ -368,17 +371,17 @@ const GAME = {
         { item: 'berries', hotspot: 'berries', x: 484, y: 296 }   // bessenstruik rechts van het pad (ver naar rechts)
       ],
       npcs: [],
-      fx: { poemGlow: { x: 196, y: 244, flag: 'visited_valley', untilFlag: 'poemRead' } },   // gloeiend gedicht op de grond vóór de molen na de vallei
+      fx: { poemGlow: { x: 276, y: 250, flag: 'visited_valley', untilFlag: 'poemRead' } },   // zacht schijnsel uit de brievenbus (er steekt een gedicht in)
       hotspots: [
         {
           id: 'poem',
-          name: { nl: 'Een Gloeiend Gedicht', en: 'A Glowing Poem' },
-          rect: { x: 150, y: 224, w: 96, h: 48 },
-          walkTo: { x: 196, y: 300 },
-          appearFlag: 'visited_valley',                 // gloeit op de grond vóór de molen zodra je in de vallei bent geweest
+          name: { nl: 'De Brievenbus', en: 'The Mailbox' },
+          rect: { x: 250, y: 232, w: 52, h: 60 },
+          walkTo: { x: 276, y: 306 },
+          appearFlag: 'visited_valley',                 // de vlag staat omhoog zodra je terug bent uit de vallei
           look: (state) => state.flags.poemRead
-            ? { nl: 'De gloeiende letters op de grond vóór de molen trillen nog zachtjes na. Je kent het gedicht nu uit je hoofd — misschien raakt het iemand.', en: 'The glowing letters on the ground before the mill still tremble softly. You know the poem by heart now — perhaps it will move someone.' }
-            : { nl: 'Op de grond vóór de molen zijn opeens gloeiende letters verschenen. Finn knielt en leest ze zachtjes hardop voor:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDe woorden blijven natrillen in de ochtendlucht. Dit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'Glowing letters have suddenly appeared on the ground before the mill. Finn kneels and softly reads them aloud:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nThe words keep trembling in the morning air. You should read this aloud to someone who carries sorrow...' },
+            ? { nl: 'De brievenbus is leeg; het gedicht zit veilig in je hoofd. Misschien raakt het iemand met verdriet als je het voorleest.', en: 'The mailbox is empty now; the poem is safe in your head. Perhaps it will move someone with sorrow if you read it aloud.' }
+            : { nl: 'De vlag van de brievenbus staat omhoog. Er steekt een opgevouwen briefje in dat zacht gloeit. Finn vouwt het open en leest het hardop voor:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nEen gedicht zonder afzender. De woorden blijven natrillen — dit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The mailbox flag is up. A folded note pokes out, glowing softly. Finn unfolds it and reads it aloud:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nA poem with no sender. The words keep trembling — you should read this aloud to someone who carries sorrow...' },
           setFlag: 'poemRead'
         },
         {

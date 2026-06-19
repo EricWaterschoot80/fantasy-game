@@ -1329,12 +1329,12 @@
           const y = c.y - ry;
           const r = (c.r0 || 1.4) + t * (c.r1 || 5.5);      // dijt uit bij het stijgen
           const fade = Math.min(1, t * 6) * (1 - t) * (1 - t);  // zacht in, traag uit
-          const al = (c.alpha || 0.22) * fade;
+          const al = (c.alpha || 0.3) * fade;
           if (al <= 0.012) continue;
-          // donkere kern + lichtere, bredere halo = pluizige rook
-          fctx.fillStyle = `rgba(150,148,142,${al * 0.55})`;
+          // donkere kern + iets lichtere, bredere halo = pluizige donkere rook
+          fctx.fillStyle = `rgba(74,70,66,${al * 0.6})`;
           fctx.beginPath(); fctx.arc(Math.round(x), Math.round(y), r * 0.7, 0, Math.PI * 2); fctx.fill();
-          fctx.fillStyle = `rgba(214,212,205,${al})`;
+          fctx.fillStyle = `rgba(120,116,110,${al})`;
           fctx.beginPath(); fctx.arc(Math.round(x), Math.round(y), r, 0, Math.PI * 2); fctx.fill();
         }
       }
