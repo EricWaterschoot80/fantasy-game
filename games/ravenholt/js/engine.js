@@ -953,19 +953,25 @@
         const img = art.sprites.ravenFly || art.sprites.ravenPerch;
         const dir = ravenFly.dir === 'left' ? -1 : 1;                       // vliegrichting
         const ease = el * el * (3 - 2 * el);                                // smoothstep: rustige afzet, dan versnellen
-        const flap = Math.sin(now / 115);                                   // wat tragere, rustigere wiekslag
+        /* Wiekslag in DISCRETE frames: 4 vleugelstanden die snel doorlopen (echte frame-animatie). */
+        const WINGS = [
+          { w: 0.56, h: 1.12, bank: 0.26, bob: -6 },   // vleugels hoog opgeheven
+          { w: 0.88, h: 0.98, bank: 0.05, bob: -1 },   // halverwege omlaag
+          { w: 1.18, h: 0.84, bank: -0.16, bob: 5 },   // vleugels ver naar beneden, uitgespreid
+          { w: 0.88, h: 0.98, bank: 0.05, bob: -1 }    // halverwege terug omhoog
+        ];
+        const fr = WINGS[Math.floor(now / 85) % WINGS.length];              // ~12 fps wiekslag
         const fx_ = ravenFly.x + dir * ease * 180;                          // het beeld uit (rechts of links)
         const fy_ = ravenFly.y - el * 120                                   // gestaag opstijgen
                   - Math.sin(el * Math.PI) * 14                             // ruimere, natuurlijke boog omhoog
-                  + flap * 6 * (1 - el * 0.5);                              // op-en-neer deinen per wiekslag
-        const bank = 0.12 - flap * 0.13;                                    // kantelt mee op de slag
+                  + fr.bob * (1 - el * 0.5);                                // op-en-neer deinen per wiekslag
+        const bank = fr.bank;                                              // kantelt mee op de slag
         fctx.save();
         fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
           const D = GAME.spriteDetail || 1;
-          const af = Math.abs(flap);
-          const w = Math.round(img.naturalWidth / D * (0.74 + 0.32 * af));  // vleugels open/dicht -> breedte pulseert
-          const h = Math.round(img.naturalHeight / D * (0.94 + 0.06 * af));
+          const w = Math.round(img.naturalWidth / D * fr.w);               // vleugelstand bepaalt breedte
+          const h = Math.round(img.naturalHeight / D * fr.h);
           fctx.translate(Math.round(fx_), Math.round(fy_));
           /* raven-fly.png kijkt naar rechts → spiegel alleen bij vlucht naar LINKS (kop vooraan) */
           if (dir < 0) fctx.scale(-1, 1);
@@ -3829,7 +3835,13 @@
        Bepaal de tekst VÓÓR het zetten van de vlag: zo kan een look(state)-functie
        de eerste-keer-tekst tonen en pas daarna naar de "al gezien"-variant schakelen. */
     const lt = lookText(hs);
-    if (hs.setFlag && !state.flags[hs.setFlag]) { state.flags[hs.setFlag] = true; updateQuest(); }
+    if (hs.setFlag && !state.flags[hs.setFlag]) {
+      state.flags[hs.setFlag] = true; updateQuest();
+      /* wissel de achtergrond als deze vlag een bg-variant aanstuurt (bv. brief uit de
+         brievenbus pakken → vlag omlaag → terug naar de gewone molen-achtergrond). */
+      const sc = GAME.scenes[state.currentScene];
+      if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === hs.setFlag || v.notFlag === hs.setFlag)) paintBackground();
+    }
     say(lt, hsSpeaker(hs), hsFace(hs));
     if (hs.win) { pendingWin = true; sfx('win'); }
   }

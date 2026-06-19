@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '58',
+  assetVer: '59',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -209,11 +209,11 @@ const GAME = {
       fx: {
         /* klaterende fontein op het plein — pas zodra de molen weer draait (anders droog).
            Twee straaltjes (links + rechts); rimpels/knippering iets lager en linkser. */
-        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 232, sy: 198 }, { sx: 252, sy: 198 }], wx: 230, wy: 244 },
+        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 234, sy: 198 }, { sx: 254, sy: 198 }], wx: 232, wy: 244 },
         /* opstijgende (donkere) rook uit twee schoorstenen van de dorpshuizen */
         smoke: [
-          { x: 334, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
-          { x: 470, y: 56, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 }
+          { x: 346, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
+          { x: 475, y: 51, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 }
         ]
       },
 
@@ -351,7 +351,7 @@ const GAME = {
       name: { nl: 'De Oude Molen', en: 'The Old Mill' },
       bg: 'assets/art/scene-mill.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-mill-poem.jpg', flag: 'visited_valley' },   // terug uit de vallei: vlag van de brievenbus omhoog (er zit een gedicht in)
+        { img: 'assets/art/scene-mill-poem.jpg', flag: 'visited_valley', notFlag: 'poemRead' },   // terug uit de vallei: vlag omhoog; zodra de brief is gepakt weer omlaag
         { img: 'assets/art/scene-mill.jpg' }
       ],
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // warm-gouden opkomende zon, geeliger
@@ -371,7 +371,7 @@ const GAME = {
         { item: 'berries', hotspot: 'berries', x: 484, y: 296 }   // bessenstruik rechts van het pad (ver naar rechts)
       ],
       npcs: [],
-      fx: { poemGlow: { x: 276, y: 250, flag: 'visited_valley', untilFlag: 'poemRead' } },   // zacht schijnsel uit de brievenbus (er steekt een gedicht in)
+      fx: {},   // geen glitters bij de brievenbus; de omhoog staande vlag in de achtergrond is de hint
       hotspots: [
         {
           id: 'poem',
@@ -437,7 +437,7 @@ const GAME = {
     millInside: {
       name: { nl: 'In de Molen', en: 'Inside the Mill' },
       bg: 'assets/art/scene-mill-inside.png',
-      charFilter: 'sepia(0.28) saturate(1.2) brightness(1.04)',   // warm gouden binnenlicht met zonnestralen
+      charFilter: 'sepia(0.3) saturate(1.12) brightness(0.78)',   // Finn staat in de schemerige molen: wat donkerder (schaduw)
       entryText: {
         nl: 'Binnen is het schemerig en stoffig; zonnestralen vallen door de raampjes op de grote maalsteen en het houten tandrad. Het rad staat stokstijf stil — hier wordt het water tegengehouden.',
         en: 'Inside it is dim and dusty; sunbeams fall through the small windows onto the great millstone and the wooden gear. The wheel stands dead still — this is where the water is held back.'
@@ -591,7 +591,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.12, sway: true },   // poortwacht met hellebaard (iets kleiner); wiegt rustig heen en weer
-        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 282, scale: 1.12, filter: 'brightness(0.78)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
+        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 282, scale: 1.12, filter: 'brightness(0.6)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
         { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) gelig-witte bloem — strak cluster, kleiner
         { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // alle bloemen gelig-wit, dicht bij elkaar; dansen mee
