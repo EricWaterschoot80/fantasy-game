@@ -2496,7 +2496,7 @@
     if (item && item.zoomImg && (!item.zoomImgFlag || state.flags[item.zoomImgFlag])) {   // leesbaar item; leeg toverboek nog niet (dan combineerbaar)
       state.selectedItem = null;
       sfx('tap');
-      openZoom(item.zoomImg);
+      openZoom(typeof item.zoomImg === 'function' ? item.zoomImg(state) : item.zoomImg);   // zoomImg mag een functie zijn (bv. toverboek: dans-spreuk → drakenspreuk)
       renderInventory();
       return;
     }

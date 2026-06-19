@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '81',
+  assetVer: '82',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -125,10 +125,11 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-spellbook.png', zoomImg: 'assets/art/spell-flower.png', zoomImgFlag: 'spellWritten',
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-spellbook-plain.png',
+             zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.jpg' : 'assets/art/spell-dance.jpg', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
-               ? { nl: 'Het toverboek. Op de eerste bladzijde staat nu, in glanzende inkt, de spreuk die je schreef: “Laat wat stil staat vrolijk dansen.” Richt het op iets levends en het begint te bewegen.', en: 'The spellbook. On the first page, in glistening ink, stands the spell you wrote: “Make what stands still dance.” Aim it at something living and it starts to move.' }
-               : { nl: 'Het oude toverboek — maar de bladzijden zijn helemaal leeg. Met de juiste pen en inkt zou je er een spreuk in kunnen schrijven... (combineer een inktveer met dit boek)', en: 'The old spellbook — but its pages are completely blank. With the right pen and ink you could write a spell in it... (combine an ink-dipped feather with this book)' } },
+               ? { nl: 'Het toverboek. Op de eerste bladzijde staat de dans-spreuk die je schreef. (tik aan om te bekijken)', en: 'The spellbook. On the first page stands the dance-spell you wrote. (tap to view)' }
+               : { nl: 'Het oude toverboek — de bladzijden zijn nog helemaal leeg. Je moet de spreuken er nog zelf in schrijven, met een magische veer gedoopt in bessensap. (maak inkt van zwarte bessen, doop de ravenveer erin en combineer die met dit boek)', en: 'The old spellbook — its pages are still completely blank. You must still write the spells in yourself, with a magic feather dipped in berry juice. (make ink from black berries, dip the raven feather in it and combine it with this book)' } },
     feather: { name: { nl: 'Magische Ravenveer', en: 'Magic Raven Feather' }, icon: '🪶', img: 'assets/art/item-feather.png',
              look: { nl: 'Een glanzende, blauwzwarte veer die de raaf achterliet. Hij gloeit zachtjes van magie. Met inkt zou je er prachtig mee kunnen schrijven.', en: 'A glossy blue-black feather the raven left behind. It glows faintly with magic. With ink you could write beautifully with it.' } },
     berries: { name: { nl: 'Zwarte Bessen', en: 'Black Berries' }, icon: '🫐',
@@ -151,7 +152,7 @@ const GAME = {
              look: { nl: 'Een glazen flesje met één heldere, glinsterende traan erin. Eén van de drie ingrediënten voor de ketel in de runencirkel.', en: 'A glass vial holding a single clear, glistening tear. One of the three ingredients for the cauldron in the rune circle.' } },
     fireflight: { name: { nl: 'Flesje Vuurvliegjes', en: 'Vial of Fireflies' }, icon: '✨', img: 'assets/art/item-fireflight.png',
              look: { nl: 'Een flesje met levende vuurvliegjes erin — groene en blauwe vonkjes die rondzweven en zacht oplichten. Eén van de drie ingrediënten voor de ketel.', en: 'A vial of living fireflies — green and blue sparks drifting and softly glowing inside. One of the three ingredients for the cauldron.' } },
-    recipe: { name: { nl: 'Het Recept', en: 'The Recipe' }, icon: '📜', img: 'assets/art/item-note.png', zoomImg: 'assets/art/recipe.png',
+    recipe: { name: { nl: 'Het Recept', en: 'The Recipe' }, icon: '📜', img: 'assets/art/item-note.png', zoomImg: 'assets/art/recipe.jpg',
              look: { nl: 'Het vergeelde recept dat onder de losse steen bij de molen lag. Drie ingrediënten voor de ketel: een drakenschub, een traan van een onschuldige, en het licht van een vuurvliegje. (tik aan om te bekijken)', en: 'The yellowed recipe that lay under the loose stone by the mill. Three ingredients for the cauldron: a dragon scale, a tear of an innocent, and the light of a firefly. (tap to view)' } },
     dragonscale: { name: { nl: 'Drakenschub', en: 'Dragon Scale' }, icon: '🐲', img: 'assets/art/item-dragonscale.png',
              look: { nl: 'Een harde, glanzende schub, warm als sintels. Wie weet welk wezen hem verloor... Het laatste ingrediënt voor de ketel.', en: 'A hard, gleaming scale, warm as embers. Who knows what creature lost it... The last ingredient for the cauldron.' } }
@@ -464,7 +465,7 @@ const GAME = {
           arrow: { x: 456, y: 246, dir: 'down' },
           gives: {
             item: 'recipe',
-            giveText: { nl: 'Rechts bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept! Drie ingrediënten voor de ketel. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the right, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE! Three ingredients for the cauldron. (tap the recipe in your bag to view it)' },
+            giveText: { nl: 'Rechts bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept voor de ketel! Je vouwt het open en legt het tussen de bladzijden van je toverboek. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the right, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE for the cauldron! You unfold it and tuck it between the pages of your spellbook. (tap the recipe in your bag to view it)' },
             emptyText: { nl: 'Onder de steen is verder niets meer; het recept zit in je tas.', en: 'There is nothing else under the stone; the recipe is in your bag.' }
           }
         },
@@ -801,18 +802,22 @@ const GAME = {
       worldItems: [],
       npcs: [
         /* De heks staat nu LINKS van de ketel; een rust-lus (heks-idle) speelt zodra je in de vallei bent, tijdens de strijd haar battle-animatie. */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 240, scale: 1.14, hideFlag: 'witchDefeated' },
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 240, scale: 1.04, hideFlag: 'witchDefeated' },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
-        /* Lichtgevende lavendelbloemen rechtsonder met blauw licht; ze dansen sierlijk zodra je hier je dans-spreuk uitspreekt. */
-        { id: 'vflower1', sprite: 'flowerLavender', x: 446, y: 304, scale: 0.3, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower2', sprite: 'flowerLavender', x: 473, y: 308, scale: 0.25, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower3', sprite: 'flowerLavender', x: 499, y: 303, scale: 0.28, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' }
+        /* Lichtgevende lavendelbloemen rechtsonder (groter, dichter bijeen) met blauw licht; ze dansen + lokken vuurvliegjes na de dans-spreuk. */
+        { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower3', sprite: 'flowerLavender', x: 487, y: 304, scale: 0.39, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
+        /* Kleine lichtgevende lavendelbloemen (blauw-paars) linksonder, dansen mee. */
+        { id: 'vflowerL1', sprite: 'flowerLavender', x: 72, y: 300, scale: 0.22, glow: '150,150,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflowerL2', sprite: 'flowerLavender', x: 90, y: 304, scale: 0.18, glow: '150,150,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflowerL3', sprite: 'flowerLavender', x: 107, y: 300, scale: 0.2, glow: '150,150,255', danceFlag: 'valleyFlowersDancing' }
       ],
       fx: {
         fireflies: 18,                                       // meer dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        mist: { bands: 5, y: 228, alpha: 0.26, around: { x: 240, y: 238, rx: 200, ry: 42 }, aroundAlpha: 0.56 }   // dichtere, iets hogere (verder naar achter) brede grondmist
+        mist: { bands: 6, y: 220, alpha: 0.3, around: { x: 240, y: 230, rx: 205, ry: 44 }, aroundAlpha: 0.62 }   // dichtere, hogere brede grondmist
       },
       hotspots: [
         {
