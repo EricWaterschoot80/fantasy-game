@@ -2329,6 +2329,13 @@
     /* niet casten terwijl een popup open is */
     if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
     const scene = GAME.scenes[state.currentScene];
+    /* Vallei: de dans-spreuk laat de lavendelbloemen rechts dansen en lokt vuurvliegjes. */
+    if (state.currentScene === 'valley' && !state.flags.valleyFlowersDancing) {
+      state.flags.valleyFlowersDancing = true;
+      sfx('combine'); triggerCastFx(); updateQuest();
+      say({ nl: 'Je heft je staf en spreekt de dans-spreuk uit. De lichtgevende lavendelbloemen rechts beginnen sierlijk te wiegen, en hun blauwe licht lokt een zwerm groen-blauwe vuurvliegjes die vrolijk meedansen. Vang er nu een paar in een leeg flesje! (tik de bloemen aan)', en: 'You raise your staff and speak the dance-spell. The glowing lavender flowers begin to sway gracefully, and their blue light draws a swarm of green-blue fireflies that dance along. Now catch a few in an empty vial! (tap the flowers)' });
+      return;
+    }
     const hs = (scene.hotspots || []).find(h => h.castWith);
     if (hs) {
       const c = hs.castWith;

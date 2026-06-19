@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '80',
+  assetVer: '81',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -458,13 +458,13 @@ const GAME = {
         {
           id: 'recipeStone',
           name: { nl: 'Een Losse Steen', en: 'A Loose Stone' },
-          rect: { x: 78, y: 256, w: 52, h: 38 },
-          walkTo: { x: 104, y: 306 },
+          rect: { x: 430, y: 256, w: 54, h: 40 },
+          walkTo: { x: 452, y: 306 },
           appearFlag: 'recipeRevealed',                 // verschijnt zodra de raaf de steen heeft aangewezen
-          arrow: { x: 100, y: 246, dir: 'down' },
+          arrow: { x: 456, y: 246, dir: 'down' },
           gives: {
             item: 'recipe',
-            giveText: { nl: 'Links bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept! Drie ingrediënten voor de ketel. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the left, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE! Three ingredients for the cauldron. (tap the recipe in your bag to view it)' },
+            giveText: { nl: 'Rechts bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept! Drie ingrediënten voor de ketel. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the right, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE! Three ingredients for the cauldron. (tap the recipe in your bag to view it)' },
             emptyText: { nl: 'Onder de steen is verder niets meer; het recept zit in je tas.', en: 'There is nothing else under the stone; the recipe is in your bag.' }
           }
         },
@@ -853,13 +853,17 @@ const GAME = {
         },
         {
           id: 'fireflight',
-          name: { nl: 'Een Vuurvliegje', en: 'A Firefly' },
-          rect: { x: 150, y: 150, w: 64, h: 92 },
-          walkTo: { x: 182, y: 300 },
-          gives: {
-            item: 'fireflight',
-            giveText: { nl: 'Boven een platte offersteen danst een enkel vuurvliegje, helder goudgeel oplichtend. Heel voorzichtig vang je het in je holle handen — je houdt zijn warme licht vast. Eén van de ingrediënten voor de ketel.', en: 'Above a flat offering-stone dances a single firefly, glowing bright golden. Very gently you cup it in your hands — you’re holding its warm light. One of the cauldron’s ingredients.' },
-            emptyText: { nl: 'Hier dansen geen vuurvliegjes meer — je hebt het licht al gevangen.', en: 'No more fireflies dance here — you’ve already caught the light.' }
+          name: { nl: 'De Lavendelbloemen', en: 'The Lavender Flowers' },
+          rect: { x: 424, y: 250, w: 100, h: 74 },
+          walkTo: { x: 470, y: 306 },
+          look: (state) => state.flags.gotFireflight
+            ? { nl: 'De lavendelbloemen wiegen nog zachtjes na. Je hebt al een flesje vol vuurvliegjes.', en: 'The lavender flowers still sway gently. You’ve already caught a vial of fireflies.' }
+            : state.flags.valleyFlowersDancing
+            ? { nl: 'De lavendelbloemen dansen en een wolk groen-blauwe vuurvliegjes danst mee. Tik ze aan om er een paar in een flesje te vangen.', en: 'The lavender flowers are dancing and a cloud of green-blue fireflies dances along. Tap them to catch a few in a vial.' }
+            : { nl: 'Lichtgevende lavendelbloemen met zacht blauw licht. Ze staan stil... misschien gaan ze dansen als je je dans-spreuk uitspreekt?', en: 'Glowing lavender flowers with a soft blue light. They stand still... perhaps they would dance if you cast your dance-spell?' },
+          givesWhen: {
+            flag: 'valleyFlowersDancing', setFlag: 'gotFireflight', item: 'fireflight',
+            giveText: { nl: 'Tussen de dansende bloemen vang je voorzichtig een paar dwarrelende vuurvliegjes in een leeg flesje — groene en blauwe vonkjes die zachtjes ronddwalen. Eén van de ingrediënten voor de ketel.', en: 'Among the dancing flowers you gently catch a few drifting fireflies in an empty vial — green and blue sparks softly wandering inside. One of the cauldron’s ingredients.' }
           }
         },
         {
