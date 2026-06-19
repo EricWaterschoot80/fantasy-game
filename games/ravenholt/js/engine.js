@@ -2158,8 +2158,15 @@
                                      : intro + (((now / 130) | 0) % (total - intro));
         if (ready(fr[fi])) img = fr[fi];
       } else if (npc.idleFrames && art.frames[npc.idleFrames]) {
-        const fr = art.frames[npc.idleFrames];
-        const fi = ((now / 165) | 0) % fr.length;
+        /* Rust-gebaar: meestal stil op frame 1; om de ~5 sec één snelle beweging (heen en terug). */
+        const fr = art.frames[npc.idleFrames], n = fr.length;
+        const phase = (now + (npc.x || 0) * 11) % 5000;       // periode van 5 sec (per npc iets verschoven)
+        const stepMs = 70, gestureMs = (n - 1) * 2 * stepMs;  // snelle ping-pong door alle frames
+        let fi = 0;
+        if (phase < gestureMs) {
+          const s = (phase / stepMs) | 0;                     // 0..2(n-1)
+          fi = s < n ? s : (2 * (n - 1) - s);                 // heen (0..n-1) en terug (n-1..0)
+        }
         if (ready(fr[fi])) img = fr[fi];
       }
       if (ready(img)) {

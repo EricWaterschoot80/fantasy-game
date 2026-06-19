@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '79',
+  assetVer: '80',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -801,7 +801,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         /* De heks staat nu LINKS van de ketel; een rust-lus (heks-idle) speelt zodra je in de vallei bent, tijdens de strijd haar battle-animatie. */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 240, scale: 1.32, hideFlag: 'witchDefeated' },
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 240, scale: 1.14, hideFlag: 'witchDefeated' },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
         /* Lichtgevende lavendelbloemen rechtsonder met blauw licht; ze dansen sierlijk zodra je hier je dans-spreuk uitspreekt. */
@@ -810,9 +810,9 @@ const GAME = {
         { id: 'vflower3', sprite: 'flowerLavender', x: 499, y: 303, scale: 0.28, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' }
       ],
       fx: {
-        fireflies: 10,                                       // dwaallichtjes boven de mist
+        fireflies: 18,                                       // meer dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        mist: { bands: 4, y: 238, alpha: 0.2, around: { x: 240, y: 250, rx: 200, ry: 44 }, aroundAlpha: 0.46 }   // brede lage grondmist over bijna de hele breedte
+        mist: { bands: 5, y: 228, alpha: 0.26, around: { x: 240, y: 238, rx: 200, ry: 42 }, aroundAlpha: 0.56 }   // dichtere, iets hogere (verder naar achter) brede grondmist
       },
       hotspots: [
         {

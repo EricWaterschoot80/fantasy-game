@@ -262,6 +262,7 @@ html, body {
   image-rendering: pixelated;
 }
 .round-btn:active { transform: scale(.92); }
+.round-btn.dev { right: 60px; font-size: 18px; }   /* dev-knop links naast het oogje (oogje blijft op right:12px) */
 .round-btn.home {
   top: auto; right: auto;
   left: 10px; bottom: max(10px, var(--safe-bottom));
