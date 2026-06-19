@@ -969,7 +969,7 @@
         fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
           const D = GAME.spriteDetail || 1;
-          const sc = 1.1;                                                   // iets kleinere wegvliegende raaf
+          const sc = 0.95;                                                  // kleinere wegvliegende raaf
           const w = Math.round(img.naturalWidth / D * sc);
           const h = Math.round(img.naturalHeight / D * sc);
           fctx.translate(Math.round(fx_), Math.round(fy_));
@@ -1849,7 +1849,7 @@
     const sf = sceneFilter();
     const sc = GAME.scenes[state.currentScene];
     const sh = (sc && typeof sc.heroShade === 'number') ? sc.heroShade : 0.9;
-    const soft = ' brightness(' + sh + ') contrast(0.92)';
+    const soft = ' brightness(' + sh + ') contrast(0.86)';
     const f = (sf === 'none') ? soft.trim() : (sf + soft);
     fctx.filter = f;
     drawPlayerSprite(now);
@@ -1880,7 +1880,7 @@
           /* Frame-timing op TIJD (niet op afgelegde afstand): zo blijft de loop altijd
              vloeiend doorlopen — ook als Finn langzaam loopt of afremt bij een waypoint
              (geen plots "stilstaan" meer). ~11 fps over de 20 frames. */
-          const t = now / 90;
+          const t = now / 108;                        // iets langzamere beencyclus (lager tempo dan de loopsnelheid)
           const fr = Math.floor(t) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
              de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven.
