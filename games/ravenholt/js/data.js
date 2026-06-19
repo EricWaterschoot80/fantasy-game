@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '82',
+  assetVer: '83',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -109,8 +109,8 @@ const GAME = {
   items: {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Bovenin zit een lege vatting — er hoort een magische steen in. Zonder die steen doet de staf nog niets.', en: 'My father’s wooden staff. The top has an empty setting — a magic stone belongs there. Without the stone the staff does nothing yet.' } },
-    coin: { name: { nl: 'Oud Muntje', en: 'Old Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
-            look: { nl: 'Een oud, mat muntje — maar in het zonlicht glinstert het nog mooi. Precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old, dull coin — but it still glints prettily in the sunlight. Just the kind of shiny thing a magpie or raven can’t resist.' } },
+    coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
+            look: { nl: 'Een glanzende zilveren munt van burgemeester Bram. Hij blinkt prachtig in het licht — precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'A shiny silver coin from Mayor Bram. It gleams beautifully in the light — just the kind of bright thing a magpie or raven can’t resist.' } },
     note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
             look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } },
     vialInk:  { name: { nl: 'Leeg Flesje (voor inkt)', en: 'Empty Vial (for ink)' }, icon: '🧪', img: 'assets/art/item-vial.png',
@@ -125,7 +125,7 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-spellbook-plain.png',
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
              zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.jpg' : 'assets/art/spell-dance.jpg', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
                ? { nl: 'Het toverboek. Op de eerste bladzijde staat de dans-spreuk die je schreef. (tik aan om te bekijken)', en: 'The spellbook. On the first page stands the dance-spell you wrote. (tap to view)' }
@@ -268,7 +268,7 @@ const GAME = {
               consume: 'wine',
               give: 'coin',
               setFlag: 'gotMayorCoin',
-              text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Zijn ogen lichten op — hij neemt een diepe slok en zucht tevreden. “Wat een traktatie, Finn! Hier, voor jou — een oud, glimmend muntje. Bewaar het goed; je weet maar nooit wie er dol op glimmende dingen is...” (de raaf in de vallei misschien?)', en: 'You offer Mayor Bram the vial of wine. His eyes light up — he takes a deep sip and sighs contentedly. “What a treat, Finn! Here, for you — an old, shiny coin. Keep it safe; you never know who has a weakness for shiny things...” (the raven in the valley, perhaps?)' }
+              text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Zijn ogen lichten op — hij neemt een diepe slok en zucht tevreden. “Wat een traktatie, Finn! Hier, voor jou — een glanzende zilveren munt. En ik heb nog iets belangrijks... tik me nog eens aan.” (geef de munt straks aan de raaf in de vallei)', en: 'You offer Mayor Bram the vial of wine. His eyes light up — he takes a deep sip and sighs contentedly. “What a treat, Finn! Here, for you — a shiny silver coin. And I have something important too... tap me once more.” (give the coin to the raven in the valley later)' }
             }
           },
           setFlag: 'metMayor'
@@ -513,7 +513,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mouse', sprite: 'mouse', x: 162, y: 306, scale: 0.55, flip: true, filter: 'brightness(0.82)' }   // muisje bij het holletje naast de wijnton (zichtbaar, licht in de schaduw)
+        { id: 'mouse', sprite: 'mouse', x: 214, y: 198, scale: 0.5, flip: false, peck: true, filter: 'brightness(0.82)', hideFlag: 'wineTapLoose' }   // muisje hoog naast de wijnton; knabbelt (peck) en verdwijnt zodra je hem kaas geeft (wineTapLoose)
       ],
       fx: {},
       hotspots: [
@@ -802,22 +802,23 @@ const GAME = {
       worldItems: [],
       npcs: [
         /* De heks staat nu LINKS van de ketel; een rust-lus (heks-idle) speelt zodra je in de vallei bent, tijdens de strijd haar battle-animatie. */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 240, scale: 1.04, hideFlag: 'witchDefeated' },
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 234, scale: 0.95, hideFlag: 'witchDefeated' },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
         /* Lichtgevende lavendelbloemen rechtsonder (groter, dichter bijeen) met blauw licht; ze dansen + lokken vuurvliegjes na de dans-spreuk. */
-        { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower3', sprite: 'flowerLavender', x: 487, y: 304, scale: 0.39, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '70,140,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '70,140,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower3', sprite: 'flowerLavender', x: 487, y: 304, scale: 0.39, glow: '70,140,255', danceFlag: 'valleyFlowersDancing' },
         /* Kleine lichtgevende lavendelbloemen (blauw-paars) linksonder, dansen mee. */
-        { id: 'vflowerL1', sprite: 'flowerLavender', x: 72, y: 300, scale: 0.22, glow: '150,150,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflowerL2', sprite: 'flowerLavender', x: 90, y: 304, scale: 0.18, glow: '150,150,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflowerL3', sprite: 'flowerLavender', x: 107, y: 300, scale: 0.2, glow: '150,150,255', danceFlag: 'valleyFlowersDancing' }
+        { id: 'vflowerL1', sprite: 'flowerLavender', x: 72, y: 300, scale: 0.22, glow: '90,130,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflowerL2', sprite: 'flowerLavender', x: 90, y: 304, scale: 0.18, glow: '90,130,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflowerL3', sprite: 'flowerLavender', x: 107, y: 300, scale: 0.2, glow: '90,130,255', danceFlag: 'valleyFlowersDancing' }
       ],
       fx: {
         fireflies: 18,                                       // meer dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        mist: { bands: 6, y: 220, alpha: 0.3, around: { x: 240, y: 230, rx: 205, ry: 44 }, aroundAlpha: 0.62 }   // dichtere, hogere brede grondmist
+        flowerFlies: { x: 470, y: 300, flag: 'valleyFlowersDancing' },   // dansende vuurvliegjes bij de rechter bloemen (na de dans-spreuk)
+        mist: { bands: 6, y: 212, alpha: 0.32, around: { x: 240, y: 222, rx: 235, ry: 52 }, aroundAlpha: 0.64 }   // grotere, hogere brede grondmist
       },
       hotspots: [
         {

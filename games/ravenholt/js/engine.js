@@ -136,7 +136,7 @@
     }
   }
   for (const [id, item] of Object.entries(GAME.items)) {
-    if (item.img) {
+    if (item.img && typeof item.img === 'string') {
       const img = new Image();
       img.src = item.img + AV;
       art.items[id] = img;
@@ -1410,6 +1410,18 @@
         fctx.fillRect(eyes[1], c.y - 1, 2, 1);
       }
     }
+    /* Dansende vuurvliegjes bij de bloemen (na de dans-spreuk): groen-blauwe vonkjes die rond een punt zwermen. */
+    if (fx.flowerFlies && state.flags[fx.flowerFlies.flag]) {
+      const ff = fx.flowerFlies, COLS = ['150,230,120', '120,180,255'];
+      for (let i = 0; i < 9; i++) {
+        const t = now / 700 + i * 2.1;
+        const fx2 = ff.x + Math.cos(t * 1.3 + i) * (16 + (i % 3) * 6) + Math.sin(t * 0.7) * 4;
+        const fy2 = ff.y - 14 + Math.sin(t * 1.7 + i * 2) * 12;
+        const tw = 0.5 + 0.5 * Math.sin(now / 180 + i * 1.9);     // knipperen
+        fctx.fillStyle = 'rgba(' + COLS[i % 2] + ',' + (0.35 + 0.55 * tw).toFixed(2) + ')';
+        fctx.fillRect(Math.round(fx2), Math.round(fy2), 2, 2);
+      }
+    }
     /* Opstijgende schoorsteenrook boven de daken — trage, zachte, realistische pluim:
        elk pluimpje dijt uit en wordt ijler terwijl het stijgt, met twee grijstinten en
        een lichte zijwaartse drift (alsof er een zacht briesje staat). */
@@ -2033,7 +2045,7 @@
       fctx.filter = 'none';
       const gx = rt.x, gy = rt.y - 8 * (npc.scale || 1);
       const gr = 18 + 22 * (npc.scale || 1);
-      const a = 0.42 + 0.2 * Math.sin(now / 560 + (rt.phase || 0) * 3 + rt.x);
+      const a = 0.3 + 0.14 * Math.sin(now / 560 + (rt.phase || 0) * 3 + rt.x);
       const g = fctx.createRadialGradient(gx, gy, 1, gx, gy, gr);
       g.addColorStop(0, 'rgba(' + npc.glow + ',' + a.toFixed(3) + ')');
       g.addColorStop(1, 'rgba(' + npc.glow + ',0)');
@@ -2459,9 +2471,10 @@
         slot.classList.add('filled');
         if (item.sparkle) slot.classList.add('sparkle');
         if (item.border) slot.classList.add('border-' + item.border);   // bv. de spreuk met een blauwe rand
-        if (item.img) {
+        const imgSrc = typeof item.img === 'function' ? item.img(state) : item.img;   // img mag een functie zijn (bv. toverboek: vlak → met veer na het schrijven)
+        if (imgSrc) {
           const im = document.createElement('img');
-          im.src = item.img + AV;
+          im.src = imgSrc + AV;
           im.alt = L(item.name);
           im.draggable = false;
           im.onerror = () => { im.remove(); slot.textContent = item.icon; };
