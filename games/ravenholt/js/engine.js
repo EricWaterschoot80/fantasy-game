@@ -3815,10 +3815,14 @@
        overhandigt de geheime kaart zodra de molen weer draait). Eenmalig. */
     if (hs.givesWhen && state.flags[hs.givesWhen.flag] && !state.flags[hs.givesWhen.setFlag]) {
       const g = hs.givesWhen;
-      if (g.needFlag && !state.flags[g.needFlag]) {     // tweede voorwaarde (bv. eerst een leeg flesje hebben)
+      if (g.needFlag && !state.flags[g.needFlag]) {     // tweede voorwaarde (bv. eerst een vlag)
+        sfx('error'); say(g.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return;
+      }
+      if (g.needItem && !state.inventory.includes(g.needItem)) {   // bv. eerst een leeg flesje voor de traan
         sfx('error'); say(g.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return;
       }
       state.flags[g.setFlag] = true;
+      if (g.consume) removeItem(g.consume);             // bv. het lege flesje wordt gevuld met de traan
       if (g.item) addItem(g.item);
       sfx('pickup');
       say(g.giveText, hsSpeaker(hs), hsFace(hs));
@@ -3850,8 +3854,13 @@
         return;
       }
       if (!repeat) state.flags[takenFlag(hs)] = true;
-      if (hs.gives.setFlag) state.flags[hs.gives.setFlag] = true;   // bv. drie flesjes pakken zet 'gotVials'
+      if (hs.gives.setFlag) {
+        state.flags[hs.gives.setFlag] = true;           // bv. flesjes pakken zet 'gotVials', brief pakken zet 'poemRead'
+        const sc = GAME.scenes[state.currentScene];     // wissel evt. de achtergrond (bv. brievenbus-vlag weer omlaag)
+        if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === hs.gives.setFlag || v.notFlag === hs.gives.setFlag)) paintBackground();
+      }
       addItem(hs.gives.item);
+      if (hs.gives.also) addItem(hs.gives.also);         // tweede voorwerp (bv. 2 flesjes tegelijk)
       sfx('pickup');
       say(hs.gives.giveText);
       /* Een NPC kan wegvliegen zodra dit voorwerp gepakt is (bv. de raaf op de

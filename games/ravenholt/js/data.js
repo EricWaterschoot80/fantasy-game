@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '62',
+  assetVer: '63',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -112,8 +112,10 @@ const GAME = {
             look: { nl: 'Een oud, mat muntje — maar in het zonlicht glinstert het nog mooi. Precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old, dull coin — but it still glints prettily in the sunlight. Just the kind of shiny thing a magpie or raven can’t resist.' } },
     note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
             look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } },
-    vial:  { name: { nl: 'Twee Lege Flesjes', en: 'Two Empty Vials' }, icon: '🧪', img: 'assets/art/item-vial.png',
-             look: { nl: 'Twee lege glazen flesjes met kurk, uit de kast in de molen. Eentje is voor de inkt (bessen) en eentje om de traan van het meisje bij de kraam in op te vangen.', en: 'Two empty corked glass vials from the cupboard in the mill. One is for the ink (berries) and one to catch the tear of the girl at the stall.' } },
+    vialInk:  { name: { nl: 'Leeg Flesje (voor inkt)', en: 'Empty Vial (for ink)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier maak je inkt in van de zwarte bessen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to make ink from the black berries.' } },
+    vialTear: { name: { nl: 'Leeg Flesje (voor de traan)', en: 'Empty Vial (for the tear)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je straks de traan van het meisje bij de kraam opvangen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch the tear of the girl at the stall later.' } },
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
@@ -132,6 +134,8 @@ const GAME = {
              look: { nl: 'De magische ravenveer, gedoopt in de bessen-inkt — nog steeds een veer, maar met een glanzende zwarte inktpunt. Klaar om een spreuk in het lege toverboek te schrijven.', en: 'The magic raven feather, dipped in berry ink — still a feather, but with a glossy black ink tip. Ready to write a spell in the empty spellbook.' } },
     spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', border: 'blue',
              look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
+    poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-note.png',
+             look: { nl: 'Het gloeiende briefje uit de brievenbus bij de molen, zonder afzender:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The glowing note from the mailbox by the mill, with no sender:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nYou should read this aloud to someone who carries sorrow...' } },
     map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png',
              look: { nl: 'De geheime kaart van burgemeester Bram. Een pad slingert het dorp uit, langs het bos, naar de vallei met de vreemde lichten — met een kruisje bij een grot. (wordt vervolgd)', en: 'Mayor Bram’s secret map. A path winds out of the village, past the wood, to the valley of strange lights — with a cross at a cave. (to be continued)' } },
     millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
@@ -149,7 +153,7 @@ const GAME = {
   /* Combinaties. result = nieuw voorwerp; of setFlag (+ keep) voor een handeling
      die de voorwerpen niet verbruikt (bv. met de inktveer in het boek schrijven). */
   recipes: [
-    { a: 'berries', b: 'vial', result: 'ink',
+    { a: 'berries', b: 'vialInk', result: 'ink',
       text: { nl: 'Je plet de zwarte bessen in het lege flesje. Het sap kleurt diep gitzwart — echte inkt!', en: 'You crush the black berries into the empty vial. The juice turns deep jet-black — real ink!' } },
     { a: 'feather', b: 'ink', result: 'inkFeather',
       text: { nl: 'Je doopt de magische ravenveer in de inkt. De punt glanst zwart en lijkt bijna te trillen van leven — klaar om te schrijven.', en: 'You dip the magic raven feather into the ink. Its tip glistens black and seems almost to quiver with life — ready to write.' } },
@@ -316,8 +320,8 @@ const GAME = {
             ? { nl: 'Het meisje knikt vriendelijk achter haar kraam vol kaas en fruit. “Smakelijk eten met dat ruiltje!”', en: 'The girl nods kindly behind her stall of cheese and fruit. “Enjoy that trade!”' }
             : { nl: 'Een meisje staat achter haar kraam vol gele kazen en fruit. Ze kijkt een beetje weemoedig. “Geld hoef ik niet — maar voor een handvol vers graan ruil ik je graag een stuk kaas.” (gebruik graan op de kraam)', en: 'A girl stands behind her stall of yellow cheeses and fruit. She looks a little wistful. “I don’t need coin — but for a handful of fresh grain I’ll gladly trade you a wedge of cheese.” (use grain on the stall)' },
           givesWhen: {
-            flag: 'poemRead', needFlag: 'gotVials', setFlag: 'gotTear', item: 'tear',
-            needText: { nl: 'Je zou haar traan willen opvangen, maar je hebt er een leeg flesje voor nodig. (er staan flesjes in de molen)', en: 'You’d love to catch her tear, but you need an empty vial for it. (there are vials in the mill)' },
+            flag: 'poemRead', needItem: 'vialTear', consume: 'vialTear', setFlag: 'gotTear', item: 'tear',
+            needText: { nl: 'Je zou haar traan willen opvangen, maar je hebt er een leeg flesje voor nodig. (er staan flesjes in de kast in de molen)', en: 'You’d love to catch her tear, but you need an empty vial for it. (there are vials in the cupboard in the mill)' },
             giveText: { nl: 'Je leest het gloeiende gedicht uit de molen zachtjes voor aan het meisje. Haar ogen worden vochtig en er rolt één glinsterende traan over haar wang. Snel vang je hem op in een leeg flesje — een echte traan van het meisje! (een ingrediënt voor de ketel)', en: 'You softly read the glowing poem from the mill to the girl. Her eyes well up and a single glistening tear rolls down her cheek. Quickly you catch it in an empty vial — a real tear of the girl! (an ingredient for the cauldron)' }
           },
           use: {
@@ -388,10 +392,12 @@ const GAME = {
           rect: { x: 250, y: 232, w: 52, h: 60 },
           walkTo: { x: 276, y: 306 },
           appearFlag: 'visited_valley',                 // de vlag staat omhoog zodra je terug bent uit de vallei
-          look: (state) => state.flags.poemRead
-            ? { nl: 'De brievenbus is leeg; het gedicht zit veilig in je hoofd. Misschien raakt het iemand met verdriet als je het voorleest.', en: 'The mailbox is empty now; the poem is safe in your head. Perhaps it will move someone with sorrow if you read it aloud.' }
-            : { nl: 'De vlag van de brievenbus staat omhoog. Er steekt een opgevouwen briefje in dat zacht gloeit. Finn vouwt het open en leest het hardop voor:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nEen gedicht zonder afzender. De woorden blijven natrillen — dit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The mailbox flag is up. A folded note pokes out, glowing softly. Finn unfolds it and reads it aloud:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nA poem with no sender. The words keep trembling — you should read this aloud to someone who carries sorrow...' },
-          setFlag: 'poemRead'
+          gives: {
+            item: 'poem',
+            setFlag: 'poemRead',                        // vlag van de brievenbus weer omlaag (terug naar molen-Image)
+            giveText: { nl: 'De vlag van de brievenbus staat omhoog. Er steekt een opgevouwen, zacht gloeiend briefje in. Finn vouwt het open, leest het en stopt het in zijn tas:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nEen gedicht zonder afzender — dit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The mailbox flag is up. A folded, softly glowing note pokes out. Finn opens it, reads it and tucks it into his bag:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nA poem with no sender — you should read this aloud to someone who carries sorrow...' },
+            emptyText: { nl: 'De brievenbus is leeg; het gedicht zit in je tas.', en: 'The mailbox is empty; the poem is in your bag.' }
+          }
         },
         {
           id: 'berries',
@@ -503,9 +509,10 @@ const GAME = {
           rect: { x: 14, y: 58, w: 104, h: 56 },
           walkTo: { x: 96, y: 300 },
           gives: {
-            item: 'vial',
+            item: 'vialInk',
+            also: 'vialTear',
             setFlag: 'gotVials',
-            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er twee lege glazen flesjes met kurk mee — eentje voor de inkt en eentje om straks een traan in op te vangen.', en: 'Old bottles stand in the cupboard. You take two empty corked glass vials — one for the ink and one to catch a tear in later.' },
+            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er twee lege glazen flesjes met kurk mee: eentje voor de inkt (van de bessen) en eentje om straks de traan van het meisje in op te vangen.', en: 'Old bottles stand in the cupboard. You take two empty corked glass vials: one for the ink (from the berries) and one to catch the girl’s tear in later.' },
             emptyText: { nl: 'De andere flesjes zijn gebarsten of vol spinrag.', en: 'The other bottles are cracked or full of cobwebs.' }
           }
         },
