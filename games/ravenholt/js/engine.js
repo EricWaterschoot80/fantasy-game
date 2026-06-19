@@ -124,6 +124,17 @@
     img.src = src + AV;
     art.sprites[id] = img;
   }
+  /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
+  art.frames = {};
+  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8 };
+  for (const [name, count] of Object.entries(FRAME_SEQS)) {
+    art.frames[name] = [];
+    for (let i = 1; i <= count; i++) {
+      const img = new Image();
+      img.src = 'assets/art/' + name + '/' + String(i).padStart(2, '0') + '.png' + AV;
+      art.frames[name].push(img);
+    }
+  }
   for (const [id, item] of Object.entries(GAME.items)) {
     if (item.img) {
       const img = new Image();
@@ -2118,6 +2129,19 @@
         /* Lokken: meestal rust, af en toe een 'kom hier'-wenk (de heks bij de ketel). */
         const cyc = (now % 2600) / 2600;
         if (cyc > 0.58 && cyc < 0.90) img = art.sprites[npc.lure];
+      }
+      /* Geanimeerde npc (de heks): speelt een frame-reeks i.p.v. de statische sprite.
+         Battle-reeks tijdens de strijd (1-12 eenmalig -> lus 13-17), anders de rust-lus. */
+      if (npc.battleFrames && state.flags.duelActive && art.frames[npc.battleFrames]) {
+        const fr = art.frames[npc.battleFrames], intro = 12, total = fr.length;
+        const el = now - (window.__duelStart || now);
+        const fi = (el < intro * 95) ? Math.min(intro - 1, (el / 95) | 0)
+                                     : intro + (((now / 130) | 0) % (total - intro));
+        if (ready(fr[fi])) img = fr[fi];
+      } else if (npc.idleFrames && art.frames[npc.idleFrames]) {
+        const fr = art.frames[npc.idleFrames];
+        const fi = ((now / 165) | 0) % fr.length;
+        if (ready(fr[fi])) img = fr[fi];
       }
       if (ready(img)) {
         const sc2 = depthScaleAt(rt.y) * (npc.scale || 1);

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '77',
+  assetVer: '78',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -53,6 +53,7 @@ const GAME = {
     heroWalkDiag:  'assets/art/hero-walk-diag.png',  // schuin lopen (3/4 naar de speler toe)
     flower:        'assets/art/flower.png',          // bloem (oranje accent)
     flowerWhite:   'assets/art/flower-white.png',    // witte bloem (dansende bloem + cluster)
+    flowerLavender:'assets/art/flower-lavender.png', // lichtgevende lavendelbloem (blauw licht) in de vallei
     witch:         'assets/art/npc-witch.png',       // de heks bij de ketel (rust-frame)
     witchBeckon:   'assets/art/npc-witch-beckon.png' // heks wenkt de jongen ('kom hier'-gebaar)
   },
@@ -799,14 +800,14 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        /* De heks staat nu LINKS van de ketel; tijdens de strijd speelt haar battle-animatie (heks-frames). */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', battleFrames: 'heks', x: 192, y: 244, scale: 1.15, hideFlag: 'witchDefeated' },
+        /* De heks staat nu LINKS van de ketel; een rust-lus (heks-idle) speelt zodra je in de vallei bent, tijdens de strijd haar battle-animatie. */
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 240, scale: 1.32, hideFlag: 'witchDefeated' },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
-        /* Lichtgevende lavendelbloemen rechtsonder; ze dansen sierlijk zodra je hier je dans-spreuk uitspreekt. */
-        { id: 'vflower1', sprite: 'flowerWhite', x: 446, y: 304, scale: 0.32, glow: '198,158,255', filter: 'saturate(1.5) hue-rotate(255deg) brightness(1.05)', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower2', sprite: 'flowerWhite', x: 472, y: 308, scale: 0.26, glow: '210,170,255', filter: 'saturate(1.5) hue-rotate(255deg) brightness(1.05)', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower3', sprite: 'flowerWhite', x: 498, y: 303, scale: 0.29, glow: '198,158,255', filter: 'saturate(1.5) hue-rotate(255deg) brightness(1.05)', danceFlag: 'valleyFlowersDancing' }
+        /* Lichtgevende lavendelbloemen rechtsonder met blauw licht; ze dansen sierlijk zodra je hier je dans-spreuk uitspreekt. */
+        { id: 'vflower1', sprite: 'flowerLavender', x: 446, y: 304, scale: 0.3, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower2', sprite: 'flowerLavender', x: 473, y: 308, scale: 0.25, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower3', sprite: 'flowerLavender', x: 499, y: 303, scale: 0.28, glow: '120,185,255', danceFlag: 'valleyFlowersDancing' }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
@@ -817,8 +818,8 @@ const GAME = {
         {
           id: 'witch',
           name: { nl: 'De Oude Heks', en: 'The Old Witch' },
-          rect: { x: 128, y: 156, w: 116, h: 146 },
-          walkTo: { x: 218, y: 308 },
+          rect: { x: 128, y: 146, w: 134, h: 158 },
+          walkTo: { x: 224, y: 308 },
           hideFlag: 'witchDefeated',
           look: {
             nl: 'Een kromme oude heks met een punthoed leunt op haar pollepel-staf naast de ketel. Ze wenkt je met een knokige vinger en grijnst: “Kom dichterbij, jongen... gooi de juiste ingrediënten in mijn ketel, dan laat ik je échte magie zien.” Er loopt een rilling over je rug.',
