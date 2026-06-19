@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '70',
+  assetVer: '71',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -118,7 +118,7 @@ const GAME = {
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je straks de traan van het meisje bij de kraam opvangen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch the tear of the girl at the stall later.' } },
     vialWine: { name: { nl: 'Leeg Flesje (voor wijn)', en: 'Empty Vial (for wine)' }, icon: '🧪', img: 'assets/art/item-vial.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier kun je wijn uit de oude wijnton in tappen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to draw wine from the old wine barrel.' } },
-    wine:  { name: { nl: 'Flesje Wijn', en: 'Vial of Wine' }, icon: '🍷', img: 'assets/art/item-vial.png',
+    wine:  { name: { nl: 'Flesje Wijn', en: 'Vial of Wine' }, icon: '🍷', img: 'assets/art/item-vial-wine.png',
              look: { nl: 'Een flesje diep robijnrode wijn, getapt uit de oude wijnton in de molen. Wie weet komt het nog van pas...', en: 'A vial of deep ruby-red wine, drawn from the old wine barrel in the mill. It may come in handy...' } },
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
@@ -140,8 +140,8 @@ const GAME = {
              look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
     poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-note.png',
              look: { nl: 'Het gloeiende briefje uit de brievenbus bij de molen, zonder afzender:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The glowing note from the mailbox by the mill, with no sender:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nYou should read this aloud to someone who carries sorrow...' } },
-    map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png',
-             look: { nl: 'De geheime kaart van burgemeester Bram. Een pad slingert het dorp uit, langs het bos, naar de vallei met de vreemde lichten — met een kruisje bij een grot. (wordt vervolgd)', en: 'Mayor Bram’s secret map. A path winds out of the village, past the wood, to the valley of strange lights — with a cross at a cave. (to be continued)' } },
+    map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png', zoomImg: 'assets/art/map-valley.png',
+             look: { nl: 'De geheime kaart van burgemeester Bram. Een pad slingert het dorp uit, langs het bos, naar de mistige vallei met de runenstenen — met een rood kruis dat de plek markeert. (wordt vervolgd)', en: 'Mayor Bram’s secret map. A path winds out of the village, past the wood, to the misty valley with the rune-stones — with a red cross marking the spot. (to be continued)' } },
     millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
              look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen!', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it!' } },
     cheese: { name: { nl: 'Stuk Kaas', en: 'Piece of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
@@ -227,7 +227,9 @@ const GAME = {
       fx: {
         /* klaterende fontein op het plein — pas zodra de molen weer draait (anders droog).
            Twee straaltjes (links + rechts); rimpels/knippering iets lager en linkser. */
-        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 234, sy: 198 }, { sx: 254, sy: 198 }], wx: 232, wy: 244 },
+        fountain: { requiresFlag: 'millFixed', jets: [{ sx: 234, sy: 198 }, { sx: 254, sy: 198 }], len: 13, wx: 232, wy: 244 },
+        /* het meisje bij de kraam huilt zodra je haar het gedicht voorleest (tot de traan opgevangen is) */
+        cry: { x: 497, y: 223, flag: 'girlCrying', stopFlag: 'gotTear' },
         /* opstijgende (donkere) rook uit twee schoorstenen van de dorpshuizen */
         smoke: [
           { x: 374, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
@@ -321,15 +323,23 @@ const GAME = {
           walkTo: { x: 436, y: 306 },
           look: (state) => state.flags.gotTear
             ? { nl: 'Het meisje veegt haar ogen droog en glimlacht dapper naar je. “Dank je voor dat mooie gedicht.”', en: 'The girl dries her eyes and smiles bravely at you. “Thank you for that lovely poem.”' }
+            : state.flags.girlCrying
+            ? { nl: 'Het meisje huilt zachtjes om het gedicht; een traan glinstert op haar wang. Tik haar aan om die traan op te vangen in een leeg flesje.', en: 'The girl is crying softly over the poem; a tear glistens on her cheek. Tap her to catch that tear in an empty vial.' }
+            : state.flags.poemRead
+            ? { nl: 'Het meisje kijkt weemoedig voor zich uit. Misschien raakt dat gloeiende gedicht uit de molen haar wel... (gebruik het gedicht op haar)', en: 'The girl gazes wistfully ahead. Perhaps that glowing poem from the mill would move her... (use the poem on her)' }
             : state.flags.gotCheese
             ? { nl: 'Het meisje knikt vriendelijk achter haar kraam vol kaas en fruit. “Smakelijk eten met dat ruiltje!”', en: 'The girl nods kindly behind her stall of cheese and fruit. “Enjoy that trade!”' }
             : { nl: 'Een meisje staat achter haar kraam vol gele kazen en fruit. Ze kijkt een beetje weemoedig. “Geld hoef ik niet — maar voor een handvol vers graan ruil ik je graag een stuk kaas.” (gebruik graan op de kraam)', en: 'A girl stands behind her stall of yellow cheeses and fruit. She looks a little wistful. “I don’t need coin — but for a handful of fresh grain I’ll gladly trade you a wedge of cheese.” (use grain on the stall)' },
           givesWhen: {
-            flag: 'poemRead', needItem: 'vialTear', consume: 'vialTear', setFlag: 'gotTear', item: 'tear',
-            needText: { nl: 'Je zou haar traan willen opvangen, maar je hebt er een leeg flesje voor nodig. (er staan flesjes in de kast in de molen)', en: 'You’d love to catch her tear, but you need an empty vial for it. (there are vials in the cupboard in the mill)' },
-            giveText: { nl: 'Je leest het gloeiende gedicht uit de molen zachtjes voor aan het meisje. Haar ogen worden vochtig en er rolt één glinsterende traan over haar wang. Snel vang je hem op in een leeg flesje — een echte traan van het meisje! (een ingrediënt voor de ketel)', en: 'You softly read the glowing poem from the mill to the girl. Her eyes well up and a single glistening tear rolls down her cheek. Quickly you catch it in an empty vial — a real tear of the girl! (an ingredient for the cauldron)' }
+            flag: 'girlCrying', needItem: 'vialTear', consume: 'vialTear', setFlag: 'gotTear', item: 'tear',
+            needText: { nl: 'Het meisje huilt — maar je hebt een leeg flesje nodig om een traan op te vangen. (er staan flesjes in de kast in de molen)', en: 'The girl is crying — but you need an empty vial to catch a tear. (there are vials in the cupboard in the mill)' },
+            giveText: { nl: 'Voorzichtig houd je het lege flesje onder haar wang en vangt één glinsterende traan op. Een echte traan van het meisje — een ingrediënt voor de ketel.', en: 'Gently you hold the empty vial to her cheek and catch a single glistening tear. A real tear of the girl — an ingredient for the cauldron.' }
           },
           use: {
+            poem: {
+              setFlag: 'girlCrying',
+              text: { nl: 'Je leest het gloeiende gedicht zachtjes voor aan het meisje. Haar lip trilt, haar ogen lopen vol... en stil begint ze te huilen. Snel — tik haar aan om met een leeg flesje een traan op te vangen!', en: 'You softly read the glowing poem to the girl. Her lip trembles, her eyes brim over... and quietly she begins to cry. Quick — tap her to catch a tear in an empty vial!' }
+            },
             grain: {
               consume: 'grain',
               give: 'cheese',
@@ -759,15 +769,15 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        /* De heks staat in de mist naast de ketel en lokt Finn (wenk-frames) — iets groter en verder naar achteren. */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 402, y: 238, scale: 1.06 },
-        /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel. */
-        { id: 'ravenValley', sprite: 'ravenPerch', x: 57, y: 207, scale: 0.95 }
+        /* De heks staat in de mist naast de ketel en lokt Finn (wenk-frames) — iets hoger en groter. */
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 402, y: 230, scale: 1.22 },
+        /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel (meer naar links). */
+        { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95 }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        mist: { y: 244, bands: 6, alpha: 0.24, around: { x: 402, y: 232, r: 74 }, aroundAlpha: 0.32 }   // grondmist + dichtere mistwolk rond de heks
+        mist: { bands: 0, around: { x: 402, y: 250, rx: 104, ry: 28 }, aroundAlpha: 0.42 }   // alleen lage grondmist rond de voeten van de heks
       },
       hotspots: [
         {

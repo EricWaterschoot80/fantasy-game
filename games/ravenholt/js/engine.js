@@ -998,7 +998,7 @@
 
     /* Lage drijvende mist VÓÓR de personages (zo lijkt het of de heks in de mist staat). */
     if (scene.fx && scene.fx.mist) {
-      const m = scene.fx.mist, bands = m.bands || 5;
+      const m = scene.fx.mist, bands = (m.bands == null) ? 5 : m.bands;
       /* brede drijvende grondmist-banden */
       for (let i = 0; i < bands; i++) {
         const yy = (m.y || 232) + i * 8 + Math.sin(now / 2200 + i) * 2;
@@ -1011,17 +1011,22 @@
         fctx.fillStyle = g;
         fctx.fillRect(-40 + drift, Math.round(yy - 9), SCENE_W + 80, 18);
       }
-      /* dichtere mistwolk rond een punt (bv. de heks) */
+      /* dichtere (eventueel ovale) mistwolk rond een punt — bv. lage grondmist rond de heks */
       if (m.around) {
-        const r = m.around.r || 66;
+        const rx = m.around.rx || m.around.r || 66;
+        const ry = m.around.ry || m.around.r || 66;
         const cx = m.around.x + Math.sin(now / 2600) * 4, cy = m.around.y;
         const aa = (m.aroundAlpha || 0.3) * (0.72 + 0.28 * Math.sin(now / 1600));
-        const g = fctx.createRadialGradient(cx, cy, 2, cx, cy, r);
+        fctx.save();
+        fctx.translate(cx, cy);
+        fctx.scale(1, ry / rx);                          // pers de cirkel tot een ovaal (brede, lage mist)
+        const g = fctx.createRadialGradient(0, 0, 2, 0, 0, rx);
         g.addColorStop(0, `rgba(216,224,236,${aa})`);
         g.addColorStop(0.6, `rgba(216,224,236,${aa * 0.5})`);
         g.addColorStop(1, 'rgba(216,224,236,0)');
         fctx.fillStyle = g;
-        fctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+        fctx.fillRect(-rx, -rx, rx * 2, rx * 2);
+        fctx.restore();
       }
     }
 
@@ -1331,11 +1336,12 @@
     if (fx.fountain && (!fx.fountain.requiresFlag || state.flags[fx.fountain.requiresFlag])) {
       const f = fx.fountain;
       const jets = f.jets || [{ sx: f.sx, sy: f.sy }];
+      const LEN = f.len || 22;                         // korte straal: blijft binnen het bekken
       /* vallende waterstraaltjes uit de tappen */
       for (const j of jets) {
         for (let i = 0; i < 5; i++) {
-          const t = ((now / 42) + i * 4) % 22;
-          const al = 0.45 - t / 52;
+          const t = ((now / 42) + i * (LEN / 5)) % LEN;
+          const al = 0.45 - t / (LEN * 2.4);
           fctx.fillStyle = `rgba(186,228,242,${al})`;
           fctx.fillRect(Math.round(j.sx + Math.sin(t / 3) * 0.4), Math.round(j.sy + t), 1, 1);
         }
@@ -1352,6 +1358,26 @@
         const off = Math.sin(now / 520 + i * 1.7) * 3;
         fctx.fillStyle = `rgba(205,238,248,${0.16 + 0.1 * Math.sin(now / 300 + i)})`;
         fctx.fillRect(Math.round(f.wx + off), yy, 7, 1);
+      }
+    }
+    /* Huilend meisje bij de kraam: twee traanstraaltjes die van haar ogen over de wangen vallen. */
+    if (fx.cry && state.flags[fx.cry.flag] && !state.flags[fx.cry.stopFlag]) {
+      const c = fx.cry;
+      const eyes = [c.x - 2, c.x + 3];                 // linker- en rechteroog
+      for (let e = 0; e < eyes.length; e++) {
+        const fall = 13;
+        const t = ((now / 70) + e * (fall / 2)) % fall; // traan valt van oog naar wang
+        const al = Math.max(0, 0.9 - t / fall);
+        const ex = eyes[e];
+        fctx.fillStyle = `rgba(150,205,235,${al})`;
+        fctx.fillRect(ex, Math.round(c.y + t), 2, 3);   // vallende traan (groter/zichtbaarder)
+        fctx.fillStyle = `rgba(225,244,252,${al})`;     // glanzende kop op de traan
+        fctx.fillRect(ex, Math.round(c.y + t), 2, 1);
+      }
+      if (((now / 260) | 0) % 2 === 0) {                // vochtige glinstering in beide ogen
+        fctx.fillStyle = 'rgba(235,248,255,0.95)';
+        fctx.fillRect(eyes[0], c.y - 1, 2, 1);
+        fctx.fillRect(eyes[1], c.y - 1, 2, 1);
       }
     }
     /* Opstijgende schoorsteenrook boven de daken — trage, zachte, realistische pluim:
