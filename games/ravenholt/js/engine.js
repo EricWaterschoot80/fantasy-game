@@ -966,7 +966,7 @@
         fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
           const D = GAME.spriteDetail || 1;
-          const sc = 1.3;                                                   // raaf-lichaam ~zo groot als voorheen
+          const sc = 1.1;                                                   // iets kleinere wegvliegende raaf
           const w = Math.round(img.naturalWidth / D * sc);
           const h = Math.round(img.naturalHeight / D * sc);
           fctx.translate(Math.round(fx_), Math.round(fy_));
@@ -1622,7 +1622,7 @@
         continue;
       }
       const big = !!wi.highlight;                       // extra opvallend item (bv. de slaapbloem)
-      const hgt = big ? 26 : 18, wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
+      const hgt = Math.round((big ? 26 : 18) * (wi.scale || 1)), wd = Math.round(img.naturalWidth * hgt / img.naturalHeight);
       const bob = big ? Math.round(Math.sin(now / 600) * 1.5) : 0;   // zachte deining trekt de aandacht
       const r = big ? 22 : 13;
       const glow = big ? (0.30 + 0.16 * Math.sin(now / 380 + wi.x)) : (0.14 + 0.08 * Math.sin(now / 500 + wi.x));
