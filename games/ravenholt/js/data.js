@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '68',
+  assetVer: '69',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -116,6 +116,10 @@ const GAME = {
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier maak je inkt in van de zwarte bessen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to make ink from the black berries.' } },
     vialTear: { name: { nl: 'Leeg Flesje (voor de traan)', en: 'Empty Vial (for the tear)' }, icon: '🧪', img: 'assets/art/item-vial.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je straks de traan van het meisje bij de kraam opvangen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch the tear of the girl at the stall later.' } },
+    vialWine: { name: { nl: 'Leeg Flesje (voor wijn)', en: 'Empty Vial (for wine)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier kun je wijn uit de oude wijnton in tappen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to draw wine from the old wine barrel.' } },
+    wine:  { name: { nl: 'Flesje Wijn', en: 'Vial of Wine' }, icon: '🍷', img: 'assets/art/item-vial.png',
+             look: { nl: 'Een flesje diep robijnrode wijn, getapt uit de oude wijnton in de molen. Wie weet komt het nog van pas...', en: 'A vial of deep ruby-red wine, drawn from the old wine barrel in the mill. It may come in handy...' } },
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
@@ -511,9 +515,9 @@ const GAME = {
           walkTo: { x: 96, y: 300 },
           gives: {
             item: 'vialInk',
-            also: 'vialTear',
+            also: ['vialWine', 'vialTear'],
             setFlag: 'gotVials',
-            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er twee lege glazen flesjes met kurk mee: eentje voor de inkt (van de bessen) en eentje om straks de traan van het meisje in op te vangen.', en: 'Old bottles stand in the cupboard. You take two empty corked glass vials: one for the ink (from the berries) and one to catch the girl’s tear in later.' },
+            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er drie lege glazen flesjes met kurk mee: eentje voor de inkt (van de bessen), eentje voor de wijn (uit de wijnton) en eentje om straks de traan van het meisje in op te vangen.', en: 'Old bottles stand in the cupboard. You take three empty corked glass vials: one for the ink (from the berries), one for the wine (from the barrel) and one to catch the girl’s tear in later.' },
             emptyText: { nl: 'De andere flesjes zijn gebarsten of vol spinrag.', en: 'The other bottles are cracked or full of cobwebs.' }
           }
         },
@@ -575,6 +579,32 @@ const GAME = {
               consume: 'grain',
               setFlag: 'mouseFed',
               text: { nl: 'Je strooit wat graan voor het muisje. Het knabbelt blij en piept: “Heerlijk! Zoek je de molenaar? Hij ging het pad op naar het kasteel — daar zoeken ze ook naar de bron.”', en: 'You scatter some grain for the mouse. It nibbles happily and squeaks: “Delicious! Looking for the miller? He took the path to the castle — they’re searching for the spring there too.”' }
+            },
+            cheese: {
+              consume: 'cheese',
+              setFlag: 'wineTapLoose',
+              text: { nl: 'Je geeft het muisje het stuk kaas. Verrukt klimt het op de wijnton en knaagt net zo lang aan de vastgeroeste tap tot die loslaat. “Piep! Nu kun je wijn aftappen — met een leeg flesje!”', en: 'You give the mouse the wedge of cheese. Delighted, it climbs onto the wine barrel and gnaws at the rusted tap until it comes loose. “Squeak! Now you can draw wine — with an empty vial!”' }
+            }
+          }
+        },
+        {
+          id: 'winebarrel',
+          name: { nl: 'De Wijnton', en: 'The Wine Barrel' },
+          rect: { x: 158, y: 116, w: 74, h: 78 },
+          walkTo: { x: 178, y: 300 },
+          look: (state) => state.flags.gotWine
+            ? { nl: 'De oude wijnton met de nu losse tap. Je flesje zit vol diep robijnrode wijn.', en: 'The old wine barrel with its now-loosened tap. Your vial is full of deep ruby-red wine.' }
+            : state.flags.wineTapLoose
+            ? { nl: 'De tap van de wijnton zit nu los, dankzij de muis. Met een leeg flesje kun je er wijn uittappen. (gebruik een leeg flesje op de ton)', en: 'The wine barrel’s tap is loose now, thanks to the mouse. With an empty vial you can draw wine. (use an empty vial on the barrel)' }
+            : { nl: 'Een dikke oude wijnton tegen de muur. De tap zit muurvast en half verstopt achter de duigen — met je grote handen krijg je er met geen mogelijkheid bij. Iets kleins en behendigs zou wél bij die tap kunnen...', en: 'A fat old wine barrel against the wall. The tap is jammed tight and half-hidden behind the staves — with your big hands you can’t reach it at all. Something small and nimble could get to that tap, though...' },
+          use: {
+            vialWine: {
+              requiresFlag: 'wineTapLoose',
+              requiresText: { nl: 'De tap zit nog muurvast en je krijgt er niet bij — er moet eerst iets kleins de tap losmaken.', en: 'The tap is still jammed and out of reach — something small must loosen it first.' },
+              consume: 'vialWine',
+              give: 'wine',
+              setFlag: 'gotWine',
+              text: { nl: 'Je houdt het lege flesje onder de losgemaakte tap en draait hem open. Diep robijnrode wijn klokt naar binnen tot het flesje vol is. Je kurkt het stevig dicht.', en: 'You hold the empty vial under the loosened tap and turn it open. Deep ruby-red wine glugs in until the vial is full. You cork it tightly.' }
             }
           }
         },

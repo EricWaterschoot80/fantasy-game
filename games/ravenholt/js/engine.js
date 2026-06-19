@@ -19,6 +19,7 @@
   const elHintBtn   = document.getElementById('hintBtn');
   const elSoundBtn  = document.getElementById('soundBtn');
   const elLangBtn   = document.getElementById('langBtn');
+  const elInfoBtn   = document.getElementById('infoBtn');
   const elMsg       = document.getElementById('msg');
   const elMsgText   = document.getElementById('msgText');
   const elMsgMore   = document.getElementById('msgMore');
@@ -172,6 +173,7 @@
      geen geluid mee tijdens het testen. Op de echte site blijft geluid gewoon aan. */
   const isPreview = /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/.test(location.hostname);
   let soundOn = !isPreview;
+  let infoOpen = false;          // de tip (quest) staat verstopt onder de (i)-knop
 
   const fade = { mode: null, t0: 0, dur: 280 };
   const dust = [];
@@ -2255,6 +2257,7 @@
   function updateQuest(force) {
     updateSpellBtn();
     const key = started ? questKey() : null;
+    if (elInfoBtn) elInfoBtn.hidden = !key;        // (i)-knop alleen tonen als er een tip is
     if (!key) { elQuest.hidden = true; return; }
     const t = L(GAME.ui[key]);
     if (elQuest.textContent !== t || force) {
@@ -2262,8 +2265,14 @@
       elQuest.style.opacity = '0';
       setTimeout(() => { elQuest.style.opacity = '1'; }, 30);
     }
-    elQuest.hidden = false;
+    elQuest.hidden = !infoOpen;                    // tip alleen zichtbaar als (i) aan staat
   }
+  if (elInfoBtn) elInfoBtn.addEventListener('click', () => {
+    infoOpen = !infoOpen;
+    elInfoBtn.classList.toggle('on', infoOpen);
+    if (soundOn) sfx('tap');
+    updateQuest(true);
+  });
 
   /* ---------- Narratie: paneel + tekstballonnen ---------- */
   function say(text, anchor, face) {
@@ -3868,7 +3877,7 @@
         if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === hs.gives.setFlag || v.notFlag === hs.gives.setFlag)) paintBackground();
       }
       addItem(hs.gives.item);
-      if (hs.gives.also) addItem(hs.gives.also);         // tweede voorwerp (bv. 2 flesjes tegelijk)
+      if (hs.gives.also) (Array.isArray(hs.gives.also) ? hs.gives.also : [hs.gives.also]).forEach(addItem);   // extra voorwerpen (bv. 3 flesjes tegelijk)
       sfx('pickup');
       say(hs.gives.giveText);
       /* Een NPC kan wegvliegen zodra dit voorwerp gepakt is (bv. de raaf op de
