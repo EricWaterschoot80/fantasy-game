@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '65',
+  assetVer: '66',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -732,7 +732,7 @@ const GAME = {
         /* De heks staat in de mist naast de ketel en lokt Finn (wenk-frames) — iets groter en verder naar achteren. */
         { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 402, y: 238, scale: 1.06 },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel. */
-        { id: 'ravenValley', sprite: 'ravenPerch', x: 72, y: 207, scale: 0.95 }
+        { id: 'ravenValley', sprite: 'ravenPerch', x: 57, y: 207, scale: 0.95 }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist

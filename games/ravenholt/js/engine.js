@@ -168,7 +168,10 @@
   let labelTimer = null;
   let lastPopItem = null;
   let marker = null;
-  let soundOn = true;
+  /* Standaard geluid AAN, maar in de preview (localhost / 127.0.0.1) UIT — zo speelt er
+     geen geluid mee tijdens het testen. Op de echte site blijft geluid gewoon aan. */
+  const isPreview = /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/.test(location.hostname);
+  let soundOn = !isPreview;
 
   const fade = { mode: null, t0: 0, dur: 280 };
   const dust = [];
@@ -4227,5 +4230,7 @@
   paintBackground();
   renderInventory();
   applyLang();
+  /* Geluid-icoon meteen op de juiste stand zetten (in de preview start het uit). */
+  { const _si = document.getElementById('soundIcon'); if (_si) _si.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png'; }
   setInterval(loop, 1000 / 30);
 })();
