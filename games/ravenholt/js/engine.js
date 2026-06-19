@@ -1840,9 +1840,12 @@
   }
 
   function drawPlayer(now) {
-    /* De held staat vaak in de schaduw -> iets donkerder dan de scène-belichting. */
+    /* De held staat vaak in de schaduw -> iets donkerder dan de scène-belichting.
+       Per scène fijn te regelen via scene.heroShade (lager = donkerder; standaard 0.9). */
     const sf = sceneFilter();
-    const f = (sf === 'none') ? 'brightness(0.9)' : (sf + ' brightness(0.9)');
+    const sc = GAME.scenes[state.currentScene];
+    const sh = (sc && typeof sc.heroShade === 'number') ? sc.heroShade : 0.9;
+    const f = (sf === 'none') ? `brightness(${sh})` : (sf + ` brightness(${sh})`);
     fctx.filter = f;
     drawPlayerSprite(now);
     fctx.filter = 'none';
