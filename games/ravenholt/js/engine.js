@@ -325,7 +325,7 @@
       spellWritten: true, recipeRevealed: true, poemRead: true, wonChess: true,
       visited_square: true, visited_mill: true, visited_castle: true
     });
-    for (const it of ['tear', 'dragonscale', 'spell']) if (!state.inventory.includes(it)) state.inventory.push(it);
+    for (const it of ['tear', 'dragonscale', 'spell', 'vialFly']) if (!state.inventory.includes(it)) state.inventory.push(it);
     state.selectedItem = null;
     renderInventory();
     updateSpellBtn();
@@ -2201,11 +2201,11 @@
             flip: fl, scale: sc2, rot: sway * 0.17, bob: bounce, squashY: 1 + 0.07 * Math.sin(now / 120 + ph)
           });
         } else if (npc.peck) {
-          /* Raaf op de kar: pikt steeds met een snelle kopduik naar één plek tussen de
-             vaten — een hint waar het molenrad ligt. */
-          const cyc = (now % 1600) / 1600;
+          /* Pikkende kopduik (bv. raaf op de kar, of de knabbelende muis). peckAmt < 1 = rustiger. */
+          const amt = npc.peckAmt || 1;
+          const cyc = (now % 1900) / 1900;
           const dip = cyc < 0.20 ? Math.sin(cyc / 0.20 * Math.PI) : 0;
-          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot + dip * 0.26, bob: dip * 5, squashY: breaths });
+          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot + dip * 0.26 * amt, bob: dip * 5 * amt, squashY: breaths });
         } else if (ges && ready(ges) && gestureState(npc.id, now, 1100, 2400, 5200) > 0) {
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
@@ -2428,7 +2428,40 @@
     }
   }
 
-  elMsg.addEventListener('click', showNextMsg);
+  /* Keuze-dialoog (bv. de heks die je in haar ketel probeert te lokken: luisteren of wantrouwen). */
+  let choiceActive = false;
+  const elChoiceOpts = document.getElementById('choice-opts');
+  function showChoice(c, anchor, face) {
+    msgQueue = [];
+    choiceActive = true;
+    elBubble.hidden = true;
+    elMsgText.textContent = L(c.prompt);
+    if (face) { elMsgFace.src = face; elMsgFace.hidden = false; } else elMsgFace.hidden = true;
+    if (elMsgMore) elMsgMore.hidden = true;
+    elMsg.hidden = false;
+    elChoiceOpts.innerHTML = '';
+    elChoiceOpts.hidden = false;
+    (c.options || []).forEach((opt) => {
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.textContent = L(opt.label);
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        choiceActive = false;
+        elChoiceOpts.hidden = true;
+        elChoiceOpts.innerHTML = '';
+        if (elMsgMore) elMsgMore.hidden = false;
+        elMsg.hidden = true;
+        if (opt.setFlag) (Array.isArray(opt.setFlag) ? opt.setFlag : [opt.setFlag]).forEach((f) => { state.flags[f] = true; });
+        if (sfx) sfx('tap');
+        if (opt.text) say(opt.text, anchor, face);
+        updateQuest();
+      });
+      elChoiceOpts.appendChild(b);
+    });
+    if (sfx) sfx('tap');
+  }
+  elMsg.addEventListener('click', () => { if (!choiceActive) showNextMsg(); });
   elBubble.addEventListener('click', showNextMsg);
   /* Tekstwolkje wegklikken met het kruisje (stopPropagation: niet dubbel doorspoelen). */
   const elMsgClose = document.getElementById('msgClose');
@@ -3834,6 +3867,11 @@
       return;
     }
 
+    if (hs.choice && !(hs.choice.doneFlag && state.flags[hs.choice.doneFlag])) {
+      if (hs.setFlag) state.flags[hs.setFlag] = true;
+      showChoice(hs.choice, hsSpeaker(hs), hsFace(hs));
+      return;
+    }
     if (hs.zoomImg) {
       openZoom(hs.zoomImg);
       return;

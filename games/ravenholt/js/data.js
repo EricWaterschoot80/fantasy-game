@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '83',
+  assetVer: '84',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -119,6 +119,8 @@ const GAME = {
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je straks de traan van het meisje bij de kraam opvangen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch the tear of the girl at the stall later.' } },
     vialWine: { name: { nl: 'Leeg Flesje (voor wijn)', en: 'Empty Vial (for wine)' }, icon: '🧪', img: 'assets/art/item-vial.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier kun je wijn uit de oude wijnton in tappen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to draw wine from the old wine barrel.' } },
+    vialFly:  { name: { nl: 'Leeg Flesje (voor vuurvliegjes)', en: 'Empty Vial (for fireflies)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je vuurvliegjes vangen — gebruik het op de dansende bloemen in de vallei.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch fireflies — use it on the dancing flowers in the valley.' } },
     wine:  { name: { nl: 'Flesje Wijn', en: 'Vial of Wine' }, icon: '🍷', img: 'assets/art/item-vial-wine.png',
              look: { nl: 'Een flesje diep bordeauxrode wijn, getapt uit de oude wijnton in de molen. Misschien lust burgemeester Bram er wel een slokje van...', en: 'A vial of deep Bordeaux-red wine, drawn from the old wine barrel in the mill. Mayor Bram might fancy a sip of this...' } },
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
@@ -513,7 +515,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mouse', sprite: 'mouse', x: 214, y: 198, scale: 0.5, flip: false, peck: true, filter: 'brightness(0.82)', hideFlag: 'wineTapLoose' }   // muisje hoog naast de wijnton; knabbelt (peck) en verdwijnt zodra je hem kaas geeft (wineTapLoose)
+        { id: 'mouse', sprite: 'mouse', x: 184, y: 190, scale: 0.5, flip: false, peck: true, peckAmt: 0.45, filter: 'brightness(0.82)', hideFlag: 'wineTapLoose' }   // muisje hoog naast de wijnton; knabbelt rustig (peck) en verdwijnt zodra je hem kaas geeft (wineTapLoose)
       ],
       fx: {},
       hotspots: [
@@ -557,9 +559,9 @@ const GAME = {
           walkTo: { x: 96, y: 300 },
           gives: {
             item: 'vialInk',
-            also: ['vialWine', 'vialTear'],
+            also: ['vialWine', 'vialTear', 'vialFly'],
             setFlag: 'gotVials',
-            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er drie lege glazen flesjes met kurk mee: eentje voor de inkt (van de bessen), eentje voor de wijn (uit de wijnton) en eentje om straks de traan van het meisje in op te vangen.', en: 'Old bottles stand in the cupboard. You take three empty corked glass vials: one for the ink (from the berries), one for the wine (from the barrel) and one to catch the girl’s tear in later.' },
+            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er vier lege glazen flesjes met kurk mee: voor de inkt (van de bessen), voor de wijn (uit de wijnton), voor de traan van het meisje, en eentje om straks vuurvliegjes in te vangen.', en: 'Old bottles stand in the cupboard. You take four empty corked glass vials: for the ink (from the berries), the wine (from the barrel), the girl’s tear, and one to catch fireflies in later.' },
             emptyText: { nl: 'De andere flesjes zijn gebarsten of vol spinrag.', en: 'The other bottles are cracked or full of cobwebs.' }
           }
         },
@@ -828,8 +830,15 @@ const GAME = {
           walkTo: { x: 224, y: 308 },
           hideFlag: 'witchDefeated',
           look: {
-            nl: 'Een kromme oude heks met een punthoed leunt op haar pollepel-staf naast de ketel. Ze wenkt je met een knokige vinger en grijnst: “Kom dichterbij, jongen... gooi de juiste ingrediënten in mijn ketel, dan laat ik je échte magie zien.” Er loopt een rilling over je rug.',
-            en: 'A hunched old witch with a pointed hat leans on her ladle-staff beside the cauldron. She beckons you with a bony finger and grins: “Come closer, boy... throw the right ingredients into my cauldron, and I’ll show you real magic.” A shiver runs down your spine.'
+            nl: 'Een kromme oude heks met een punthoed leunt op haar pollepel-staf naast de ketel. Ze wenkt je met een knokige vinger.',
+            en: 'A hunched old witch with a pointed hat leans on her ladle-staff beside the cauldron. She beckons you with a bony finger.'
+          },
+          choice: {
+            prompt: { nl: 'De heks lonkt met een knokige vinger en haar ogen glinsteren gevaarlijk: “Kom toch dichterbij, lekker hapje... kruip in mijn warme ketel, dan maak ik je groot en machtig, dat beloof ik je...” Wat doe je?', en: 'The witch beckons with a bony finger, her eyes glinting dangerously: “Come closer, you tasty morsel... climb into my warm cauldron and I’ll make you big and mighty, I promise...” What do you do?' },
+            options: [
+              { label: { nl: 'Luisteren', en: 'Listen' }, text: { nl: 'Als in trance doe je een stap naar de dampende ketel... nog één... maar vlak voor de rand ruk je jezelf met een schok terug! Bijna had ze je gekookt. Deze heks is voor geen cent te vertrouwen — verzamel liever de juiste ingrediënten.', en: 'As if in a trance you step toward the steaming cauldron... one more... but right at the rim you wrench yourself back with a jolt! She nearly cooked you. This witch cannot be trusted one bit — better gather the right ingredients instead.' } },
+              { label: { nl: 'Wantrouwen', en: 'Distrust' }, text: { nl: 'Je klemt je staf vast en blijft op veilige afstand. “Ik trap er niet in, heks. Ik vertrouw je voor geen cent.” Ze sist teleurgesteld en roert nors in haar ketel. Verzamel de juiste ingrediënten voor het recept.', en: 'You grip your staff and keep your distance. “I’m not falling for it, witch. I don’t trust you one bit.” She hisses, disappointed, and stirs her cauldron sourly. Gather the right ingredients for the recipe.' } }
+            ]
           },
           setFlag: 'metWitch'
         },
@@ -867,9 +876,13 @@ const GAME = {
             : state.flags.valleyFlowersDancing
             ? { nl: 'De lavendelbloemen dansen en een wolk groen-blauwe vuurvliegjes danst mee. Tik ze aan om er een paar in een flesje te vangen.', en: 'The lavender flowers are dancing and a cloud of green-blue fireflies dances along. Tap them to catch a few in a vial.' }
             : { nl: 'Lichtgevende lavendelbloemen met zacht blauw licht. Ze staan stil... misschien gaan ze dansen als je je dans-spreuk uitspreekt?', en: 'Glowing lavender flowers with a soft blue light. They stand still... perhaps they would dance if you cast your dance-spell?' },
-          givesWhen: {
-            flag: 'valleyFlowersDancing', setFlag: 'gotFireflight', item: 'fireflight',
-            giveText: { nl: 'Tussen de dansende bloemen vang je voorzichtig een paar dwarrelende vuurvliegjes in een leeg flesje — groene en blauwe vonkjes die zachtjes ronddwalen. Eén van de ingrediënten voor de ketel.', en: 'Among the dancing flowers you gently catch a few drifting fireflies in an empty vial — green and blue sparks softly wandering inside. One of the cauldron’s ingredients.' }
+          use: {
+            vialFly: {
+              requiresFlag: 'valleyFlowersDancing',
+              requiresText: { nl: 'De vuurvliegjes slapen nog. Spreek eerst je dans-spreuk uit, dan komen ze tevoorschijn.', en: 'The fireflies are still asleep. Cast your dance-spell first to draw them out.' },
+              consume: 'vialFly', give: 'fireflight', setFlag: 'gotFireflight',
+              text: { nl: 'Je houdt het lege flesje open tussen de dansende bloemen en vangt een paar dwarrelende vuurvliegjes — groene en blauwe vonkjes die zachtjes ronddwalen. Het flesje gloeit nu zacht. (gooi dit in de ketel)', en: 'You hold the empty vial open among the dancing flowers and catch a few drifting fireflies — green and blue sparks softly wandering inside. The vial now glows softly. (throw this into the cauldron)' }
+            }
           }
         },
         {
