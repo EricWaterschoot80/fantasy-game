@@ -36,6 +36,11 @@
   const elDeath     = document.getElementById('death-screen');
   const elDeathText = document.getElementById('deathText');
   const elStartBtn  = document.getElementById('startBtn');
+  const elPrologue     = document.getElementById('prologue-screen');
+  const elPrologueImg  = document.getElementById('prologue-img');
+  const elPrologueText = document.getElementById('prologue-text');
+  const elPrologueTap  = document.getElementById('prologue-tap');
+  const elPrologueSkip = document.getElementById('prologue-skip');
   const elReplayBtn = document.getElementById('replayBtn');
   const elWinNext   = document.getElementById('winNextBtn');
   const elRetryBtn  = document.getElementById('retryBtn');
@@ -4179,15 +4184,59 @@
     say(GAME.scenes[state.currentScene].entryText);
   }
 
+  /* ---------- Opening / proloog ---------- */
+  const PROLOGUE = [
+    { img: 'assets/art/prologue-1.jpg', text: {
+      nl: 'In het koninkrijk Eldoria, waar de ochtendmist over de heuvels hangt, ligt het dorpje Ravenholt. Eeuwenlang dreef de oude watermolen de bron aan die het dorp van vers water voorzag.',
+      en: 'In the kingdom of Eldoria, where the morning mist lies over the hills, sits the little village of Ravenholt. For centuries the old water mill drove the spring that gave the village fresh water.' } },
+    { img: 'assets/art/prologue-2.jpg', text: {
+      nl: 'Maar op een stille ochtend klatert de fontein niet meer. Het waterrad van de molen staat stokstijf stil en het water zakt met de dag. In de verte gloeien vreemde blauwe lichten boven de vallei...',
+      en: 'But one quiet morning the fountain falls silent. The mill’s water wheel stands dead still and the water drops by the day. Far off, strange blue lights glow above the valley...' } },
+    { img: 'assets/art/prologue-3.jpg', text: {
+      nl: 'Burgemeester Bram roept de jonge Finn erbij. “Onderzoek de molen, jongen — en let op die lichten.” Met zijn vaders staf in de hand zet Finn de eerste stap. Zo begint het avontuur.',
+      en: 'Mayor Bram calls for young Finn. “Go and inspect the mill, lad — and mind those lights.” With his father’s staff in hand, Finn takes his first step. And so the adventure begins.' } }
+  ];
+  let prologueIdx = 0, prologueLock = false;
+  function showProloguePanel(i) {
+    const p = PROLOGUE[i];
+    if (!p) { endPrologue(); return; }
+    prologueLock = true;
+    elPrologueImg.classList.remove('show');
+    elPrologueText.classList.remove('show');
+    elPrologueText.textContent = L(p.text);
+    const reveal = () => { elPrologueImg.classList.add('show'); setTimeout(() => { elPrologueText.classList.add('show'); prologueLock = false; }, 350); };
+    elPrologueImg.onload = reveal;
+    elPrologueImg.onerror = reveal;
+    elPrologueImg.src = p.img + AV;
+    if (elPrologueImg.complete && elPrologueImg.naturalWidth) reveal();
+  }
+  function advancePrologue() {
+    if (prologueLock) { elPrologueImg.classList.add('show'); elPrologueText.classList.add('show'); prologueLock = false; return; }
+    prologueIdx++;
+    if (prologueIdx >= PROLOGUE.length) endPrologue();
+    else { if (soundOn) sfx('tap'); showProloguePanel(prologueIdx); }
+  }
+  function startPrologue() {
+    prologueIdx = 0;
+    elPrologue.hidden = false;
+    showProloguePanel(0);
+  }
+  function endPrologue() {
+    elPrologue.hidden = true;
+    started = true;
+    state.flags['visited_' + state.currentScene] = true;
+    updateQuest();
+    say(GAME.scenes[state.currentScene].entryText);
+  }
+  if (elPrologue) elPrologue.addEventListener('click', advancePrologue);
+  if (elPrologueSkip) elPrologueSkip.addEventListener('click', (e) => { e.stopPropagation(); if (soundOn) sfx('tap'); endPrologue(); });
+
   elStartBtn.addEventListener('click', () => {
     ac();
     startMusic();
     sfx('tap');
     elTitle.hidden = true;
-    started = true;
-    state.flags['visited_' + state.currentScene] = true;
-    updateQuest();
-    say(GAME.scenes[state.currentScene].entryText);
+    startPrologue();
   });
 
   elReplayBtn.addEventListener('click', resetGame);
@@ -4205,7 +4254,7 @@
     getState: () => state,
     getPlayer: () => ({ x: player.x, y: player.y, walking: !!player.target }),
     getNpc: (id) => npcRt[id] ? { x: npcRt[id].x, y: npcRt[id].y } : null,
-    start: () => { if (!started) elStartBtn.click(); },
+    start: () => { if (!started) { elStartBtn.click(); if (elPrologue && !elPrologue.hidden) endPrologue(); } },
     tap: (hotspotId) => {
       const scene = GAME.scenes[state.currentScene];
       const hs = scene.hotspots.find(h => h.id === hotspotId);
