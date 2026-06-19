@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '59',
+  assetVer: '60',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -31,8 +31,13 @@ const GAME = {
     heroWalkSheet: 'assets/art/hero-walk-sheet.png',
     mayor:         'assets/art/mayor.png',
     mayorGesture:  'assets/art/mayor-gesture.png',  // bezorgd gebaar (af en toe)
+    mayorHappy:    'assets/art/mayor-happy.png',    // opgelucht zodra het water terug is (molen gemaakt) — met de geheime kaart
+    mayorMap:      'assets/art/mayor-map.png',       // nadat hij de kaart heeft weggegeven (lege hand)
     ravenPerch:    'assets/art/raven-perch.png',   // raaf op de ton (gevouwen vleugels)
-    ravenFly:      'assets/art/raven-fly.png',      // raaf in vlucht (wegvliegen)
+    ravenFly:      'assets/art/raven-fly.png',      // raaf in vlucht (oud, fallback)
+    ravenFlyUp:    'assets/art/raven-fly-up.png',   // wiekslag: vleugels hoog
+    ravenFlyMid:   'assets/art/raven-fly-mid.png',  // wiekslag: vleugels gespreid
+    ravenFlyDown:  'assets/art/raven-fly-down.png', // wiekslag: vleugels omlaag
     mouse:         'assets/art/mouse.png',          // bruine muis in de molen (praten)
     cogBrass:      'assets/art/cog-brass.png',      // radwerk-puzzel: messing tandwiel
     cogIron:       'assets/art/cog-iron.png',       // radwerk-puzzel: ijzeren tandwiel
@@ -117,7 +122,7 @@ const GAME = {
              look: (state) => state.flags.spellWritten
                ? { nl: 'Het toverboek. Op de eerste bladzijde staat nu, in glanzende inkt, de spreuk die je schreef: “Laat wat stil staat vrolijk dansen.” Richt het op iets levends en het begint te bewegen.', en: 'The spellbook. On the first page, in glistening ink, stands the spell you wrote: “Make what stands still dance.” Aim it at something living and it starts to move.' }
                : { nl: 'Het oude toverboek — maar de bladzijden zijn helemaal leeg. Met de juiste pen en inkt zou je er een spreuk in kunnen schrijven... (combineer een inktveer met dit boek)', en: 'The old spellbook — but its pages are completely blank. With the right pen and ink you could write a spell in it... (combine an ink-dipped feather with this book)' } },
-    feather: { name: { nl: 'Magische Ravenveer', en: 'Magic Raven Feather' }, icon: '🪶',
+    feather: { name: { nl: 'Magische Ravenveer', en: 'Magic Raven Feather' }, icon: '🪶', img: 'assets/art/item-feather.png',
              look: { nl: 'Een glanzende, blauwzwarte veer die de raaf achterliet. Hij gloeit zachtjes van magie. Met inkt zou je er prachtig mee kunnen schrijven.', en: 'A glossy blue-black feather the raven left behind. It glows faintly with magic. With ink you could write beautifully with it.' } },
     berries: { name: { nl: 'Zwarte Bessen', en: 'Black Berries' }, icon: '🫐',
              look: { nl: 'Een handvol diepzwarte bessen, geplukt bij de molen. Geplet geven ze vast een donker, inktachtig sap.', en: 'A handful of deep-black berries, picked by the mill. Crushed, they’d surely give a dark, ink-like juice.' } },
@@ -203,7 +208,11 @@ const GAME = {
         { item: 'feather', hotspot: 'feather', x: 102, y: 270, requiresFlag: 'ravenFed' }   // magische veer die de raaf achterliet (op de keien tussen de ton en de fontein)
       ],
       npcs: [
-        { id: 'mayor', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264, scale: 1.18, hideFlag: 'visited_valley' },   // burgemeester Bram; weg zodra je in de vallei bent geweest (dan zit de oude man er)
+        /* Burgemeester Bram in drie standen: bezorgd (begin) → opgelucht met de kaart
+           (molen gemaakt) → met lege hand nadat hij de kaart gaf. Weg na de vallei. */
+        { id: 'mayorA', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264, scale: 1.18, hideFlag: 'millFixed' },
+        { id: 'mayorB', sprite: 'mayorHappy', x: 372, y: 264, scale: 1.18, appearFlag: 'millFixed', hideFlag: 'gotMap' },
+        { id: 'mayorC', sprite: 'mayorMap', x: 372, y: 264, scale: 1.18, appearFlag: 'gotMap', hideFlag: 'visited_valley' },
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
       ],
       fx: {
@@ -212,8 +221,8 @@ const GAME = {
         fountain: { requiresFlag: 'millFixed', jets: [{ sx: 234, sy: 198 }, { sx: 254, sy: 198 }], wx: 232, wy: 244 },
         /* opstijgende (donkere) rook uit twee schoorstenen van de dorpshuizen */
         smoke: [
-          { x: 346, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
-          { x: 475, y: 51, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 }
+          { x: 358, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
+          { x: 480, y: 46, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 }
         ]
       },
 

@@ -950,30 +950,27 @@
       const el = (now - ravenFly.t) / 2300;
       if (el >= 1) { ravenFly = null; }
       else {
-        const img = art.sprites.ravenFly || art.sprites.ravenPerch;
         const dir = ravenFly.dir === 'left' ? -1 : 1;                       // vliegrichting
         const ease = el * el * (3 - 2 * el);                                // smoothstep: rustige afzet, dan versnellen
-        /* Wiekslag in DISCRETE frames: 4 vleugelstanden die snel doorlopen (echte frame-animatie). */
-        const WINGS = [
-          { w: 0.56, h: 1.12, bank: 0.26, bob: -6 },   // vleugels hoog opgeheven
-          { w: 0.88, h: 0.98, bank: 0.05, bob: -1 },   // halverwege omlaag
-          { w: 1.18, h: 0.84, bank: -0.16, bob: 5 },   // vleugels ver naar beneden, uitgespreid
-          { w: 0.88, h: 0.98, bank: 0.05, bob: -1 }    // halverwege terug omhoog
-        ];
-        const fr = WINGS[Math.floor(now / 85) % WINGS.length];              // ~12 fps wiekslag
+        /* Echte frame-animatie: 4-stappen wiekslag uit losse vleugelstand-sprites. */
+        const FLAP = [art.sprites.ravenFlyUp, art.sprites.ravenFlyMid, art.sprites.ravenFlyDown, art.sprites.ravenFlyMid];
+        const fi = Math.floor(now / 80) % FLAP.length;                      // ~12 fps wiekslag
+        const img = FLAP[fi] || art.sprites.ravenFly || art.sprites.ravenPerch;
+        const bob = [-5, -1, 5, -1][fi];                                    // lichaam deint mee met de slag
+        const bank = [0.16, 0.04, -0.12, 0.04][fi];
         const fx_ = ravenFly.x + dir * ease * 180;                          // het beeld uit (rechts of links)
         const fy_ = ravenFly.y - el * 120                                   // gestaag opstijgen
                   - Math.sin(el * Math.PI) * 14                             // ruimere, natuurlijke boog omhoog
-                  + fr.bob * (1 - el * 0.5);                                // op-en-neer deinen per wiekslag
-        const bank = fr.bank;                                              // kantelt mee op de slag
+                  + bob * (1 - el * 0.5);                                   // op-en-neer deinen per wiekslag
         fctx.save();
         fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
           const D = GAME.spriteDetail || 1;
-          const w = Math.round(img.naturalWidth / D * fr.w);               // vleugelstand bepaalt breedte
-          const h = Math.round(img.naturalHeight / D * fr.h);
+          const sc = 1.3;                                                   // raaf-lichaam ~zo groot als voorheen
+          const w = Math.round(img.naturalWidth / D * sc);
+          const h = Math.round(img.naturalHeight / D * sc);
           fctx.translate(Math.round(fx_), Math.round(fy_));
-          /* raven-fly.png kijkt naar rechts → spiegel alleen bij vlucht naar LINKS (kop vooraan) */
+          /* de raaf-frames kijken naar rechts → spiegel alleen bij vlucht naar LINKS (kop vooraan) */
           if (dir < 0) fctx.scale(-1, 1);
           fctx.rotate(bank);
           fctx.imageSmoothingEnabled = false;
@@ -1611,6 +1608,12 @@
         for (let k = 0; k < 2; k++) {
           const ang = now / 640 + k * 3.1;
           twinkle(wi.x + Math.cos(ang) * 15, (wi.y - hgt / 2) + bob + Math.sin(ang * 1.3) * 11, 0.4 + 0.4 * Math.sin(now / 220 + k * 2));
+        }
+      }
+      if (wi.item === 'feather') {                      // magische glitter rond de ravenveer
+        for (let k = 0; k < 3; k++) {
+          const a2 = now / 300 + k * 2.1;
+          twinkle(wi.x + Math.cos(a2) * 9, wi.y - 4 + Math.sin(a2 * 1.3) * 6, 0.3 + 0.45 * Math.sin(now / 200 + k * 2));
         }
       }
     }
