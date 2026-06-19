@@ -3872,6 +3872,10 @@
       state.flags[g.setFlag] = true;
       if (g.consume) removeItem(g.consume);             // bv. het lege flesje wordt gevuld met de traan
       if (g.item) addItem(g.item);
+      if (g.flyNpc) {                                   // de raaf vliegt weg (bv. nadat hij het recept aanwees)
+        const rt = npcRt[g.flyNpc];
+        if (rt) ravenFly = { x: rt.x, y: rt.y - 8, t: performance.now(), dir: g.flyDir || 'left' };
+      }
       sfx('pickup');
       say(g.giveText, hsSpeaker(hs), hsFace(hs));
       if (g.win) { pendingWin = true; sfx('win'); }

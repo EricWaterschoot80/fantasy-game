@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '72',
+  assetVer: '73',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -100,7 +100,7 @@ const GAME = {
     q_writespell:{ nl: 'Het toverboek is leeg — pak de ravenveer, maak inkt (zwarte bessen + flesje) en schrijf de spreuk in het boek', en: 'The spellbook is blank — take the raven feather, make ink (black berries + vial) and write the spell into the book' },
     q_flower:   { nl: 'Bij het kasteel: laat met de spreuk de grote bloem dansen', en: 'At the castle: use the spell to make the big flower dance' },
     q_tomayor:  { nl: 'De molen draait weer en de fontein stroomt! Ga terug naar het plein, naar burgemeester Bram', en: 'The mill turns again and the fountain flows! Head back to the square, to Mayor Bram' },
-    q_valley:   { nl: 'Verzamel de 3 ingrediënten voor de ketel: maanstof (in de vallei), een traan (lees het gedicht in de molen voor aan het meisje) en een drakenschub (versla de oude schaker) — gooi ze dan in de ketel', en: 'Gather the 3 ingredients for the cauldron: moondust (in the valley), a tear (read the mill poem to the girl) and a dragon scale (beat the old chess player) — then throw them in the cauldron' },
+    q_valley:   { nl: 'Verzamel de 3 ingrediënten voor de ketel (zie het recept): het licht van een vuurvliegje (vang er een in de vallei), een traan van een onschuldige (lees het gedicht voor aan het meisje) en een drakenschub (versla de oude schaker) — gooi ze dan in de ketel', en: 'Gather the 3 ingredients for the cauldron (see the recipe): the light of a firefly (catch one in the valley), a tear of an innocent (read the poem to the girl) and a dragon scale (beat the old chess player) — then throw them in the cauldron' },
     q_takewheel:{ nl: 'De handelsman kijkt naar de bloem — pak nu het molenrad uit zijn kar', en: 'The merchant is watching the flower — grab the mill wheel from his cart now' },
     q_fixmill:  { nl: 'Breng het molenrad naar het tandrad in de molen en maak het radwerk', en: 'Take the mill wheel to the gear inside the mill and fix the gearworks' }
   },
@@ -119,7 +119,7 @@ const GAME = {
     vialWine: { name: { nl: 'Leeg Flesje (voor wijn)', en: 'Empty Vial (for wine)' }, icon: '🧪', img: 'assets/art/item-vial.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier kun je wijn uit de oude wijnton in tappen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to draw wine from the old wine barrel.' } },
     wine:  { name: { nl: 'Flesje Wijn', en: 'Vial of Wine' }, icon: '🍷', img: 'assets/art/item-vial-wine.png',
-             look: { nl: 'Een flesje diep robijnrode wijn, getapt uit de oude wijnton in de molen. Wie weet komt het nog van pas...', en: 'A vial of deep ruby-red wine, drawn from the old wine barrel in the mill. It may come in handy...' } },
+             look: { nl: 'Een flesje diep bordeauxrode wijn, getapt uit de oude wijnton in de molen. Misschien lust burgemeester Bram er wel een slokje van...', en: 'A vial of deep Bordeaux-red wine, drawn from the old wine barrel in the mill. Mayor Bram might fancy a sip of this...' } },
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
@@ -148,8 +148,10 @@ const GAME = {
              look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } },
     tear: { name: { nl: 'Traan in een Flesje', en: 'Tear in a Vial' }, icon: '💧', img: 'assets/art/item-vial.png',
              look: { nl: 'Een glazen flesje met één heldere, glinsterende traan erin. Eén van de drie ingrediënten voor de ketel in de runencirkel.', en: 'A glass vial holding a single clear, glistening tear. One of the three ingredients for the cauldron in the rune circle.' } },
-    moondust: { name: { nl: 'Maanstof', en: 'Moondust' }, icon: '🌙',
-             look: { nl: 'Fijn zilverig stof dat zacht oplicht in het donker, alsof het stukjes maan zijn. Een ingrediënt voor de ketel.', en: 'Fine silvery dust that softly glows in the dark, like flecks of the moon. An ingredient for the cauldron.' } },
+    fireflight: { name: { nl: 'Vuurvlieglicht', en: 'Firefly Light' }, icon: '✨',
+             look: { nl: 'Het zachte goudgele licht van een vuurvliegje, gevangen in je holle handen — het gloeit als een levende vonk. Eén van de drie ingrediënten voor de ketel.', en: 'The soft golden light of a firefly, cupped in your hands — it glows like a living spark. One of the three ingredients for the cauldron.' } },
+    recipe: { name: { nl: 'Het Recept', en: 'The Recipe' }, icon: '📜', img: 'assets/art/item-note.png', zoomImg: 'assets/art/recipe.png',
+             look: { nl: 'Het vergeelde recept dat onder de losse steen bij de molen lag. Drie ingrediënten voor de ketel: een drakenschub, een traan van een onschuldige, en het licht van een vuurvliegje. (tik aan om te bekijken)', en: 'The yellowed recipe that lay under the loose stone by the mill. Three ingredients for the cauldron: a dragon scale, a tear of an innocent, and the light of a firefly. (tap to view)' } },
     dragonscale: { name: { nl: 'Drakenschub', en: 'Dragon Scale' }, icon: '🐲',
              look: { nl: 'Een harde, glanzende schub, warm als sintels. Wie weet welk wezen hem verloor... Het laatste ingrediënt voor de ketel.', en: 'A hard, gleaming scale, warm as embers. Who knows what creature lost it... The last ingredient for the cauldron.' } }
   },
@@ -249,9 +251,19 @@ const GAME = {
             flag: 'millFixed', setFlag: 'gotMap', item: 'map',
             giveText: { nl: 'De fontein op het plein klatert weer volop — het hele dorp juicht! Burgemeester Bram grijpt je bij de schouders: “Finn, je hebt het water teruggebracht! Maar dit is nog niet voorbij... die vreemde lichten in de vallei. Hier — een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos: bij de kasteelpoort wijst nu de weg naar de vallei.” Hij drukt je een vergeelde kaart in handen.', en: 'The fountain on the square gushes again — the whole village cheers! Mayor Bram grips your shoulders: “Finn, you’ve brought the water back! But this isn’t over... those strange lights in the valley. Here — a secret map your father once entrusted to me. Follow the path beyond the wood: at the castle gate the way to the valley is open now.” He presses a yellowed map into your hands.' }
           },
-          look: (state) => state.flags.metMayor
+          look: (state) => state.flags.gotMayorCoin
+            ? { nl: 'Burgemeester Bram veegt tevreden zijn snor af. “Heerlijke wijn, jongen. En neem dat muntje mee — die slimme raaf in de vallei is er dol op.”', en: 'Mayor Bram dabs his moustache contentedly. “Fine wine, my boy. And take that coin — that clever raven in the valley is mad for them.”' }
+            : state.flags.metMayor
             ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
+          use: {
+            wine: {
+              consume: 'wine',
+              give: 'coin',
+              setFlag: 'gotMayorCoin',
+              text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Zijn ogen lichten op — hij neemt een diepe slok en zucht tevreden. “Wat een traktatie, Finn! Hier, voor jou — een oud, glimmend muntje. Bewaar het goed; je weet maar nooit wie er dol op glimmende dingen is...” (de raaf in de vallei misschien?)', en: 'You offer Mayor Bram the vial of wine. His eyes light up — he takes a deep sip and sighs contentedly. “What a treat, Finn! Here, for you — an old, shiny coin. Keep it safe; you never know who has a weakness for shiny things...” (the raven in the valley, perhaps?)' }
+            }
+          },
           setFlag: 'metMayor'
         },
         {
@@ -436,6 +448,19 @@ const GAME = {
             en: 'The great water wheel on the side is jammed — the axle is bent. No water reaches the village like this. The mechanism that drives the wheel is inside the mill; take a look behind that door.'
           },
           setFlag: 'lookedMill'
+        },
+        {
+          id: 'recipeStone',
+          name: { nl: 'Een Losse Steen', en: 'A Loose Stone' },
+          rect: { x: 78, y: 256, w: 52, h: 38 },
+          walkTo: { x: 104, y: 306 },
+          appearFlag: 'recipeRevealed',                 // verschijnt zodra de raaf de steen heeft aangewezen
+          arrow: { x: 100, y: 246, dir: 'down' },
+          gives: {
+            item: 'recipe',
+            giveText: { nl: 'Links bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept! Drie ingrediënten voor de ketel. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the left, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE! Three ingredients for the cauldron. (tap the recipe in your bag to view it)' },
+            emptyText: { nl: 'Onder de steen is verder niets meer; het recept zit in je tas.', en: 'There is nothing else under the stone; the recipe is in your bag.' }
+          }
         },
         {
           id: 'toMillInside',
@@ -771,8 +796,8 @@ const GAME = {
       npcs: [
         /* De heks staat in de mist naast de ketel en lokt Finn (wenk-frames) — iets hoger en groter. */
         { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 402, y: 230, scale: 1.22 },
-        /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel (meer naar links). */
-        { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95 }
+        /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel (meer naar links); vliegt weg zodra hij het recept heeft 'aangewezen'. */
+        { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
@@ -798,14 +823,14 @@ const GAME = {
           walkTo: { x: 286, y: 300 },
           look: (state) => state.flags.valleyMagic
             ? { nl: 'De ketel laait met blauw vuur en de runen op alle stenen gloeien. De magie van de vallei is ontwaakt... (wordt vervolgd)', en: 'The cauldron blazes with blue fire and the runes on every stone glow. The valley’s magic has awoken... (to be continued)' }
-            : { nl: 'Een oude stenen ketel in het hart van de runencirkel. In de rand staan tekens gekrast: een traan, een maan en een draak. Gooi de drie ingrediënten erin om de magie te wekken.', en: 'An ancient stone cauldron at the heart of the rune circle. Symbols are carved into its rim: a tear, a moon and a dragon. Throw the three ingredients in to wake the magic.' },
+            : { nl: 'Een oude stenen ketel in het hart van de runencirkel. In de rand staan tekens gekrast: een traan, een vuurvlieg en een draak. Gooi de drie ingrediënten erin om de magie te wekken.', en: 'An ancient stone cauldron at the heart of the rune circle. Symbols are carved into its rim: a tear, a firefly and a dragon. Throw the three ingredients in to wake the magic.' },
           use: {
             tear:        { consume: 'tear',        setFlag: 'cauldron_tear',        text: { nl: 'Je giet de traan uit het flesje in de ketel. Het water rimpelt zilverig.', en: 'You pour the tear from the vial into the cauldron. The water ripples silver.' } },
-            moondust:    { consume: 'moondust',    setFlag: 'cauldron_moondust',    text: { nl: 'Je strooit de maanstof over de ketel. Het glinstert en zinkt langzaam weg.', en: 'You scatter the moondust over the cauldron. It glitters and slowly sinks away.' } },
+            fireflight:  { consume: 'fireflight',  setFlag: 'cauldron_fireflight',  text: { nl: 'Je laat het gevangen vuurvlieglicht boven de ketel los. Het zweeft naar binnen en lost op in een gouden gloed.', en: 'You release the cupped firefly light over the cauldron. It drifts in and dissolves into a golden glow.' } },
             dragonscale: { consume: 'dragonscale', setFlag: 'cauldron_dragonscale', text: { nl: 'Je laat de drakenschub in de ketel zakken. Het sist zacht en dampt.', en: 'You lower the dragon scale into the cauldron. It hisses softly and steams.' } }
           },
           combo: {
-            needFlags: ['cauldron_tear', 'cauldron_moondust', 'cauldron_dragonscale'],
+            needFlags: ['cauldron_tear', 'cauldron_fireflight', 'cauldron_dragonscale'],
             setFlag: 'valleyMagic',
             win: true,
             burst: { x: 286, y: 175 },
@@ -816,14 +841,28 @@ const GAME = {
           }
         },
         {
-          id: 'moondust',
-          name: { nl: 'Glinsterend Stof', en: 'Glistening Dust' },
+          id: 'fireflight',
+          name: { nl: 'Een Vuurvliegje', en: 'A Firefly' },
           rect: { x: 150, y: 150, w: 64, h: 92 },
           walkTo: { x: 182, y: 300 },
           gives: {
-            item: 'moondust',
-            giveText: { nl: 'Op een platte offersteen ligt een hoopje fijn zilverig stof dat zacht oplicht — maanstof. Het tweede ingrediënt.', en: 'On a flat offering-stone lies a heap of fine silvery dust that softly glows — moondust. The second ingredient.' },
-            emptyText: { nl: 'De offersteen is leeg — de maanstof zit al in je tas.', en: 'The offering-stone is empty — the moondust is already in your bag.' }
+            item: 'fireflight',
+            giveText: { nl: 'Boven een platte offersteen danst een enkel vuurvliegje, helder goudgeel oplichtend. Heel voorzichtig vang je het in je holle handen — je houdt zijn warme licht vast. Eén van de ingrediënten voor de ketel.', en: 'Above a flat offering-stone dances a single firefly, glowing bright golden. Very gently you cup it in your hands — you’re holding its warm light. One of the cauldron’s ingredients.' },
+            emptyText: { nl: 'Hier dansen geen vuurvliegjes meer — je hebt het licht al gevangen.', en: 'No more fireflies dance here — you’ve already caught the light.' }
+          }
+        },
+        {
+          id: 'ravenValley',
+          name: { nl: 'De Glanzende Raaf', en: 'The Glossy Raven' },
+          rect: { x: 16, y: 182, w: 54, h: 60 },
+          walkTo: { x: 86, y: 300 },
+          face: 'assets/art/face-raven.png',
+          hideFlag: 'recipeRevealed',                  // weg zodra hij het recept heeft aangewezen
+          look: { nl: 'Op de oude runensteen zit dezelfde glanzende raaf van het dorpsplein, kop scheef. Zijn kraaloogjes glinsteren zodra je iets glimmends bij je hebt — hij wil duidelijk weer ruilen.', en: 'On the old rune-stone perches the same glossy raven from the village square, head cocked. Its beady eyes glint at anything shiny you carry — it clearly wants to trade again.' },
+          givesWhen: {
+            flag: 'visited_valley', needItem: 'coin', consume: 'coin', setFlag: 'recipeRevealed', flyNpc: 'ravenValley', flyDir: 'right',
+            needText: { nl: 'De raaf tikt ongeduldig met zijn snavel — hij wil iets glimmends. (geef de burgemeester de wijn, dan krijg je een muntje)', en: 'The raven taps impatiently with its beak — it wants something shiny. (give the mayor the wine and he’ll hand you a coin)' },
+            giveText: { nl: 'De raaf grist het muntje weg en krast traag, alsof hij een recept opzegt: “Eén drakenschub... één traan van een onschuldige... en het licht van een vuurvliegje.” Dan wijst hij met zijn snavel richting de molen, klapwiekt op en vliegt weg — bij de molen tikt hij op een losse steen links. Daaronder moet iets liggen...', en: 'The raven snatches the coin and rasps slowly, as if reciting a recipe: “One dragon scale... one tear of an innocent... and the light of a firefly.” Then it points its beak toward the mill, takes wing and flies off — by the mill it taps a loose stone on the left. Something must lie beneath it...' }
           }
         },
         {
