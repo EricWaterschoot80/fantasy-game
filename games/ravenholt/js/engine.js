@@ -986,6 +986,35 @@
     /* Bijtjes en vlinders dansen mee rond de betoverde bloemen (zodra ze dansen). */
     if (state.currentScene === 'castle' && state.flags.flowerDancing && !state.flags.taken_castle_cart) drawCastleDancers(now);
 
+    /* Lage drijvende mist VÓÓR de personages (zo lijkt het of de heks in de mist staat). */
+    if (scene.fx && scene.fx.mist) {
+      const m = scene.fx.mist, bands = m.bands || 5;
+      /* brede drijvende grondmist-banden */
+      for (let i = 0; i < bands; i++) {
+        const yy = (m.y || 232) + i * 8 + Math.sin(now / 2200 + i) * 2;
+        const drift = Math.sin(now / (3000 + i * 400) + i * 1.7) * 32;
+        const a = (m.alpha || 0.22) * (0.7 + 0.3 * Math.sin(now / 1800 + i * 2));
+        const g = fctx.createLinearGradient(0, yy - 9, 0, yy + 9);
+        g.addColorStop(0, 'rgba(210,218,232,0)');
+        g.addColorStop(0.5, `rgba(210,218,232,${a})`);
+        g.addColorStop(1, 'rgba(210,218,232,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(-40 + drift, Math.round(yy - 9), SCENE_W + 80, 18);
+      }
+      /* dichtere mistwolk rond een punt (bv. de heks) */
+      if (m.around) {
+        const r = m.around.r || 66;
+        const cx = m.around.x + Math.sin(now / 2600) * 4, cy = m.around.y;
+        const aa = (m.aroundAlpha || 0.3) * (0.72 + 0.28 * Math.sin(now / 1600));
+        const g = fctx.createRadialGradient(cx, cy, 2, cx, cy, r);
+        g.addColorStop(0, `rgba(216,224,236,${aa})`);
+        g.addColorStop(0.6, `rgba(216,224,236,${aa * 0.5})`);
+        g.addColorStop(1, 'rgba(216,224,236,0)');
+        fctx.fillStyle = g;
+        fctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      }
+    }
+
     /* gloeiende partikels bovenop */
     for (const e of embers) {
       const a = Math.max(0, e.life / 1.4);
