@@ -4016,6 +4016,12 @@
       state.currentScene = sceneId;
       state.selectedItem = null;
       const scene = GAME.scenes[sceneId];
+      /* "Weggaan en terugkomen": de burgemeester maakt plaats voor de oude schaker — maar
+         pas nadat hij de kaart heeft gegeven én de wijn heeft gekregen, en pas zodra je
+         het plein opnieuw binnenkomt (dus niet terwijl je er nog staat). */
+      if (sceneId === 'square' && state.flags.gotMap && state.flags.gotMayorCoin) {
+        state.flags.mayorGone = true;
+      }
       const spawn = (scene.spawnFrom && scene.spawnFrom[fromScene]) || scene.playerStart;
       player.x = spawn.x; player.y = spawn.y;
       player.target = null; player.pending = null;

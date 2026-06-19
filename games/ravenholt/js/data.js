@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '73',
+  assetVer: '74',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -190,7 +190,7 @@ const GAME = {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
       bg: 'assets/art/scene-square.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-square-chess.jpg', flag: 'visited_valley' },   // na de vallei: oude man schaakt + fontein klatert
+        { img: 'assets/art/scene-square-chess.jpg', flag: 'mayorGone' },         // burgemeester vertrokken: oude man schaakt + fontein klatert
         { img: 'assets/art/scene-square-mill.jpg', flag: 'millFixed' },          // molen gemaakt: fontein klatert weer
         { img: 'assets/art/scene-square.jpg' }                                    // begin: droge fontein
       ],
@@ -223,7 +223,7 @@ const GAME = {
            (molen gemaakt) → met lege hand nadat hij de kaart gaf. Weg na de vallei. */
         { id: 'mayorA', sprite: 'mayor', gestureSprite: 'mayorGesture', x: 372, y: 264, scale: 1.18, hideFlag: 'millFixed' },
         { id: 'mayorB', sprite: 'mayorHappy', x: 372, y: 264, scale: 1.18, appearFlag: 'millFixed', hideFlag: 'gotMap' },
-        { id: 'mayorC', sprite: 'mayorMap', x: 372, y: 264, scale: 1.18, appearFlag: 'gotMap', hideFlag: 'visited_valley' },
+        { id: 'mayorC', sprite: 'mayorMap', x: 372, y: 264, scale: 1.18, appearFlag: 'gotMap', hideFlag: 'mayorGone' },
         { id: 'raven', sprite: 'ravenPerch', x: 36, y: 257, scale: 1.15, hideFlag: 'ravenFed' }   // glanzende raaf op de ton (links), 3px hoger
       ],
       fx: {
@@ -246,13 +246,15 @@ const GAME = {
           rect: { x: 346, y: 186, w: 54, h: 80 },
           walkTo: { x: 366, y: 300 },
           face: 'assets/art/face-mayor.png',
-          hideFlag: 'visited_valley',                  // weg zodra je in de vallei bent geweest
+          hideFlag: 'mayorGone',                       // blijft tot je hem de wijn hebt gegeven én het plein opnieuw betreedt
           givesWhen: {
             flag: 'millFixed', setFlag: 'gotMap', item: 'map',
             giveText: { nl: 'De fontein op het plein klatert weer volop — het hele dorp juicht! Burgemeester Bram grijpt je bij de schouders: “Finn, je hebt het water teruggebracht! Maar dit is nog niet voorbij... die vreemde lichten in de vallei. Hier — een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos: bij de kasteelpoort wijst nu de weg naar de vallei.” Hij drukt je een vergeelde kaart in handen.', en: 'The fountain on the square gushes again — the whole village cheers! Mayor Bram grips your shoulders: “Finn, you’ve brought the water back! But this isn’t over... those strange lights in the valley. Here — a secret map your father once entrusted to me. Follow the path beyond the wood: at the castle gate the way to the valley is open now.” He presses a yellowed map into your hands.' }
           },
           look: (state) => state.flags.gotMayorCoin
             ? { nl: 'Burgemeester Bram veegt tevreden zijn snor af. “Heerlijke wijn, jongen. En neem dat muntje mee — die slimme raaf in de vallei is er dol op.”', en: 'Mayor Bram dabs his moustache contentedly. “Fine wine, my boy. And take that coin — that clever raven in the valley is mad for them.”' }
+            : state.flags.gotMap
+            ? { nl: 'Burgemeester Bram veegt zijn voorhoofd af, dorstig van al die drukte. “Wat zou ik nu graag een lekker glas wijn lusten, Finn...” (geef hem de wijn uit de molen)', en: 'Mayor Bram mops his brow, thirsty from all the fuss. “What I’d give for a nice glass of wine right now, Finn...” (give him the wine from the mill)' }
             : state.flags.metMayor
             ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
@@ -365,7 +367,7 @@ const GAME = {
           name: { nl: 'De Oude Schaker', en: 'The Old Chess Player' },
           rect: { x: 312, y: 182, w: 86, h: 92 },
           walkTo: { x: 330, y: 300 },
-          appearFlag: 'visited_valley',                 // verschijnt zodra de burgemeester weg is
+          appearFlag: 'mayorGone',                      // verschijnt zodra de burgemeester is vertrokken (na de wijn + opnieuw het plein op)
           look: (state) => state.flags.wonChess
             ? { nl: 'De oude man leunt tevreden achterover bij zijn schaakbord. “Goed gespeeld, jongen. Die drakenschub is eerlijk verdiend.”', en: 'The old man leans back contentedly by his chessboard. “Well played, lad. That dragon scale is fairly earned.”' }
             : { nl: 'Op het bankje bij de fontein zit een oude man over een schaakbord gebogen. Hij kijkt op met fonkelende ogen: “De burgemeester? Die is op reis. Maar kom — zet mij mat in drie zetten en ik geef je iets ouds en kostbaars...” (tik hem aan)', en: 'On the bench by the fountain sits an old man hunched over a chessboard. He looks up with twinkling eyes: “The mayor? Off travelling. But come — checkmate me in three moves and I’ll give you something old and precious...” (tap him)' },
