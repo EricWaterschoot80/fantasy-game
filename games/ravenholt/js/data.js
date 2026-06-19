@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '84',
+  assetVer: '85',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -142,6 +142,8 @@ const GAME = {
              look: { nl: 'De magische ravenveer, gedoopt in de bessen-inkt — nog steeds een veer, maar met een glanzende zwarte inktpunt. Klaar om een spreuk in het lege toverboek te schrijven.', en: 'The magic raven feather, dipped in berry ink — still a feather, but with a glossy black ink tip. Ready to write a spell in the empty spellbook.' } },
     spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', border: 'blue',
              look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
+    dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', border: 'red',
+             look: { nl: 'De drakenspreuk “Draconis Umbra” die je van de heks won. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” you won from the witch. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
     poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-note.png',
              look: { nl: 'Het gloeiende briefje uit de brievenbus bij de molen, zonder afzender:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The glowing note from the mailbox by the mill, with no sender:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nYou should read this aloud to someone who carries sorrow...' } },
     map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png', zoomImg: 'assets/art/map-valley.png',
@@ -515,7 +517,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'mouse', sprite: 'mouse', x: 184, y: 190, scale: 0.5, flip: false, peck: true, peckAmt: 0.45, filter: 'brightness(0.82)', hideFlag: 'wineTapLoose' }   // muisje hoog naast de wijnton; knabbelt rustig (peck) en verdwijnt zodra je hem kaas geeft (wineTapLoose)
+        { id: 'mouse', sprite: 'mouse', x: 179, y: 188, scale: 0.44, flip: false, peck: true, peckAmt: 0.45, filter: 'brightness(0.82)', hideFlag: 'wineTapLoose' }   // muisje hoog naast de wijnton; knabbelt rustig (peck) en verdwijnt zodra je hem kaas geeft (wineTapLoose)
       ],
       fx: {},
       hotspots: [
@@ -804,7 +806,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         /* De heks staat nu LINKS van de ketel; een rust-lus (heks-idle) speelt zodra je in de vallei bent, tijdens de strijd haar battle-animatie. */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks', x: 196, y: 234, scale: 0.95, hideFlag: 'witchDefeated' },
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks-spreuk', x: 196, y: 234, scale: 0.95, hideFlag: 'witchDefeated' },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
         /* Lichtgevende lavendelbloemen rechtsonder (groter, dichter bijeen) met blauw licht; ze dansen + lokken vuurvliegjes na de dans-spreuk. */
@@ -821,6 +823,27 @@ const GAME = {
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
         flowerFlies: { x: 470, y: 300, flag: 'valleyFlowersDancing' },   // dansende vuurvliegjes bij de rechter bloemen (na de dans-spreuk)
         mist: { bands: 6, y: 212, alpha: 0.32, around: { x: 240, y: 222, rx: 235, ry: 52 }, aroundAlpha: 0.64 }   // grotere, hogere brede grondmist
+      },
+      /* De tovenaars-strijd: zodra alle drie de ingrediënten in de ketel zitten, wordt de heks
+         boos. Uit de ketel klinken raadsels — klik op de gloeiende steen met het juiste dier-symbool.
+         De laatste is de draak. Win je, dan verdwijnt de heks en leer je de drakenspreuk. */
+      duel: {
+        stones: [
+          { x: 68,  y: 250, sym: '🐺' },
+          { x: 233, y: 286, sym: '🦉' },
+          { x: 352, y: 286, sym: '🐍' },
+          { x: 512, y: 250, sym: '🐉' }
+        ],
+        intro: { nl: 'Zodra het laatste ingrediënt de ketel raakt, laait er BLAUW vuur op! De heks gilt van woede: “Bemoei je niet met mijn magie, jochie!” Uit de borrelende ketel klinken spookachtige stemmen met raadsels. Boven de stenen gloeien dier-tekens — klik telkens op het juiste dier!', en: 'The moment the last ingredient hits the cauldron, BLUE fire erupts! The witch shrieks with rage: “Keep your hands off my magic, boy!” From the bubbling cauldron come ghostly voices with riddles. Animal signs glow above the stones — click the right beast each time!' },
+        rounds: [
+          { sym: '🐺', riddle: { nl: 'Een stem fluistert: “Ik huil naar de maan en jaag in een roedel door de nacht. Roep mijn beest!”', en: 'A voice whispers: “I howl at the moon and hunt in a pack through the night. Summon my beast!”' } },
+          { sym: '🦉', riddle: { nl: 'De ketel sist: “Ik zie alles in het donker en zit zo stil op mijn tak dat niemand mij hoort. Roep mij!”', en: 'The cauldron hisses: “I see all in the dark and sit so still on my branch that none can hear me. Summon me!”' } },
+          { sym: '🐍', riddle: { nl: 'Een stem kronkelt: “Ik heb geen poten, glijd door het gras en sis met een gespleten tong. Roep mij!”', en: 'A voice coils: “I have no legs, I glide through the grass and hiss with a forked tongue. Summon me!”' } },
+          { sym: '🐉', riddle: { nl: 'De laatste stem dondert: “Nu het machtigste beest! Ik draag schubben, spuw vuur en heers over de hele hemel. Roep het!”', en: 'The final voice thunders: “Now the mightiest beast! I wear scales, breathe fire and rule the whole sky. Summon it!”' } }
+        ],
+        wrongText: { nl: 'De heks kakelt schril: “MIS! Verkeerd beest, hapje!” Een groene vonk knettert langs je oor. Lees het raadsel nog eens en kies opnieuw.', en: 'The witch cackles shrilly: “WRONG! Wrong beast, morsel!” A green spark crackles past your ear. Read the riddle again and choose anew.' },
+        winText: { nl: 'Bij de draak schiet een ENORME vuurdraak uit de stenen omhoog en buldert naar de heks! Ze krijst, deinst achteruit en lost op in een wolk groene rook — verslagen! En diep in je toverboek gloeit nu een nieuwe spreuk op: de DRAKENSPREUK, “Draconis Umbra”. (wordt vervolgd)', en: 'At the dragon a HUGE fire-drake bursts up from the stones and roars at the witch! She shrieks, recoils and dissolves into a cloud of green smoke — defeated! And deep in your spellbook a new spell glows to life: the DRAGON SPELL, “Draconis Umbra”. (to be continued)' },
+        win: true, give: 'dragonspell', setFlag: ['witchDefeated', 'dragonSpellLearned']
       },
       hotspots: [
         {
@@ -858,12 +881,8 @@ const GAME = {
           combo: {
             needFlags: ['cauldron_tear', 'cauldron_fireflight', 'cauldron_dragonscale'],
             setFlag: 'valleyMagic',
-            win: true,
-            burst: { x: 286, y: 175 },
-            text: {
-              nl: 'Zodra het laatste ingrediënt de ketel raakt, laait er blauw vuur op! De runen op de stenen en de hele cirkel beginnen fel te gloeien — de magie van de vallei ontwaakt. (wordt vervolgd)',
-              en: 'The moment the last ingredient hits the cauldron, blue fire erupts! The runes on the stones and the whole circle blaze with light — the valley’s magic awakens. (to be continued)'
-            }
+            startDuel: true,                 // i.p.v. winnen: de heks wordt boos en de stenen-strijd begint
+            burst: { x: 286, y: 175 }
           }
         },
         {

@@ -126,7 +126,7 @@
   }
   /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
   art.frames = {};
-  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8 };
+  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17 };
   for (const [name, count] of Object.entries(FRAME_SEQS)) {
     art.frames[name] = [];
     for (let i = 1; i <= count; i++) {
@@ -309,6 +309,15 @@
       bgMusic.play().catch(() => {});
     } catch (e) { startSynthFallback(); }
   }
+  /* Mobiel (iOS/Android) blokkeert audio tot een gebruikersgebaar: start de muziek + ontwaak de
+     AudioContext bij de allereerste aanraking/klik/toets, mocht de start-knop het gemist hebben. */
+  ['pointerdown', 'touchstart', 'keydown'].forEach((ev) => {
+    window.addEventListener(ev, function kick() {
+      try { const a = ac(); if (a && a.state === 'suspended') a.resume(); } catch (e) {}
+      startMusic();
+      ['pointerdown', 'touchstart', 'keydown'].forEach((e2) => window.removeEventListener(e2, kick));
+    }, { once: true, passive: true });
+  });
 
   /* Oogje: laat kort zien waar je iets kunt onderzoeken/oppakken/heen kunt (hotspot-omlijningen). */
   const elEyeBtn = document.getElementById('eyeBtn');
@@ -1025,6 +1034,7 @@
 
     /* Bijtjes en vlinders dansen mee rond de betoverde bloemen (zodra ze dansen). */
     if (state.currentScene === 'castle' && state.flags.flowerDancing && !state.flags.taken_castle_cart) drawCastleDancers(now);
+    if (state.flags.duelActive) drawDuel(now);
 
     /* Lage drijvende mist VÓÓR de personages (zo lijkt het of de heks in de mist staat). */
     if (scene.fx && scene.fx.mist) {
@@ -2164,10 +2174,10 @@
       /* Geanimeerde npc (de heks): speelt een frame-reeks i.p.v. de statische sprite.
          Battle-reeks tijdens de strijd (1-12 eenmalig -> lus 13-17), anders de rust-lus. */
       if (npc.battleFrames && state.flags.duelActive && art.frames[npc.battleFrames]) {
-        const fr = art.frames[npc.battleFrames], intro = 12, total = fr.length;
+        const fr = art.frames[npc.battleFrames], intro = 13, total = fr.length;   // 1-13 eenmalig, daarna 14-17 in een lus
         const el = now - (window.__duelStart || now);
         const fi = (el < intro * 95) ? Math.min(intro - 1, (el / 95) | 0)
-                                     : intro + (((now / 130) | 0) % (total - intro));
+                                     : intro + (((now / 150) | 0) % (total - intro));
         if (ready(fr[fi])) img = fr[fi];
       } else if (npc.idleFrames && art.frames[npc.idleFrames]) {
         /* Rust-gebaar: meestal stil op frame 1; om de ~5 sec één snelle beweging (heen en terug). */
@@ -3857,6 +3867,7 @@
             if (cb.text) say(cb.text, hsSpeaker(hs), hsFace(hs));
             updateQuest();
             if (cb.win) { pendingWin = true; sfx('win'); }
+            if (cb.startDuel) startDuel();
           }
         }
       } else {
@@ -4208,6 +4219,78 @@
     return { x: (px_ - view.ox) / view.scale, y: (py_ - view.oy) / view.scale };
   }
 
+  /* ---------- De tovenaars-strijd bij de ketel (raadsels → juiste gloeiende steen) ---------- */
+  let duel = null;
+  function startDuel() {
+    const sc = GAME.scenes[state.currentScene];
+    if (!sc || !sc.duel) return;
+    duel = { cfg: sc.duel, round: 0 };
+    state.flags.duelActive = true;
+    window.__duelStart = performance.now();
+    say(sc.duel.intro, null, 'assets/art/face-witch.png');
+    sayRiddle();
+    updateQuest();
+  }
+  function sayRiddle() {
+    if (!duel) return;
+    const r = duel.cfg.rounds[duel.round];
+    if (r) say(r.riddle);
+  }
+  function tryDuelStone(sx, sy) {
+    if (!duel) return false;
+    let hit = null, best = 1e9;
+    for (const st of duel.cfg.stones) {
+      const d = Math.hypot(st.x - sx, st.y - sy);
+      if (d < 40 && d < best) { best = d; hit = st; }
+    }
+    if (!hit) return false;
+    const want = duel.cfg.rounds[duel.round].sym;
+    if (hit.sym === want) {
+      sfx('pickup');
+      burstAt(hit.x, hit.y - 18, { n: 16, col: '120,180,255', up: 16, life: 1.0 });
+      duel.round++;
+      if (duel.round >= duel.cfg.rounds.length) winDuel();
+      else { sfx('combine'); sayRiddle(); }
+    } else {
+      sfx('error');
+      burstAt(hit.x, hit.y - 18, { n: 8, col: '150,230,120', up: 10, life: 0.7 });
+      say(duel.cfg.wrongText, null, 'assets/art/face-witch.png');
+    }
+    return true;
+  }
+  function winDuel() {
+    if (!duel) return;
+    const cfg = duel.cfg; duel = null;
+    state.flags.duelActive = false;
+    if (cfg.setFlag) (Array.isArray(cfg.setFlag) ? cfg.setFlag : [cfg.setFlag]).forEach((f) => { state.flags[f] = true; });
+    if (cfg.give) addItem(cfg.give);
+    burstAt(512, 236, { n: 34, col: '255,140,60', up: 24, life: 1.5 });
+    sfx('win');
+    say(cfg.winText);
+    if (cfg.win) pendingWin = true;
+    updateQuest();
+    paintBackground();
+  }
+  function drawDuel(now) {
+    if (!duel) return;
+    fctx.save();
+    fctx.textAlign = 'center';
+    fctx.textBaseline = 'middle';
+    for (const st of duel.cfg.stones) {
+      const pulse = 0.5 + 0.5 * Math.sin(now / 380 + st.x);
+      const gr = 17;
+      const g = fctx.createRadialGradient(st.x, st.y, 1, st.x, st.y, gr);
+      g.addColorStop(0, 'rgba(130,185,255,' + (0.34 + 0.26 * pulse).toFixed(2) + ')');
+      g.addColorStop(1, 'rgba(130,185,255,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(st.x - gr, st.y - gr, gr * 2, gr * 2);
+      fctx.font = '16px serif';
+      fctx.fillStyle = 'rgba(255,255,255,' + (0.85 + 0.15 * pulse).toFixed(2) + ')';
+      fctx.fillText(st.sym, st.x, st.y - 24);
+    }
+    fctx.restore();
+  }
+
   let lastTapHs = null, lastTapTime = 0;   // voor dubbel-tik op uitgangen
   canvas.addEventListener('pointerdown', (e) => {
     ac();
@@ -4215,6 +4298,9 @@
     if (msgOpen()) { showNextMsg(); return; }
     const p = screenToScene(e.clientX, e.clientY);
     if (p.x < 0 || p.x > SCENE_W || p.y < 0 || p.y > SCENE_H) return;
+
+    /* Tijdens de stenen-strijd: alleen de gloeiende stenen reageren; een misser herhaalt het raadsel. */
+    if (state.flags.duelActive && duel) { if (!tryDuelStone(p.x, p.y)) sayRiddle(); return; }
 
     const hs = hotspotAt(p.x, p.y);
 
