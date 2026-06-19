@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '76',
+  assetVer: '77',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -800,13 +800,13 @@ const GAME = {
       worldItems: [],
       npcs: [
         /* De heks staat nu LINKS van de ketel; tijdens de strijd speelt haar battle-animatie (heks-frames). */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', battleFrames: 'heks', x: 188, y: 250, scale: 1.0, hideFlag: 'witchDefeated' },
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', battleFrames: 'heks', x: 192, y: 244, scale: 1.15, hideFlag: 'witchDefeated' },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
-        /* Lichtgevende bloemen linksonder; ze dansen sierlijk zodra je hier je dans-spreuk uitspreekt. */
-        { id: 'vflower1', sprite: 'flowerWhite', x: 78, y: 306, scale: 0.32, glow: '150,230,120', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower2', sprite: 'flowerWhite', x: 104, y: 309, scale: 0.26, glow: '120,200,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower3', sprite: 'flowerWhite', x: 130, y: 305, scale: 0.29, glow: '150,230,120', danceFlag: 'valleyFlowersDancing' }
+        /* Lichtgevende lavendelbloemen rechtsonder; ze dansen sierlijk zodra je hier je dans-spreuk uitspreekt. */
+        { id: 'vflower1', sprite: 'flowerWhite', x: 446, y: 304, scale: 0.32, glow: '198,158,255', filter: 'saturate(1.5) hue-rotate(255deg) brightness(1.05)', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower2', sprite: 'flowerWhite', x: 472, y: 308, scale: 0.26, glow: '210,170,255', filter: 'saturate(1.5) hue-rotate(255deg) brightness(1.05)', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower3', sprite: 'flowerWhite', x: 498, y: 303, scale: 0.29, glow: '198,158,255', filter: 'saturate(1.5) hue-rotate(255deg) brightness(1.05)', danceFlag: 'valleyFlowersDancing' }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
@@ -817,8 +817,8 @@ const GAME = {
         {
           id: 'witch',
           name: { nl: 'De Oude Heks', en: 'The Old Witch' },
-          rect: { x: 138, y: 168, w: 100, h: 130 },
-          walkTo: { x: 214, y: 308 },
+          rect: { x: 128, y: 156, w: 116, h: 146 },
+          walkTo: { x: 218, y: 308 },
           hideFlag: 'witchDefeated',
           look: {
             nl: 'Een kromme oude heks met een punthoed leunt op haar pollepel-staf naast de ketel. Ze wenkt je met een knokige vinger en grijnst: “Kom dichterbij, jongen... gooi de juiste ingrediënten in mijn ketel, dan laat ik je échte magie zien.” Er loopt een rilling over je rug.',
@@ -835,9 +835,9 @@ const GAME = {
             ? { nl: 'De ketel laait met blauw vuur en de runen op alle stenen gloeien. De magie van de vallei is ontwaakt... (wordt vervolgd)', en: 'The cauldron blazes with blue fire and the runes on every stone glow. The valley’s magic has awoken... (to be continued)' }
             : { nl: 'Een oude stenen ketel in het hart van de runencirkel. In de rand staan tekens gekrast: een traan, een vuurvlieg en een draak. Gooi de drie ingrediënten erin om de magie te wekken.', en: 'An ancient stone cauldron at the heart of the rune circle. Symbols are carved into its rim: a tear, a firefly and a dragon. Throw the three ingredients in to wake the magic.' },
           use: {
-            tear:        { consume: 'tear',        setFlag: 'cauldron_tear',        text: { nl: 'Je giet de traan uit het flesje in de ketel. Het water rimpelt zilverig.', en: 'You pour the tear from the vial into the cauldron. The water ripples silver.' } },
-            fireflight:  { consume: 'fireflight',  setFlag: 'cauldron_fireflight',  text: { nl: 'Je laat het gevangen vuurvlieglicht boven de ketel los. Het zweeft naar binnen en lost op in een gouden gloed.', en: 'You release the cupped firefly light over the cauldron. It drifts in and dissolves into a golden glow.' } },
-            dragonscale: { consume: 'dragonscale', setFlag: 'cauldron_dragonscale', text: { nl: 'Je laat de drakenschub in de ketel zakken. Het sist zacht en dampt.', en: 'You lower the dragon scale into the cauldron. It hisses softly and steams.' } }
+            tear:        { consume: 'tear',        setFlag: 'cauldron_tear',        burst: { x: 286, y: 182 }, text: { nl: 'Je giet de traan uit het flesje in de ketel. Het water rimpelt zilverig en er stijgen blauwe lichtjes op.', en: 'You pour the tear from the vial into the cauldron. The water ripples silver and blue sparks rise up.' } },
+            fireflight:  { consume: 'fireflight',  setFlag: 'cauldron_fireflight',  burst: { x: 286, y: 182 }, text: { nl: 'Je laat het gevangen vuurvlieglicht boven de ketel los. Het zweeft naar binnen tussen een wolk blauwe lichtjes.', en: 'You release the cupped firefly light over the cauldron. It drifts in amid a cloud of blue sparks.' } },
+            dragonscale: { consume: 'dragonscale', setFlag: 'cauldron_dragonscale', burst: { x: 286, y: 182 }, text: { nl: 'Je laat de drakenschub in de ketel zakken. Het sist, dampt en spettert blauwe vonken.', en: 'You lower the dragon scale into the cauldron. It hisses, steams and spatters blue sparks.' } }
           },
           combo: {
             needFlags: ['cauldron_tear', 'cauldron_fireflight', 'cauldron_dragonscale'],
@@ -889,9 +889,9 @@ const GAME = {
         {
           id: 'toCastle',
           name: { nl: 'Terug naar de Poort', en: 'Back to the Gate' },
-          rect: { x: 462, y: 244, w: 92, h: 72 },
-          walkTo: { x: 498, y: 300 },
-          arrow: { x: 502, y: 258, dir: 'down' },
+          rect: { x: 34, y: 250, w: 86, h: 66 },
+          walkTo: { x: 80, y: 300 },
+          arrow: { x: 62, y: 260, dir: 'down' },
           exit: { to: 'castle', travelText: { nl: 'Je keert terug langs het pad naar de kasteelpoort.', en: 'You head back up the path to the castle gate.' } }
         }
       ]

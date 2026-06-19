@@ -1996,16 +1996,20 @@
   function drawNpcInner(npc, now) {
     const S = SPRITE_SCALE;
     const rt = npcRt[npc.id] || { x: npc.x, y: npc.y, flip: false, target: null, phase: 0 };
-    /* Lichtgevende npc (bv. de gloeiende valleibloemen): zachte pulserende gloed aan de voet. */
+    /* Lichtgevende npc (bv. de gloeiende lavendelbloemen): zachte pulserende gloed aan de voet.
+       De gloed staat los van een eventueel npc.filter (anders zou de kleur verschuiven). */
     if (npc.glow) {
-      const gx = rt.x, gy = rt.y - 6 * (npc.scale || 1);
-      const gr = 14 + 16 * (npc.scale || 1);
-      const a = 0.3 + 0.18 * Math.sin(now / 600 + (rt.phase || 0) * 3 + rt.x);
+      const savedFilter = fctx.filter;
+      fctx.filter = 'none';
+      const gx = rt.x, gy = rt.y - 8 * (npc.scale || 1);
+      const gr = 18 + 22 * (npc.scale || 1);
+      const a = 0.42 + 0.2 * Math.sin(now / 560 + (rt.phase || 0) * 3 + rt.x);
       const g = fctx.createRadialGradient(gx, gy, 1, gx, gy, gr);
       g.addColorStop(0, 'rgba(' + npc.glow + ',' + a.toFixed(3) + ')');
       g.addColorStop(1, 'rgba(' + npc.glow + ',0)');
       fctx.fillStyle = g;
       fctx.fillRect(Math.round(gx - gr), Math.round(gy - gr), Math.round(gr * 2), Math.round(gr * 2));
+      fctx.filter = savedFilter;
     }
     if (npc.sprite === 'seer') {
       const img = art.sprites.seer;
@@ -3953,6 +3957,7 @@
   function runAction(a, anchor, face) {
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
+    if (a.burst) burstAt(a.burst.x, a.burst.y, { n: 18, col: '120,180,255', up: 16, life: 1.1 });   // blauwe lichtjes (bv. iets in de ketel gooien)
     if (a.setFlag) {
       (Array.isArray(a.setFlag) ? a.setFlag : [a.setFlag]).forEach((fl) => { state.flags[fl] = true; });
       updateQuest();
