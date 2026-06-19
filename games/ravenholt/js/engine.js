@@ -1844,11 +1844,13 @@
 
   function drawPlayer(now) {
     /* De held staat vaak in de schaduw -> iets donkerder dan de scène-belichting.
-       Per scène fijn te regelen via scene.heroShade (lager = donkerder; standaard 0.9). */
+       Per scène fijn te regelen via scene.heroShade (lager = donkerder; standaard 0.9).
+       Met een lichte contrast-demping is het zwart (omlijning/schaduw) wat minder hard. */
     const sf = sceneFilter();
     const sc = GAME.scenes[state.currentScene];
     const sh = (sc && typeof sc.heroShade === 'number') ? sc.heroShade : 0.9;
-    const f = (sf === 'none') ? `brightness(${sh})` : (sf + ` brightness(${sh})`);
+    const soft = ' brightness(' + sh + ') contrast(0.92)';
+    const f = (sf === 'none') ? soft.trim() : (sf + soft);
     fctx.filter = f;
     drawPlayerSprite(now);
     fctx.filter = 'none';

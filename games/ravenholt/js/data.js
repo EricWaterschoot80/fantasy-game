@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '66',
+  assetVer: '67',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -189,7 +189,7 @@ const GAME = {
         { img: 'assets/art/scene-square.jpg' }                                    // begin: droge fontein
       ],
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // warm-gouden opkomende zon, geeliger
-      heroShade: 0.8,                                            // Finn iets donkerder op het plein (meer in de schaduw)
+      heroShade: 0.87,                                            // Finn iets donkerder op het plein (meer in de schaduw)
       entryText: {
         nl: 'Het dorpsplein van Eldoria baadt in het ochtendlicht. De fontein klatert nog wat na, maar het water zakt zienderogen. Aan de rand staat de oude molen stil.',
         en: 'The village square of Eldoria bathes in morning light. The fountain still trickles, but the water is dropping fast. At the edge the old mill stands still.'
@@ -593,7 +593,7 @@ const GAME = {
       name: { nl: 'De Kasteelpoort', en: 'The Castle Gate' },
       bg: 'assets/art/scene-castle.png',
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // zelfde warme ochtendzon
-      heroShade: 0.8,                                            // Finn iets donkerder bij de poort (meer in de schaduw)
+      heroShade: 0.87,                                            // Finn iets donkerder bij de poort (meer in de schaduw)
       entryText: {
         nl: 'De poort van kasteel Eldoria, aan het einde van de brug. Een handkar vol vaten en kruiken staat verlaten bij de muur. Het poortmechaniek — een radwerk van tandwielen — is uit elkaar gevallen, zodat de poort niet opengaat.',
         en: 'The gate of castle Eldoria, at the end of the bridge. A handcart full of barrels and jugs stands abandoned by the wall. The gate mechanism — a clockwork of gears — has fallen apart, so the gate will not open.'
@@ -714,7 +714,7 @@ const GAME = {
         { img: 'assets/art/scene-valley.jpg' }
       ],
       charFilter: 'sepia(0.12) saturate(1.05) brightness(1.0)',   // koeler, mistig ochtendlicht
-      heroShade: 0.8,                                             // Finn iets donkerder in de mistige vallei (meer in de schaduw)
+      heroShade: 0.87,                                             // Finn iets donkerder in de mistige vallei (meer in de schaduw)
       entryText: {
         nl: 'Voorbij het bos opent zich de vallei uit de geheime kaart: een oude runencirkel van steen, met staande runenstenen en in het hart een grote stenen ketel. Hier, waar je vaders kaart eindigt, begint Finns volgende avontuur...',
         en: 'Beyond the wood the valley from the secret map opens up: an ancient rune circle of stone, with standing rune-stones and a great stone cauldron at its heart. Here, where your father’s map ends, Finn’s next adventure begins...'
