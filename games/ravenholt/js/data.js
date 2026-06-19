@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '75',
+  assetVer: '76',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -793,28 +793,33 @@ const GAME = {
       spawnFrom: { castle: { x: 120, y: 288 } },
       depth: { far: 252, near: 304, sFar: 0.8, sNear: 1.06 },
       walkable: [
-        { x: 56, y: 270, w: 452, h: 46 }    // de rand van de runencirkel
+        { x: 56, y: 248, w: 452, h: 68 }    // de runencirkel — je kunt nu verder omhoog lopen tot bij de ketel
       ],
       obstacles: [],
       overlays: [],
       worldItems: [],
       npcs: [
-        /* De heks staat in de mist naast de ketel en lokt Finn (wenk-frames) — iets hoger en groter. */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 404, y: 224, scale: 1.04 },
-        /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel (meer naar links); vliegt weg zodra hij het recept heeft 'aangewezen'. */
-        { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' }
+        /* De heks staat nu LINKS van de ketel; tijdens de strijd speelt haar battle-animatie (heks-frames). */
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', battleFrames: 'heks', x: 188, y: 250, scale: 1.0, hideFlag: 'witchDefeated' },
+        /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
+        { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
+        /* Lichtgevende bloemen linksonder; ze dansen sierlijk zodra je hier je dans-spreuk uitspreekt. */
+        { id: 'vflower1', sprite: 'flowerWhite', x: 78, y: 306, scale: 0.32, glow: '150,230,120', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower2', sprite: 'flowerWhite', x: 104, y: 309, scale: 0.26, glow: '120,200,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower3', sprite: 'flowerWhite', x: 130, y: 305, scale: 0.29, glow: '150,230,120', danceFlag: 'valleyFlowersDancing' }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        mist: { bands: 4, y: 238, alpha: 0.2, around: { x: 404, y: 246, rx: 175, ry: 44 }, aroundAlpha: 0.5 }   // brede lage grondmist over bijna de hele breedte + dichter rond de heks
+        mist: { bands: 4, y: 238, alpha: 0.2, around: { x: 240, y: 250, rx: 200, ry: 44 }, aroundAlpha: 0.46 }   // brede lage grondmist over bijna de hele breedte
       },
       hotspots: [
         {
           id: 'witch',
           name: { nl: 'De Oude Heks', en: 'The Old Witch' },
-          rect: { x: 356, y: 150, w: 78, h: 120 },
-          walkTo: { x: 344, y: 300 },
+          rect: { x: 138, y: 168, w: 100, h: 130 },
+          walkTo: { x: 214, y: 308 },
+          hideFlag: 'witchDefeated',
           look: {
             nl: 'Een kromme oude heks met een punthoed leunt op haar pollepel-staf naast de ketel. Ze wenkt je met een knokige vinger en grijnst: “Kom dichterbij, jongen... gooi de juiste ingrediënten in mijn ketel, dan laat ik je échte magie zien.” Er loopt een rilling over je rug.',
             en: 'A hunched old witch with a pointed hat leans on her ladle-staff beside the cauldron. She beckons you with a bony finger and grins: “Come closer, boy... throw the right ingredients into my cauldron, and I’ll show you real magic.” A shiver runs down your spine.'

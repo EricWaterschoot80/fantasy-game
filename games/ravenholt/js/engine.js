@@ -1996,6 +1996,17 @@
   function drawNpcInner(npc, now) {
     const S = SPRITE_SCALE;
     const rt = npcRt[npc.id] || { x: npc.x, y: npc.y, flip: false, target: null, phase: 0 };
+    /* Lichtgevende npc (bv. de gloeiende valleibloemen): zachte pulserende gloed aan de voet. */
+    if (npc.glow) {
+      const gx = rt.x, gy = rt.y - 6 * (npc.scale || 1);
+      const gr = 14 + 16 * (npc.scale || 1);
+      const a = 0.3 + 0.18 * Math.sin(now / 600 + (rt.phase || 0) * 3 + rt.x);
+      const g = fctx.createRadialGradient(gx, gy, 1, gx, gy, gr);
+      g.addColorStop(0, 'rgba(' + npc.glow + ',' + a.toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(' + npc.glow + ',0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(Math.round(gx - gr), Math.round(gy - gr), Math.round(gr * 2), Math.round(gr * 2));
+    }
     if (npc.sprite === 'seer') {
       const img = art.sprites.seer;
       if (ready(img)) {
