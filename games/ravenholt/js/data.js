@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '71',
+  assetVer: '72',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -777,7 +777,7 @@ const GAME = {
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        mist: { bands: 0, around: { x: 402, y: 250, rx: 104, ry: 28 }, aroundAlpha: 0.42 }   // alleen lage grondmist rond de voeten van de heks
+        mist: { bands: 0, around: { x: 402, y: 240, rx: 120, ry: 40 }, aroundAlpha: 0.6 }   // dichtere, iets hogere grondmist rond de voeten van de heks
       },
       hotspots: [
         {

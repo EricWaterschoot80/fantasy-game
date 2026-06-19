@@ -976,7 +976,7 @@
         fctx.globalAlpha = el < 0.8 ? 1 : Math.max(0, 1 - (el - 0.8) / 0.2);
         if (ready(img)) {
           const D = GAME.spriteDetail || 1;
-          const sc = 0.95;                                                  // kleinere wegvliegende raaf
+          const sc = 0.78;                                                  // kleinere wegvliegende raaf
           const w = Math.round(img.naturalWidth / D * sc);
           const h = Math.round(img.naturalHeight / D * sc);
           fctx.translate(Math.round(fx_), Math.round(fy_));
@@ -4262,7 +4262,11 @@
     startMusic();
     sfx('tap');
     elTitle.hidden = true;
-    startPrologue();
+    /* Geen proloog-panels meer: het titelscherm zelf is de openingsfoto; direct het spel in. */
+    started = true;
+    state.flags['visited_' + state.currentScene] = true;
+    updateQuest();
+    say(GAME.scenes[state.currentScene].entryText);
   });
 
   elReplayBtn.addEventListener('click', resetGame);
