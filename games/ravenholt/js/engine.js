@@ -313,6 +313,25 @@
   /* Oogje: laat kort zien waar je iets kunt onderzoeken/oppakken/heen kunt (hotspot-omlijningen). */
   const elEyeBtn = document.getElementById('eyeBtn');
   if (elEyeBtn) elEyeBtn.addEventListener('click', () => { hintUntil = performance.now() + 2800; sfx('tap'); });
+  /* Dev-knop: spring direct naar de vallei met de spullen voor de ketel/strijd (alles behalve de
+     gevangen vuurvliegjes — wél het lege flesje-pad via de bloemen — plus de dans-spreuk). */
+  const elDevValley = document.getElementById('devValleyBtn');
+  if (elDevValley) elDevValley.addEventListener('click', () => {
+    sfx('tap');
+    if (!started) { if (elTitle) elTitle.hidden = true; started = true; }
+    if (elPrologue) elPrologue.hidden = true;
+    Object.assign(state.flags, {
+      metMayor: true, millFixed: true, gotMayorCoin: true, gotMap: true, mayorGone: true,
+      spellWritten: true, recipeRevealed: true, poemRead: true, wonChess: true,
+      visited_square: true, visited_mill: true, visited_castle: true
+    });
+    for (const it of ['tear', 'dragonscale', 'spell']) if (!state.inventory.includes(it)) state.inventory.push(it);
+    state.selectedItem = null;
+    renderInventory();
+    updateSpellBtn();
+    updateQuest();
+    travelTo('valley');
+  });
 
   elSoundBtn.addEventListener('click', () => {
     soundOn = !soundOn;
