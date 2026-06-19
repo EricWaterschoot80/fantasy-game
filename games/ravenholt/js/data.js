@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '74',
+  assetVer: '75',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -124,7 +124,7 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-book.png', zoomImg: 'assets/art/spell-flower.png', zoomImgFlag: 'spellWritten',
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-spellbook.png', zoomImg: 'assets/art/spell-flower.png', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
                ? { nl: 'Het toverboek. Op de eerste bladzijde staat nu, in glanzende inkt, de spreuk die je schreef: “Laat wat stil staat vrolijk dansen.” Richt het op iets levends en het begint te bewegen.', en: 'The spellbook. On the first page, in glistening ink, stands the spell you wrote: “Make what stands still dance.” Aim it at something living and it starts to move.' }
                : { nl: 'Het oude toverboek — maar de bladzijden zijn helemaal leeg. Met de juiste pen en inkt zou je er een spreuk in kunnen schrijven... (combineer een inktveer met dit boek)', en: 'The old spellbook — but its pages are completely blank. With the right pen and ink you could write a spell in it... (combine an ink-dipped feather with this book)' } },
@@ -148,11 +148,11 @@ const GAME = {
              look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } },
     tear: { name: { nl: 'Traan in een Flesje', en: 'Tear in a Vial' }, icon: '💧', img: 'assets/art/item-vial.png',
              look: { nl: 'Een glazen flesje met één heldere, glinsterende traan erin. Eén van de drie ingrediënten voor de ketel in de runencirkel.', en: 'A glass vial holding a single clear, glistening tear. One of the three ingredients for the cauldron in the rune circle.' } },
-    fireflight: { name: { nl: 'Vuurvlieglicht', en: 'Firefly Light' }, icon: '✨',
-             look: { nl: 'Het zachte goudgele licht van een vuurvliegje, gevangen in je holle handen — het gloeit als een levende vonk. Eén van de drie ingrediënten voor de ketel.', en: 'The soft golden light of a firefly, cupped in your hands — it glows like a living spark. One of the three ingredients for the cauldron.' } },
+    fireflight: { name: { nl: 'Flesje Vuurvliegjes', en: 'Vial of Fireflies' }, icon: '✨', img: 'assets/art/item-fireflight.png',
+             look: { nl: 'Een flesje met levende vuurvliegjes erin — groene en blauwe vonkjes die rondzweven en zacht oplichten. Eén van de drie ingrediënten voor de ketel.', en: 'A vial of living fireflies — green and blue sparks drifting and softly glowing inside. One of the three ingredients for the cauldron.' } },
     recipe: { name: { nl: 'Het Recept', en: 'The Recipe' }, icon: '📜', img: 'assets/art/item-note.png', zoomImg: 'assets/art/recipe.png',
              look: { nl: 'Het vergeelde recept dat onder de losse steen bij de molen lag. Drie ingrediënten voor de ketel: een drakenschub, een traan van een onschuldige, en het licht van een vuurvliegje. (tik aan om te bekijken)', en: 'The yellowed recipe that lay under the loose stone by the mill. Three ingredients for the cauldron: a dragon scale, a tear of an innocent, and the light of a firefly. (tap to view)' } },
-    dragonscale: { name: { nl: 'Drakenschub', en: 'Dragon Scale' }, icon: '🐲',
+    dragonscale: { name: { nl: 'Drakenschub', en: 'Dragon Scale' }, icon: '🐲', img: 'assets/art/item-dragonscale.png',
              look: { nl: 'Een harde, glanzende schub, warm als sintels. Wie weet welk wezen hem verloor... Het laatste ingrediënt voor de ketel.', en: 'A hard, gleaming scale, warm as embers. Who knows what creature lost it... The last ingredient for the cauldron.' } }
   },
 
@@ -248,15 +248,18 @@ const GAME = {
           face: 'assets/art/face-mayor.png',
           hideFlag: 'mayorGone',                       // blijft tot je hem de wijn hebt gegeven én het plein opnieuw betreedt
           givesWhen: {
-            flag: 'millFixed', setFlag: 'gotMap', item: 'map',
-            giveText: { nl: 'De fontein op het plein klatert weer volop — het hele dorp juicht! Burgemeester Bram grijpt je bij de schouders: “Finn, je hebt het water teruggebracht! Maar dit is nog niet voorbij... die vreemde lichten in de vallei. Hier — een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos: bij de kasteelpoort wijst nu de weg naar de vallei.” Hij drukt je een vergeelde kaart in handen.', en: 'The fountain on the square gushes again — the whole village cheers! Mayor Bram grips your shoulders: “Finn, you’ve brought the water back! But this isn’t over... those strange lights in the valley. Here — a secret map your father once entrusted to me. Follow the path beyond the wood: at the castle gate the way to the valley is open now.” He presses a yellowed map into your hands.' }
+            flag: 'millFixed', needFlag: 'gotMayorCoin', setFlag: 'gotMap', item: 'map',
+            needText: { nl: 'Burgemeester Bram veegt zijn voorhoofd af. “Je hebt het water teruggebracht, Finn — knap werk! Maar pff, wat een dorst... had ik nu maar iets te drinken.” (geef hem eerst de wijn uit de molen)', en: 'Mayor Bram mops his brow. “You’ve brought the water back, Finn — fine work! But phew, what a thirst... if only I had something to drink.” (give him the wine from the mill first)' },
+            giveText: { nl: 'Burgemeester Bram zet het flesje wijn aan zijn lippen, zucht voldaan en grijpt je dan bij de schouders: “Je hebt het water teruggebracht én een oude man verkwikt! Maar dit is nog niet voorbij... die vreemde lichten in de vallei. Hier — een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos.” Hij drukt je een vergeelde kaart in handen.', en: 'Mayor Bram lifts the vial of wine to his lips, sighs contentedly, then grips your shoulders: “You’ve brought the water back AND revived an old man! But this isn’t over... those strange lights in the valley. Here — a secret map your father once entrusted to me. Follow the path beyond the wood.” He presses a yellowed map into your hands.' }
           },
-          look: (state) => state.flags.gotMayorCoin
-            ? { nl: 'Burgemeester Bram veegt tevreden zijn snor af. “Heerlijke wijn, jongen. En neem dat muntje mee — die slimme raaf in de vallei is er dol op.”', en: 'Mayor Bram dabs his moustache contentedly. “Fine wine, my boy. And take that coin — that clever raven in the valley is mad for them.”' }
-            : state.flags.gotMap
-            ? { nl: 'Burgemeester Bram veegt zijn voorhoofd af, dorstig van al die drukte. “Wat zou ik nu graag een lekker glas wijn lusten, Finn...” (geef hem de wijn uit de molen)', en: 'Mayor Bram mops his brow, thirsty from all the fuss. “What I’d give for a nice glass of wine right now, Finn...” (give him the wine from the mill)' }
+          look: (state) => state.flags.gotMap
+            ? { nl: 'Burgemeester Bram knikt je bemoedigend toe. “Volg de kaart naar de vallei, Finn — en pas op voor die vreemde lichten.”', en: 'Mayor Bram gives you an encouraging nod. “Follow the map to the valley, Finn — and beware those strange lights.”' }
+            : state.flags.gotMayorCoin
+            ? { nl: 'Burgemeester Bram glimt na van de wijn. “Bedankt, jongen! En ik heb nog iets belangrijks voor je — tik me eens aan.”', en: 'Mayor Bram is still glowing from the wine. “Thank you, my boy! And I have something important for you — give me a tap.”' }
+            : state.flags.millFixed
+            ? { nl: 'Burgemeester Bram veegt zijn voorhoofd af, dorstig van al die drukte. “Je hebt het water teruggebracht, Finn — knap werk! Maar wat zou ik nu graag iets te drinken lusten... een lekker glas wijn.” (geef hem de wijn uit de molen)', en: 'Mayor Bram mops his brow, thirsty from all the fuss. “You’ve brought the water back, Finn — fine work! But what I’d give for a drink right now... a nice glass of wine.” (give him the wine from the mill)' }
             : state.flags.metMayor
-            ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “Die vallei, Finn... vergeet de lichten niet.”', en: 'Mayor Bram fidgets with his chain of office. “That valley, Finn... don’t forget the lights.”' }
+            ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “De molen, Finn — onderzoek toch eens de molen.”', en: 'Mayor Bram fidgets nervously with his chain of office. “The mill, Finn — do go and inspect the mill.”' }
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
           use: {
             wine: {
@@ -797,14 +800,14 @@ const GAME = {
       worldItems: [],
       npcs: [
         /* De heks staat in de mist naast de ketel en lokt Finn (wenk-frames) — iets hoger en groter. */
-        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 402, y: 230, scale: 1.22 },
+        { id: 'witch', sprite: 'witch', lure: 'witchBeckon', x: 404, y: 224, scale: 1.04 },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel (meer naar links); vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' }
       ],
       fx: {
         fireflies: 10,                                       // dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        mist: { bands: 0, around: { x: 402, y: 240, rx: 120, ry: 40 }, aroundAlpha: 0.6 }   // dichtere, iets hogere grondmist rond de voeten van de heks
+        mist: { bands: 4, y: 238, alpha: 0.2, around: { x: 404, y: 246, rx: 175, ry: 44 }, aroundAlpha: 0.5 }   // brede lage grondmist over bijna de hele breedte + dichter rond de heks
       },
       hotspots: [
         {
@@ -881,9 +884,9 @@ const GAME = {
         {
           id: 'toCastle',
           name: { nl: 'Terug naar de Poort', en: 'Back to the Gate' },
-          rect: { x: 36, y: 210, w: 70, h: 106 },
-          walkTo: { x: 92, y: 300 },
-          arrow: { x: 64, y: 256, dir: 'down' },
+          rect: { x: 462, y: 244, w: 92, h: 72 },
+          walkTo: { x: 498, y: 300 },
+          arrow: { x: 502, y: 258, dir: 'down' },
           exit: { to: 'castle', travelText: { nl: 'Je keert terug langs het pad naar de kasteelpoort.', en: 'You head back up the path to the castle gate.' } }
         }
       ]
