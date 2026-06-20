@@ -1112,20 +1112,24 @@ html, body {
   #invbar::before, #invbar::after { display: none; }
   .inv-slot { width: 40px; height: 40px; font-size: 20px; }
 
-  /* tekst links onderaan, weg van de inventory en de home-knop (linksonder) */
+  /* tekstwolkje BOVENIN op mobiel (weg van de inventory + scène onderaan); iets compacter,
+     grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */
   #msg {
     position: fixed;
-    left: 52px;
-    right: auto;
-    bottom: 8px;
-    max-width: 58vw;
+    left: 6px;
+    right: 6px;
+    top: calc(var(--safe-top) + 6px);
+    bottom: auto;
+    max-width: none;
     width: auto;
     margin: 0;
-    padding: 7px 12px 5px;
+    padding: 9px 32px 7px 12px;
   }
   #homeBtn { left: 10px; right: auto; }
-  #msgText { font-size: 13.5px; }
-  #msgFace { width: 34px; height: 34px; }
+  #msgText { font-size: 15px; line-height: 1.3; }
+  #msgFace { width: 32px; height: 32px; }
+  #msgMore { font-size: 10px; }
+  .choice-btn { font-size: 12px; padding: 8px 13px; }
 
   #toast { bottom: auto; top: 54px; }
 }

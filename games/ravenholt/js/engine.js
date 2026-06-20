@@ -2566,7 +2566,7 @@
       if (itemId) {
         const item = GAME.items[itemId];
         slot.classList.add('filled');
-        if (item.sparkle) slot.classList.add('sparkle');
+        if (typeof item.sparkle === 'function' ? item.sparkle(state) : item.sparkle) slot.classList.add('sparkle');   // glinster-hint (bv. het toverboek)
         if (item.border) slot.classList.add('border-' + item.border);   // bv. de spreuk met een blauwe rand
         const imgSrc = typeof item.img === 'function' ? item.img(state) : item.img;   // img mag een functie zijn (bv. toverboek: vlak → met veer na het schrijven)
         if (imgSrc) {
