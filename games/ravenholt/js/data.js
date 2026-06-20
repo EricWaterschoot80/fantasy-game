@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '102',
+  assetVer: '103',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -583,14 +583,15 @@ const GAME = {
         },
         {
           id: 'bookTable',
-          name: { nl: 'Boek op de Tafel', en: 'Book on the Table' },
+          name: { nl: 'Open Molenaarsboek', en: 'Open Miller’s Book' },
           rect: { x: 18, y: 172, w: 120, h: 42 },
           walkTo: { x: 108, y: 300 },
+          zoomImg: 'assets/art/book-hint.png',   // toont de kleur-volgorde als gekleurde stippen (1→6)
+          setFlag: 'readMillBook',
           look: {
-            nl: 'Finn buigt zich over het opengeslagen molenaarsboek en leest de gekrabbelde kantlijn hardop voor: “De vastzittende boeken op de plank — trek ze zó los: eerst BLAUW, dan GROEN, dan ROOD, als laatste GEEL. Alleen díe volgorde geeft de plank haar geheim.” “Aha,” mompelt hij, “dát moet ik onthouden.”',
-            en: 'Finn leans over the open miller’s book and reads the scrawled margin aloud: “The stuck books on the shelf — pull them loose like so: first BLUE, then GREEN, then RED, lastly YELLOW. Only that order makes the shelf give up its secret.” “Aha,” he mutters, “I’d better remember that.”'
-          },
-          setFlag: 'readMillBook'
+            nl: 'Op de tafel ligt een opengeslagen molenaarsboek. In de kantlijn is een rij gekleurde stippen getekend, genummerd van 1 tot 6 — dát moet de volgorde zijn waarin je de boeken lostrekt. (tik het boek aan om het goed te bekijken)',
+            en: 'An open miller’s book lies on the table. In the margin a row of coloured dots is drawn, numbered 1 to 6 — that must be the order to pull the books. (tap the book to study it)'
+          }
         },
         {
           id: 'books',
@@ -599,18 +600,31 @@ const GAME = {
           walkTo: { x: 96, y: 300 },
           bookPuzzle: {
             title: { nl: 'De Vastzittende Boeken', en: 'The Stuck Books' },
-            hint: { nl: 'Trek de boeken in de juiste volgorde — lees eerst het opengeslagen boek eronder.', en: 'Pull the books in the right order — first read the open book below.' },
+            hint: { nl: 'Trek de zes boeken in de juiste kleur-volgorde (zie de stippen in het opengeslagen boek).', en: 'Pull the six books in the right colour order (see the dots in the open book).' },
+            requiresFlag: 'readMillBook',
+            blockedText: { nl: 'Zes oude boeken klemmen muurvast op de plank — in welke volgorde moet je ze lostrekken? Op de tafel ligt een opengeslagen molenaarsboek; kijk daar eerst eens in.', en: 'Six old books are jammed tight on the shelf — in what order must you pull them loose? An open miller’s book lies on the table; take a look in there first.' },
             setFlag: 'gotSpellbook',
             gives: 'spellbook',
-            sequence: ['blauw', 'groen', 'rood', 'geel'],
+            img: 'assets/art/puzzle-books6.png',
+            sequence: ['blauw', 'paars', 'rood', 'groen', 'oranje', 'geel'],
             books: [
-              { key: 'groen', label: { nl: 'Groen', en: 'Green' }, color: '#84c06f' },
-              { key: 'rood',  label: { nl: 'Rood',  en: 'Red' },   color: '#e07a64' },
-              { key: 'geel',  label: { nl: 'Geel',  en: 'Yellow' },color: '#e8cc5a' },
-              { key: 'blauw', label: { nl: 'Blauw', en: 'Blue' },  color: '#79ace8' }
+              { key: 'rood',   label: { nl: 'Rood',   en: 'Red' },    color: '#e07a64' },
+              { key: 'blauw',  label: { nl: 'Blauw',  en: 'Blue' },   color: '#79ace8' },
+              { key: 'groen',  label: { nl: 'Groen',  en: 'Green' },  color: '#84c06f' },
+              { key: 'geel',   label: { nl: 'Geel',   en: 'Yellow' }, color: '#e8cc5a' },
+              { key: 'paars',  label: { nl: 'Paars',  en: 'Purple' }, color: '#b07ad0' },
+              { key: 'oranje', label: { nl: 'Oranje', en: 'Orange' }, color: '#e8995a' }
+            ],
+            zones: [
+              { key: 'rood',   left: 13,   top: 25, width: 12,   height: 57 },
+              { key: 'blauw',  left: 25.5, top: 25, width: 11.5, height: 57 },
+              { key: 'groen',  left: 37,   top: 25, width: 11,   height: 57 },
+              { key: 'geel',   left: 47.5, top: 25, width: 10.5, height: 57 },
+              { key: 'paars',  left: 57,   top: 25, width: 10,   height: 57 },
+              { key: 'oranje', left: 66,   top: 25, width: 11,   height: 57 }
             ],
             solvedText: { nl: 'Met een klik schiet de laatste band los en een verborgen vakje klapt open — een oud TOVERBOEK glijdt in je handen! Maar als je het opent zijn alle bladzijden léég... Hier hoort een spreuk geschreven te worden, met de juiste pen en inkt.', en: 'With a click the last spine springs loose and a hidden compartment pops open — an old SPELLBOOK slides into your hands! But when you open it every page is blank... A spell needs to be written here, with the right pen and ink.' },
-            resetText: { nl: 'Knars! De boeken klemmen weer vast. Begin opnieuw.', en: 'Crunch! The books jam shut again. Start over.' }
+            resetText: { nl: 'Knars! Alle boeken klemmen weer vast. Begin opnieuw — kijk goed naar de stippen.', en: 'Crunch! All the books jam shut again. Start over — study the dots carefully.' }
           }
         },
         {

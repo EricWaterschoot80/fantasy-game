@@ -3518,7 +3518,7 @@
     const pz = hs.bookPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
     state.flags['puzzle_books'] = 0;
-    if (elRuneImg) elRuneImg.src = 'assets/art/puzzle-books.png' + AV;
+    if (elRuneImg) elRuneImg.src = (pz.img || 'assets/art/puzzle-books.png') + AV;
     if (elRuneImgWrap) elRuneImgWrap.hidden = false;
     if (elRuneBtns) { elRuneBtns.innerHTML = ''; elRuneBtns.hidden = true; }   // niet de knoppen, maar de boeken zelf zijn klikbaar
     elRuneTitle.textContent = L(pz.title);
@@ -3534,7 +3534,7 @@
     elRuneHotspots.innerHTML = '';
     const byKey = {};
     pz.books.forEach((b) => { byKey[b.key] = b; });
-    BOOK_HOTSPOTS.forEach((h) => {
+    (pz.zones || BOOK_HOTSPOTS).forEach((h) => {
       const b = byKey[h.key];
       const done = pz.sequence.indexOf(h.key) < prog;
       const btn = document.createElement('button');
@@ -4115,7 +4115,8 @@
       return;
     }
     if (hs.zoomImg) {
-      openZoom(hs.zoomImg);
+      if (hs.setFlag && !state.flags[hs.setFlag]) { state.flags[hs.setFlag] = true; updateQuest(); }   // bv. het hint-boek inkijken zet readMillBook
+      openZoom(typeof hs.zoomImg === 'function' ? hs.zoomImg(state) : hs.zoomImg);
       return;
     }
     if (hs.chess) {
