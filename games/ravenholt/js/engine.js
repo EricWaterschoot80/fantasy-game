@@ -2639,6 +2639,12 @@
       return;
     }
     const item = GAME.items[itemId];
+    if (itemId === 'spellbook' && state.flags.spellWritten) {   // toverboek: blader door de geleerde spreuken
+      state.selectedItem = null;
+      openBook();
+      renderInventory();
+      return;
+    }
     if (item && item.zoomImg && (!item.zoomImgFlag || state.flags[item.zoomImgFlag])) {   // leesbaar item; leeg toverboek nog niet (dan combineerbaar)
       state.selectedItem = null;
       sfx('tap');
@@ -4452,14 +4458,53 @@
   });
 
   /* ---------- Uitvergroten (bv. het receptenblaadje) ---------- */
+  const elZoomPrev = document.getElementById('zoom-prev');
+  const elZoomNext = document.getElementById('zoom-next');
+  const elZoomPage = document.getElementById('zoom-page');
+  let bookPages = null, bookIdx = 0;
+  function setBookNav(on) {
+    if (elZoomPrev) elZoomPrev.hidden = !on;
+    if (elZoomNext) elZoomNext.hidden = !on;
+    if (elZoomPage) elZoomPage.hidden = !on;
+  }
   function openZoom(img) {
     if (!elZoom || !elZoomImg) return;
+    bookPages = null; setBookNav(false);
     elZoomImg.src = img + AV;
     elZoom.hidden = false;
     sfx('tap');
   }
-  function closeZoom() { if (elZoom) elZoom.hidden = true; }
+  /* Toverboek: blader door de spreuken die je al kent. */
+  function openBook() {
+    if (!elZoom || !elZoomImg) return;
+    const pages = [];
+    if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
+    if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.jpg', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
+    if (!pages.length) return;
+    bookPages = pages; bookIdx = pages.length - 1;   // open op de nieuwste spreuk
+    showBookPage();
+    elZoom.hidden = false; sfx('tap');
+  }
+  function showBookPage() {
+    if (!bookPages) return;
+    const p = bookPages[bookIdx];
+    elZoomImg.src = p.img + AV;
+    const multi = bookPages.length > 1;
+    setBookNav(multi);
+    if (elZoomPrev) elZoomPrev.classList.toggle('dim', bookIdx === 0);
+    if (elZoomNext) elZoomNext.classList.toggle('dim', bookIdx === bookPages.length - 1);
+    if (elZoomPage) elZoomPage.textContent = L(p.label) + '  ·  ' + (bookIdx + 1) + '/' + bookPages.length;
+  }
+  function bookFlip(d) {
+    if (!bookPages) return;
+    const n = Math.max(0, Math.min(bookPages.length - 1, bookIdx + d));
+    if (n === bookIdx) return;
+    bookIdx = n; showBookPage(); sfx('tap');
+  }
+  function closeZoom() { if (elZoom) elZoom.hidden = true; bookPages = null; setBookNav(false); }
   if (elZoom) elZoom.addEventListener('pointerdown', closeZoom);
+  if (elZoomPrev) elZoomPrev.addEventListener('pointerdown', (e) => { e.stopPropagation(); bookFlip(-1); });
+  if (elZoomNext) elZoomNext.addEventListener('pointerdown', (e) => { e.stopPropagation(); bookFlip(1); });
 
   /* ---------- Cinematic-cutscene (fullscreen video) ----------
      De spelmuziek blijft gewoon doorlopen onder de stille clip. */
