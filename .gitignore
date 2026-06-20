@@ -19,3 +19,6 @@ light-stones-*.png
 # Source image drops (originals live outside git; installed copies are committed)
 adventure Image*.png
 *Image *, 2026*.png
+
+# Battle-storyboard 2k raw masters (web jpgs are committed)
+storyboard/battle/*.png
