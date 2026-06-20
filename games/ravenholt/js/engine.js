@@ -1516,14 +1516,21 @@
       }
     }
     /* Dansende vuurvliegjes bij de bloemen (na de dans-spreuk): groen-blauwe vonkjes die rond een punt zwermen. */
-    if (fx.flowerFlies && state.flags[fx.flowerFlies.flag]) {
-      const ff = fx.flowerFlies, COLS = ['150,230,120', '120,180,255'];
+    if (fx.flowerFlies && state.flags[fx.flowerFlies.flag] && !(fx.flowerFlies.stopFlag && state.flags[fx.flowerFlies.stopFlag])) {
+      const ff = fx.flowerFlies, COLS = ['150,230,120', '120,200,255'];
       for (let i = 0; i < 9; i++) {
         const t = now / 700 + i * 2.1;
         const fx2 = ff.x + Math.cos(t * 1.3 + i) * (16 + (i % 3) * 6) + Math.sin(t * 0.7) * 4;
         const fy2 = ff.y - 14 + Math.sin(t * 1.7 + i * 2) * 12;
         const tw = 0.5 + 0.5 * Math.sin(now / 180 + i * 1.9);     // knipperen
-        fctx.fillStyle = 'rgba(' + COLS[i % 2] + ',' + (0.35 + 0.55 * tw).toFixed(2) + ')';
+        const col = COLS[i % 2];
+        if (ff.glow) {                                            // zachte lichtgloed rond elk vuurvliegje (goedkoop: 2 lagen lage-alpha blokjes, geen gradient per frame)
+          fctx.fillStyle = 'rgba(' + col + ',' + (0.10 * (0.5 + tw)).toFixed(2) + ')';
+          fctx.fillRect(Math.round(fx2) - 4, Math.round(fy2) - 4, 9, 9);
+          fctx.fillStyle = 'rgba(' + col + ',' + (0.16 * (0.5 + tw)).toFixed(2) + ')';
+          fctx.fillRect(Math.round(fx2) - 2, Math.round(fy2) - 2, 5, 5);
+        }
+        fctx.fillStyle = 'rgba(' + col + ',' + (0.4 + 0.55 * tw).toFixed(2) + ')';
         fctx.fillRect(Math.round(fx2), Math.round(fy2), 2, 2);
       }
     }

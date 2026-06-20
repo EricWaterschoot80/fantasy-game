@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '96',
+  assetVer: '97',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -348,6 +348,7 @@ const GAME = {
           name: { nl: 'Het Meisje bij de Kraam', en: 'The Girl at the Stall' },
           rect: { x: 452, y: 226, w: 100, h: 70 },
           walkTo: { x: 436, y: 306 },
+          face: 'assets/art/face-girl.png',
           look: (state) => state.flags.gotTear
             ? { nl: 'Het meisje veegt haar ogen droog en glimlacht dapper naar je. “Dank je voor dat mooie gedicht.”', en: 'The girl dries her eyes and smiles bravely at you. “Thank you for that lovely poem.”' }
             : state.flags.girlCrying
@@ -689,7 +690,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.12, sway: true, hideFlag: 'guardFled' },   // poortwacht met hellebaard; verdwijnt zodra de drakenspreuk hem op de vlucht jaagt
+        { id: 'guard', sprite: 'guard', x: 402, y: 222, scale: 1.32, sway: true, hideFlag: 'guardFled' },   // poortwacht met hellebaard (iets groter); verdwijnt zodra de drakenspreuk hem op de vlucht jaagt
         { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 282, scale: 1.12, filter: 'brightness(0.6)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
         { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, filter: 'brightness(0.76)', danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) bloem in de schaduw van de poort — donkerder
@@ -823,20 +824,20 @@ const GAME = {
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
         /* Lichtgevende lavendelbloemen rechtsonder (groter, dichter bijeen) met blauw licht; ze dansen + lokken vuurvliegjes na de dans-spreuk. */
-        { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '55,110,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '55,110,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower3', sprite: 'flowerLavender', x: 487, y: 304, scale: 0.39, glow: '55,110,255', danceFlag: 'valleyFlowersDancing' },
-        /* Kleine lichtgevende lavendelbloemen (blauw-paars) linksonder, dansen mee. */
-        { id: 'vflowerL1', sprite: 'flowerLavender', x: 72, y: 300, scale: 0.22, glow: '70,120,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflowerL2', sprite: 'flowerLavender', x: 90, y: 304, scale: 0.18, glow: '70,120,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflowerL3', sprite: 'flowerLavender', x: 107, y: 300, scale: 0.2, glow: '70,120,255', danceFlag: 'valleyFlowersDancing' }
+        { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
+        { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
+        { id: 'vflower3', sprite: 'flowerLavender', x: 487, y: 304, scale: 0.39, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
+        /* Kleine lichtgevende lavendelbloemen (lichtblauw) linksonder — iets kleiner en iets naar rechts; dansen mee tot je de vuurvliegjes hebt gevangen. */
+        { id: 'vflowerL1', sprite: 'flowerLavender', x: 94, y: 300, scale: 0.16, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
+        { id: 'vflowerL2', sprite: 'flowerLavender', x: 110, y: 304, scale: 0.13, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
+        { id: 'vflowerL3', sprite: 'flowerLavender', x: 126, y: 300, scale: 0.15, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' }
       ],
       fx: {
         fireflies: 18,                                       // meer dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
-        flowerFlies: { x: 470, y: 300, flag: 'valleyFlowersDancing' },   // dansende vuurvliegjes bij de rechter bloemen (na de dans-spreuk)
-        smoke: [{ x: 286, y: 166, rise: 38, spread: 7, drift: 3, speed: 3600, puffs: 6 }],   // dampende rook uit de ketel
-        mist: { bands: 7, y: 196, alpha: 0.2, around: { x: 240, y: 206, rx: 268, ry: 58 }, aroundAlpha: 0.42 }   // grotere, hogere (verder naar achter) brede grondmist
+        flowerFlies: { x: 470, y: 300, flag: 'valleyFlowersDancing', stopFlag: 'gotFireflight', glow: true },   // dansende, lichtgevende vuurvliegjes bij de rechter bloemen (na de dans-spreuk; weg zodra je ze vangt)
+        smoke: [{ x: 286, y: 160, rise: 60, spread: 11, drift: 3, speed: 3400, puffs: 8 }],   // grotere, hogere dampende rook uit de ketel
+        mist: { bands: 8, y: 178, alpha: 0.2, around: { x: 240, y: 190, rx: 280, ry: 66 }, aroundAlpha: 0.42 }   // nog hogere, brede grondmist
       },
       /* De tovenaars-strijd: zodra alle drie de ingrediënten in de ketel zitten, wordt de heks
          boos. Uit de ketel klinken raadsels — klik op de gloeiende steen met het juiste dier-symbool.
@@ -947,9 +948,9 @@ const GAME = {
         {
           id: 'toCastle',
           name: { nl: 'Terug naar de Poort', en: 'Back to the Gate' },
-          rect: { x: 34, y: 250, w: 86, h: 66 },
-          walkTo: { x: 80, y: 300 },
-          arrow: { x: 62, y: 260, dir: 'down' },
+          rect: { x: 14, y: 250, w: 86, h: 66 },
+          walkTo: { x: 56, y: 300 },
+          arrow: { x: 38, y: 260, dir: 'down' },   // pijl wat meer naar links
           exit: { to: 'castle', travelText: { nl: 'Je keert terug langs het pad naar de kasteelpoort.', en: 'You head back up the path to the castle gate.' } }
         }
       ]
