@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '108',
+  assetVer: '109',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -441,7 +441,7 @@ const GAME = {
       ],
       npcs: [
         /* De glanzende raaf is vanuit de vallei meegevlogen en zit nu op de wegwijzer; hij wijst je het recept onder de steen. Vliegt weg zodra je het recept hebt. */
-        { id: 'ravenMill', sprite: 'ravenPerch', x: 50, y: 196, scale: 0.82, flip: true, appearFlag: 'recipeRevealed', hideFlag: 'gotRecipe', peck: true, peckAmt: 0.4 }
+        { id: 'ravenMill', sprite: 'ravenPerch', x: 50, y: 196, scale: 0.82, flip: false, appearFlag: 'recipeRevealed', hideFlag: 'gotRecipe', peck: true, peckAmt: 0.4 }
       ],
       fx: {},   // geen glitters bij de brievenbus; de omhoog staande vlag in de achtergrond is de hint
       hotspots: [
