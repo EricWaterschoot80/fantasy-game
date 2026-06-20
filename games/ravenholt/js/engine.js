@@ -404,8 +404,25 @@
      verdonkering/lijn-verzachting dan handmatig toe via een tijdelijk canvas (per sprite). */
   const FILTER_OK = (() => {
     if (window.__noFilter || /[?&]nofilter=1/.test(location.search)) return false;   // debug: forceer de mobiele fallback ook op desktop
-    try { fctx.filter = 'brightness(0.5)'; const ok = fctx.filter === 'brightness(0.5)'; fctx.filter = 'none'; return ok; }
-    catch (e) { return false; }
+    try {
+      if (!('filter' in fctx)) return false;
+      /* Niet alleen kíjken of de property gezet kán worden (dat lukt op iOS Safari óók als
+         het filter bij het tekenen wordt genegeerd), maar écht een witte pixel door een
+         verdonkerend filter tekenen op DIT canvas en teruglezen of hij donkerder werd. */
+      const t = document.createElement('canvas'); t.width = 4; t.height = 4;
+      const tx = t.getContext('2d'); tx.fillStyle = '#ffffff'; tx.fillRect(0, 0, 4, 4);
+      fctx.save();
+      fctx.setTransform(1, 0, 0, 1, 0, 0);
+      fctx.clearRect(0, 0, 4, 4);
+      fctx.filter = 'brightness(0.35)';
+      fctx.drawImage(t, 0, 0);
+      fctx.filter = 'none';
+      let px = null;
+      try { px = fctx.getImageData(1, 1, 1, 1).data; } catch (e) { px = null; }
+      fctx.clearRect(0, 0, 4, 4);
+      fctx.restore();
+      return !!px && px[3] > 200 && px[0] < 200;   // wit (255) écht verdonkerd → ctx.filter rendert
+    } catch (e) { return false; }
   })();
   let currentTint = null;                 // gezet door drawPlayer/drawNpc als ctx.filter NIET werkt
   const tintCanvas = document.createElement('canvas');
@@ -4484,6 +4501,8 @@
     bookPages = pages; bookIdx = pages.length - 1;   // open op de nieuwste spreuk
     showBookPage();
     elZoom.hidden = false; sfx('tap');
+    state.flags.bookSeenCount = pages.length;   // boek gezien → glinster-hint dooft (tot er een nieuwe spreuk bij komt)
+    renderInventory();
   }
   function showBookPage() {
     if (!bookPages) return;
