@@ -207,6 +207,7 @@
   let ravenFly = null;        // animatie: de raaf vliegt weg richting de molen
   let castGlow = null;        // animatie: Finns staf gloeit op wanneer hij de spreuk uitspreekt
   let dragonShadow = null;    // animatie: voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
+  let witchPoof = null;       // animatie: de heks lost op in een wolk groene rook zodra ze verslagen is
   let amuletRiseT0 = 0;       // moment waarop de amulet omhoog begint te schuiven
   let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
@@ -1095,7 +1096,7 @@
       const ds = depthScaleAt(player.y);
       const fsign = player.flip ? -1 : 1;
       const sx = Math.round(player.x + fsign * 17 * ds);   // staf-kop zit rechtsboven naast Finns hoofd
-      const sy = Math.round(player.y - 62 * ds);
+      const sy = Math.round(player.y - 68 * ds);           // iets hoger (bovenin de staf)
       const r = 7 + 2 * Math.sin(now / 230);               // zachte gloed
       const g = fctx.createRadialGradient(sx, sy, 0, sx, sy, r);
       g.addColorStop(0, 'rgba(150,205,255,0.55)');
@@ -1113,6 +1114,7 @@
     }
 
     drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)
+    drawWitchPoof(now);      // de heks lost op in groene rook
 
     /* De raaf vliegt weg: zet zich rustig af, klapwiekt en zweeft naar rechts het beeld uit. */
     if (ravenFly) {
@@ -4493,12 +4495,36 @@
     state.flags.duelActive = false;
     if (cfg.setFlag) (Array.isArray(cfg.setFlag) ? cfg.setFlag : [cfg.setFlag]).forEach((f) => { state.flags[f] = true; });
     if (cfg.give) addItem(cfg.give);
-    burstAt(512, 236, { n: 34, col: '255,140,60', up: 24, life: 1.5 });
+    /* De heks lost op in een wolk groene rook op haar eigen plek. */
+    const wsc = GAME.scenes[state.currentScene];
+    const wn = wsc && (wsc.npcs || []).find((n) => n.id === 'witch');
+    witchPoof = { t0: performance.now(), x: wn ? wn.x : 198, y: wn ? wn.y - 34 : 196 };
     sfx('win');
     say(cfg.winText);
     if (cfg.win) pendingWin = true;
     updateQuest();
-    paintBackground();
+    paintBackground();   // achtergrond wisselt naar de rustige vallei (witchDefeated)
+  }
+
+  function drawWitchPoof(now) {
+    if (!witchPoof) return;
+    const el = (now - witchPoof.t0) / 1700;
+    if (el >= 1) { witchPoof = null; return; }
+    const a = 1 - el;
+    if (el < 0.22) {                                   // korte groene flits bij het oplossen
+      fctx.fillStyle = 'rgba(150,255,150,' + (0.42 * (1 - el / 0.22)).toFixed(2) + ')';
+      fctx.beginPath(); fctx.arc(witchPoof.x, witchPoof.y, 24, 0, Math.PI * 2); fctx.fill();
+    }
+    for (let i = 0; i < 14; i++) {                     // opstijgende groen-grijze rookwolkjes
+      const ang = i * 0.9;
+      const px = witchPoof.x + Math.cos(ang) * (6 + el * 22) + Math.sin(now / 200 + i) * 3;
+      const py = witchPoof.y - el * 48 + Math.sin(ang) * 6 - (i % 3) * 4;
+      const r = 4 + el * 11 + (i % 3) * 2;
+      const al = a * (0.5 - (i % 4) * 0.06);
+      if (al <= 0.02) continue;
+      fctx.fillStyle = (i % 2) ? 'rgba(120,150,110,' + al.toFixed(2) + ')' : 'rgba(150,160,150,' + al.toFixed(2) + ')';
+      fctx.beginPath(); fctx.arc(px, py, r, 0, Math.PI * 2); fctx.fill();
+    }
   }
   /* Goedkope blauwe vlam (een 'fakkel'): opstijgende blauwe vonkjes + zachte basisgloed. */
   function drawBlueFlame(x, y, now, h) {
@@ -4518,25 +4544,30 @@
 
   function drawDuel(now) {
     if (!duel) return;
-    /* Blauw vuur uit de 4 stenen-fakkels + de ketel zodra het gevecht losbarst. */
-    for (const st of duel.cfg.stones) drawBlueFlame(st.x, st.y, now, 26);
-    if (duel.cfg.cauldron) drawBlueFlame(duel.cfg.cauldron.x, duel.cfg.cauldron.y, now, 40);
-    /* Dier-rune-tekens die boven elke steen zweven (Higgsfield, in de stijl van de stenen). */
+    /* Blauw vuur uit de 4 fakkels (voorste 2 lager + groter) + de ketel (iets hoger). */
+    const fires = duel.cfg.fires || duel.cfg.stones.map((s) => ({ x: s.x, y: s.y, h: 26 }));
+    for (const f of fires) drawBlueFlame(f.x, f.y, now, f.h || 26);
+    if (duel.cfg.cauldron) drawBlueFlame(duel.cfg.cauldron.x, duel.cfg.cauldron.y, now, duel.cfg.cauldron.h || 40);
+    /* Dier-rune-tekens die boven elke steen zweven: kleiner, met een blauwe gloed en doorschijnend. */
     fctx.save();
     for (const st of duel.cfg.stones) {
       const pulse = 0.5 + 0.5 * Math.sin(now / 380 + st.x);
-      const sy = st.signY != null ? st.signY : st.y - 24;
+      const cy = (st.signY != null ? st.signY : st.y - 24) + Math.sin(now / 520 + st.x) * 2;
       const img = art.sprites[st.rune];
-      const bob = Math.sin(now / 520 + st.x) * 2;
+      const gr = 22;
+      const g = fctx.createRadialGradient(st.x, cy, 1, st.x, cy, gr);   // blauwe gloed achter het teken
+      g.addColorStop(0, 'rgba(120,195,255,' + (0.26 + 0.16 * pulse).toFixed(2) + ')');
+      g.addColorStop(1, 'rgba(120,195,255,0)');
+      fctx.fillStyle = g; fctx.fillRect(st.x - gr, cy - gr, gr * 2, gr * 2);
       if (ready(img)) {
-        const rw = 38, rh = rw * img.naturalHeight / img.naturalWidth;
-        fctx.globalAlpha = 0.82 + 0.18 * pulse;
-        fctx.drawImage(img, Math.round(st.x - rw / 2), Math.round(sy - rh / 2 + bob), rw, rh);
+        const rw = 28, rh = rw * img.naturalHeight / img.naturalWidth;   // iets kleiner
+        fctx.globalAlpha = 0.58 + 0.20 * pulse;                          // doorschijnend
+        fctx.drawImage(img, Math.round(st.x - rw / 2), Math.round(cy - rh / 2), rw, rh);
         fctx.globalAlpha = 1;
       } else {
-        fctx.textAlign = 'center'; fctx.textBaseline = 'middle'; fctx.font = '18px serif';
-        fctx.fillStyle = 'rgba(255,255,255,' + (0.85 + 0.15 * pulse).toFixed(2) + ')';
-        fctx.fillText(st.sym, st.x, sy + bob);
+        fctx.textAlign = 'center'; fctx.textBaseline = 'middle'; fctx.font = '16px serif';
+        fctx.fillStyle = 'rgba(210,235,255,' + (0.70 + 0.20 * pulse).toFixed(2) + ')';
+        fctx.fillText(st.sym, st.x, cy);
       }
     }
     fctx.restore();

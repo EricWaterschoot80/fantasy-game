@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '100',
+  assetVer: '101',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -810,7 +810,8 @@ const GAME = {
       name: { nl: 'De Mistige Vallei', en: 'The Misty Valley' },
       bg: 'assets/art/scene-valley.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-valley-magic.jpg', flag: 'valleyMagic' },   // ketel ontstoken → alles gloeit blauw
+        { img: 'assets/art/scene-valley-after.jpg', flag: 'witchDefeated' },  // heks verslagen → de blauwe magie dooft, rustige vallei
+        { img: 'assets/art/scene-valley-magic.jpg', flag: 'valleyMagic' },    // ketel ontstoken → alles gloeit blauw
         { img: 'assets/art/scene-valley.jpg' }
       ],
       charFilter: 'sepia(0.12) saturate(1.05) brightness(1.0)',   // koeler, mistig ochtendlicht
@@ -834,7 +835,7 @@ const GAME = {
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
         /* De blauwe drakensteen die na het gevecht op de grond valt; glinstert blauw tot je hem opraapt. */
-        { id: 'stoneGround', sprite: 'dragonstone', x: 202, y: 268, scale: 0.5, glow: '120,200,255', bob: true, appearFlag: 'witchDefeated', hideFlag: 'gotDragonStone' },
+        { id: 'stoneGround', sprite: 'dragonstone', x: 202, y: 246, scale: 0.5, glow: '120,200,255', bob: true, appearFlag: 'witchDefeated', hideFlag: 'gotDragonStone' },
         /* Lichtgevende lavendelbloemen rechtsonder (groter, dichter bijeen) met blauw licht; ze dansen + lokken vuurvliegjes na de dans-spreuk. */
         { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
         { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
@@ -863,7 +864,15 @@ const GAME = {
           { x: 392, y: 138, signY: 84,  sym: '🐍', rune: 'runeSnake' },
           { x: 528, y: 150, signY: 70,  sym: '🐉', rune: 'runeDragon'}
         ],
-        cauldron: { x: 286, y: 158 },     // de ketel spuwt ook blauw vuur tijdens het gevecht
+        /* De 4 fakkels (vuurbakens) waaruit blauw vuur slaat — los van de stenen.
+           De 2 voorste (links/rechts) staan lager + groter; de 2 achterste blijven hoger. */
+        fires: [
+          { x: 26,  y: 182, h: 40 },   // voorste links — lager + meer pixels
+          { x: 542, y: 182, h: 40 },   // voorste rechts — lager + meer pixels
+          { x: 120, y: 112, h: 24 },   // achterste links
+          { x: 432, y: 120, h: 24 }    // achterste rechts
+        ],
+        cauldron: { x: 286, y: 144, h: 48 },   // de ketel spuwt blauw vuur — iets meer omhoog
         intro: { nl: 'Zodra het laatste ingrediënt de ketel raakt, laait er BLAUW vuur op! De heks gilt van woede: “Bemoei je niet met mijn magie, jochie!” Uit de borrelende ketel klinken spookachtige stemmen met raadsels. Boven de stenen gloeien dier-tekens — klik telkens op het juiste dier!', en: 'The moment the last ingredient hits the cauldron, BLUE fire erupts! The witch shrieks with rage: “Keep your hands off my magic, boy!” From the bubbling cauldron come ghostly voices with riddles. Animal signs glow above the stones — click the right beast each time!' },
         rounds: [
           { sym: '🐺', riddle: { nl: 'Een stem fluistert: “Ik huil naar de maan en jaag in een roedel door de nacht. Roep mijn beest!”', en: 'A voice whispers: “I howl at the moon and hunt in a pack through the night. Summon my beast!”' } },
@@ -879,11 +888,11 @@ const GAME = {
         {
           id: 'dragonStone',
           name: { nl: 'De Blauwe Steen', en: 'The Blue Stone' },
-          rect: { x: 176, y: 250, w: 56, h: 46 },
-          walkTo: { x: 204, y: 308 },
+          rect: { x: 176, y: 228, w: 56, h: 46 },
+          walkTo: { x: 204, y: 300 },
           appearFlag: 'witchDefeated',                 // ligt pas op de grond nadat de heks verslagen is
           hideFlag: 'gotDragonStone',
-          arrow: { x: 200, y: 238, dir: 'down' },
+          arrow: { x: 200, y: 216, dir: 'down' },
           gives: {
             item: 'dragonstone', setFlag: 'gotDragonStone',
             giveText: { nl: 'Je raapt de gloeiende blauwe drakensteen op. Hij is warm en tintelt van magie. Koppel hem aan je staf! (combineer de steen met je staf)', en: 'You pick up the glowing blue dragon-stone. It is warm and tingles with magic. Attach it to your staff! (combine the stone with your staff)' },
