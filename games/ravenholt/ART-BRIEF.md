@@ -58,3 +58,46 @@ goudgerande riem met buideltjes. Rijke maar niet-neon kleuren.
 2. Eén vaste referentie-media per personage (zie boven).
 3. Houd de prompt identiek op de pose-zin na.
 4. Cut + assembleer lokaal (`/tmp/detail2x.py`), check een montage vóór commit.
+
+---
+
+# Cinematische storyboard (Ghibli) — character & scene consistency
+
+Geldt voor de **filmische storyboard-beelden** in `storyboard/battle/` (het heksengevecht),
+NIET voor de in-game pixel-sprites hierboven. Model: **`nano_banana_pro`**, 16:9, 2k.
+Genereer ELKE shot met deze twee vaste referentie-media zodat held én locatie consistent blijven:
+
+- **Finn (held):** `b3896cfe-5a40-4ab2-bdf6-0b70121c537b` (Ghibli-referentie)
+- **Achtergrond (vallei-magie):** `a7cccb63-f48f-42a6-b118-ab0a9500ae93`
+
+(Beide zijn deze sessie geüpload via `media_upload`; her-upload `storyboard/ghibli/g4.png`
+en `assets/art/scene-valley-magic.jpg` als de id's verlopen zijn.)
+
+## Stijl (VAST voor alle storyboard-shots)
+- **Cinematic film still**, Studio-Ghibli-aquarel met filmische kleurgrading, anamorf breedbeeld,
+  scherptediepte, sfeervol/atmosferisch.
+- **Vroege OCHTEND, dageraad** — de zon komt net op; gedempt goudlicht breekt door zware mist.
+  **Donker maar warm/ochtend** (géén nacht, géén storm).
+
+## Locatie (VAST — altijd consistent)
+- De oude **stenen runencirkel** met **blauwgloeiende runen** op de monolieten.
+- De **ketel staat ALTIJD midden in de cirkel** en geeft **BLAUWE rook + blauwe magie-effecten
+  (NOOIT groen)**.
+- Áchter de cirkel: een **meer** en een **hoge waterval**, **veel drijvende mist**, bergen.
+- De **stenen tafel** ligt **linksonder** in de cirkel (slotscène: schrijven in het boek).
+
+## Finn (VAST)
+Piekerig roodbruin haar, **blauwe mantel/cape**, **bruine tuniek**, gekrulde houten staf (mag
+blauw gloeien). Sproeten, grote ogen. In de slotscène schrijft hij in zijn open toverboek
+**met een ZWARTE veer (ganzenveer/quill)**.
+
+## De heks (VAST)
+Een **oude, lelijke heks zónder hoed**: wilde grijze haren, een **lange kromme/wrattige grote neus**,
+een **klein groen kikkertje dat uit haar haar piept**, gebocheld en benig in een **rafelig donker gewaad**.
+Ze heeft een **grote houten pollepel als staf waar ze vermoeid op leunt** (steunstaf, geen wapen).
+Bij haar nederlaag lost ze op in **blauwgrijze rook** en vliegt het kikkertje uit haar haar weg;
+de blauwe **drakenring** valt op de stenen.
+
+## Camerahoeken (gevarieerd, personages consistent)
+1. Wijd/uitgezoomd totaalshot (establishing). 2. First-person / over-the-shoulder close-up.
+3. Laag dramatisch standpunt (de nederlaag). 4. Intieme close bij de stenen tafel.
