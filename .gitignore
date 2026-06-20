@@ -22,3 +22,4 @@ adventure Image*.png
 
 # Battle-storyboard 2k raw masters (web jpgs are committed)
 storyboard/battle/*.png
+storyboard/options/*.png
