@@ -2507,7 +2507,10 @@
     if (!isDragon && state.currentScene === 'valley' && !state.flags.valleyFlowersDancing) {
       state.flags.valleyFlowersDancing = true;
       sfx('combine'); triggerCastFx(); updateQuest();
-      say({ nl: 'Je heft je staf en spreekt de dans-spreuk uit. De lichtgevende lavendelbloemen rechts beginnen sierlijk te wiegen, en hun blauwe licht lokt een zwerm groen-blauwe vuurvliegjes die vrolijk meedansen. Vang er nu een paar in een leeg flesje! (tik de bloemen aan)', en: 'You raise your staff and speak the dance-spell. The glowing lavender flowers begin to sway gracefully, and their blue light draws a swarm of green-blue fireflies that dance along. Now catch a few in an empty vial! (tap the flowers)' });
+      if (!state.flags.witchDefeated) {   // de heks lacht je vierkant uit om zo'n 'kinderspreuk'
+        say({ nl: 'De heks ziet de bloemetjes vrolijk wiegen en giert het uit van het lachen: “Hahahá! Is dát nou je machtige magie, jochie? Een dáns-spreukje voor wat bloempjes? Wat een kínderspreuk! Kom maar terug als je iets echts kent.”', en: 'The witch sees the little flowers swaying merrily and bursts out laughing: “Hahahá! Is THAT your mighty magic, boy? A little DANCE spell for some flowers? What a CHILD’S spell! Come back when you know something real.”' }, null, 'assets/art/face-witch.png');
+      }
+      say({ nl: 'Maar de lichtgevende lavendelbloemen wiegen sierlijk heen en weer, en hun blauwe licht lokt een zwerm vuurvliegjes die vrolijk meedansen. Vang er nu een paar in een leeg flesje! (tik de bloemen aan)', en: 'But the glowing lavender flowers sway gracefully, and their blue light draws a swarm of fireflies that dance along. Now catch a few in an empty vial! (tap the flowers)' });
       return;
     }
     /* Kies het juiste doelwit: de drakenspreuk werkt op een castWith met item 'dragonspell'
@@ -2548,37 +2551,39 @@
     state.flags.dragonScare = true;                // handelsman (en wacht) schrikken op
     sfx('win');
     say(c.text, hsSpeaker(hs), hsFace(hs));         // tekst beschrijft de hele scène (staat bovenin)
-    setTimeout(() => {                              // ~2s verbaasd → de wacht vlucht door de poort
+    setTimeout(() => {                              // ~2,8s verbaasd → de wacht vlucht door de poort
       const g = npcRt.guard;
       if (g) burstAt(g.x, g.y - 30, { n: 14, col: '210,200,180', up: 8, life: 0.9 });
       fls.forEach((f) => { state.flags[f] = true; });   // guardFled → de wacht is weg
       sfx('use');
-    }, 2200);
+    }, 2800);
     setTimeout(() => {                              // schrik voorbij → win (wordt vervolgd)
       state.flags.dragonScare = false;
       dragonShadow = null;
       if (c.win) { pendingWin = true; if (!msgOpen()) showNextMsg(); }
       updateQuest();
-    }, 3800);
+    }, 4900);
   }
 
   function drawDragonShadow(now) {
     if (!dragonShadow) return;
     const img = art.sprites.dragonShadow;
-    const el = (now - dragonShadow.t0) / 2600;     // sweep-duur
+    const el = (now - dragonShadow.t0) / 4200;     // langzamer dan eerst
     if (el >= 1 || !ready(img)) return;
     const arc = Math.sin(el * Math.PI);
-    /* donkere waas over de hele scène op het hoogtepunt van de overvlucht */
-    fctx.fillStyle = 'rgba(18,14,28,' + (0.30 * arc).toFixed(3) + ')';
+    /* donkere schaduw-waas over de hele scène op het hoogtepunt van de overvlucht */
+    fctx.fillStyle = 'rgba(14,11,22,' + (0.34 * arc).toFixed(3) + ')';
     fctx.fillRect(0, 0, SCENE_W, SCENE_H);
-    /* de schaduw zelf: van links naar rechts (de draak kijkt naar rechts), met lichte boog */
-    const w = 230, h = w * img.naturalHeight / img.naturalWidth;
-    const x = -140 + el * (SCENE_W + 360);
-    const y = 26 + (1 - arc) * 22;
-    fctx.save();
-    fctx.globalAlpha = Math.min(1, arc * 1.3) * 0.9;
-    fctx.drawImage(img, Math.round(x - w / 2), Math.round(y), w, h);
-    fctx.restore();
+    /* de schaduw zelf: groter, van LINKSONDER naar RECHTSBOVEN; een echte schaduw (lagere
+       dekking) met een vervagende staart (na-ijlende, steeds ijlere kopieën naar linksonder). */
+    const w = 300, h = w * img.naturalHeight / img.naturalWidth;
+    const x = -160 + el * (SCENE_W + 420);
+    const y = (SCENE_H * 0.80) - el * (SCENE_H * 0.98);
+    for (let g = 2; g >= 0; g--) {                 // g=0 = de draak zelf, g=1/2 = vervagende staart-na-ijling
+      const ox = -g * 30, oy = g * 20;
+      fctx.globalAlpha = Math.min(1, arc * 1.25) * (g === 0 ? 0.80 : 0.26 - g * 0.07);
+      fctx.drawImage(img, Math.round(x - w / 2 + ox), Math.round(y + oy), w, h);
+    }
     fctx.globalAlpha = 1;
   }
 
@@ -4453,8 +4458,9 @@
     if (!duel) return false;
     let hit = null, best = 1e9;
     for (const st of duel.cfg.stones) {
-      const d = Math.hypot(st.x - sx, st.y - sy);
-      if (d < 40 && d < best) { best = d; hit = st; }
+      const signYv = st.signY != null ? st.signY : st.y;
+      const d = Math.min(Math.hypot(st.x - sx, st.y - sy), Math.hypot(st.x - sx, signYv - sy));   // klik op de steen óf op het zwevende teken telt
+      if (d < 56 && d < best) { best = d; hit = st; }
     }
     if (!hit) return false;
     const want = duel.cfg.rounds[duel.round].sym;
@@ -4484,22 +4490,44 @@
     updateQuest();
     paintBackground();
   }
+  /* Goedkope blauwe vlam (een 'fakkel'): opstijgende blauwe vonkjes + zachte basisgloed. */
+  function drawBlueFlame(x, y, now, h) {
+    for (let i = 0; i < 8; i++) {
+      const t = ((now / 560) + i / 8 + x * 0.013) % 1;
+      const fy = y - t * h;
+      const fx = x + Math.sin(t * 5 + i * 1.7 + x) * (1.5 + t * 4);
+      const r = (1 - t) * (2.4 + (i % 2) * 1.4);
+      const a = Math.sin(t * Math.PI) * 0.85;
+      if (a <= 0.03) continue;
+      fctx.fillStyle = 'rgba(' + (i % 3 === 0 ? '195,235,255' : '90,165,255') + ',' + a.toFixed(2) + ')';
+      fctx.fillRect(Math.round(fx - r), Math.round(fy - r), Math.max(1, Math.round(r * 2)), Math.max(1, Math.round(r * 2)));
+    }
+    fctx.fillStyle = 'rgba(110,175,255,0.20)'; fctx.fillRect(x - 9, y - 4, 18, 9);
+    fctx.fillStyle = 'rgba(150,210,255,0.30)'; fctx.fillRect(x - 5, y - 3, 10, 6);
+  }
+
   function drawDuel(now) {
     if (!duel) return;
+    /* Blauw vuur uit de 4 stenen-fakkels + de ketel zodra het gevecht losbarst. */
+    for (const st of duel.cfg.stones) drawBlueFlame(st.x, st.y, now, 26);
+    if (duel.cfg.cauldron) drawBlueFlame(duel.cfg.cauldron.x, duel.cfg.cauldron.y, now, 40);
+    /* Dier-rune-tekens die boven elke steen zweven (Higgsfield, in de stijl van de stenen). */
     fctx.save();
-    fctx.textAlign = 'center';
-    fctx.textBaseline = 'middle';
     for (const st of duel.cfg.stones) {
       const pulse = 0.5 + 0.5 * Math.sin(now / 380 + st.x);
-      const gr = 17;
-      const g = fctx.createRadialGradient(st.x, st.y, 1, st.x, st.y, gr);
-      g.addColorStop(0, 'rgba(130,185,255,' + (0.34 + 0.26 * pulse).toFixed(2) + ')');
-      g.addColorStop(1, 'rgba(130,185,255,0)');
-      fctx.fillStyle = g;
-      fctx.fillRect(st.x - gr, st.y - gr, gr * 2, gr * 2);
-      fctx.font = '16px serif';
-      fctx.fillStyle = 'rgba(255,255,255,' + (0.85 + 0.15 * pulse).toFixed(2) + ')';
-      fctx.fillText(st.sym, st.x, st.y - 24);
+      const sy = st.signY != null ? st.signY : st.y - 24;
+      const img = art.sprites[st.rune];
+      const bob = Math.sin(now / 520 + st.x) * 2;
+      if (ready(img)) {
+        const rw = 38, rh = rw * img.naturalHeight / img.naturalWidth;
+        fctx.globalAlpha = 0.82 + 0.18 * pulse;
+        fctx.drawImage(img, Math.round(st.x - rw / 2), Math.round(sy - rh / 2 + bob), rw, rh);
+        fctx.globalAlpha = 1;
+      } else {
+        fctx.textAlign = 'center'; fctx.textBaseline = 'middle'; fctx.font = '18px serif';
+        fctx.fillStyle = 'rgba(255,255,255,' + (0.85 + 0.15 * pulse).toFixed(2) + ')';
+        fctx.fillText(st.sym, st.x, sy + bob);
+      }
     }
     fctx.restore();
   }

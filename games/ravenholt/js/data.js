@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '98',
+  assetVer: '99',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -57,7 +57,11 @@ const GAME = {
     witch:         'assets/art/npc-witch.png',       // de heks bij de ketel (rust-frame)
     witchBeckon:   'assets/art/npc-witch-beckon.png',// heks wenkt de jongen ('kom hier'-gebaar)
     dragonstone:   'assets/art/item-dragonstone.png',// blauwe drakensteen die op de grond valt na het gevecht
-    dragonShadow:  'assets/art/dragon-shadow.png'    // voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
+    dragonShadow:  'assets/art/dragon-shadow.png',   // voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
+    runeWolf:      'assets/art/runeWolf.png',         // dier-rune-tekens die boven de stenen verschijnen tijdens het heksengevecht
+    runeOwl:       'assets/art/runeOwl.png',
+    runeSnake:     'assets/art/runeSnake.png',
+    runeDragon:    'assets/art/runeDragon.png'
   },
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -851,12 +855,15 @@ const GAME = {
          boos. Uit de ketel klinken raadsels — klik op de gloeiende steen met het juiste dier-symbool.
          De laatste is de draak. Win je, dan verdwijnt de heks en leer je de drakenspreuk. */
       duel: {
+        /* De 4 staande stenen (monolieten) in de cirkel; klik de steen met het juiste dier-rune-teken.
+           signY = waar het blauwe rune-teken bóven de steen zweeft; fire = blauwe vlam uit die 'fakkel'. */
         stones: [
-          { x: 68,  y: 250, sym: '🐺' },
-          { x: 233, y: 286, sym: '🦉' },
-          { x: 352, y: 286, sym: '🐍' },
-          { x: 512, y: 250, sym: '🐉' }
+          { x: 40,  y: 150, signY: 70,  sym: '🐺', rune: 'runeWolf'  },
+          { x: 176, y: 138, signY: 84,  sym: '🦉', rune: 'runeOwl'   },
+          { x: 392, y: 138, signY: 84,  sym: '🐍', rune: 'runeSnake' },
+          { x: 528, y: 150, signY: 70,  sym: '🐉', rune: 'runeDragon'}
         ],
+        cauldron: { x: 286, y: 158 },     // de ketel spuwt ook blauw vuur tijdens het gevecht
         intro: { nl: 'Zodra het laatste ingrediënt de ketel raakt, laait er BLAUW vuur op! De heks gilt van woede: “Bemoei je niet met mijn magie, jochie!” Uit de borrelende ketel klinken spookachtige stemmen met raadsels. Boven de stenen gloeien dier-tekens — klik telkens op het juiste dier!', en: 'The moment the last ingredient hits the cauldron, BLUE fire erupts! The witch shrieks with rage: “Keep your hands off my magic, boy!” From the bubbling cauldron come ghostly voices with riddles. Animal signs glow above the stones — click the right beast each time!' },
         rounds: [
           { sym: '🐺', riddle: { nl: 'Een stem fluistert: “Ik huil naar de maan en jaag in een roedel door de nacht. Roep mijn beest!”', en: 'A voice whispers: “I howl at the moon and hunt in a pack through the night. Summon my beast!”' } },
