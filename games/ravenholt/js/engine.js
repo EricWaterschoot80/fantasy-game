@@ -2136,7 +2136,7 @@
       fctx.filter = 'none';
       const gx = rt.x, gy = rt.y - 8 * (npc.scale || 1);
       const gr = 18 + 22 * (npc.scale || 1);
-      const a = 0.3 + 0.14 * Math.sin(now / 560 + (rt.phase || 0) * 3 + rt.x);
+      const a = 0.22 + 0.1 * Math.sin(now / 560 + (rt.phase || 0) * 3 + rt.x);
       const g = fctx.createRadialGradient(gx, gy, 1, gx, gy, gr);
       g.addColorStop(0, 'rgba(' + npc.glow + ',' + a.toFixed(3) + ')');
       g.addColorStop(1, 'rgba(' + npc.glow + ',0)');
@@ -2426,32 +2426,41 @@
     if (!elSpellBtn) return;
     elSpellBtn.hidden = !(started && state.flags.spellWritten);
   }
-  function castSpell() {
-    if (!state.flags.spellWritten) return;
+  function castSpell(spellId) {
+    spellId = spellId || 'spell';
+    const isDragon = spellId === 'dragonspell';
+    if (!isDragon && !state.flags.spellWritten) return;
+    if (isDragon && !state.flags.dragonSpellLearned) return;
     if (msgOpen()) showNextMsg();
     /* niet casten terwijl een popup open is */
     if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
     const scene = GAME.scenes[state.currentScene];
     /* Vallei: de dans-spreuk laat de lavendelbloemen rechts dansen en lokt vuurvliegjes. */
-    if (state.currentScene === 'valley' && !state.flags.valleyFlowersDancing) {
+    if (!isDragon && state.currentScene === 'valley' && !state.flags.valleyFlowersDancing) {
       state.flags.valleyFlowersDancing = true;
       sfx('combine'); triggerCastFx(); updateQuest();
       say({ nl: 'Je heft je staf en spreekt de dans-spreuk uit. De lichtgevende lavendelbloemen rechts beginnen sierlijk te wiegen, en hun blauwe licht lokt een zwerm groen-blauwe vuurvliegjes die vrolijk meedansen. Vang er nu een paar in een leeg flesje! (tik de bloemen aan)', en: 'You raise your staff and speak the dance-spell. The glowing lavender flowers begin to sway gracefully, and their blue light draws a swarm of green-blue fireflies that dance along. Now catch a few in an empty vial! (tap the flowers)' });
       return;
     }
-    const hs = (scene.hotspots || []).find(h => h.castWith);
+    /* Kies het juiste doelwit: de drakenspreuk werkt op een castWith met item 'dragonspell'
+       (de poortwacht); de dans-spreuk op alle overige castWith-hotspots (bv. de bloem). */
+    const hs = (scene.hotspots || []).find(h => h.castWith && (isDragon ? h.castWith.item === 'dragonspell' : h.castWith.item !== 'dragonspell'));
     if (hs) {
       const c = hs.castWith;
       const fls = Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag];
-      if (fls.some((f) => state.flags[f])) {            // al gedanst
+      if (fls.some((f) => state.flags[f])) {            // al gecast
         say(lookText(hs), hsSpeaker(hs), hsFace(hs));
         return;
       }
+      if (c.requiresFlag && !state.flags[c.requiresFlag]) { sfx('error'); say(c.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
       fls.forEach((f) => { state.flags[f] = true; });
       sfx('combine'); triggerCastFx(); updateQuest();
       say(c.text, hsSpeaker(hs), hsFace(hs));
+      if (c.win) { pendingWin = true; sfx('win'); }
+      if (scene.bgVariants && scene.bgVariants.some((v) => fls.includes(v.flag) || fls.includes(v.notFlag))) paintBackground();
       return;
     }
+    if (isDragon) { say({ nl: 'De drakenspreuk gonst diep in je staf... maar hier is niemand om de stuipen op het lijf te jagen.', en: 'The dragon spell hums deep in your staff... but there’s no one here to strike with terror.' }); return; }
     say({ nl: 'Je voelt de dans-spreuk tintelen op je vingertoppen... maar hier is niets levends om te laten dansen.', en: 'You feel the dance-spell tingle at your fingertips... but there’s nothing alive here to make dance.' });
   }
   if (elSpellBtn) elSpellBtn.addEventListener('click', () => {
@@ -2621,11 +2630,11 @@
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
     /* De dans-spreuk werkt rechtstreeks vanuit je tas: tik = uitspreken. */
-    if (itemId === 'spell') {
+    if (itemId === 'spell' || itemId === 'dragonspell') {
       state.selectedItem = null;
-      const sl = elInvbar.querySelector('.inv-slot[data-item="spell"]');
+      const sl = elInvbar.querySelector('.inv-slot[data-item="' + itemId + '"]');
       if (sl) { sl.classList.remove('cast'); void sl.offsetWidth; sl.classList.add('cast'); setTimeout(() => sl.classList.remove('cast'), 660); }
-      castSpell();
+      castSpell(itemId);
       renderInventory();
       return;
     }
@@ -3959,8 +3968,9 @@
       return;
     }
 
-    if (hs.choice && !(hs.choice.doneFlag && state.flags[hs.choice.doneFlag])) {
+    if (hs.choice && !(hs.choice.doneFlag && state.flags[hs.choice.doneFlag]) && !(hs.choice.skipFlag && state.flags[hs.choice.skipFlag])) {
       if (hs.setFlag) state.flags[hs.setFlag] = true;
+      if (hs.choice.doneFlag) state.flags[hs.choice.doneFlag] = true;   // keuze maar één keer (bv. de heks bij de eerste ontmoeting)
       showChoice(hs.choice, hsSpeaker(hs), hsFace(hs));
       return;
     }

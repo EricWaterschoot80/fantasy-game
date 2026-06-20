@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '90',
+  assetVer: '91',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -144,7 +144,7 @@ const GAME = {
              look: { nl: 'De magische ravenveer, gedoopt in de bessen-inkt — nog steeds een veer, maar met een glanzende zwarte inktpunt. Klaar om een spreuk in het lege toverboek te schrijven.', en: 'The magic raven feather, dipped in berry ink — still a feather, but with a glossy black ink tip. Ready to write a spell in the empty spellbook.' } },
     spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', border: 'blue',
              look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
-    dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', border: 'red',
+    dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', img: 'assets/art/item-dragonspell.png', border: 'blue',
              look: { nl: 'De drakenspreuk “Draconis Umbra” die zich in je toverboek schreef. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” that wrote itself into your spellbook. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
     dragonstone: { name: { nl: 'Drakensteen', en: 'Dragon-Stone' }, icon: '🔶', border: 'red',
              look: { nl: 'Een warme, rood-oranje steen die de heks achterliet, vol oude drakenmagie. Hij past precies in de kop van je staf — combineer hem met je staf.', en: 'A warm, red-orange stone the witch left behind, full of old dragon magic. It fits perfectly in the head of your staff — combine it with your staff.' } },
@@ -156,7 +156,7 @@ const GAME = {
              look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen!', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it!' } },
     cheese: { name: { nl: 'Stuk Kaas', en: 'Piece of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
              look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } },
-    tear: { name: { nl: 'Traan in een Flesje', en: 'Tear in a Vial' }, icon: '💧', img: 'assets/art/item-vial.png',
+    tear: { name: { nl: 'Traan in een Flesje', en: 'Tear in a Vial' }, icon: '💧', img: 'assets/art/item-tear.png',
              look: { nl: 'Een glazen flesje met één heldere, glinsterende traan erin. Eén van de drie ingrediënten voor de ketel in de runencirkel.', en: 'A glass vial holding a single clear, glistening tear. One of the three ingredients for the cauldron in the rune circle.' } },
     fireflight: { name: { nl: 'Flesje Vuurvliegjes', en: 'Vial of Fireflies' }, icon: '✨', img: 'assets/art/item-fireflight.png',
              look: { nl: 'Een flesje met levende vuurvliegjes erin — groene en blauwe vonkjes die rondzweven en zacht oplichten. Eén van de drie ingrediënten voor de ketel.', en: 'A vial of living fireflies — green and blue sparks drifting and softly glowing inside. One of the three ingredients for the cauldron.' } },
@@ -692,7 +692,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.12, sway: true },   // poortwacht met hellebaard (iets kleiner); wiegt rustig heen en weer
+        { id: 'guard', sprite: 'guard', x: 402, y: 218, scale: 1.12, sway: true, hideFlag: 'guardFled' },   // poortwacht met hellebaard; verdwijnt zodra de drakenspreuk hem op de vlucht jaagt
         { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 282, scale: 1.12, filter: 'brightness(0.6)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
         { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, filter: 'brightness(0.76)', danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) bloem in de schaduw van de poort — donkerder
@@ -710,8 +710,16 @@ const GAME = {
           walkTo: { x: 388, y: 284 },
           face: 'assets/art/face-guard.png',
           look: (state) => state.flags.gateOpen
-            ? { nl: 'De wacht plant zijn hellebaard steviger neer. “Het radwerk draait weer, knul — knap werk. Maar hier kom je niet door. Bevel van de hofmaarschalk: niemand het kasteel in zonder zegel.” (wordt vervolgd)', en: 'The guard plants his halberd firmer. “The gearworks turns again, lad — fine work. But you don’t pass here. Steward’s orders: no one enters the castle without a seal.” (to be continued)' }
+            ? { nl: 'De wacht plant zijn hellebaard steviger neer. “Het radwerk draait weer, knul — knap werk. Maar hier kom je niet door. Bevel van de hofmaarschalk: niemand het kasteel in zonder zegel.” Hij verspert pal de poort. (misschien helpt een machtige spreuk...)', en: 'The guard plants his halberd firmer. “The gearworks turns again, lad — fine work. But you don’t pass here. Steward’s orders: no one enters the castle without a seal.” He blocks the gate completely. (perhaps a mighty spell could help...)' }
             : { nl: 'Een strenge poortwacht in een blauw tabbaard verspert de weg. “Halt. Het kasteel is gesloten zolang de bron droog staat — en die poort krijg je toch niet open: het radwerk ernaast is kapot.” Hij knikt naar het mechaniek naast de poort.', en: 'A stern guard in a blue tabard blocks the way. “Halt. The castle is closed while the spring runs dry — and you won’t open that gate anyway: the gearworks beside it is broken.” He nods at the mechanism beside the gate.' },
+          castWith: {
+            item: 'dragonspell',
+            requiresFlag: 'dragonSpellLearned',
+            setFlag: 'guardFled',
+            win: true,
+            needText: { nl: 'Je voelt dat hier een machtige spreuk nodig is om langs de wacht te komen — maar zo’n spreuk ken je nog niet.', en: 'You sense it would take a mighty spell to get past the guard — but you don’t know one like that yet.' },
+            text: { nl: 'Je heft je staf hoog en spreekt met donderende stem de DRAKENSPREUK: “Draconis Umbra!” Boven de poort rijst een kolossale, vuurogige drakenschaduw op die de hele muur verduistert en een loeiend gebrul laat klinken. De poortwacht verbleekt, laat zijn hellebaard kletterend vallen en vlucht gillend door de poort naar binnen. De weg naar kasteel Eldoria ligt open... (wordt vervolgd)', en: 'You raise your staff high and speak the DRAGON SPELL in a thundering voice: “Draconis Umbra!” Above the gate a colossal, fire-eyed dragon shadow rears up, darkening the whole wall with a roaring bellow. The guard turns pale, drops his halberd with a clatter and flees screaming through the gate. The way to castle Eldoria lies open... (to be continued)' }
+          },
           setFlag: 'metGuard'
         },
         {
@@ -818,20 +826,20 @@ const GAME = {
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
         /* Lichtgevende lavendelbloemen rechtsonder (groter, dichter bijeen) met blauw licht; ze dansen + lokken vuurvliegjes na de dans-spreuk. */
-        { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '70,140,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '70,140,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflower3', sprite: 'flowerLavender', x: 487, y: 304, scale: 0.39, glow: '70,140,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '55,110,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '55,110,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflower3', sprite: 'flowerLavender', x: 487, y: 304, scale: 0.39, glow: '55,110,255', danceFlag: 'valleyFlowersDancing' },
         /* Kleine lichtgevende lavendelbloemen (blauw-paars) linksonder, dansen mee. */
-        { id: 'vflowerL1', sprite: 'flowerLavender', x: 72, y: 300, scale: 0.22, glow: '90,130,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflowerL2', sprite: 'flowerLavender', x: 90, y: 304, scale: 0.18, glow: '90,130,255', danceFlag: 'valleyFlowersDancing' },
-        { id: 'vflowerL3', sprite: 'flowerLavender', x: 107, y: 300, scale: 0.2, glow: '90,130,255', danceFlag: 'valleyFlowersDancing' }
+        { id: 'vflowerL1', sprite: 'flowerLavender', x: 72, y: 300, scale: 0.22, glow: '70,120,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflowerL2', sprite: 'flowerLavender', x: 90, y: 304, scale: 0.18, glow: '70,120,255', danceFlag: 'valleyFlowersDancing' },
+        { id: 'vflowerL3', sprite: 'flowerLavender', x: 107, y: 300, scale: 0.2, glow: '70,120,255', danceFlag: 'valleyFlowersDancing' }
       ],
       fx: {
         fireflies: 18,                                       // meer dwaallichtjes boven de mist
         fireflyCols: ['120,180,255', '150,230,120'],         // afwisselend blauw en groen
         flowerFlies: { x: 470, y: 300, flag: 'valleyFlowersDancing' },   // dansende vuurvliegjes bij de rechter bloemen (na de dans-spreuk)
         smoke: [{ x: 286, y: 166, rise: 38, spread: 7, drift: 3, speed: 3600, puffs: 6 }],   // dampende rook uit de ketel
-        mist: { bands: 6, y: 204, alpha: 0.2, around: { x: 240, y: 214, rx: 235, ry: 50 }, aroundAlpha: 0.42 }   // hogere, doorzichtiger brede grondmist
+        mist: { bands: 7, y: 196, alpha: 0.2, around: { x: 240, y: 206, rx: 268, ry: 58 }, aroundAlpha: 0.42 }   // grotere, hogere (verder naar achter) brede grondmist
       },
       /* De tovenaars-strijd: zodra alle drie de ingrediënten in de ketel zitten, wordt de heks
          boos. Uit de ketel klinken raadsels — klik op de gloeiende steen met het juiste dier-symbool.
@@ -866,6 +874,7 @@ const GAME = {
             en: 'A hunched old witch with a pointed hat leans on her ladle-staff beside the cauldron. She beckons you with a bony finger.'
           },
           choice: {
+            doneFlag: 'metWitch',   // alleen bij de allereerste ontmoeting in de vallei; daarna gewoon de 'look'
             prompt: { nl: 'De heks lonkt met een knokige vinger en haar ogen glinsteren gevaarlijk: “Kom toch dichterbij, lekker hapje... kruip in mijn warme ketel, dan maak ik je groot en machtig, dat beloof ik je...” Wat doe je?', en: 'The witch beckons with a bony finger, her eyes glinting dangerously: “Come closer, you tasty morsel... climb into my warm cauldron and I’ll make you big and mighty, I promise...” What do you do?' },
             options: [
               { label: { nl: 'Luisteren', en: 'Listen' }, text: { nl: 'Als in trance doe je een stap naar de dampende ketel... nog één... maar vlak voor de rand ruk je jezelf met een schok terug! Bijna had ze je gekookt. Deze heks is voor geen cent te vertrouwen — verzamel liever de juiste ingrediënten.', en: 'As if in a trance you step toward the steaming cauldron... one more... but right at the rim you wrench yourself back with a jolt! She nearly cooked you. This witch cannot be trusted one bit — better gather the right ingredients instead.' } },
