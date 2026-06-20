@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '107',
+  assetVer: '108',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -139,7 +139,7 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { if (state.flags.stoneOnStaff && !state.flags.dragonSpellLearned) return true; const learned = (state.flags.spellWritten ? 1 : 0) + (state.flags.dragonSpellLearned ? 1 : 0); return learned > (state.flags.bookSeenCount || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { if (state.flags.stoneOnStaff && !state.flags.dragonSpellLearned) return true; const pages = (state.flags.spellWritten ? 1 : 0) + (state.flags.gotRecipe ? 1 : 0) + (state.flags.dragonSpellLearned ? 1 : 0); return pages > (state.flags.bookSeenCount || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
              zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.jpg' : 'assets/art/spell-dance.jpg', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
                ? { nl: 'Het toverboek. Op de eerste bladzijde staat de dans-spreuk die je schreef. (tik aan om te bekijken)', en: 'The spellbook. On the first page stands the dance-spell you wrote. (tap to view)' }
@@ -439,9 +439,23 @@ const GAME = {
       worldItems: [
         { item: 'berries', hotspot: 'berries', x: 484, y: 296 }   // bessenstruik rechts van het pad (ver naar rechts)
       ],
-      npcs: [],
+      npcs: [
+        /* De glanzende raaf is vanuit de vallei meegevlogen en zit nu op de wegwijzer; hij wijst je het recept onder de steen. Vliegt weg zodra je het recept hebt. */
+        { id: 'ravenMill', sprite: 'ravenPerch', x: 50, y: 196, scale: 0.82, flip: true, appearFlag: 'recipeRevealed', hideFlag: 'gotRecipe', peck: true, peckAmt: 0.4 }
+      ],
       fx: {},   // geen glitters bij de brievenbus; de omhoog staande vlag in de achtergrond is de hint
       hotspots: [
+        {
+          id: 'ravenMill',
+          name: { nl: 'Glanzende Raaf', en: 'Glossy Raven' },
+          rect: { x: 26, y: 156, w: 54, h: 50 },
+          walkTo: { x: 80, y: 300 },
+          face: 'assets/art/face-raven.png',
+          appearFlag: 'recipeRevealed',
+          hideFlag: 'gotRecipe',
+          look: { nl: 'De glanzende raaf zit boven op de wegwijzer en kraait schor, terwijl hij met zijn snavel naar de losse steen onder de paal wijst: “Het recept... ónder de steen, onder de steen! Wip hem maar omhoog.”', en: 'The glossy raven perches atop the signpost and rasps, jabbing its beak at the loose stone below the post: “The recipe... UNDER the stone, under the stone! Lever it up.”' },
+          setFlag: 'metMillRaven'
+        },
         {
           id: 'poem',
           name: { nl: 'De Brievenbus', en: 'The Mailbox' },
@@ -486,9 +500,10 @@ const GAME = {
           appearFlag: 'recipeRevealed',                 // verschijnt zodra de raaf de steen heeft aangewezen
           arrow: { x: 72, y: 244, dir: 'down' },
           gives: {
-            item: 'recipe',
-            giveText: { nl: 'Links bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept voor de ketel! Je vouwt het open en legt het tussen de bladzijden van je toverboek. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the left, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE for the cauldron! You unfold it and tuck it between the pages of your spellbook. (tap the recipe in your bag to view it)' },
-            emptyText: { nl: 'Onder de steen is verder niets meer; het recept zit in je tas.', en: 'There is nothing else under the stone; the recipe is in your bag.' }
+            setFlag: 'gotRecipe',                       // geen los voorwerp: het recept gaat als bladzijde in je toverboek
+            flyNpc: 'ravenMill', flyDir: 'right',        // de raaf wiekt op en vliegt weg zodra je het recept hebt
+            giveText: { nl: 'Bij de wegwijzer wip je de losse steen omhoog — precies waar de raaf op tikte. Eronder ligt een opgevouwen, vergeeld perkament: het récept voor de ketel! Je vouwt het open, bekijkt het en legt het als bladzijde tussen je toverboek. (tik je glinsterende toverboek aan om het recept terug te lezen)', en: 'By the signpost you lever up the loose stone — exactly where the raven tapped. Beneath it lies a folded, yellowed parchment: the RECIPE for the cauldron! You unfold it, study it and slip it as a page into your spellbook. (tap your glittering spellbook to read the recipe again)' },
+            emptyText: { nl: 'Onder de steen is verder niets meer; het recept staat nu in je toverboek.', en: 'There is nothing else under the stone; the recipe is now a page in your spellbook.' }
           }
         },
         {

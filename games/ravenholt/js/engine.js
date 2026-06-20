@@ -4290,7 +4290,7 @@
         const sc = GAME.scenes[state.currentScene];     // wissel evt. de achtergrond (bv. brievenbus-vlag weer omlaag)
         if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === hs.gives.setFlag || v.notFlag === hs.gives.setFlag)) paintBackground();
       }
-      addItem(hs.gives.item);
+      if (hs.gives.item) addItem(hs.gives.item);   // mag ook leeg zijn (bv. het recept gaat rechtstreeks in je boek, niet in je tas)
       if (hs.gives.also) (Array.isArray(hs.gives.also) ? hs.gives.also : [hs.gives.also]).forEach(addItem);   // extra voorwerpen (bv. 3 flesjes tegelijk)
       sfx('pickup');
       say(hs.gives.giveText);
@@ -4721,6 +4721,7 @@
     if (!elZoom || !elZoomImg) return;
     const pages = [];
     if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
+    if (state.flags.gotRecipe) pages.push({ img: 'assets/art/recipe.jpg', label: { nl: 'Het Recept', en: 'The Recipe' } });
     if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.jpg', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
     if (!pages.length) return;
     bookPages = pages; bookIdx = pages.length - 1;   // open op de nieuwste spreuk
