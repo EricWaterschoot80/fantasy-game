@@ -208,6 +208,7 @@
   let castGlow = null;        // animatie: Finns staf gloeit op wanneer hij de spreuk uitspreekt
   let dragonShadow = null;    // animatie: voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
   let witchPoof = null;       // animatie: de heks lost op in een wolk groene rook zodra ze verslagen is
+  let witchFrog = null;       // animatie: uit de rook springt een vliegende kikker (met hoedje) die wegfladdert
   let amuletRiseT0 = 0;       // moment waarop de amulet omhoog begint te schuiven
   let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
@@ -1117,6 +1118,7 @@
 
     drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)
     drawWitchPoof(now);      // de heks lost op in groene rook
+    drawWitchFrog(now);      // ... en fladdert als kikker weg
     drawDuelFlash(now);      // flits bij een goed antwoord in het heksengevecht
 
     /* De raaf vliegt weg: zet zich rustig af, klapwiekt en zweeft naar rechts het beeld uit. */
@@ -4534,6 +4536,7 @@
     const wsc = GAME.scenes[state.currentScene];
     const wn = wsc && (wsc.npcs || []).find((n) => n.id === 'witch');
     witchPoof = { t0: performance.now(), x: wn ? wn.x : 198, y: wn ? wn.y - 34 : 196 };
+    witchFrog = { t0: performance.now(), x: witchPoof.x, y: witchPoof.y, dir: witchPoof.x < SCENE_W / 2 ? 1 : -1 };   // uit de rook fladdert een kikker met hoedje weg
     sfx('win');
     say(cfg.winText);
     if (cfg.win) pendingWin = true;
@@ -4560,6 +4563,54 @@
       fctx.fillStyle = (i % 2) ? 'rgba(120,150,110,' + al.toFixed(2) + ')' : 'rgba(150,160,150,' + al.toFixed(2) + ')';
       fctx.beginPath(); fctx.arc(px, py, r, 0, Math.PI * 2); fctx.fill();
     }
+  }
+
+  /* Uit de groene rook springt een kleine vliegende kikker (met het puntige heksenhoedje nog op)
+     die klapwiekend de lucht in fladdert en het scherm uit verdwijnt — de heks is in een kikker
+     veranderd en vlucht. */
+  function drawWitchFrog(now) {
+    if (!witchFrog) return;
+    const el = (now - witchFrog.t0) / 2400;
+    if (el >= 1) { witchFrog = null; return; }
+    if (el < 0.14) return;                                  // wacht tot de rook is opgekomen
+    const p = (el - 0.14) / 0.86;                           // 0..1 vluchtfase
+    const dir = witchFrog.dir;
+    const x = witchFrog.x + dir * p * (SCENE_W * 0.62);     // boog naar de zijkant
+    const y = witchFrog.y - 8 - p * 132 + Math.sin(p * Math.PI * 6) * 5;   // stijgt op + dobbert
+    const s = 1 + p * 0.12;
+    const a = p > 0.82 ? Math.max(0, 1 - (p - 0.82) / 0.18) : 1;           // vervaagt vlak voor het einde
+    const flap = Math.sin(now / 55);
+    fctx.save();
+    fctx.globalAlpha = a;
+    fctx.translate(Math.round(x), Math.round(y));
+    fctx.scale(dir * 1.5, 1.5);                             // wat groter zodat de kikker goed leesbaar wegfladdert
+    fctx.rotate(Math.sin(p * Math.PI * 4) * 0.12);
+    // klapperende doorzichtige vleugeltjes
+    fctx.fillStyle = 'rgba(175,235,160,0.5)';
+    fctx.beginPath(); fctx.ellipse(-4, -1, 7, 4 + flap * 3, -0.6, 0, Math.PI * 2); fctx.fill();
+    fctx.beginPath(); fctx.ellipse(4, -1, 7, 4 + flap * 3, 0.6, 0, Math.PI * 2); fctx.fill();
+    // lijfje + buik
+    fctx.fillStyle = '#5fae4e';
+    fctx.beginPath(); fctx.ellipse(0, 2, 7 * s, 6 * s, 0, 0, Math.PI * 2); fctx.fill();
+    fctx.fillStyle = '#8ed27a';
+    fctx.beginPath(); fctx.ellipse(0, 4, 4.5 * s, 3.8 * s, 0, 0, Math.PI * 2); fctx.fill();
+    // nadansende achterpoten
+    fctx.strokeStyle = '#4e9440'; fctx.lineWidth = 2; fctx.lineCap = 'round';
+    const kick = Math.sin(now / 70) * 3;
+    fctx.beginPath(); fctx.moveTo(-4, 7); fctx.lineTo(-9, 11 + kick); fctx.stroke();
+    fctx.beginPath(); fctx.moveTo(4, 7); fctx.lineTo(9, 11 - kick); fctx.stroke();
+    // bolle ogen bovenop
+    fctx.fillStyle = '#5fae4e';
+    fctx.beginPath(); fctx.arc(-3, -5, 3, 0, Math.PI * 2); fctx.arc(3, -5, 3, 0, Math.PI * 2); fctx.fill();
+    fctx.fillStyle = '#fff';
+    fctx.beginPath(); fctx.arc(-3, -5, 1.6, 0, Math.PI * 2); fctx.arc(3, -5, 1.6, 0, Math.PI * 2); fctx.fill();
+    fctx.fillStyle = '#1b2a16';
+    fctx.beginPath(); fctx.arc(-3, -5, 0.9, 0, Math.PI * 2); fctx.arc(3, -5, 0.9, 0, Math.PI * 2); fctx.fill();
+    // het heksenhoedje dat nog op haar kop staat (knipoog: zij ís de kikker)
+    fctx.fillStyle = '#3a2a4a';
+    fctx.beginPath(); fctx.moveTo(-4, -7); fctx.lineTo(4, -7); fctx.lineTo(0, -15); fctx.closePath(); fctx.fill();
+    fctx.fillRect(-6, -7, 12, 1.8);
+    fctx.restore();
   }
 
   /* Flits bij een goed antwoord in het gevecht: een lichtbundel van de steen omhoog naar
@@ -4924,6 +4975,7 @@
       correct: allGearsCorrect(), canvas: elGearCanvas ? { w: elGearCanvas.width, h: elGearCanvas.height } : null },
     gearTest: () => { if (gears) testGears(); },
     paint: () => paintBackground(),
+    frogTest: () => { witchPoof = { t0: performance.now(), x: 198, y: 196 }; witchFrog = { t0: performance.now(), x: 198, y: 196, dir: 1 }; },   // toon de heks-verdwijnt-als-kikker animatie
     enterScene: (id) => { if (GAME.scenes[id]) { state.currentScene = id; const sc = GAME.scenes[id]; if (sc.fx && sc.fx.fireflies) initFireflies(sc.fx.fireflies); paintBackground(); } },
     reset: resetGame
   };
