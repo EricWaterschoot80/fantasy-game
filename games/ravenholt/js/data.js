@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '117',
+  assetVer: '119',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -59,6 +59,7 @@ const GAME = {
     dragonstone:   'assets/art/item-dragonstone.png',// (oud) blauwe steen
     ring:          'assets/art/item-ring.png',       // drakenring die de heks achterlaat na het gevecht
     dragonShadow:  'assets/art/dragon-shadow.png',   // voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
+    frogWitch:     'assets/art/frog-witch.png',      // de heks veranderd in een vliegende kikker (met hoedje) na het gevecht
     runeWolf:      'assets/art/runeWolf.png',         // dier-rune-tekens die boven de stenen verschijnen tijdens het heksengevecht
     runeOwl:       'assets/art/runeOwl.png',
     runeSnake:     'assets/art/runeSnake.png',
@@ -742,8 +743,8 @@ const GAME = {
           walkTo: { x: 388, y: 284 },
           face: 'assets/art/face-guard.png',
           look: (state) => state.flags.gateOpen
-            ? { nl: 'De wacht plant zijn hellebaard steviger neer. “Het radwerk draait weer, knul — knap werk. Maar hier kom je niet door. Bevel van de hofmaarschalk: niemand het kasteel in zonder zegel.” Hij verspert pal de poort. (misschien helpt een machtige spreuk...)', en: 'The guard plants his halberd firmer. “The gearworks turns again, lad — fine work. But you don’t pass here. Steward’s orders: no one enters the castle without a seal.” He blocks the gate completely. (perhaps a mighty spell could help...)' }
-            : { nl: 'Een strenge poortwacht in een blauw tabbaard verspert de weg. “Halt. Het kasteel is gesloten zolang de bron droog staat — en die poort krijg je toch niet open: het radwerk ernaast is kapot.” Hij knikt naar het mechaniek naast de poort.', en: 'A stern guard in a blue tabard blocks the way. “Halt. The castle is closed while the spring runs dry — and you won’t open that gate anyway: the gearworks beside it is broken.” He nods at the mechanism beside the gate.' },
+            ? { nl: 'De wacht plant grinnikend zijn hellebaard neer en lacht bulderend. “Hahá! Het radwerk draait weer, knap werk hoor, knul — maar híer kom je echt niet langs! Niemand het kasteel in zonder zegel, en al helemáál geen ukkie als jij. Ik sta hier dag en nacht en ik ben voor niemand of níéts bang!” Hij verspert breeduit de poort en knipoogt. (misschien helpt een machtige spreuk...)', en: 'The guard plants his halberd with a smirk and a booming laugh. “Haha! The gearworks turns again, fine work, lad — but you’re NOT getting past HERE! No one enters the castle without a seal, least of all a little squirt like you. I stand here day and night and I’m afraid of no one and NOTHING!” He blocks the gate wide and winks. (perhaps a mighty spell could help...)' }
+            : { nl: 'Een brede poortwacht in een blauw tabbaard verspert lachend de weg. “Hahá, jíj? Loop maar door, ventje — het kasteel blijft dicht zolang de bron droog staat, en die poort krijg je tóch niet open: het radwerk ernaast ligt eruit. Ik hou hier de wacht, en ik ben voor niemand bang, voor jou al helemaal niet!” Hij knikt grijnzend naar het mechaniek naast de poort.', en: 'A burly gate guard in a blue tabard blocks the way, laughing. “Haha, YOU? Run along, little man — the castle stays shut while the spring runs dry, and you won’t open that gate anyway: the gearworks beside it is busted. I keep this watch, and I’m afraid of no one — least of all you!” He nods with a grin at the mechanism beside the gate.' },
           castWith: {
             item: 'dragonspell',
             requiresFlag: 'dragonSpellLearned',

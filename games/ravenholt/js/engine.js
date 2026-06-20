@@ -2600,17 +2600,18 @@
     const el = (now - dragonShadow.t0) / 4200;     // langzamer dan eerst
     if (el >= 1 || !ready(img)) return;
     const arc = Math.sin(el * Math.PI);
-    /* donkere schaduw-waas over de hele scène op het hoogtepunt van de overvlucht */
-    fctx.fillStyle = 'rgba(14,11,22,' + (0.30 * arc).toFixed(3) + ')';
+    const fade = 0.45 + 0.55 * arc;                // al vanaf het begin zichtbaar-maar-ijl, vol op het hoogtepunt
+    /* donkere schaduw-waas over de hele scène op het hoogtepunt van de overvlucht (lichter dan eerst) */
+    fctx.fillStyle = 'rgba(14,11,22,' + (0.20 * arc).toFixed(3) + ')';
     fctx.fillRect(0, 0, SCENE_W, SCENE_H);
-    /* de schaduw zelf: GROOT, van LINKSONDER naar RECHTSBOVEN; meer vervaagd (lagere dekking)
-       met een vervagende staart (na-ijlende, steeds ijlere kopieën naar linksonder). */
-    const w = 380, h = w * img.naturalHeight / img.naturalWidth;
-    const x = -200 + el * (SCENE_W + 520);
+    /* de schaduw zelf: GROTER, van LINKSONDER naar RECHTSBOVEN; extra vervaagd (lagere dekking, ook al
+       in het begin) met een vervagende staart (na-ijlende, steeds ijlere kopieën naar linksonder). */
+    const w = 480, h = w * img.naturalHeight / img.naturalWidth;
+    const x = -220 + el * (SCENE_W + 560);
     const y = (SCENE_H * 0.86) - el * (SCENE_H * 1.06);
     for (let g = 3; g >= 0; g--) {                 // g=0 = de draak zelf, g=1..3 = vervagende staart-na-ijling
-      const ox = -g * 34, oy = g * 22;
-      fctx.globalAlpha = Math.min(1, arc * 1.2) * (g === 0 ? 0.58 : 0.20 - g * 0.05);
+      const ox = -g * 38, oy = g * 24;
+      fctx.globalAlpha = fade * (g === 0 ? 0.40 : 0.14 - g * 0.035);
       fctx.drawImage(img, Math.round(x - w / 2 + ox), Math.round(y + oy), w, h);
     }
     fctx.globalAlpha = 1;
@@ -4570,46 +4571,25 @@
      veranderd en vlucht. */
   function drawWitchFrog(now) {
     if (!witchFrog) return;
-    const el = (now - witchFrog.t0) / 2400;
+    const el = (now - witchFrog.t0) / 2600;
     if (el >= 1) { witchFrog = null; return; }
     if (el < 0.14) return;                                  // wacht tot de rook is opgekomen
+    const img = art.sprites.frogWitch;
+    if (!ready(img)) return;
     const p = (el - 0.14) / 0.86;                           // 0..1 vluchtfase
     const dir = witchFrog.dir;
     const x = witchFrog.x + dir * p * (SCENE_W * 0.62);     // boog naar de zijkant
-    const y = witchFrog.y - 8 - p * 132 + Math.sin(p * Math.PI * 6) * 5;   // stijgt op + dobbert
-    const s = 1 + p * 0.12;
-    const a = p > 0.82 ? Math.max(0, 1 - (p - 0.82) / 0.18) : 1;           // vervaagt vlak voor het einde
-    const flap = Math.sin(now / 55);
+    const y = witchFrog.y - 6 - p * 138 + Math.sin(p * Math.PI * 5) * 6;   // stijgt op + dobbert spartelend
+    const a = p > 0.84 ? Math.max(0, 1 - (p - 0.84) / 0.16) : 1;           // vervaagt vlak voor het einde
+    const W = 46, h = W * img.naturalHeight / img.naturalWidth;            // echte kikker-sprite, klein in beeld
+    const wob = Math.sin(now / 90) * 0.16 + Math.sin(p * Math.PI * 4) * 0.06;   // spartelende kanteling (alsof hij worstelt om te vliegen)
+    const sq = 1 + Math.sin(now / 90) * 0.05;               // lichte op-en-neer 'sprong'
     fctx.save();
     fctx.globalAlpha = a;
     fctx.translate(Math.round(x), Math.round(y));
-    fctx.scale(dir * 1.5, 1.5);                             // wat groter zodat de kikker goed leesbaar wegfladdert
-    fctx.rotate(Math.sin(p * Math.PI * 4) * 0.12);
-    // klapperende doorzichtige vleugeltjes
-    fctx.fillStyle = 'rgba(175,235,160,0.5)';
-    fctx.beginPath(); fctx.ellipse(-4, -1, 7, 4 + flap * 3, -0.6, 0, Math.PI * 2); fctx.fill();
-    fctx.beginPath(); fctx.ellipse(4, -1, 7, 4 + flap * 3, 0.6, 0, Math.PI * 2); fctx.fill();
-    // lijfje + buik
-    fctx.fillStyle = '#5fae4e';
-    fctx.beginPath(); fctx.ellipse(0, 2, 7 * s, 6 * s, 0, 0, Math.PI * 2); fctx.fill();
-    fctx.fillStyle = '#8ed27a';
-    fctx.beginPath(); fctx.ellipse(0, 4, 4.5 * s, 3.8 * s, 0, 0, Math.PI * 2); fctx.fill();
-    // nadansende achterpoten
-    fctx.strokeStyle = '#4e9440'; fctx.lineWidth = 2; fctx.lineCap = 'round';
-    const kick = Math.sin(now / 70) * 3;
-    fctx.beginPath(); fctx.moveTo(-4, 7); fctx.lineTo(-9, 11 + kick); fctx.stroke();
-    fctx.beginPath(); fctx.moveTo(4, 7); fctx.lineTo(9, 11 - kick); fctx.stroke();
-    // bolle ogen bovenop
-    fctx.fillStyle = '#5fae4e';
-    fctx.beginPath(); fctx.arc(-3, -5, 3, 0, Math.PI * 2); fctx.arc(3, -5, 3, 0, Math.PI * 2); fctx.fill();
-    fctx.fillStyle = '#fff';
-    fctx.beginPath(); fctx.arc(-3, -5, 1.6, 0, Math.PI * 2); fctx.arc(3, -5, 1.6, 0, Math.PI * 2); fctx.fill();
-    fctx.fillStyle = '#1b2a16';
-    fctx.beginPath(); fctx.arc(-3, -5, 0.9, 0, Math.PI * 2); fctx.arc(3, -5, 0.9, 0, Math.PI * 2); fctx.fill();
-    // het heksenhoedje dat nog op haar kop staat (knipoog: zij ís de kikker)
-    fctx.fillStyle = '#3a2a4a';
-    fctx.beginPath(); fctx.moveTo(-4, -7); fctx.lineTo(4, -7); fctx.lineTo(0, -15); fctx.closePath(); fctx.fill();
-    fctx.fillRect(-6, -7, 12, 1.8);
+    fctx.scale(dir, sq);                                    // spiegelt mee met de vliegrichting
+    fctx.rotate(wob);
+    fctx.drawImage(img, Math.round(-W / 2), Math.round(-h / 2), W, h);
     fctx.restore();
   }
 
@@ -4976,6 +4956,7 @@
     gearTest: () => { if (gears) testGears(); },
     paint: () => paintBackground(),
     frogTest: () => { witchPoof = { t0: performance.now(), x: 198, y: 196 }; witchFrog = { t0: performance.now(), x: 198, y: 196, dir: 1 }; },   // toon de heks-verdwijnt-als-kikker animatie
+    dragonTest: () => { dragonShadow = { t0: performance.now() }; },   // toon alleen de drakenschaduw-flyby
     enterScene: (id) => { if (GAME.scenes[id]) { state.currentScene = id; const sc = GAME.scenes[id]; if (sc.fx && sc.fx.fireflies) initFireflies(sc.fx.fireflies); paintBackground(); } },
     reset: resetGame
   };
