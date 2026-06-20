@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '104',
+  assetVer: '105',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -370,7 +370,7 @@ const GAME = {
             ? { nl: 'Het meisje kijkt weemoedig voor zich uit. Misschien raakt dat gloeiende gedicht uit de molen haar wel... (gebruik het gedicht op haar)', en: 'The girl gazes wistfully ahead. Perhaps that glowing poem from the mill would move her... (use the poem on her)' }
             : state.flags.gotCheese
             ? { nl: 'Het meisje knikt vriendelijk achter haar kraam vol kaas en fruit. “Smakelijk eten met dat ruiltje!”', en: 'The girl nods kindly behind her stall of cheese and fruit. “Enjoy that trade!”' }
-            : { nl: 'Een meisje staat achter haar kraam vol gele kazen en fruit. Ze kijkt een beetje weemoedig. “Geld hoef ik niet — maar voor een handvol vers graan ruil ik je graag een stuk kaas.” (gebruik graan op de kraam)', en: 'A girl stands behind her stall of yellow cheeses and fruit. She looks a little wistful. “I don’t need coin — but for a handful of fresh grain I’ll gladly trade you a wedge of cheese.” (use grain on the stall)' },
+            : { nl: 'Een meisje staat achter haar kraam vol gele kazen en fruit. Ze zucht. “Ik zou zo graag vers brood bakken, maar daar heb ik graan voor nodig — en de molen ligt al weken stil. Breng je me een handvol vers graan? Dan geef ik je met alle plezier een stuk kaas.” (gebruik graan op de kraam)', en: 'A girl stands behind her stall of yellow cheeses and fruit. She sighs. “I’d love to bake fresh bread, but I need grain for that — and the mill has stood still for weeks. Bring me a handful of fresh grain? Then I’ll gladly give you a wedge of cheese.” (use grain on the stall)' },
           givesWhen: {
             flag: 'girlCrying', needItem: 'vialTear', consume: 'vialTear', setFlag: 'gotTear', item: 'tear',
             needText: { nl: 'Het meisje huilt — maar je hebt een leeg flesje nodig om een traan op te vangen. (er staan flesjes in de kast in de molen)', en: 'The girl is crying — but you need an empty vial to catch a tear. (there are vials in the cupboard in the mill)' },
@@ -537,7 +537,9 @@ const GAME = {
       npcs: [
         { id: 'mouse', sprite: 'mouse', x: 179, y: 188, scale: 0.44, flip: false, peck: true, peckAmt: 0.45, filter: 'brightness(0.82)', hideFlag: 'wineTapLoose' }   // muisje hoog naast de wijnton; knabbelt rustig (peck) en verdwijnt zodra je hem kaas geeft (wineTapLoose)
       ],
-      fx: {},
+      fx: {
+        glints: [{ x: 374, y: 256, flag: 'millFixed', col: '255,228,150' }]   // de graanzak glinstert zodra de molen weer maalt (hint om op te pakken)
+      },
       hotspots: [
         {
           id: 'millstone',
@@ -553,7 +555,7 @@ const GAME = {
         {
           id: 'gear',
           name: { nl: 'Het Tandrad', en: 'The Gear Wheel' },
-          rect: { x: 348, y: 150, w: 96, h: 110 },
+          rect: { x: 348, y: 124, w: 96, h: 120 },
           walkTo: { x: 380, y: 300 },
           gears: {
             needItem: 'millwheel',
@@ -588,7 +590,7 @@ const GAME = {
         {
           id: 'bookTable',
           name: { nl: 'Open Molenaarsboek', en: 'Open Miller’s Book' },
-          rect: { x: 18, y: 172, w: 120, h: 42 },
+          rect: { x: 18, y: 150, w: 120, h: 44 },
           walkTo: { x: 108, y: 300 },
           zoomImg: 'assets/art/book-hint.png',   // toont de kleur-volgorde als gekleurde stippen (1→6)
           setFlag: 'readMillBook',
@@ -604,9 +606,7 @@ const GAME = {
           walkTo: { x: 96, y: 300 },
           bookPuzzle: {
             title: { nl: 'De Vastzittende Boeken', en: 'The Stuck Books' },
-            hint: { nl: 'Trek de zes boeken in de juiste kleur-volgorde (zie de stippen in het opengeslagen boek).', en: 'Pull the six books in the right colour order (see the dots in the open book).' },
-            requiresFlag: 'readMillBook',
-            blockedText: { nl: 'Zes oude boeken klemmen muurvast op de plank — in welke volgorde moet je ze lostrekken? Op de tafel ligt een opengeslagen molenaarsboek; kijk daar eerst eens in.', en: 'Six old books are jammed tight on the shelf — in what order must you pull them loose? An open miller’s book lies on the table; take a look in there first.' },
+            hint: { nl: 'Trek de zes boeken in de juiste kleur-volgorde (de stippen in het molenaarsboek helpen).', en: 'Pull the six books in the right colour order (the dots in the miller’s book help).' },
             setFlag: 'gotSpellbook',
             gives: 'spellbook',
             img: 'assets/art/puzzle-books6.png',
@@ -620,12 +620,12 @@ const GAME = {
               { key: 'oranje', label: { nl: 'Oranje', en: 'Orange' }, color: '#e8995a' }
             ],
             zones: [
-              { key: 'rood',   left: 3,  top: 6, width: 15, height: 80 },
-              { key: 'blauw',  left: 18, top: 6, width: 15, height: 80 },
-              { key: 'groen',  left: 33, top: 6, width: 15, height: 80 },
-              { key: 'geel',   left: 48, top: 6, width: 15, height: 80 },
-              { key: 'paars',  left: 63, top: 6, width: 15, height: 80 },
-              { key: 'oranje', left: 78, top: 6, width: 16, height: 80 }
+              { key: 'rood',   left: 6,    top: 8, width: 10, height: 76 },
+              { key: 'blauw',  left: 20.5, top: 8, width: 10, height: 76 },
+              { key: 'groen',  left: 35.5, top: 8, width: 10, height: 76 },
+              { key: 'geel',   left: 50.5, top: 8, width: 10, height: 76 },
+              { key: 'paars',  left: 65.5, top: 8, width: 10, height: 76 },
+              { key: 'oranje', left: 80,   top: 8, width: 10, height: 76 }
             ],
             solvedText: { nl: 'Met een klik schiet de laatste band los en een verborgen vakje klapt open — een oud TOVERBOEK glijdt in je handen! Maar als je het opent zijn alle bladzijden léég... Hier hoort een spreuk geschreven te worden, met de juiste pen en inkt.', en: 'With a click the last spine springs loose and a hidden compartment pops open — an old SPELLBOOK slides into your hands! But when you open it every page is blank... A spell needs to be written here, with the right pen and ink.' },
             resetText: { nl: 'Knars! Alle boeken klemmen weer vast. Begin opnieuw — kijk goed naar de stippen.', en: 'Crunch! All the books jam shut again. Start over — study the dots carefully.' }
@@ -634,12 +634,14 @@ const GAME = {
         {
           id: 'grain',
           name: { nl: 'Graanzak', en: 'Grain Sack' },
-          rect: { x: 296, y: 224, w: 116, h: 80 },
-          walkTo: { x: 344, y: 300 },
+          rect: { x: 320, y: 224, w: 116, h: 80 },
+          walkTo: { x: 360, y: 300 },
+          requiresFlag: 'millFixed',             // pas vers graan zodra de molen weer maalt
+          blockedText: { nl: 'De maalsteen staat stil — er is nog geen vers graan. Krijg eerst de molen weer aan de praat.', en: 'The millstone is still — there’s no fresh grain yet. Get the mill running again first.' },
           gives: {
             item: 'grain',
             repeat: true,                          // je kunt telkens vers graan scheppen (voor de muis én de kaasruil)
-            giveText: { nl: 'Een opengevallen zak graan staat bij de maalsteen. Je schept een handvol goudgeel graan in je tas.', en: 'An open sack of grain stands by the millstone. You scoop a handful of golden grain into your bag.' },
+            giveText: { nl: 'Nu de molen weer maalt, ligt er een opengevallen zak vol vers goudgeel graan bij de maalsteen. Je schept een handvol in je tas.', en: 'Now the mill grinds again, an open sack of fresh golden grain stands by the millstone. You scoop a handful into your bag.' },
             haveText: { nl: 'Je hebt al een handvol graan in je tas.', en: 'You already have a handful of grain in your bag.' }
           }
         },

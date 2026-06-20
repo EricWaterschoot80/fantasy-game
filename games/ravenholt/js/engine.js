@@ -1553,6 +1553,18 @@
       }
     }
     /* Dansende vuurvliegjes bij de bloemen (na de dans-spreuk): groen-blauwe vonkjes die rond een punt zwermen. */
+    /* Glinster-hint op een voorwerp (bv. de graanzak zodra de molen maalt) — een paar
+       ronddraaiende twinkels zodat je ziet dat je het kunt oppakken. */
+    if (fx.glints) {
+      for (const gl of fx.glints) {
+        if (gl.flag && !state.flags[gl.flag]) continue;
+        if (gl.notFlag && state.flags[gl.notFlag]) continue;
+        for (let i = 0; i < 3; i++) {
+          const ang = now / 360 + i * 2.1;
+          twinkle(gl.x + Math.cos(ang) * 11, gl.y + Math.sin(ang * 1.2) * 7, 0.5 + 0.45 * Math.sin(now / 200 + i * 2), gl.col || '255,228,150');
+        }
+      }
+    }
     if (fx.flowerFlies && state.flags[fx.flowerFlies.flag] && !(fx.flowerFlies.stopFlag && state.flags[fx.flowerFlies.stopFlag])) {
       const ff = fx.flowerFlies, COLS = ['150,230,120', '120,200,255'];
       for (let i = 0; i < 9; i++) {
