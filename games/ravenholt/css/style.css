@@ -311,8 +311,9 @@ html, body {
 .msg-body { flex: 1 1 auto; }
 
 @keyframes msgIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: none; }
+  /* alleen faden, niet verschuiven — de tekstwolk staat meteen strak bovenin (geen hapering) */
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 #msgText {

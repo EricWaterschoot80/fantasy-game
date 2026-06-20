@@ -206,6 +206,7 @@
   let minoWalk = null;        // animatie: minotaur loopt naar de schaal en valt in slaap
   let ravenFly = null;        // animatie: de raaf vliegt weg richting de molen
   let castGlow = null;        // animatie: Finns staf gloeit op wanneer hij de spreuk uitspreekt
+  let dragonShadow = null;    // animatie: voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
   let amuletRiseT0 = 0;       // moment waarop de amulet omhoog begint te schuiven
   let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
@@ -1089,6 +1090,20 @@
       }
     }
 
+    /* Blauwe drakensteen in de staf: een blijvende zachte glinster op Finns staf-kop. */
+    if (started && state.flags.stoneOnStaff && !dark) {
+      const sx = Math.round(player.x), sy = Math.round(player.y - 30);
+      const r = 8 + 2 * Math.sin(now / 230);
+      const g = fctx.createRadialGradient(sx, sy, 0, sx, sy, r);
+      g.addColorStop(0, 'rgba(150,205,255,0.5)');
+      g.addColorStop(1, 'rgba(120,195,255,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
+      twinkle(sx, sy, 0.55 + 0.4 * Math.sin(now / 170));
+    }
+
+    drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)
+
     /* De raaf vliegt weg: zet zich rustig af, klapwiekt en zweeft naar rechts het beeld uit. */
     if (ravenFly) {
       const el = (now - ravenFly.t) / 2300;
@@ -1269,29 +1284,36 @@
       fctx.restore();
     }
 
-    /* Win-viering: de eeuwige herfst wijkt — bladeren komen tot leven, groen licht
-       en opstijgende blaadjes/sprankels vullen het bos; daarna het win-scherm. */
+    /* Win-viering (Ravenholt): blauwe drakenmagie golft over de vallei, sprankels stijgen op
+       en een glanzende drakenschaduw soart de hemel in; daarna het win-scherm. */
     if (revive) {
       const rt = Math.min(1, (now - revive.t0) / 3500);
       const ga = Math.sin(rt * Math.PI);
-      fctx.fillStyle = `rgba(120,210,100,${ga * 0.42})`;         // groene levensgloed (sterker)
+      fctx.fillStyle = `rgba(90,150,255,${ga * 0.40})`;          // diepblauwe magie-gloed
       fctx.fillRect(0, 0, SCENE_W, SCENE_H);
-      for (let k = 0; k < 64; k++) {                             // opstijgende groene blaadjes die tot leven komen
-        const tt = (rt * 1.5 + k * 0.111) % 1;
+      for (let k = 0; k < 70; k++) {                             // opstijgende blauwe sprankels/sterretjes
+        const tt = (rt * 1.5 + k * 0.103) % 1;
         const a = Math.sin(tt * Math.PI);
         if (a <= 0.05) continue;
-        const bx = (k * 71) % SCENE_W + Math.sin(now / 300 + k) * 16;
+        const bx = (k * 71) % SCENE_W + Math.sin(now / 300 + k) * 18;
         const by = SCENE_H + 10 - tt * (SCENE_H + 28);
-        fctx.fillStyle = `rgba(${80 + (k % 50)},${165 + (k * 53) % 70},${70 + (k % 30)},${a})`;
-        const sz = 3 + (k % 3);
-        fctx.fillRect((bx - sz / 2) | 0, by | 0, sz, sz);        // blaadje
-        fctx.fillRect((bx + 1) | 0, (by - 2) | 0, 1, 2);         // steeltje
+        fctx.fillStyle = `rgba(${130 + (k % 50)},${190 + (k * 31) % 50},255,${a})`;
+        const sz = 2 + (k % 3);
+        fctx.fillRect((bx - sz / 2) | 0, by | 0, sz, sz);
       }
-      for (let k = 0; k < 26; k++) {                             // gouden sprankels van leven
-        const tt = (rt * 2 + k * 0.16) % 1, a = Math.sin(tt * Math.PI);
+      for (let k = 0; k < 24; k++) {                             // witte glinstersterren
+        const tt = (rt * 2 + k * 0.17) % 1, a = Math.sin(tt * Math.PI);
         const sxp = (k * 131) % SCENE_W, syp = 24 + (k * 71) % 220 - tt * 30;
-        fctx.fillStyle = `rgba(255,250,210,${a})`;
+        fctx.fillStyle = `rgba(235,245,255,${a})`;
         fctx.fillRect(sxp | 0, syp | 0, 2, 2);
+      }
+      const dimg = art.sprites.dragonShadow;                    // een glanzende drakenschaduw soart omhoog de hemel in
+      if (ready(dimg)) {
+        const dw = 120 + rt * 80, dh = dw * dimg.naturalHeight / dimg.naturalWidth;
+        const dx = SCENE_W * 0.5 + rt * 120, dy = SCENE_H - rt * (SCENE_H + 40);
+        fctx.save(); fctx.globalAlpha = ga * 0.8;
+        fctx.drawImage(dimg, (dx - dw / 2) | 0, dy | 0, dw, dh);
+        fctx.restore(); fctx.globalAlpha = 1;
       }
       if (now - revive.t0 > 3500) { revive = null; showWin(); }
     }
@@ -2262,7 +2284,11 @@
          bv. de koopman die van zijn kar naar de wacht kijkt) en omschakelen naar een
          verbaasde blik zodra een vlag is gezet (aweSprite, bv. starend naar de dansende bloem). */
       const npcStopped = npc.stopFlag && state.flags[npc.stopFlag];   // bv. koopman weer normaal zodra het rad uit de kar is
-      if (!npcStopped && npc.aweFlag && state.flags[npc.aweFlag] && npc.aweSprites && npc.aweSprites.length) {
+      const scared = npc.scareFlag && state.flags[npc.scareFlag];     // verbaasd schrikken (bv. om de drakenschaduw) — overschrijft stopFlag
+      if (scared && npc.aweSprites && npc.aweSprites.length) {
+        const a = npc.aweSprites, im = art.sprites[a[Math.floor(now / 280) % a.length]];
+        if (ready(im)) img = im;                          // snel verbaasd heen en weer
+      } else if (!npcStopped && npc.aweFlag && state.flags[npc.aweFlag] && npc.aweSprites && npc.aweSprites.length) {
         const a = npc.aweSprites, im = art.sprites[a[Math.floor(now / 480) % a.length]];
         if (ready(im)) img = im;                          // 2-frame verbaasde reactie
       } else if (!npcStopped && npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
@@ -2495,6 +2521,7 @@
         return;
       }
       if (c.requiresFlag && !state.flags[c.requiresFlag]) { sfx('error'); say(c.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
+      if (c.dragonSequence) { startDragonSequence(hs, c, fls); return; }   // drakenschaduw-flyby + verbaasde wacht/handelsman → daarna pas weg + win
       fls.forEach((f) => { state.flags[f] = true; });
       sfx('combine'); triggerCastFx(); updateQuest();
       say(c.text, hsSpeaker(hs), hsFace(hs));
@@ -2510,6 +2537,50 @@
     setTimeout(() => elSpellBtn.classList.remove('cast'), 660);
     castSpell();
   });
+
+  /* Drakenspreuk op de poortwacht: een kolossale drakenschaduw vliegt voorbij, de wacht en
+     de handelsman kijken stomverbaasd op, en na ~2s vlucht de wacht weg → daarna 'wordt vervolgd'. */
+  function startDragonSequence(hs, c, fls) {
+    if (msgOpen()) showNextMsg();
+    triggerCastFx();
+    castGlow = { t0: performance.now() };
+    dragonShadow = { t0: performance.now() };
+    state.flags.dragonScare = true;                // handelsman (en wacht) schrikken op
+    sfx('win');
+    say(c.text, hsSpeaker(hs), hsFace(hs));         // tekst beschrijft de hele scène (staat bovenin)
+    setTimeout(() => {                              // ~2s verbaasd → de wacht vlucht door de poort
+      const g = npcRt.guard;
+      if (g) burstAt(g.x, g.y - 30, { n: 14, col: '210,200,180', up: 8, life: 0.9 });
+      fls.forEach((f) => { state.flags[f] = true; });   // guardFled → de wacht is weg
+      sfx('use');
+    }, 2200);
+    setTimeout(() => {                              // schrik voorbij → win (wordt vervolgd)
+      state.flags.dragonScare = false;
+      dragonShadow = null;
+      if (c.win) { pendingWin = true; if (!msgOpen()) showNextMsg(); }
+      updateQuest();
+    }, 3800);
+  }
+
+  function drawDragonShadow(now) {
+    if (!dragonShadow) return;
+    const img = art.sprites.dragonShadow;
+    const el = (now - dragonShadow.t0) / 2600;     // sweep-duur
+    if (el >= 1 || !ready(img)) return;
+    const arc = Math.sin(el * Math.PI);
+    /* donkere waas over de hele scène op het hoogtepunt van de overvlucht */
+    fctx.fillStyle = 'rgba(18,14,28,' + (0.30 * arc).toFixed(3) + ')';
+    fctx.fillRect(0, 0, SCENE_W, SCENE_H);
+    /* de schaduw zelf: van links naar rechts (de draak kijkt naar rechts), met lichte boog */
+    const w = 230, h = w * img.naturalHeight / img.naturalWidth;
+    const x = -140 + el * (SCENE_W + 360);
+    const y = 26 + (1 - arc) * 22;
+    fctx.save();
+    fctx.globalAlpha = Math.min(1, arc * 1.3) * 0.9;
+    fctx.drawImage(img, Math.round(x - w / 2), Math.round(y), w, h);
+    fctx.restore();
+    fctx.globalAlpha = 1;
+  }
 
   function updateQuest(force) {
     updateSpellBtn();
@@ -2632,14 +2703,15 @@
   /* ---------- Inventaris ---------- */
   function renderInventory() {
     elInvbar.innerHTML = '';
-    /* De dans-spreuk staat altijd in het laatste (meest rechtse) vakje; de rest links. */
-    const hasSpell = state.inventory.includes('spell');
-    const others = state.inventory.filter((id) => id !== 'spell');
-    const slots = Math.max(MIN_SLOTS, others.length + (hasSpell ? 1 : 0));
+    /* De spreuken (dans + draak) staan altijd in de meest rechtse vakjes; de rest links. */
+    const spells = ['spell', 'dragonspell'].filter((id) => state.inventory.includes(id));
+    const others = state.inventory.filter((id) => id !== 'spell' && id !== 'dragonspell');
+    const slots = Math.max(MIN_SLOTS, others.length + spells.length);
+    const firstSpell = slots - spells.length;   // index van het eerste spreuk-vakje (rechts)
     for (let i = 0; i < slots; i++) {
       const slot = document.createElement('div');
       slot.className = 'inv-slot';
-      const itemId = (hasSpell && i === slots - 1) ? 'spell' : (i < others.length ? others[i] : undefined);
+      const itemId = (i >= firstSpell) ? spells[i - firstSpell] : (i < others.length ? others[i] : undefined);
       if (itemId) {
         const item = GAME.items[itemId];
         slot.classList.add('filled');
@@ -2681,9 +2753,10 @@
       return;
     }
     const item = GAME.items[itemId];
-    if (itemId === 'spellbook' && state.flags.spellWritten) {   // toverboek: blader door de geleerde spreuken
+    if (itemId === 'spellbook' && state.flags.spellWritten) {
       state.selectedItem = null;
-      openBook();
+      if (state.flags.stoneOnStaff && !state.flags.dragonSpellLearned) writeDragonSpell();   // glinsterend boek + steen op de staf → schrijf de drakenspreuk
+      else openBook();                                                                       // anders: blader door de geleerde spreuken
       renderInventory();
       return;
     }
@@ -4516,6 +4589,16 @@
     elZoomImg.src = img + AV;
     elZoom.hidden = false;
     sfx('tap');
+  }
+  /* Met de blauwe steen op de staf en het glinsterende boek: de drakenspreuk schrijft zichzelf. */
+  function writeDragonSpell() {
+    if (state.flags.dragonSpellLearned) { openBook(); return; }
+    state.flags.dragonSpellLearned = true;
+    addItem('dragonspell');
+    sfx('combine');
+    castGlow = { t0: performance.now() };   // de staf flitst blauw op
+    say({ nl: 'Je slaat je glinsterende toverboek open. De diepblauwe magie uit de drakensteen op je staf vloeit in de bladzijden, en met sierlijke, oplichtende letters schrijft de DRAKENSPREUK zich vanzelf: “Draconis Umbra”. Nu kun je hem uitspreken bij de poortwacht! (de spreuk staat rechts in je tas)', en: 'You open your glittering spellbook. The deep-blue magic from the dragon-stone on your staff flows into the pages, and in elegant, glowing letters the DRAGON SPELL writes itself: “Draconis Umbra”. Now you can speak it at the gate guard! (the spell is on the right in your bag)' });
+    updateQuest();
   }
   /* Toverboek: blader door de spreuken die je al kent. */
   function openBook() {

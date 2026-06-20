@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '97',
+  assetVer: '98',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -55,7 +55,9 @@ const GAME = {
     flowerWhite:   'assets/art/flower-white.png',    // witte bloem (dansende bloem + cluster)
     flowerLavender:'assets/art/flower-lavender.png', // lichtgevende lavendelbloem (blauw licht) in de vallei
     witch:         'assets/art/npc-witch.png',       // de heks bij de ketel (rust-frame)
-    witchBeckon:   'assets/art/npc-witch-beckon.png' // heks wenkt de jongen ('kom hier'-gebaar)
+    witchBeckon:   'assets/art/npc-witch-beckon.png',// heks wenkt de jongen ('kom hier'-gebaar)
+    dragonstone:   'assets/art/item-dragonstone.png',// blauwe drakensteen die op de grond valt na het gevecht
+    dragonShadow:  'assets/art/dragon-shadow.png'    // voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
   },
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -64,8 +66,8 @@ const GAME = {
   startItems: ['staff'],
 
   winText: {
-    nl: 'Wordt vervolgd...',
-    en: 'To be continued...'
+    nl: 'De drakenschaduw vervaagt en de poort van kasteel Eldoria staat eindelijk open. Finn haalt diep adem — híer ergens zit zijn vader gevangen. Maar dat verhaal, en wat er achter de poort schuilt, bewaren we voor DEEL 2. Knap gedaan, held — tot snel!',
+    en: 'The dragon-shadow fades and the gate of castle Eldoria finally stands open. Finn draws a deep breath — his father is held captive somewhere inside. But that tale, and whatever lurks beyond the gate, we save for PART 2. Well done, hero — see you soon!'
   },
 
   strings: {
@@ -80,7 +82,7 @@ const GAME = {
                   en: 'In the kingdom of Eldoria the village-square fountain has been running dry for weeks. Young Finn — who dreams of magic and whose father is imprisoned in the castle — sets out to investigate.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
-    winTitle:   { nl: 'Wordt vervolgd', en: 'To be continued' },
+    winTitle:   { nl: 'Wordt vervolgd — Deel 2 komt eraan!', en: 'To be continued — Part 2 is coming!' },
     replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
     playOther:  { nl: '▸ Speel een ander avontuur', en: '▸ Play another adventure' },
     deathTitle: { nl: 'Verloren in de mist...', en: 'Lost in the fog...' },
@@ -107,8 +109,12 @@ const GAME = {
   },
 
   items: {
-    staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
-             look: { nl: 'De houten staf van mijn vader. Bovenin zit een lege vatting — er hoort een magische steen in. Zonder die steen doet de staf nog niets.', en: 'My father’s wooden staff. The top has an empty setting — a magic stone belongs there. Without the stone the staff does nothing yet.' } },
+    staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄',
+             img: (state) => state.flags.stoneOnStaff ? 'assets/art/item-staff-stone.png' : 'assets/art/item-staff.png',
+             sparkle: (state) => !!state.flags.stoneOnStaff,
+             look: (state) => state.flags.stoneOnStaff
+               ? { nl: 'De staf van mijn vader, met de blauwe drakensteen in de kop. Hij gloeit en glinstert van diepblauwe magie. Sla je toverboek open om de drakenspreuk op te schrijven.', en: 'My father’s staff, with the blue dragon-stone set in its head. It glows and glitters with deep-blue magic. Open your spellbook to write the dragon spell.' }
+               : { nl: 'De houten staf van mijn vader. Bovenin zit een lege vatting — er hoort een magische steen in. Zonder die steen doet de staf nog niets.', en: 'My father’s wooden staff. The top has an empty setting — a magic stone belongs there. Without the stone the staff does nothing yet.' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
             look: { nl: 'Een oude zilveren munt die je uit de drooggevallen fontein opraapte. Hij blinkt nog mooi — precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old silver coin you picked from the dried-up fountain. It still gleams nicely — just the kind of bright thing a magpie or raven can’t resist.' } },
     coinGold: { name: { nl: 'Gouden Munt', en: 'Gold Coin' }, icon: '🪙', img: 'assets/art/item-coin-gold.png',
@@ -129,7 +135,7 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { const learned = (state.flags.spellWritten ? 1 : 0) + (state.flags.dragonSpellLearned ? 1 : 0); return learned > (state.flags.bookSeenCount || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { if (state.flags.stoneOnStaff && !state.flags.dragonSpellLearned) return true; const learned = (state.flags.spellWritten ? 1 : 0) + (state.flags.dragonSpellLearned ? 1 : 0); return learned > (state.flags.bookSeenCount || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
              zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.jpg' : 'assets/art/spell-dance.jpg', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
                ? { nl: 'Het toverboek. Op de eerste bladzijde staat de dans-spreuk die je schreef. (tik aan om te bekijken)', en: 'The spellbook. On the first page stands the dance-spell you wrote. (tap to view)' }
@@ -146,8 +152,8 @@ const GAME = {
              look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
     dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', img: 'assets/art/item-dragonspell.png', border: 'blue',
              look: { nl: 'De drakenspreuk “Draconis Umbra” die zich in je toverboek schreef. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” that wrote itself into your spellbook. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
-    dragonstone: { name: { nl: 'Drakensteen', en: 'Dragon-Stone' }, icon: '🔶', border: 'red',
-             look: { nl: 'Een warme, rood-oranje steen die de heks achterliet, vol oude drakenmagie. Hij past precies in de kop van je staf — combineer hem met je staf.', en: 'A warm, red-orange stone the witch left behind, full of old dragon magic. It fits perfectly in the head of your staff — combine it with your staff.' } },
+    dragonstone: { name: { nl: 'Blauwe Drakensteen', en: 'Blue Dragon-Stone' }, icon: '🔷', img: 'assets/art/item-dragonstone.png', border: 'blue', sparkle: true,
+             look: { nl: 'Een gloeiende blauwe steen die de heks achterliet, vol oude drakenmagie. Hij past precies in de kop van je staf — combineer hem met je staf.', en: 'A glowing blue stone the witch left behind, full of old dragon magic. It fits perfectly in the head of your staff — combine it with your staff.' } },
     poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-note.png',
              look: { nl: 'Het gloeiende briefje uit de brievenbus bij de molen, zonder afzender:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The glowing note from the mailbox by the mill, with no sender:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nYou should read this aloud to someone who carries sorrow...' } },
     map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png', zoomImg: 'assets/art/map-valley.png',
@@ -173,10 +179,9 @@ const GAME = {
       text: { nl: 'Je plet de zwarte bessen in het lege flesje. Het sap kleurt diep gitzwart — echte inkt!', en: 'You crush the black berries into the empty vial. The juice turns deep jet-black — real ink!' } },
     { a: 'feather', b: 'ink', result: 'inkFeather',
       text: { nl: 'Je doopt de magische ravenveer in de inkt. De punt glanst zwart en lijkt bijna te trillen van leven — klaar om te schrijven.', en: 'You dip the magic raven feather into the ink. Its tip glistens black and seems almost to quiver with life — ready to write.' } },
-    { a: 'dragonstone', b: 'staff', setFlag: 'dragonSpellLearned', keep: true, consume: 'dragonstone', doneFlag: 'dragonSpellLearned',
-      result: 'dragonspell',                            // de drakensteen smelt in je staf en de drakenspreuk schrijft zichzelf in je boek
-      text: { nl: 'Je drukt de gloeiende drakensteen in de kop van je staf. Hij smelt erin vast en vlamt rood-oranje op! In je toverboek slaan de bladzijden vanzelf om en met vurige letters schrijft zich een nieuwe spreuk: de DRAKENSPREUK, “Draconis Umbra”. (tik het boek aan om de spreuk te bekijken)', en: 'You press the glowing dragon-stone into the head of your staff. It fuses in and flares red-orange! In your spellbook the pages turn on their own and in fiery letters a new spell writes itself: the DRAGON SPELL, “Draconis Umbra”. (tap the book to view the spell)' },
-      doneText: { nl: 'De drakensteen zit al in je staf en de drakenspreuk staat in je boek.', en: 'The dragon-stone is already in your staff and the dragon spell is in your book.' } },
+    { a: 'dragonstone', b: 'staff', setFlag: 'stoneOnStaff', keep: true, consume: 'dragonstone', doneFlag: 'stoneOnStaff',
+      text: { nl: 'Je drukt de gloeiende blauwe drakensteen in de kop van je staf. Hij smelt erin vast en je staf gloeit en glinstert nu van diepblauwe magie! In je tas begint je toverboek zacht te glinsteren... sla het open om de drakenspreuk op te schrijven. (tik het glinsterende boek aan)', en: 'You press the glowing blue dragon-stone into the head of your staff. It fuses in and your staff now glows and glitters with deep-blue magic! In your bag your spellbook begins to shimmer softly... open it to write the dragon spell. (tap the glittering book)' },
+      doneText: { nl: 'De blauwe drakensteen zit al in je staf. Sla je glinsterende toverboek open om de drakenspreuk op te schrijven.', en: 'The blue dragon-stone is already in your staff. Open your glittering spellbook to write the dragon spell.' } },
     { a: 'inkFeather', b: 'spellbook', setFlag: 'spellWritten', keep: true, consume: 'inkFeather', doneFlag: 'spellWritten',
       result: 'spell',                                 // de geschreven spreuk komt in je tas (blauwe rand)
       requiresScene: 'millInside',
@@ -691,7 +696,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'guard', sprite: 'guard', x: 402, y: 222, scale: 1.32, sway: true, hideFlag: 'guardFled' },   // poortwacht met hellebaard (iets groter); verdwijnt zodra de drakenspreuk hem op de vlucht jaagt
-        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 282, scale: 1.12, filter: 'brightness(0.6)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem zodra die danst — maar zodra je het rad uit de kar hebt, kijkt hij weer normaal (stopFlag)
+        { id: 'merchant', sprite: 'merchantLeft', x: 286, y: 282, scale: 1.12, filter: 'brightness(0.6)', scanSprites: ['merchantLeft', 'merchantFwd', 'merchantRight', 'merchantSly'], aweSprites: ['merchantSurprised', 'merchantAwe'], aweFlag: 'merchantDistracted', turnFlag: 'merchantDistracted', stopFlag: 'taken_castle_cart', scareFlag: 'dragonScare' },   // sneaky handelsman: kijkt verbaasd óm naar de dansende bloem; en kijkt opnieuw stomverbaasd op als de drakenschaduw voorbij komt
         { id: 'ravenCart', sprite: 'ravenPerch', x: 80, y: 198, scale: 0.95, appearFlag: 'ravenFed', hideFlag: 'taken_castle_cart', peck: true },   // de raaf landt iets links op de kar en pikt naar de ton waar het molenrad ligt (hint)
         { id: 'flower', sprite: 'flowerWhite', x: 444, y: 264, scale: 0.29, filter: 'brightness(0.76)', danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },   // (dansende) bloem in de schaduw van de poort — donkerder
         { id: 'flower2', sprite: 'flowerWhite', x: 431, y: 267, scale: 0.21, filter: 'brightness(0.76)', danceFlag: 'flowerDancing', danceStopFlag: 'taken_castle_cart' },
@@ -715,6 +720,7 @@ const GAME = {
             requiresFlag: 'dragonSpellLearned',
             setFlag: 'guardFled',
             win: true,
+            dragonSequence: true,        // speelt eerst de drakenschaduw-flyby + verbaasde wacht/handelsman af
             needText: { nl: 'Je voelt dat hier een machtige spreuk nodig is om langs de wacht te komen — maar zo’n spreuk ken je nog niet.', en: 'You sense it would take a mighty spell to get past the guard — but you don’t know one like that yet.' },
             text: { nl: 'Je heft je staf hoog en spreekt met donderende stem de DRAKENSPREUK: “Draconis Umbra!” Boven de poort rijst een kolossale, vuurogige drakenschaduw op die de hele muur verduistert en een loeiend gebrul laat klinken. De poortwacht verbleekt, laat zijn hellebaard kletterend vallen en vlucht gillend door de poort naar binnen. De weg naar kasteel Eldoria ligt open... (wordt vervolgd)', en: 'You raise your staff high and speak the DRAGON SPELL in a thundering voice: “Draconis Umbra!” Above the gate a colossal, fire-eyed dragon shadow rears up, darkening the whole wall with a roaring bellow. The guard turns pale, drops his halberd with a clatter and flees screaming through the gate. The way to castle Eldoria lies open... (to be continued)' }
           },
@@ -823,6 +829,8 @@ const GAME = {
         { id: 'witch', sprite: 'witch', lure: 'witchBeckon', idleFrames: 'heks-idle', battleFrames: 'heks-spreuk', x: 198, y: 228, scale: 0.84, hideFlag: 'witchDefeated' },
         /* De glanzende raaf zit op de linker fakkel/brazier achter in de cirkel; vliegt weg zodra hij het recept heeft 'aangewezen'. */
         { id: 'ravenValley', sprite: 'ravenPerch', x: 38, y: 207, scale: 0.95, hideFlag: 'recipeRevealed' },
+        /* De blauwe drakensteen die na het gevecht op de grond valt; glinstert blauw tot je hem opraapt. */
+        { id: 'stoneGround', sprite: 'dragonstone', x: 202, y: 268, scale: 0.5, glow: '120,200,255', bob: true, appearFlag: 'witchDefeated', hideFlag: 'gotDragonStone' },
         /* Lichtgevende lavendelbloemen rechtsonder (groter, dichter bijeen) met blauw licht; ze dansen + lokken vuurvliegjes na de dans-spreuk. */
         { id: 'vflower1', sprite: 'flowerLavender', x: 452, y: 305, scale: 0.42, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
         { id: 'vflower2', sprite: 'flowerLavender', x: 470, y: 309, scale: 0.34, glow: '130,190,255', danceFlag: 'valleyFlowersDancing', danceStopFlag: 'gotFireflight' },
@@ -857,10 +865,24 @@ const GAME = {
           { sym: '🐉', riddle: { nl: 'De laatste stem dondert: “Nu het machtigste beest! Ik draag schubben, spuw vuur en heers over de hele hemel. Roep het!”', en: 'The final voice thunders: “Now the mightiest beast! I wear scales, breathe fire and rule the whole sky. Summon it!”' } }
         ],
         wrongText: { nl: 'De heks kakelt schril: “MIS! Verkeerd beest, hapje!” Een groene vonk knettert langs je oor. Lees het raadsel nog eens en kies opnieuw.', en: 'The witch cackles shrilly: “WRONG! Wrong beast, morsel!” A green spark crackles past your ear. Read the riddle again and choose anew.' },
-        winText: { nl: 'Bij de draak schiet een ENORME vuurdraak uit de stenen omhoog en buldert naar de heks! Ze krijst, deinst achteruit en lost op in een wolk groene rook — verslagen! Waar ze stond gloeit nu een warme DRAKENSTEEN na. Je raapt hem op. (zet de drakensteen op je staf)', en: 'At the dragon a HUGE fire-drake bursts up from the stones and roars at the witch! She shrieks, recoils and dissolves into a cloud of green smoke — defeated! Where she stood a warm DRAGON-STONE glows. You pick it up. (place the dragon-stone on your staff)' },
-        give: 'dragonstone', setFlag: ['witchDefeated']
+        winText: { nl: 'Bij de draak schiet een ENORME vuurdraak uit de stenen omhoog en buldert naar de heks! Ze krijst, deinst achteruit en lost op in een wolk groene rook — verslagen! Waar ze stond valt met een heldere tik een gloeiende BLAUWE STEEN op de grond. (raap de steen op)', en: 'At the dragon a HUGE fire-drake bursts up from the stones and roars at the witch! She shrieks, recoils and dissolves into a cloud of green smoke — defeated! Where she stood a glowing BLUE STONE drops to the ground with a clear chime. (pick up the stone)' },
+        setFlag: ['witchDefeated']
       },
       hotspots: [
+        {
+          id: 'dragonStone',
+          name: { nl: 'De Blauwe Steen', en: 'The Blue Stone' },
+          rect: { x: 176, y: 250, w: 56, h: 46 },
+          walkTo: { x: 204, y: 308 },
+          appearFlag: 'witchDefeated',                 // ligt pas op de grond nadat de heks verslagen is
+          hideFlag: 'gotDragonStone',
+          arrow: { x: 200, y: 238, dir: 'down' },
+          gives: {
+            item: 'dragonstone', setFlag: 'gotDragonStone',
+            giveText: { nl: 'Je raapt de gloeiende blauwe drakensteen op. Hij is warm en tintelt van magie. Koppel hem aan je staf! (combineer de steen met je staf)', en: 'You pick up the glowing blue dragon-stone. It is warm and tingles with magic. Attach it to your staff! (combine the stone with your staff)' },
+            emptyText: { nl: 'Er ligt verder niets.', en: 'There’s nothing else here.' }
+          }
+        },
         {
           id: 'witch',
           name: { nl: 'De Oude Heks', en: 'The Old Witch' },
