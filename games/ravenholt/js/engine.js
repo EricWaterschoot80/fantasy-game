@@ -1093,7 +1093,7 @@
 
     /* Blauwe drakensteen in de staf: een echt klein blauw glinster-steentje bovenin Finns staf.
        Beweegt mee terwijl Finn loopt (volgt player.x/player.y). */
-    if (started && state.flags.stoneOnStaff && !dark) {
+    if (started && state.flags.ringWorn && !dark) {
       const ds = depthScaleAt(player.y);
       const fsign = player.flip ? -1 : 1;
       const extraRight = fsign > 0 ? 2 : 0;                    // 2px extra naar rechts als Finn naar rechts kijkt
@@ -2785,17 +2785,21 @@
       return;
     }
     const item = GAME.items[itemId];
-    if (itemId === 'spellbook' && state.flags.spellWritten) {
-      state.selectedItem = null;
-      if (state.flags.stoneOnStaff && !state.flags.dragonSpellLearned) writeDragonSpell();   // glinsterend boek + steen op de staf → schrijf de drakenspreuk
-      else openBook();                                                                       // anders: blader door de geleerde spreuken
-      renderInventory();
-      return;
+    if (itemId === 'spellbook') {
+      if (state.selectedItem && state.selectedItem !== 'spellbook') { tryCombine(state.selectedItem, 'spellbook'); return; }   // bv. ring + boek = drakenspreuk schrijven
+      if (state.flags.spellWritten) { state.selectedItem = null; openBook(); renderInventory(); return; }   // anders: blader door de pagina's
     }
     if (item && item.zoomImg && (!item.zoomImgFlag || state.flags[item.zoomImgFlag])) {   // leesbaar item; leeg toverboek nog niet (dan combineerbaar)
       state.selectedItem = null;
       sfx('tap');
       openZoom(typeof item.zoomImg === 'function' ? item.zoomImg(state) : item.zoomImg);   // zoomImg mag een functie zijn (bv. toverboek: dans-spreuk → drakenspreuk)
+      /* Los blaadje (kaart, recept): zodra je het bekeken hebt, gaat het als bladzijde in je
+         toverboek en verdwijnt het uit je tas. */
+      if (item.fileFlag && !state.flags[item.fileFlag]) {
+        state.flags[item.fileFlag] = true;
+        removeItem(itemId);
+        showToast(L({ nl: 'In je toverboek gestopt', en: 'Tucked into your spellbook' }));
+      }
       renderInventory();
       return;
     }
@@ -3797,23 +3801,28 @@
   const elGearClose  = document.getElementById('gear-close');
   const gctx = elGearCanvas ? elGearCanvas.getContext('2d') : null;
   let gears = null;
-  const GEAR_RADII   = [18, 23, 28, 33, 39];
+  const GEAR_RADII   = [23, 29, 35, 41, 47];   // grotere radjes
   const GEAR_IMGKEY  = ['cogBrass', 'cogIron', 'cogBrass', 'cogIron', 'cogBrass'];
 
   function openGears(hs) {
     if (!gctx) return;
     const cfg = hs.gears;
     const order = [2, 4, 0, 3, 1];          // benodigde maat per socket (vaste oplossing)
-    const cy = 94, sockets = [];
-    let x = 0;
+    const GW = elGearCanvas.width;          // 440
+    const cy = 100, sockets = [];
+    /* Plaats de radjes-rij eerst relatief, bepaal de breedte en centreer hem dan in het canvas. */
+    const xs = []; let x = GEAR_RADII[order[0]];
+    xs.push(x);
+    for (let i = 1; i < order.length; i++) { x += GEAR_RADII[order[i - 1]] + GEAR_RADII[order[i]] - 7; xs.push(x); }
+    const leftEdge = xs[0] - GEAR_RADII[order[0]];
+    const rightEdge = xs[xs.length - 1] + GEAR_RADII[order[order.length - 1]];
+    const off = (GW - (rightEdge - leftEdge)) / 2 - leftEdge;   // centreer-offset
     for (let i = 0; i < order.length; i++) {
-      const r = GEAR_RADII[order[i]];
-      x = (i === 0) ? (50 + r) : x + GEAR_RADII[order[i - 1]] + r - 7;
-      sockets.push({ x, y: cy, r, need: order[i], has: null });
+      sockets.push({ x: Math.round(xs[i] + off), y: cy, r: GEAR_RADII[order[i]], need: order[i], has: null });
     }
     const trayOrder = [3, 1, 4, 0, 2];      // geschudde voorraad onderin
     const tray = trayOrder.map((sz, i) => {
-      const hx = 58 + i * 80, hy = 220;
+      const hx = 48 + i * 87, hy = 224;     // ruimere tussenruimte voor de grotere radjes
       return { size: sz, r: GEAR_RADII[sz], img: GEAR_IMGKEY[sz], hx, hy, x: hx, y: hy, placedAt: null };
     });
     /* Eén rad ontbreekt tot je het molenrad gevonden hebt: het grootste rad (maat 4)
@@ -4724,6 +4733,7 @@
   function openBook() {
     if (!elZoom || !elZoomImg) return;
     const pages = [];
+    if (state.flags.mapFiled) pages.push({ img: 'assets/art/map-valley.png', label: { nl: 'De Kaart', en: 'The Map' } });          // altijd de eerste bladzijde
     if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
     if (state.flags.gotRecipe) pages.push({ img: 'assets/art/recipe.jpg', label: { nl: 'Het Recept', en: 'The Recipe' } });
     if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.jpg', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
