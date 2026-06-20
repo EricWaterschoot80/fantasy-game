@@ -406,14 +406,17 @@
   /* Tekent (een deel van) een afbeelding; als ctx.filter niet werkt én currentTint gezet is,
      gaat het eerst door een tijdelijk canvas met de handmatige tint. */
   function drawImgTinted(img, sx, sy, sw, sh, dx, dy, dw, dh) {
-    if (currentTint && !FILTER_OK && dw > 0 && dh > 0) {
-      if (tintCanvas.width < dw) tintCanvas.width = dw + 8;
-      if (tintCanvas.height < dh) tintCanvas.height = dh + 8;
-      tctx.clearRect(0, 0, dw, dh);
+    if (currentTint && !FILTER_OK && sw > 0 && sh > 0) {
+      /* Tint op de NATIEVE bronresolutie (sw×sh), zodat bij het schalen naar de
+         supersample-buffer geen detail/scherpte verloren gaat (anders zien sprites er korrelig uit). */
+      const tw = Math.ceil(sw), th = Math.ceil(sh);
+      if (tintCanvas.width < tw) tintCanvas.width = tw + 8;
+      if (tintCanvas.height < th) tintCanvas.height = th + 8;
+      tctx.clearRect(0, 0, tw, th);
       tctx.imageSmoothingEnabled = false;
-      tctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
-      applyTintOverlays(tctx, dw, dh, currentTint);
-      fctx.drawImage(tintCanvas, 0, 0, dw, dh, dx, dy, dw, dh);
+      tctx.drawImage(img, sx, sy, sw, sh, 0, 0, tw, th);
+      applyTintOverlays(tctx, tw, th, currentTint);
+      fctx.drawImage(tintCanvas, 0, 0, tw, th, dx, dy, dw, dh);
     } else {
       fctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
     }
