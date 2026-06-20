@@ -2443,6 +2443,24 @@
     if (!elSpellBtn) return;
     elSpellBtn.hidden = !(started && state.flags.spellWritten);
   }
+  /* Werkt de gegeven spreuk op de huidige plek? (zelfde doelwit-logica als castSpell,
+     maar zonder iets te casten — gebruikt om het spreuk-icoon te laten oplichten.) */
+  function spellWorksHere(spellId) {
+    const scene = GAME.scenes[state.currentScene];
+    if (!scene) return false;
+    const isDragon = spellId === 'dragonspell';
+    if (isDragon && !state.flags.dragonSpellLearned) return false;
+    if (!isDragon && !state.flags.spellWritten) return false;
+    if (!isDragon && state.currentScene === 'valley' && !state.flags.valleyFlowersDancing) return true;
+    const hs = (scene.hotspots || []).find((h) => h.castWith && (isDragon ? h.castWith.item === 'dragonspell' : h.castWith.item !== 'dragonspell'));
+    if (!hs) return false;
+    const c = hs.castWith;
+    const fls = Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag];
+    if (fls.some((f) => state.flags[f])) return false;          // al gedaan
+    if (c.requiresFlag && !state.flags[c.requiresFlag]) return false;   // voorwaarde nog niet gehaald
+    return true;
+  }
+
   function castSpell(spellId) {
     spellId = spellId || 'spell';
     const isDragon = spellId === 'dragonspell';
@@ -2528,10 +2546,9 @@
       if (m.face) { elBubbleFace.src = m.face; elBubbleFace.hidden = false; }
       else elBubbleFace.hidden = true;
       const bx = view.ox + m.anchor.x * view.scale;
-      const by = view.oy + m.anchor.y * view.scale;
       elBubble.style.left = Math.max(window.innerWidth * 0.15,
         Math.min(window.innerWidth * 0.85, bx)) + 'px';
-      elBubble.style.top = Math.max(56, by - 6) + 'px';
+      elBubble.style.top = (Math.max(0, view.oy) + 10) + 'px';   // tekstwolk bovenin de scène (niet meer over de personages)
       elBubble.hidden = false;
     } else {
       /* paneel (op mobiel ook voor personages — met gezicht) */
@@ -2621,6 +2638,7 @@
         slot.classList.add('filled');
         if (typeof item.sparkle === 'function' ? item.sparkle(state) : item.sparkle) slot.classList.add('sparkle');   // glinster-hint (bv. het toverboek)
         if (item.border) slot.classList.add('border-' + item.border);   // bv. de spreuk met een blauwe rand
+        if ((itemId === 'spell' || itemId === 'dragonspell') && spellWorksHere(itemId)) slot.classList.add('spell-active');   // licht op zodra de spreuk hier werkt
         const imgSrc = typeof item.img === 'function' ? item.img(state) : item.img;   // img mag een functie zijn (bv. toverboek: vlak → met veer na het schrijven)
         if (imgSrc) {
           const im = document.createElement('img');
@@ -4190,6 +4208,7 @@
   function runAction(a, anchor, face) {
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) addItem(a.give);
+    if (a.also) (Array.isArray(a.also) ? a.also : [a.also]).forEach(addItem);   // bv. de wijn geeft tegelijk de munt én de kaart
     if (a.burst) burstAt(a.burst.x, a.burst.y, { n: 18, col: '120,180,255', up: 16, life: 1.1 });   // blauwe lichtjes (bv. iets in de ketel gooien)
     if (a.setFlag) {
       (Array.isArray(a.setFlag) ? a.setFlag : [a.setFlag]).forEach((fl) => { state.flags[fl] = true; });

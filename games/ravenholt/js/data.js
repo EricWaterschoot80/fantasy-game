@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '93',
+  assetVer: '96',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -261,15 +261,8 @@ const GAME = {
           walkTo: { x: 366, y: 300 },
           face: 'assets/art/face-mayor.png',
           hideFlag: 'mayorGone',                       // blijft tot je hem de wijn hebt gegeven én het plein opnieuw betreedt
-          givesWhen: {
-            flag: 'millFixed', needFlag: 'gotMayorCoin', setFlag: 'gotMap', item: 'map',
-            needText: { nl: 'Burgemeester Bram veegt zijn voorhoofd af. “Je hebt het water teruggebracht, Finn — knap werk! Maar pff, wat een dorst... had ik nu maar iets te drinken.” (geef hem eerst de wijn uit de molen)', en: 'Mayor Bram mops his brow. “You’ve brought the water back, Finn — fine work! But phew, what a thirst... if only I had something to drink.” (give him the wine from the mill first)' },
-            giveText: { nl: 'Burgemeester Bram zet het flesje wijn aan zijn lippen, zucht voldaan en grijpt je dan bij de schouders: “Je hebt het water teruggebracht én een oude man verkwikt! Maar dit is nog niet voorbij... die vreemde lichten in de vallei. Hier — een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos.” Hij drukt je een vergeelde kaart in handen.', en: 'Mayor Bram lifts the vial of wine to his lips, sighs contentedly, then grips your shoulders: “You’ve brought the water back AND revived an old man! But this isn’t over... those strange lights in the valley. Here — a secret map your father once entrusted to me. Follow the path beyond the wood.” He presses a yellowed map into your hands.' }
-          },
           look: (state) => state.flags.gotMap
             ? { nl: 'Burgemeester Bram knikt je bemoedigend toe. “Volg de kaart naar de vallei, Finn — en pas op voor die vreemde lichten.”', en: 'Mayor Bram gives you an encouraging nod. “Follow the map to the valley, Finn — and beware those strange lights.”' }
-            : state.flags.gotMayorCoin
-            ? { nl: 'Burgemeester Bram glimt na van de wijn. “Bedankt, jongen! En ik heb nog iets belangrijks voor je — tik me eens aan.”', en: 'Mayor Bram is still glowing from the wine. “Thank you, my boy! And I have something important for you — give me a tap.”' }
             : state.flags.millFixed
             ? { nl: 'Burgemeester Bram veegt zijn voorhoofd af, dorstig van al die drukte. “Je hebt het water teruggebracht, Finn — knap werk! Maar wat zou ik nu graag iets te drinken lusten... een lekker glas wijn.” (geef hem de wijn uit de molen)', en: 'Mayor Bram mops his brow, thirsty from all the fuss. “You’ve brought the water back, Finn — fine work! But what I’d give for a drink right now... a nice glass of wine.” (give him the wine from the mill)' }
             : state.flags.metMayor
@@ -277,10 +270,13 @@ const GAME = {
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
           use: {
             wine: {
+              requiresFlag: 'millFixed',
+              requiresText: { nl: 'Burgemeester Bram snuift de wijn waarderend op. “Heerlijk, Finn — maar éérst dat water! Krijg de molen weer aan de praat, dan praten we verder.” (repareer eerst de molen)', en: 'Mayor Bram sniffs the wine appreciatively. “Lovely, Finn — but first that water! Get the mill turning again, then we’ll talk.” (fix the mill first)' },
               consume: 'wine',
               give: 'coinGold',
-              setFlag: 'gotMayorCoin',
-              text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Zijn ogen lichten op — hij neemt een diepe slok en zucht tevreden. “Wat een traktatie, Finn! Hier, voor jou — een glanzende zilveren munt. En ik heb nog iets belangrijks... tik me nog eens aan.” (geef de munt straks aan de raaf in de vallei)', en: 'You offer Mayor Bram the vial of wine. His eyes light up — he takes a deep sip and sighs contentedly. “What a treat, Finn! Here, for you — a shiny silver coin. And I have something important too... tap me once more.” (give the coin to the raven in the valley later)' }
+              also: 'map',
+              setFlag: ['gotMayorCoin', 'gotMap'],
+              text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Hij neemt een diepe slok, zucht voldaan en grijpt je dan bij de schouders: “Wat een traktatie, Finn! Je hebt het water teruggebracht én een oude man verkwikt. Hier — een glanzende gouden munt voor jou, én een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos, naar de vallei.” Hij drukt je een gouden munt en een vergeelde kaart in handen. (geef de munt aan de raaf in de vallei)', en: 'You offer Mayor Bram the vial of wine. He takes a deep sip, sighs contentedly, then grips your shoulders: “What a treat, Finn! You’ve brought the water back AND revived an old man. Here — a shiny gold coin for you, AND a secret map your father once entrusted to me. Follow the path beyond the wood, to the valley.” He presses a gold coin and a yellowed map into your hands. (give the coin to the raven in the valley)' }
             }
           },
           setFlag: 'metMayor'
@@ -622,8 +618,9 @@ const GAME = {
         {
           id: 'mouse',
           name: { nl: 'Een Bruine Muis', en: 'A Brown Mouse' },
-          rect: { x: 134, y: 284, w: 64, h: 38 },
-          walkTo: { x: 172, y: 300 },
+          rect: { x: 150, y: 158, w: 60, h: 44 },   // pal op het muisje naast de wijnton (waar het ook getekend staat)
+          walkTo: { x: 178, y: 300 },
+          hideFlag: 'wineTapLoose',                 // is weg zodra hij de tap heeft losgeknaagd (net als het muis-sprite)
           face: 'assets/art/face-mouse.png',
           look: (state) => state.flags.mouseFed
             ? { nl: 'Het muisje knabbelt tevreden aan het graan. “Mmm, dank je, vriendelijke reus! De molenaar? Die is naar het kasteel om hulp te vragen — volg het pad maar. Piep!”', en: 'The little mouse nibbles the grain happily. “Mmm, thank you, kind giant! The miller? He went to the castle for help — just follow the path. Squeak!”' }
