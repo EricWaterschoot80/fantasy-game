@@ -1090,16 +1090,26 @@
       }
     }
 
-    /* Blauwe drakensteen in de staf: een blijvende zachte glinster op Finns staf-kop. */
-    if (started && state.flags.stoneOnStaff && !dark) {
-      const sx = Math.round(player.x), sy = Math.round(player.y - 30);
-      const r = 8 + 2 * Math.sin(now / 230);
+    /* Blauwe drakensteen in de staf: een echt klein blauw glinster-steentje bovenin Finns staf. */
+    if (started && state.flags.stoneOnStaff && !dark && !player.target) {
+      const ds = depthScaleAt(player.y);
+      const fsign = player.flip ? -1 : 1;
+      const sx = Math.round(player.x + fsign * 17 * ds);   // staf-kop zit rechtsboven naast Finns hoofd
+      const sy = Math.round(player.y - 62 * ds);
+      const r = 7 + 2 * Math.sin(now / 230);               // zachte gloed
       const g = fctx.createRadialGradient(sx, sy, 0, sx, sy, r);
-      g.addColorStop(0, 'rgba(150,205,255,0.5)');
+      g.addColorStop(0, 'rgba(150,205,255,0.55)');
       g.addColorStop(1, 'rgba(120,195,255,0)');
       fctx.fillStyle = g;
       fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
-      twinkle(sx, sy, 0.55 + 0.4 * Math.sin(now / 170));
+      /* het steentje zelf: een klein blauw ruitje met een lichte kern */
+      fctx.beginPath();
+      fctx.moveTo(sx, sy - 3); fctx.lineTo(sx + 3, sy); fctx.lineTo(sx, sy + 3); fctx.lineTo(sx - 3, sy); fctx.closePath();
+      fctx.fillStyle = 'rgba(70,140,235,0.97)';
+      fctx.fill();
+      fctx.fillStyle = 'rgba(185,228,255,0.95)';
+      fctx.fillRect(sx - 1, sy - 1, 2, 2);
+      twinkle(sx, sy - 1, 0.55 + 0.4 * Math.sin(now / 170));
     }
 
     drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)
