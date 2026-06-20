@@ -1096,22 +1096,23 @@
     if (started && state.flags.stoneOnStaff && !dark) {
       const ds = depthScaleAt(player.y);
       const fsign = player.flip ? -1 : 1;
-      const sx = Math.round(player.x + fsign * 17 * ds + 3);   // staf-kop rechtsboven naast Finns hoofd (3px naar rechts)
-      const sy = Math.round(player.y - 68 * ds);               // bovenin de staf
-      const r = 7 + 2 * Math.sin(now / 230);               // zachte gloed
+      const extraRight = fsign > 0 ? 2 : 0;                    // 2px extra naar rechts als Finn naar rechts kijkt
+      const sx = Math.round(player.x + fsign * 17 * ds + 3 + extraRight);
+      const sy = Math.round(player.y - 68 * ds);              // bovenin de staf
+      /* Vooral een zachte blauwe gloed, met een héél klein lichtpuntje als steen. */
+      const r = 8 + 2 * Math.sin(now / 230);
       const g = fctx.createRadialGradient(sx, sy, 0, sx, sy, r);
       g.addColorStop(0, 'rgba(150,205,255,0.55)');
+      g.addColorStop(0.5, 'rgba(125,195,255,0.26)');
       g.addColorStop(1, 'rgba(120,195,255,0)');
       fctx.fillStyle = g;
       fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
-      /* het steentje zelf: een klein blauw ruitje met een lichte kern */
-      fctx.beginPath();
-      fctx.moveTo(sx, sy - 3); fctx.lineTo(sx + 3, sy); fctx.lineTo(sx, sy + 3); fctx.lineTo(sx - 3, sy); fctx.closePath();
-      fctx.fillStyle = 'rgba(70,140,235,0.97)';
-      fctx.fill();
-      fctx.fillStyle = 'rgba(185,228,255,0.95)';
+      /* het steentje: een heel klein puntje (2px) met een lichte kern */
+      fctx.fillStyle = 'rgba(95,165,250,0.95)';
       fctx.fillRect(sx - 1, sy - 1, 2, 2);
-      twinkle(sx, sy - 1, 0.55 + 0.4 * Math.sin(now / 170));
+      fctx.fillStyle = 'rgba(205,235,255,0.95)';
+      fctx.fillRect(sx, sy - 1, 1, 1);
+      twinkle(sx, sy, 0.5 + 0.4 * Math.sin(now / 170));
     }
 
     drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)

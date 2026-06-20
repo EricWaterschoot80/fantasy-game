@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '103',
+  assetVer: '104',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -270,10 +270,14 @@ const GAME = {
           walkTo: { x: 366, y: 300 },
           face: 'assets/art/face-mayor.png',
           hideFlag: 'mayorGone',                       // blijft tot je hem de wijn hebt gegeven én het plein opnieuw betreedt
+          givesWhen: {                                 // zodra de molen weer draait geeft hij je een leeg flesje om met wijn te vullen
+            flag: 'millFixed', setFlag: 'gotWineVial', item: 'vialWine',
+            giveText: { nl: 'Burgemeester Bram veegt zijn voorhoofd af. “Je hebt het water teruggebracht, Finn — knap werk! Maar pff, wat een dorst...” Hij vist een leeg glazen flesje uit zijn zak en drukt het je in handen. “Vul dit eens met wijn uit de oude wijnton in de molen, wil je? Dan ben ik je eeuwig dankbaar.” (tap de wijnton in de molen met dit flesje)', en: 'Mayor Bram mops his brow. “You’ve brought the water back, Finn — fine work! But phew, what a thirst...” He fishes an empty glass vial from his pocket and presses it into your hands. “Fill this with wine from the old barrel in the mill, would you? I’d be forever grateful.” (tap the wine barrel in the mill with this vial)' }
+          },
           look: (state) => state.flags.gotMap
             ? { nl: 'Burgemeester Bram knikt je bemoedigend toe. “Volg de kaart naar de vallei, Finn — en pas op voor die vreemde lichten.”', en: 'Mayor Bram gives you an encouraging nod. “Follow the map to the valley, Finn — and beware those strange lights.”' }
             : state.flags.millFixed
-            ? { nl: 'Burgemeester Bram veegt zijn voorhoofd af, dorstig van al die drukte. “Je hebt het water teruggebracht, Finn — knap werk! Maar wat zou ik nu graag iets te drinken lusten... een lekker glas wijn.” (geef hem de wijn uit de molen)', en: 'Mayor Bram mops his brow, thirsty from all the fuss. “You’ve brought the water back, Finn — fine work! But what I’d give for a drink right now... a nice glass of wine.” (give him the wine from the mill)' }
+            ? { nl: 'Burgemeester Bram likt langs zijn lippen. “En, is dat flesje al gevuld met wijn uit de molen? Ik versmacht van de dorst!” (vul het flesje bij de wijnton in de molen en geef het hem)', en: 'Mayor Bram licks his lips. “So, is that flask filled with wine from the mill yet? I’m parched!” (fill the flask at the wine barrel in the mill and give it to him)' }
             : state.flags.metMayor
             ? { nl: 'Burgemeester Bram friemelt zenuwachtig aan zijn ambtsketting. “De molen, Finn — onderzoek toch eens de molen.”', en: 'Mayor Bram fidgets nervously with his chain of office. “The mill, Finn — do go and inspect the mill.”' }
             : { nl: 'Burgemeester Bram strijkt over zijn grijze snor. “Finn, jongen — de fontein loopt leeg en het dorp wordt onrustig. De molen pompt geen water meer. Men fluistert over vreemde lichten in de vallei voorbij het bos... Onderzoek de molen eens.”', en: 'Mayor Bram strokes his grey moustache. “Finn, my boy — the fountain is running dry and the village grows uneasy. The mill pumps no water. They whisper of strange lights in the valley beyond the wood... Go and inspect the mill.”' },
@@ -477,13 +481,13 @@ const GAME = {
         {
           id: 'recipeStone',
           name: { nl: 'Een Losse Steen', en: 'A Loose Stone' },
-          rect: { x: 430, y: 256, w: 54, h: 40 },
-          walkTo: { x: 452, y: 306 },
+          rect: { x: 44, y: 254, w: 54, h: 42 },
+          walkTo: { x: 92, y: 306 },
           appearFlag: 'recipeRevealed',                 // verschijnt zodra de raaf de steen heeft aangewezen
-          arrow: { x: 456, y: 246, dir: 'down' },
+          arrow: { x: 72, y: 244, dir: 'down' },
           gives: {
             item: 'recipe',
-            giveText: { nl: 'Rechts bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept voor de ketel! Je vouwt het open en legt het tussen de bladzijden van je toverboek. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the right, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE for the cauldron! You unfold it and tuck it between the pages of your spellbook. (tap the recipe in your bag to view it)' },
+            giveText: { nl: 'Links bij de molen ligt een losse steen — precies waar de raaf op tikte. Je wipt hem omhoog: eronder ligt een opgevouwen, vergeeld perkament. Het is een récept voor de ketel! Je vouwt het open en legt het tussen de bladzijden van je toverboek. (tik het recept aan in je tas om het te bekijken)', en: 'By the mill, to the left, lies a loose stone — exactly where the raven tapped. You lever it up: beneath it rests a folded, yellowed parchment. It’s a RECIPE for the cauldron! You unfold it and tuck it between the pages of your spellbook. (tap the recipe in your bag to view it)' },
             emptyText: { nl: 'Onder de steen is verder niets meer; het recept zit in je tas.', en: 'There is nothing else under the stone; the recipe is in your bag.' }
           }
         },
@@ -575,9 +579,9 @@ const GAME = {
           walkTo: { x: 96, y: 300 },
           gives: {
             item: 'vialInk',
-            also: ['vialWine', 'vialTear', 'vialFly'],
+            also: ['vialTear', 'vialFly'],
             setFlag: 'gotVials',
-            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er vier lege glazen flesjes met kurk mee: voor de inkt (van de bessen), voor de wijn (uit de wijnton), voor de traan van het meisje, en eentje om straks vuurvliegjes in te vangen.', en: 'Old bottles stand in the cupboard. You take four empty corked glass vials: for the ink (from the berries), the wine (from the barrel), the girl’s tear, and one to catch fireflies in later.' },
+            giveText: { nl: 'In de kast staan oude flesjes. Je neemt er drie lege glazen flesjes met kurk mee: voor de inkt (van de bessen), voor de traan van het meisje, en eentje om straks vuurvliegjes in te vangen.', en: 'Old bottles stand in the cupboard. You take three empty corked glass vials: for the ink (from the berries), the girl’s tear, and one to catch fireflies in later.' },
             emptyText: { nl: 'De andere flesjes zijn gebarsten of vol spinrag.', en: 'The other bottles are cracked or full of cobwebs.' }
           }
         },
@@ -616,12 +620,12 @@ const GAME = {
               { key: 'oranje', label: { nl: 'Oranje', en: 'Orange' }, color: '#e8995a' }
             ],
             zones: [
-              { key: 'rood',   left: 13,   top: 25, width: 12,   height: 57 },
-              { key: 'blauw',  left: 25.5, top: 25, width: 11.5, height: 57 },
-              { key: 'groen',  left: 37,   top: 25, width: 11,   height: 57 },
-              { key: 'geel',   left: 47.5, top: 25, width: 10.5, height: 57 },
-              { key: 'paars',  left: 57,   top: 25, width: 10,   height: 57 },
-              { key: 'oranje', left: 66,   top: 25, width: 11,   height: 57 }
+              { key: 'rood',   left: 3,  top: 6, width: 15, height: 80 },
+              { key: 'blauw',  left: 18, top: 6, width: 15, height: 80 },
+              { key: 'groen',  left: 33, top: 6, width: 15, height: 80 },
+              { key: 'geel',   left: 48, top: 6, width: 15, height: 80 },
+              { key: 'paars',  left: 63, top: 6, width: 15, height: 80 },
+              { key: 'oranje', left: 78, top: 6, width: 16, height: 80 }
             ],
             solvedText: { nl: 'Met een klik schiet de laatste band los en een verborgen vakje klapt open — een oud TOVERBOEK glijdt in je handen! Maar als je het opent zijn alle bladzijden léég... Hier hoort een spreuk geschreven te worden, met de juiste pen en inkt.', en: 'With a click the last spine springs loose and a hidden compartment pops open — an old SPELLBOOK slides into your hands! But when you open it every page is blank... A spell needs to be written here, with the right pen and ink.' },
             resetText: { nl: 'Knars! Alle boeken klemmen weer vast. Begin opnieuw — kijk goed naar de stippen.', en: 'Crunch! All the books jam shut again. Start over — study the dots carefully.' }
