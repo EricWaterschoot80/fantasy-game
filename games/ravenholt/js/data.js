@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '105',
+  assetVer: '106',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -520,7 +520,11 @@ const GAME = {
 
     millInside: {
       name: { nl: 'In de Molen', en: 'Inside the Mill' },
-      bg: 'assets/art/scene-mill-inside.png',
+      bg: 'assets/art/scene-mill-inside.jpg',
+      bgVariants: [
+        { img: 'assets/art/scene-mill-inside-grain.jpg', flag: 'millFixed' },   // molen draait weer → verse graanzak verschijnt
+        { img: 'assets/art/scene-mill-inside.jpg' }                              // begin: geen graan
+      ],
       charFilter: 'sepia(0.3) saturate(1.12) brightness(0.78)',   // Finn staat in de schemerige molen: wat donkerder (schaduw)
       entryText: {
         nl: 'Binnen is het schemerig en stoffig; zonnestralen vallen door de raampjes op de grote maalsteen en het houten tandrad. Het rad staat stokstijf stil — hier wordt het water tegengehouden.',
