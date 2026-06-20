@@ -119,6 +119,33 @@
     img.src = src + AV;
     art.scenes[id] = img;
   }
+  /* Laadscherm: wacht tot alle scène-achtergronden (incl. wissel-varianten) geladen zijn,
+     zodat ze op mobiel niet halverwege ontbreken. Met een progressiebalk en een veiligheids-timeout. */
+  (function preloadGate() {
+    const elLoad = document.getElementById('loading-screen');
+    if (!elLoad) return;
+    const bgImgs = [...Object.values(art.scenes), ...Object.values(art.variants)];
+    const total = bgImgs.length || 1;
+    const elFill = document.getElementById('loading-fill');
+    const elPct = document.getElementById('loading-pct');
+    const t0 = performance.now();
+    let done = false;
+    function tick() {
+      if (done) return;
+      const n = bgImgs.filter((im) => im.complete).length;   // 'complete' = geladen óf mislukt (mislukt valt terug op de painter)
+      const pct = Math.min(100, Math.round(n / total * 100));
+      if (elFill) elFill.style.width = pct + '%';
+      if (elPct) elPct.textContent = 'Laden… ' + pct + '%';
+      if (n >= total || performance.now() - t0 > 9000) {
+        done = true;
+        if (elFill) elFill.style.width = '100%';
+        setTimeout(() => { elLoad.hidden = true; }, 220);
+        return;
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  })();
   for (const [id, src] of Object.entries(ART.sprites)) {
     const img = new Image();
     img.src = src + AV;

@@ -480,6 +480,28 @@ html, body {
 
 /* ---------- Overlays (titel + winst) ---------- */
 
+/* Laadscherm: ligt bovenop alles tot de achtergronden geladen zijn (mobiel) */
+.overlay.loading {
+  z-index: 80;
+  background: radial-gradient(900px 600px at 50% 30%, #241a12 0%, #120d09 70%, #0b0805 100%);
+  flex-direction: column;
+}
+.loading-box { text-align: center; padding: 0 24px; max-width: 460px; width: 86vw; }
+.loading-title {
+  font-family: var(--font-pixel, 'Press Start 2P'), serif;
+  color: var(--gold, #c9a24b); font-size: clamp(16px, 4.4vw, 26px);
+  letter-spacing: .5px; margin-bottom: 20px; text-shadow: 0 2px 0 #1f1410;
+}
+.loading-bar {
+  height: 16px; border: 2px solid var(--gold, #c9a24b); background: rgba(0,0,0,.45);
+  box-shadow: inset 0 0 0 2px #1f1410; overflow: hidden;
+}
+#loading-fill {
+  height: 100%; width: 0%; transition: width .25s ease;
+  background: linear-gradient(180deg, #f0d68a, #c9a24b);
+}
+.loading-pct { margin-top: 10px; color: var(--sand, #d8cdb4); font-size: 13px; opacity: .85; }
+
 .overlay {
   position: fixed;
   inset: 0;
