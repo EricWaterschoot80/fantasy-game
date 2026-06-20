@@ -208,7 +208,7 @@
   let castGlow = null;        // animatie: Finns staf gloeit op wanneer hij de spreuk uitspreekt
   let dragonShadow = null;    // animatie: voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
   let witchPoof = null;       // animatie: de heks lost op in een wolk groene rook zodra ze verslagen is
-  let witchFrog = null;       // animatie: uit de rook springt een vliegende kikker (met hoedje) die wegfladdert
+  let witchFrog = null;       // animatie: uit de rook springt een vliegende kikker met vleugeltjes die wegfladdert
   let amuletRiseT0 = 0;       // moment waarop de amulet omhoog begint te schuiven
   let revive     = null;   // win-viering: bladeren komen tot leven in het bos
   let hintUntil  = 0;
@@ -4537,7 +4537,7 @@
     const wsc = GAME.scenes[state.currentScene];
     const wn = wsc && (wsc.npcs || []).find((n) => n.id === 'witch');
     witchPoof = { t0: performance.now(), x: wn ? wn.x : 198, y: wn ? wn.y - 34 : 196 };
-    witchFrog = { t0: performance.now(), x: witchPoof.x, y: witchPoof.y, dir: witchPoof.x < SCENE_W / 2 ? 1 : -1 };   // uit de rook fladdert een kikker met hoedje weg
+    witchFrog = { t0: performance.now(), x: witchPoof.x, y: witchPoof.y, dir: witchPoof.x < SCENE_W / 2 ? 1 : -1 };   // uit de rook fladdert een gevleugelde kikker weg
     sfx('win');
     say(cfg.winText);
     if (cfg.win) pendingWin = true;
@@ -4574,22 +4574,26 @@
     const el = (now - witchFrog.t0) / 2600;
     if (el >= 1) { witchFrog = null; return; }
     if (el < 0.14) return;                                  // wacht tot de rook is opgekomen
-    const img = art.sprites.frogWitch;
+    const img = art.sprites.frogFly;
     if (!ready(img)) return;
+    const FRAMES = 4;                                       // pixel-art sprite-sheet: 4 wiek-frames naast elkaar
+    const fw = img.naturalWidth / FRAMES, fh = img.naturalHeight;
+    const fi = Math.floor(now / 85) % FRAMES;               // ~12 fps wiekslag
     const p = (el - 0.14) / 0.86;                           // 0..1 vluchtfase
     const dir = witchFrog.dir;
     const x = witchFrog.x + dir * p * (SCENE_W * 0.62);     // boog naar de zijkant
-    const y = witchFrog.y - 6 - p * 138 + Math.sin(p * Math.PI * 5) * 6;   // stijgt op + dobbert spartelend
+    const bob = [-1, 0, 2, 0][fi];                          // lichaam deint mee met de wiekslag
+    const y = witchFrog.y - 6 - p * 138 + Math.sin(p * Math.PI * 5) * 5 + bob;
     const a = p > 0.84 ? Math.max(0, 1 - (p - 0.84) / 0.16) : 1;           // vervaagt vlak voor het einde
-    const W = 46, h = W * img.naturalHeight / img.naturalWidth;            // echte kikker-sprite, klein in beeld
-    const wob = Math.sin(now / 90) * 0.16 + Math.sin(p * Math.PI * 4) * 0.06;   // spartelende kanteling (alsof hij worstelt om te vliegen)
-    const sq = 1 + Math.sin(now / 90) * 0.05;               // lichte op-en-neer 'sprong'
+    const W = 48, h = W * fh / fw;                          // pixel-kikker, klein in beeld (scherpe pixels)
+    const wob = Math.sin(p * Math.PI * 4) * 0.05;           // heel lichte kanteling tijdens de vlucht
     fctx.save();
+    fctx.imageSmoothingEnabled = false;                     // chunky 32-bit pixels, niet vervagen
     fctx.globalAlpha = a;
     fctx.translate(Math.round(x), Math.round(y));
-    fctx.scale(dir, sq);                                    // spiegelt mee met de vliegrichting
+    fctx.scale(dir, 1);                                     // spiegelt mee met de vliegrichting
     fctx.rotate(wob);
-    fctx.drawImage(img, Math.round(-W / 2), Math.round(-h / 2), W, h);
+    fctx.drawImage(img, fi * fw, 0, fw, fh, Math.round(-W / 2), Math.round(-h / 2), W, h);
     fctx.restore();
   }
 

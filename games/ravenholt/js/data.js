@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '119',
+  assetVer: '120',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -59,7 +59,7 @@ const GAME = {
     dragonstone:   'assets/art/item-dragonstone.png',// (oud) blauwe steen
     ring:          'assets/art/item-ring.png',       // drakenring die de heks achterlaat na het gevecht
     dragonShadow:  'assets/art/dragon-shadow.png',   // voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
-    frogWitch:     'assets/art/frog-witch.png',      // de heks veranderd in een vliegende kikker (met hoedje) na het gevecht
+    frogFly:       'assets/art/frog-fly.png',        // de heks veranderd in een vliegende kikker MET vleugels (pixel-art sprite-sheet, 4 wiek-frames)
     runeWolf:      'assets/art/runeWolf.png',         // dier-rune-tekens die boven de stenen verschijnen tijdens het heksengevecht
     runeOwl:       'assets/art/runeOwl.png',
     runeSnake:     'assets/art/runeSnake.png',
@@ -907,7 +907,7 @@ const GAME = {
           { sym: '🐉', riddle: { nl: 'De laatste stem dondert: “Nu het machtigste beest! Ik draag schubben, spuw vuur en heers over de hele hemel. Roep het!”', en: 'The final voice thunders: “Now the mightiest beast! I wear scales, breathe fire and rule the whole sky. Summon it!”' } }
         ],
         wrongText: { nl: 'De heks kakelt schril: “MIS! Verkeerd beest, hapje!” Een groene vonk knettert langs je oor. Lees het raadsel nog eens en kies opnieuw.', en: 'The witch cackles shrilly: “WRONG! Wrong beast, morsel!” A green spark crackles past your ear. Read the riddle again and choose anew.' },
-        winText: { nl: 'Bij de draak schiet een ENORME vuurdraak uit de stenen omhoog en buldert naar de heks! Ze krijst, verdwijnt in een wolk groene rook — en daaruit fladdert een kwakende KIKKER met haar puntige hoedje nog op, die klapwiekend de lucht in vlucht! Waar ze stond valt met een heldere tik een gloeiende blauwe RING op de grond. (raap de ring op)', en: 'At the dragon a HUGE fire-drake bursts up from the stones and roars at the witch! She shrieks, vanishes in a cloud of green smoke — and out of it flutters a croaking FROG, still wearing her pointy hat, flapping away into the sky! Where she stood a glowing blue RING drops to the ground with a clear chime. (pick up the ring)' },
+        winText: { nl: 'Bij de draak schiet een ENORME vuurdraak uit de stenen omhoog en buldert naar de heks! Ze krijst, verdwijnt in een wolk groene rook — en daaruit fladdert een kwakende KIKKER met twee fladderende vleugeltjes, die klapwiekend de lucht in vlucht! Waar ze stond valt met een heldere tik een gloeiende blauwe RING op de grond. (raap de ring op)', en: 'At the dragon a HUGE fire-drake bursts up from the stones and roars at the witch! She shrieks, vanishes in a cloud of green smoke — and out of it flutters a croaking winged FROG, two little wings flapping, taking off into the sky! Where she stood a glowing blue RING drops to the ground with a clear chime. (pick up the ring)' },
         setFlag: ['witchDefeated']
       },
       hotspots: [
