@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '88',
+  assetVer: '89',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -110,16 +110,18 @@ const GAME = {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Bovenin zit een lege vatting — er hoort een magische steen in. Zonder die steen doet de staf nog niets.', en: 'My father’s wooden staff. The top has an empty setting — a magic stone belongs there. Without the stone the staff does nothing yet.' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
-            look: { nl: 'Een glanzende zilveren munt van burgemeester Bram. Hij blinkt prachtig in het licht — precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'A shiny silver coin from Mayor Bram. It gleams beautifully in the light — just the kind of bright thing a magpie or raven can’t resist.' } },
+            look: { nl: 'Een oude zilveren munt die je uit de drooggevallen fontein opraapte. Hij blinkt nog mooi — precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old silver coin you picked from the dried-up fountain. It still gleams nicely — just the kind of bright thing a magpie or raven can’t resist.' } },
+    coinGold: { name: { nl: 'Gouden Munt', en: 'Gold Coin' }, icon: '🪙', img: 'assets/art/item-coin-gold.png',
+            look: { nl: 'Een glanzende gouden munt van burgemeester Bram. Hij blinkt schitterend in het licht — die slimme raaf in de vallei kan er vast geen weerstand aan bieden.', en: 'A shiny gold coin from Mayor Bram. It gleams brilliantly — that clever raven in the valley surely can’t resist it.' } },
     note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
             look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } },
-    vialInk:  { name: { nl: 'Leeg Flesje (voor inkt)', en: 'Empty Vial (for ink)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+    vialInk:  { name: { nl: 'Leeg Flesje (voor inkt)', en: 'Empty Vial (for ink)' }, icon: '🧪', img: 'assets/art/item-vial-ink.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier maak je inkt in van de zwarte bessen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to make ink from the black berries.' } },
-    vialTear: { name: { nl: 'Leeg Flesje (voor de traan)', en: 'Empty Vial (for the tear)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+    vialTear: { name: { nl: 'Leeg Flesje (voor de traan)', en: 'Empty Vial (for the tear)' }, icon: '🧪', img: 'assets/art/item-vial-tear.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je straks de traan van het meisje bij de kraam opvangen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch the tear of the girl at the stall later.' } },
-    vialWine: { name: { nl: 'Leeg Flesje (voor wijn)', en: 'Empty Vial (for wine)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+    vialWine: { name: { nl: 'Leeg Flesje (voor wijn)', en: 'Empty Vial (for wine)' }, icon: '🧪', img: 'assets/art/item-vial-wine-empty.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier kun je wijn uit de oude wijnton in tappen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to draw wine from the old wine barrel.' } },
-    vialFly:  { name: { nl: 'Leeg Flesje (voor vuurvliegjes)', en: 'Empty Vial (for fireflies)' }, icon: '🧪', img: 'assets/art/item-vial.png',
+    vialFly:  { name: { nl: 'Leeg Flesje (voor vuurvliegjes)', en: 'Empty Vial (for fireflies)' }, icon: '🧪', img: 'assets/art/item-vial-fly.png',
              look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je vuurvliegjes vangen — gebruik het op de dansende bloemen in de vallei.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch fireflies — use it on the dancing flowers in the valley.' } },
     wine:  { name: { nl: 'Flesje Wijn', en: 'Vial of Wine' }, icon: '🍷', img: 'assets/art/item-vial-wine.png',
              look: { nl: 'Een flesje diep bordeauxrode wijn, getapt uit de oude wijnton in de molen. Misschien lust burgemeester Bram er wel een slokje van...', en: 'A vial of deep Bordeaux-red wine, drawn from the old wine barrel in the mill. Mayor Bram might fancy a sip of this...' } },
@@ -143,7 +145,9 @@ const GAME = {
     spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', border: 'blue',
              look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
     dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', border: 'red',
-             look: { nl: 'De drakenspreuk “Draconis Umbra” die je van de heks won. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” you won from the witch. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
+             look: { nl: 'De drakenspreuk “Draconis Umbra” die zich in je toverboek schreef. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” that wrote itself into your spellbook. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
+    dragonstone: { name: { nl: 'Drakensteen', en: 'Dragon-Stone' }, icon: '🔶', border: 'red',
+             look: { nl: 'Een warme, rood-oranje steen die de heks achterliet, vol oude drakenmagie. Hij past precies in de kop van je staf — combineer hem met je staf.', en: 'A warm, red-orange stone the witch left behind, full of old dragon magic. It fits perfectly in the head of your staff — combine it with your staff.' } },
     poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-note.png',
              look: { nl: 'Het gloeiende briefje uit de brievenbus bij de molen, zonder afzender:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The glowing note from the mailbox by the mill, with no sender:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nYou should read this aloud to someone who carries sorrow...' } },
     map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-note.png', zoomImg: 'assets/art/map-valley.png',
@@ -169,6 +173,10 @@ const GAME = {
       text: { nl: 'Je plet de zwarte bessen in het lege flesje. Het sap kleurt diep gitzwart — echte inkt!', en: 'You crush the black berries into the empty vial. The juice turns deep jet-black — real ink!' } },
     { a: 'feather', b: 'ink', result: 'inkFeather',
       text: { nl: 'Je doopt de magische ravenveer in de inkt. De punt glanst zwart en lijkt bijna te trillen van leven — klaar om te schrijven.', en: 'You dip the magic raven feather into the ink. Its tip glistens black and seems almost to quiver with life — ready to write.' } },
+    { a: 'dragonstone', b: 'staff', setFlag: 'dragonSpellLearned', keep: true, consume: 'dragonstone', doneFlag: 'dragonSpellLearned',
+      result: 'dragonspell',                            // de drakensteen smelt in je staf en de drakenspreuk schrijft zichzelf in je boek
+      text: { nl: 'Je drukt de gloeiende drakensteen in de kop van je staf. Hij smelt erin vast en vlamt rood-oranje op! In je toverboek slaan de bladzijden vanzelf om en met vurige letters schrijft zich een nieuwe spreuk: de DRAKENSPREUK, “Draconis Umbra”. (tik het boek aan om de spreuk te bekijken)', en: 'You press the glowing dragon-stone into the head of your staff. It fuses in and flares red-orange! In your spellbook the pages turn on their own and in fiery letters a new spell writes itself: the DRAGON SPELL, “Draconis Umbra”. (tap the book to view the spell)' },
+      doneText: { nl: 'De drakensteen zit al in je staf en de drakenspreuk staat in je boek.', en: 'The dragon-stone is already in your staff and the dragon spell is in your book.' } },
     { a: 'inkFeather', b: 'spellbook', setFlag: 'spellWritten', keep: true, consume: 'inkFeather', doneFlag: 'spellWritten',
       result: 'spell',                                 // de geschreven spreuk komt in je tas (blauwe rand)
       requiresScene: 'millInside',
@@ -270,7 +278,7 @@ const GAME = {
           use: {
             wine: {
               consume: 'wine',
-              give: 'coin',
+              give: 'coinGold',
               setFlag: 'gotMayorCoin',
               text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Zijn ogen lichten op — hij neemt een diepe slok en zucht tevreden. “Wat een traktatie, Finn! Hier, voor jou — een glanzende zilveren munt. En ik heb nog iets belangrijks... tik me nog eens aan.” (geef de munt straks aan de raaf in de vallei)', en: 'You offer Mayor Bram the vial of wine. His eyes light up — he takes a deep sip and sighs contentedly. “What a treat, Finn! Here, for you — a shiny silver coin. And I have something important too... tap me once more.” (give the coin to the raven in the valley later)' }
             }
@@ -843,8 +851,8 @@ const GAME = {
           { sym: '🐉', riddle: { nl: 'De laatste stem dondert: “Nu het machtigste beest! Ik draag schubben, spuw vuur en heers over de hele hemel. Roep het!”', en: 'The final voice thunders: “Now the mightiest beast! I wear scales, breathe fire and rule the whole sky. Summon it!”' } }
         ],
         wrongText: { nl: 'De heks kakelt schril: “MIS! Verkeerd beest, hapje!” Een groene vonk knettert langs je oor. Lees het raadsel nog eens en kies opnieuw.', en: 'The witch cackles shrilly: “WRONG! Wrong beast, morsel!” A green spark crackles past your ear. Read the riddle again and choose anew.' },
-        winText: { nl: 'Bij de draak schiet een ENORME vuurdraak uit de stenen omhoog en buldert naar de heks! Ze krijst, deinst achteruit en lost op in een wolk groene rook — verslagen! En diep in je toverboek gloeit nu een nieuwe spreuk op: de DRAKENSPREUK, “Draconis Umbra”. (wordt vervolgd)', en: 'At the dragon a HUGE fire-drake bursts up from the stones and roars at the witch! She shrieks, recoils and dissolves into a cloud of green smoke — defeated! And deep in your spellbook a new spell glows to life: the DRAGON SPELL, “Draconis Umbra”. (to be continued)' },
-        win: true, give: 'dragonspell', setFlag: ['witchDefeated', 'dragonSpellLearned']
+        winText: { nl: 'Bij de draak schiet een ENORME vuurdraak uit de stenen omhoog en buldert naar de heks! Ze krijst, deinst achteruit en lost op in een wolk groene rook — verslagen! Waar ze stond gloeit nu een warme DRAKENSTEEN na. Je raapt hem op. (zet de drakensteen op je staf)', en: 'At the dragon a HUGE fire-drake bursts up from the stones and roars at the witch! She shrieks, recoils and dissolves into a cloud of green smoke — defeated! Where she stood a warm DRAGON-STONE glows. You pick it up. (place the dragon-stone on your staff)' },
+        give: 'dragonstone', setFlag: ['witchDefeated']
       },
       hotspots: [
         {
@@ -914,7 +922,7 @@ const GAME = {
           hideFlag: 'recipeRevealed',                  // weg zodra hij het recept heeft aangewezen
           look: { nl: 'Op de oude runensteen zit dezelfde glanzende raaf van het dorpsplein, kop scheef. Zijn kraaloogjes glinsteren zodra je iets glimmends bij je hebt — hij wil duidelijk weer ruilen.', en: 'On the old rune-stone perches the same glossy raven from the village square, head cocked. Its beady eyes glint at anything shiny you carry — it clearly wants to trade again.' },
           givesWhen: {
-            flag: 'visited_valley', needItem: 'coin', consume: 'coin', setFlag: 'recipeRevealed', flyNpc: 'ravenValley', flyDir: 'right',
+            flag: 'visited_valley', needItem: 'coinGold', consume: 'coinGold', setFlag: 'recipeRevealed', flyNpc: 'ravenValley', flyDir: 'right',
             needText: { nl: 'De raaf tikt ongeduldig met zijn snavel — hij wil iets glimmends. (geef de burgemeester de wijn, dan krijg je een muntje)', en: 'The raven taps impatiently with its beak — it wants something shiny. (give the mayor the wine and he’ll hand you a coin)' },
             giveText: { nl: 'De raaf grist het muntje weg en krast traag, alsof hij een recept opzegt: “Eén drakenschub... één traan van een onschuldige... en het licht van een vuurvliegje.” Dan wijst hij met zijn snavel richting de molen, klapwiekt op en vliegt weg — bij de molen tikt hij op een losse steen links. Daaronder moet iets liggen...', en: 'The raven snatches the coin and rasps slowly, as if reciting a recipe: “One dragon scale... one tear of an innocent... and the light of a firefly.” Then it points its beak toward the mill, takes wing and flies off — by the mill it taps a loose stone on the left. Something must lie beneath it...' }
           }
