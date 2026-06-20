@@ -1091,12 +1091,13 @@
       }
     }
 
-    /* Blauwe drakensteen in de staf: een echt klein blauw glinster-steentje bovenin Finns staf. */
-    if (started && state.flags.stoneOnStaff && !dark && !player.target) {
+    /* Blauwe drakensteen in de staf: een echt klein blauw glinster-steentje bovenin Finns staf.
+       Beweegt mee terwijl Finn loopt (volgt player.x/player.y). */
+    if (started && state.flags.stoneOnStaff && !dark) {
       const ds = depthScaleAt(player.y);
       const fsign = player.flip ? -1 : 1;
-      const sx = Math.round(player.x + fsign * 17 * ds);   // staf-kop zit rechtsboven naast Finns hoofd
-      const sy = Math.round(player.y - 68 * ds);           // iets hoger (bovenin de staf)
+      const sx = Math.round(player.x + fsign * 17 * ds + 3);   // staf-kop rechtsboven naast Finns hoofd (3px naar rechts)
+      const sy = Math.round(player.y - 68 * ds);               // bovenin de staf
       const r = 7 + 2 * Math.sin(now / 230);               // zachte gloed
       const g = fctx.createRadialGradient(sx, sy, 0, sx, sy, r);
       g.addColorStop(0, 'rgba(150,205,255,0.55)');
@@ -1115,6 +1116,7 @@
 
     drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)
     drawWitchPoof(now);      // de heks lost op in groene rook
+    drawDuelFlash(now);      // flits bij een goed antwoord in het heksengevecht
 
     /* De raaf vliegt weg: zet zich rustig af, klapwiekt en zweeft naar rechts het beeld uit. */
     if (ravenFly) {
@@ -4451,10 +4453,17 @@
 
   /* ---------- De tovenaars-strijd bij de ketel (raadsels → juiste gloeiende steen) ---------- */
   let duel = null;
+  let duelFlash = null;     // flits op de juiste steen bij een goed antwoord
   function startDuel() {
     const sc = GAME.scenes[state.currentScene];
     if (!sc || !sc.duel) return;
-    duel = { cfg: sc.duel, round: 0 };
+    /* Schud de vragen elke keer in een andere volgorde — maar houd de DRAAK altijd als laatste. */
+    const rounds = sc.duel.rounds.slice();
+    const di = rounds.findIndex((r) => r.sym === '🐉');
+    const dragon = di >= 0 ? rounds.splice(di, 1)[0] : null;
+    for (let i = rounds.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = rounds[i]; rounds[i] = rounds[j]; rounds[j] = t; }
+    if (dragon) rounds.push(dragon);
+    duel = { cfg: sc.duel, round: 0, rounds: rounds };
     state.flags.duelActive = true;
     window.__duelStart = performance.now();
     say(sc.duel.intro, null, 'assets/art/face-witch.png');
@@ -4463,7 +4472,7 @@
   }
   function sayRiddle() {
     if (!duel) return;
-    const r = duel.cfg.rounds[duel.round];
+    const r = duel.rounds[duel.round];
     if (r) say(r.riddle);
   }
   function tryDuelStone(sx, sy) {
@@ -4475,13 +4484,16 @@
       if (d < 56 && d < best) { best = d; hit = st; }
     }
     if (!hit) return false;
-    const want = duel.cfg.rounds[duel.round].sym;
+    const want = duel.rounds[duel.round].sym;
     if (hit.sym === want) {
-      sfx('pickup');
-      burstAt(hit.x, hit.y - 18, { n: 16, col: '120,180,255', up: 16, life: 1.0 });
+      sfx('pickup'); sfx('combine');
+      /* Goed antwoord: lichtbundel + ring-flits op de steen + flinke blauwe vonkenfontein. */
+      duelFlash = { x: hit.x, y: hit.y, sy: (hit.signY != null ? hit.signY : hit.y - 24), t0: performance.now() };
+      burstAt(hit.x, hit.y - 16, { n: 26, col: '130,195,255', up: 24, life: 1.3 });
+      burstAt(hit.x, duelFlash.sy, { n: 14, col: '190,230,255', up: 14, life: 1.0 });
       duel.round++;
-      if (duel.round >= duel.cfg.rounds.length) winDuel();
-      else { sfx('combine'); sayRiddle(); }
+      if (duel.round >= duel.rounds.length) winDuel();
+      else { sayRiddle(); }
     } else {
       sfx('error');
       burstAt(hit.x, hit.y - 18, { n: 8, col: '150,230,120', up: 10, life: 0.7 });
@@ -4526,6 +4538,27 @@
       fctx.beginPath(); fctx.arc(px, py, r, 0, Math.PI * 2); fctx.fill();
     }
   }
+
+  /* Flits bij een goed antwoord in het gevecht: een lichtbundel van de steen omhoog naar
+     het teken + een expanderende blauwe ring. */
+  function drawDuelFlash(now) {
+    if (!duelFlash) return;
+    const el = (now - duelFlash.t0) / 650;
+    if (el >= 1) { duelFlash = null; return; }
+    const a = 1 - el;
+    const x = duelFlash.x, topY = duelFlash.sy - 8, botY = duelFlash.y + 6;
+    const bw = 5 + el * 6;
+    const grad = fctx.createLinearGradient(x, botY, x, topY - 16);
+    grad.addColorStop(0, 'rgba(150,210,255,0)');
+    grad.addColorStop(0.5, 'rgba(180,225,255,' + (0.75 * a).toFixed(2) + ')');
+    grad.addColorStop(1, 'rgba(210,240,255,0)');
+    fctx.fillStyle = grad;
+    fctx.fillRect(Math.round(x - bw / 2), topY - 16, Math.round(bw), botY - topY + 22);
+    fctx.strokeStyle = 'rgba(180,228,255,' + a.toFixed(2) + ')';
+    fctx.lineWidth = 2;
+    fctx.beginPath(); fctx.arc(x, duelFlash.sy, 6 + el * 30, 0, Math.PI * 2); fctx.stroke();
+  }
+
   /* Goedkope blauwe vlam (een 'fakkel'): opstijgende blauwe vonkjes + zachte basisgloed. */
   function drawBlueFlame(x, y, now, h) {
     for (let i = 0; i < 8; i++) {
