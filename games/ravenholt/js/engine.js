@@ -371,6 +371,54 @@
   frameCanvas.width = SCENE_W * SS; frameCanvas.height = SCENE_H * SS;
   const fctx = frameCanvas.getContext('2d');
 
+  /* Sommige (oudere) mobiele browsers ondersteunen ctx.filter op canvas NIET — dan worden de
+     schaduw/contrast-filters op de personages (brightness/contrast) genegeerd en zien Finn en de
+     koopman er op mobiel te licht uit met harde zwarte lijnen. We detecteren dat en passen de
+     verdonkering/lijn-verzachting dan handmatig toe via een tijdelijk canvas (per sprite). */
+  const FILTER_OK = (() => {
+    if (window.__noFilter || /[?&]nofilter=1/.test(location.search)) return false;   // debug: forceer de mobiele fallback ook op desktop
+    try { fctx.filter = 'brightness(0.5)'; const ok = fctx.filter === 'brightness(0.5)'; fctx.filter = 'none'; return ok; }
+    catch (e) { return false; }
+  })();
+  let currentTint = null;                 // gezet door drawPlayer/drawNpc als ctx.filter NIET werkt
+  const tintCanvas = document.createElement('canvas');
+  const tctx = tintCanvas.getContext('2d');
+  function parseTint(str) {
+    let b = 1, c = 1, sep = 0;
+    const re = /([a-z]+)\(([\d.]+)\)/g; let m;
+    while ((m = re.exec(str))) {
+      const v = parseFloat(m[2]);
+      if (m[1] === 'brightness') b *= v;
+      else if (m[1] === 'contrast') c *= v;
+      else if (m[1] === 'sepia') sep = Math.max(sep, v);
+    }
+    return { b, c, sep };
+  }
+  function applyTintOverlays(ctx, w, h, str) {
+    const t = parseTint(str);
+    ctx.globalCompositeOperation = 'source-atop';
+    if (t.c < 1) { ctx.fillStyle = 'rgba(132,132,132,' + ((1 - t.c) * 0.85).toFixed(3) + ')'; ctx.fillRect(0, 0, w, h); }   // contrast<1: zwart minder hard
+    if (t.sep > 0) { ctx.fillStyle = 'rgba(150,110,55,' + (t.sep * 0.22).toFixed(3) + ')'; ctx.fillRect(0, 0, w, h); }      // warme sepia-zweem
+    if (t.b < 1) { ctx.fillStyle = 'rgba(0,0,0,' + (1 - t.b).toFixed(3) + ')'; ctx.fillRect(0, 0, w, h); }                  // brightness<1: schaduw
+    else if (t.b > 1) { ctx.fillStyle = 'rgba(255,255,255,' + Math.min(0.5, t.b - 1).toFixed(3) + ')'; ctx.fillRect(0, 0, w, h); }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  /* Tekent (een deel van) een afbeelding; als ctx.filter niet werkt én currentTint gezet is,
+     gaat het eerst door een tijdelijk canvas met de handmatige tint. */
+  function drawImgTinted(img, sx, sy, sw, sh, dx, dy, dw, dh) {
+    if (currentTint && !FILTER_OK && dw > 0 && dh > 0) {
+      if (tintCanvas.width < dw) tintCanvas.width = dw + 8;
+      if (tintCanvas.height < dh) tintCanvas.height = dh + 8;
+      tctx.clearRect(0, 0, dw, dh);
+      tctx.imageSmoothingEnabled = false;
+      tctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
+      applyTintOverlays(tctx, dw, dh, currentTint);
+      fctx.drawImage(tintCanvas, 0, 0, dw, dh, dx, dy, dw, dh);
+    } else {
+      fctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    }
+  }
+
   function paintBackground() {
     bgCtx.setTransform(1, 0, 0, 1, 0, 0);
     bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
@@ -1751,13 +1799,14 @@
     const w = Math.max(1, Math.round(img.naturalWidth * scale / D));
     const h = Math.max(1, Math.round(img.naturalHeight * scale / D));
     const px = Math.round(x), py = Math.round(y + bob);
+    const dh = Math.round(h * squashY);
     shadow(x, y, w * 0.8);
     fctx.save();
     fctx.imageSmoothingEnabled = false;
     fctx.translate(px, py);
     if (rot) fctx.rotate(rot);
     if (flip) fctx.scale(-1, 1);
-    fctx.drawImage(img, Math.round(-w / 2), Math.round(-h * squashY), w, Math.round(h * squashY));
+    drawImgTinted(img, 0, 0, img.naturalWidth, img.naturalHeight, Math.round(-w / 2), -dh, w, dh);
     fctx.restore();
   }
 
@@ -1936,9 +1985,8 @@
     const sh = (sc && typeof sc.heroShade === 'number') ? sc.heroShade : 0.9;
     const soft = ' brightness(' + sh + ') contrast(0.86)';
     const f = (sf === 'none') ? soft.trim() : (sf + soft);
-    fctx.filter = f;
-    drawPlayerSprite(now);
-    fctx.filter = 'none';
+    if (FILTER_OK) { fctx.filter = f; drawPlayerSprite(now); fctx.filter = 'none'; }
+    else { currentTint = f; drawPlayerSprite(now); currentTint = null; }
   }
 
   function drawPlayerSprite(now) {
@@ -1981,7 +2029,7 @@
           fctx.imageSmoothingEnabled = false;
           fctx.translate(Math.round(player.x), Math.round(player.y));
           if (player.flip) fctx.scale(-1, 1);
-          fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
+          drawImgTinted(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
           fctx.restore();
           return;
         }
@@ -2041,9 +2089,12 @@
     if (npc.sprite === 'minotaur' && state.currentScene === 'temple' && !state.flags.torchLit) f = 'brightness(0.4)';
     /* Eigen NPC-filter erbij (bv. de muis in de schaduw, donkerder). */
     if (npc.filter) f = (f === 'none') ? npc.filter : (f + ' ' + npc.filter);
-    if (f !== 'none') fctx.filter = f;
-    drawNpcInner(npc, now);
-    fctx.filter = 'none';
+    if (f !== 'none') {
+      if (FILTER_OK) { fctx.filter = f; drawNpcInner(npc, now); fctx.filter = 'none'; }
+      else { currentTint = f; drawNpcInner(npc, now); currentTint = null; }
+    } else {
+      drawNpcInner(npc, now);
+    }
   }
   function drawNpcInner(npc, now) {
     const S = SPRITE_SCALE;
