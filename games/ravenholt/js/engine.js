@@ -2599,16 +2599,16 @@
     if (el >= 1 || !ready(img)) return;
     const arc = Math.sin(el * Math.PI);
     /* donkere schaduw-waas over de hele scène op het hoogtepunt van de overvlucht */
-    fctx.fillStyle = 'rgba(14,11,22,' + (0.34 * arc).toFixed(3) + ')';
+    fctx.fillStyle = 'rgba(14,11,22,' + (0.30 * arc).toFixed(3) + ')';
     fctx.fillRect(0, 0, SCENE_W, SCENE_H);
-    /* de schaduw zelf: groter, van LINKSONDER naar RECHTSBOVEN; een echte schaduw (lagere
-       dekking) met een vervagende staart (na-ijlende, steeds ijlere kopieën naar linksonder). */
-    const w = 300, h = w * img.naturalHeight / img.naturalWidth;
-    const x = -160 + el * (SCENE_W + 420);
-    const y = (SCENE_H * 0.80) - el * (SCENE_H * 0.98);
-    for (let g = 2; g >= 0; g--) {                 // g=0 = de draak zelf, g=1/2 = vervagende staart-na-ijling
-      const ox = -g * 30, oy = g * 20;
-      fctx.globalAlpha = Math.min(1, arc * 1.25) * (g === 0 ? 0.80 : 0.26 - g * 0.07);
+    /* de schaduw zelf: GROOT, van LINKSONDER naar RECHTSBOVEN; meer vervaagd (lagere dekking)
+       met een vervagende staart (na-ijlende, steeds ijlere kopieën naar linksonder). */
+    const w = 380, h = w * img.naturalHeight / img.naturalWidth;
+    const x = -200 + el * (SCENE_W + 520);
+    const y = (SCENE_H * 0.86) - el * (SCENE_H * 1.06);
+    for (let g = 3; g >= 0; g--) {                 // g=0 = de draak zelf, g=1..3 = vervagende staart-na-ijling
+      const ox = -g * 34, oy = g * 22;
+      fctx.globalAlpha = Math.min(1, arc * 1.2) * (g === 0 ? 0.58 : 0.20 - g * 0.05);
       fctx.drawImage(img, Math.round(x - w / 2 + ox), Math.round(y + oy), w, h);
     }
     fctx.globalAlpha = 1;
@@ -4573,20 +4573,24 @@
     fctx.beginPath(); fctx.arc(x, duelFlash.sy, 6 + el * 30, 0, Math.PI * 2); fctx.stroke();
   }
 
-  /* Goedkope blauwe vlam (een 'fakkel'): opstijgende blauwe vonkjes + zachte basisgloed. */
+  /* Fijnere blauwe vlam (een 'fakkel'): veel kleine, fijne vonkjes (geen grove blokken) met
+     een witblauwe kern en een zachte basisgloed. */
   function drawBlueFlame(x, y, now, h) {
-    for (let i = 0; i < 8; i++) {
-      const t = ((now / 560) + i / 8 + x * 0.013) % 1;
+    const N = 18;
+    for (let i = 0; i < N; i++) {
+      const t = ((now / 640) + i / N + x * 0.011) % 1;
       const fy = y - t * h;
-      const fx = x + Math.sin(t * 5 + i * 1.7 + x) * (1.5 + t * 4);
-      const r = (1 - t) * (2.4 + (i % 2) * 1.4);
-      const a = Math.sin(t * Math.PI) * 0.85;
-      if (a <= 0.03) continue;
-      fctx.fillStyle = 'rgba(' + (i % 3 === 0 ? '195,235,255' : '90,165,255') + ',' + a.toFixed(2) + ')';
-      fctx.fillRect(Math.round(fx - r), Math.round(fy - r), Math.max(1, Math.round(r * 2)), Math.max(1, Math.round(r * 2)));
+      const fx = x + Math.sin(t * 5.5 + i * 1.7 + x) * (1.1 + t * (2.4 + h / 22));
+      const r = (1 - t) * (0.8 + (i % 3) * 0.8);                 // kleine, fijne vonkjes
+      const a = Math.sin(t * Math.PI) * 0.8;
+      if (a <= 0.04) continue;
+      const col = (i % 4 === 0) ? '215,240,255' : (t < 0.4 ? '120,190,255' : '80,150,255');   // kern witblauw, top dieper blauw
+      fctx.fillStyle = 'rgba(' + col + ',' + a.toFixed(2) + ')';
+      const s = Math.max(1, Math.round(r * 1.6));
+      fctx.fillRect(Math.round(fx - s / 2), Math.round(fy - s / 2), s, s);
     }
-    fctx.fillStyle = 'rgba(110,175,255,0.20)'; fctx.fillRect(x - 9, y - 4, 18, 9);
-    fctx.fillStyle = 'rgba(150,210,255,0.30)'; fctx.fillRect(x - 5, y - 3, 10, 6);
+    fctx.fillStyle = 'rgba(120,185,255,0.16)'; fctx.fillRect(x - 7, y - 3, 14, 7);
+    fctx.fillStyle = 'rgba(180,220,255,0.24)'; fctx.fillRect(x - 4, y - 2, 8, 5);
   }
 
   function drawDuel(now) {

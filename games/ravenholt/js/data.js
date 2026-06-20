@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '109',
+  assetVer: '110',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -326,7 +326,7 @@ const GAME = {
         {
           id: 'fountain',
           name: { nl: 'De Fontein', en: 'The Fountain' },
-          rect: { x: 150, y: 150, w: 116, h: 130 },
+          rect: { x: 132, y: 176, w: 152, h: 92 },
           walkTo: { x: 208, y: 300 },
           look: (state) => state.flags.seenFountain
             ? { nl: 'Het water in de fontein blijft zakken. Zonder de molen komt er geen nieuw water bij.', en: 'The fountain’s water keeps dropping. Without the mill no fresh water comes through.' }
@@ -346,20 +346,9 @@ const GAME = {
           }
         },
         {
-          id: 'note',
-          name: { nl: 'Briefje bij een Kraampje', en: 'Note by a Stall' },
-          rect: { x: 432, y: 244, w: 52, h: 40 },
-          walkTo: { x: 442, y: 306 },
-          gives: {
-            item: 'note',
-            giveText: { nl: 'Aan een marktkraampje is een verfrommeld briefje geprikt. Je pakt het en leest het later na (tik het aan in je tas).', en: 'A crumpled note is pinned to a market stall. You take it to read later (tap it in your bag).' },
-            emptyText: { nl: 'Er hangt niets meer.', en: 'Nothing hangs there anymore.' }
-          }
-        },
-        {
           id: 'stall',
           name: { nl: 'Het Meisje bij de Kraam', en: 'The Girl at the Stall' },
-          rect: { x: 452, y: 226, w: 100, h: 70 },
+          rect: { x: 448, y: 202, w: 114, h: 92 },
           walkTo: { x: 436, y: 306 },
           face: 'assets/art/face-girl.png',
           look: (state) => state.flags.gotTear
@@ -517,9 +506,9 @@ const GAME = {
         {
           id: 'toCastle',
           name: { nl: 'Pad naar het Kasteel', en: 'Path to the Castle' },
-          rect: { x: 64, y: 168, w: 74, h: 144 },
+          rect: { x: 64, y: 150, w: 74, h: 96 },        // hoger, geen overlap meer met de losse steen eronder
           walkTo: { x: 96, y: 300 },
-          arrow: { x: 96, y: 244, dir: 'up' },
+          arrow: { x: 96, y: 212, dir: 'up' },
           exit: { to: 'castle', travelText: { nl: 'Je neemt het pad over de heuvel naar de kasteelpoort van Eldoria...', en: 'You take the path over the hill to the castle gate of Eldoria...' } }
         },
         {
@@ -611,7 +600,7 @@ const GAME = {
           name: { nl: 'Open Molenaarsboek', en: 'Open Miller’s Book' },
           rect: { x: 18, y: 150, w: 120, h: 44 },
           walkTo: { x: 108, y: 300 },
-          zoomImg: 'assets/art/book-hint.png',   // toont de kleur-volgorde als gekleurde stippen (1→6)
+          zoomImg: 'assets/art/book-hint.jpg',   // kleur-volgorde (1→6) + de schrijf-hint (bessen-inkt + ravenveer → boek)
           setFlag: 'readMillBook',
           look: {
             nl: 'Op de tafel ligt een opengeslagen molenaarsboek. In de kantlijn is een rij gekleurde stippen getekend, genummerd van 1 tot 6 — dát moet de volgorde zijn waarin je de boeken lostrekt. (tik het boek aan om het goed te bekijken)',
@@ -639,12 +628,12 @@ const GAME = {
               { key: 'oranje', label: { nl: 'Oranje', en: 'Orange' }, color: '#e8995a' }
             ],
             zones: [
-              { key: 'rood',   left: 6,    top: 8, width: 10, height: 76 },
-              { key: 'blauw',  left: 20.5, top: 8, width: 10, height: 76 },
-              { key: 'groen',  left: 35.5, top: 8, width: 10, height: 76 },
-              { key: 'geel',   left: 50.5, top: 8, width: 10, height: 76 },
-              { key: 'paars',  left: 65.5, top: 8, width: 10, height: 76 },
-              { key: 'oranje', left: 80,   top: 8, width: 10, height: 76 }
+              { key: 'rood',   left: 9,    top: 8, width: 10, height: 76 },
+              { key: 'blauw',  left: 22.5, top: 8, width: 10, height: 76 },
+              { key: 'groen',  left: 36,   top: 8, width: 10, height: 76 },
+              { key: 'geel',   left: 49.5, top: 8, width: 10, height: 76 },
+              { key: 'paars',  left: 63,   top: 8, width: 10, height: 76 },
+              { key: 'oranje', left: 76.5, top: 8, width: 10, height: 76 }
             ],
             solvedText: { nl: 'Met een klik schiet de laatste band los en een verborgen vakje klapt open — een oud TOVERBOEK glijdt in je handen! Maar als je het opent zijn alle bladzijden léég... Hier hoort een spreuk geschreven te worden, met de juiste pen en inkt.', en: 'With a click the last spine springs loose and a hidden compartment pops open — an old SPELLBOOK slides into your hands! But when you open it every page is blank... A spell needs to be written here, with the right pen and ink.' },
             resetText: { nl: 'Knars! Alle boeken klemmen weer vast. Begin opnieuw — kijk goed naar de stippen.', en: 'Crunch! All the books jam shut again. Start over — study the dots carefully.' }
@@ -859,9 +848,9 @@ const GAME = {
         nl: 'Voorbij het bos opent zich de vallei uit de geheime kaart: een oude runencirkel van steen, met staande runenstenen en in het hart een grote stenen ketel. Hier, waar je vaders kaart eindigt, begint Finns volgende avontuur...',
         en: 'Beyond the wood the valley from the secret map opens up: an ancient rune circle of stone, with standing rune-stones and a great stone cauldron at its heart. Here, where your father’s map ends, Finn’s next adventure begins...'
       },
-      playerStart: { x: 120, y: 288 },
-      spawnFrom: { castle: { x: 120, y: 288 } },
-      depth: { far: 252, near: 304, sFar: 0.8, sNear: 1.06 },
+      playerStart: { x: 250, y: 300 },                       // meer in het midden bij aankomst
+      spawnFrom: { castle: { x: 250, y: 300 } },
+      depth: { far: 252, near: 304, sFar: 0.94, sNear: 1.06 },   // veel mildere diepte: je wordt minder snel klein naar achteren
       walkable: [
         { x: 56, y: 248, w: 452, h: 68 }    // de runencirkel — je kunt nu verder omhoog lopen tot bij de ketel
       ],
@@ -906,8 +895,8 @@ const GAME = {
         /* De 4 fakkels (vuurbakens) waaruit blauw vuur slaat — los van de stenen.
            De 2 voorste (links/rechts) staan lager + groter; de 2 achterste blijven hoger. */
         fires: [
-          { x: 26,  y: 182, h: 40 },   // voorste links — lager + meer pixels
-          { x: 542, y: 182, h: 40 },   // voorste rechts — lager + meer pixels
+          { x: 28,  y: 184, h: 40 },   // voorste links — 2px naar rechts + 2px omlaag
+          { x: 540, y: 184, h: 40 },   // voorste rechts — 2px naar links + 2px omlaag
           { x: 120, y: 112, h: 24 },   // achterste links
           { x: 432, y: 120, h: 24 }    // achterste rechts
         ],
@@ -961,7 +950,7 @@ const GAME = {
         {
           id: 'cauldron',
           name: { nl: 'De Stenen Ketel', en: 'The Stone Cauldron' },
-          rect: { x: 248, y: 150, w: 74, h: 90 },
+          rect: { x: 238, y: 124, w: 96, h: 116 },        // groter + hoger klikgebied
           walkTo: { x: 286, y: 300 },
           look: (state) => state.flags.valleyMagic
             ? { nl: 'De ketel laait met blauw vuur en de runen op alle stenen gloeien. De magie van de vallei is ontwaakt... (wordt vervolgd)', en: 'The cauldron blazes with blue fire and the runes on every stone glow. The valley’s magic has awoken... (to be continued)' }
