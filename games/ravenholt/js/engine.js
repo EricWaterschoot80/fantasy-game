@@ -312,6 +312,7 @@
   /* Achtergrondmuziek: 'Cistern Syntax' in een lus; valt terug op de generatieve
      ambient-synth als het mp3-bestand (nog) ontbreekt. */
   let bgMusic = null;
+  let cutsceneDucked = false;   // staat de spelmuziek even uit omdat een video met eigen soundtrack speelt?
   const DEFAULT_MUSIC = 'assets/audio/whispers-of-the-forgotten.mp3';
   function startSynthFallback() {
     const a = ac(); if (!a || music.master) return;
@@ -377,8 +378,11 @@
     const icon = document.getElementById('soundIcon');
     if (icon) icon.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png';
     if (music.master) music.master.gain.value = soundOn ? 1 : 0;
-    /* iOS negeert audio.volume → ook pauzeren zodat 'uit' echt stil is */
-    if (bgMusic) {
+    /* Speelt er net een video met eigen soundtrack? Dan alleen die dempen/aanzetten en
+       de spelmuziek gepauzeerd laten (anders lopen ze door elkaar). */
+    if (cutsceneDucked) { if (elCutsceneVid) elCutsceneVid.muted = !soundOn; }
+    else if (bgMusic) {
+      /* iOS negeert audio.volume → ook pauzeren zodat 'uit' echt stil is */
       bgMusic.volume = soundOn ? 0.18 : 0;
       if (soundOn) bgMusic.play().catch(() => {}); else { try { bgMusic.pause(); } catch (e) {} }
     }
@@ -2826,7 +2830,7 @@
       sfx('combine');
       /* Cinematic: speel eerst de spreuk-video af, dáárna de tekst (de vlag is al gezet,
          dus ook bij overslaan heb je je eerste spreuk). */
-      if (recipe.cutscene) { playCutscene(recipe.cutscene, () => say(recipe.text)); }
+      if (recipe.cutscene) { playCutscene(recipe.cutscene, () => say(recipe.text), { bakedAudio: true }); }
       else say(recipe.text);
       return;
     }
@@ -4576,7 +4580,7 @@
       sfx('win');
       say(cfg.winText);
       if (cfg.win) pendingWin = true;
-    });
+    }, { bakedAudio: true });
   }
 
   function drawWitchPoof(now) {
@@ -4894,6 +4898,10 @@
     elCutsceneVid.removeAttribute('src');
     try { elCutsceneVid.load(); } catch (e) {}
     elCutscene.hidden = true;
+    if (cutsceneDucked) {                  // spelmuziek weer aanzetten na een video met eigen soundtrack
+      cutsceneDucked = false;
+      if (bgMusic && music.started && soundOn) { try { bgMusic.play().catch(() => {}); } catch (e) {} }
+    }
     cb && cb();
   }
   function playCutscene(src, onDone, opts) {
@@ -4903,8 +4911,18 @@
     elCutsceneVid.src = src + AV;
     elCutscene.hidden = false;
     elCutsceneVid.currentTime = 0;
-    startMusic();                          // sfeermuziek onder de cinematic
-    if (!opts.noVoice) scheduleCutsceneAudio();   // karaktergeluidjes gesynct op de heks-strijd (niet bij de opening)
+    if (opts.bakedAudio) {
+      /* De video heeft zijn EIGEN muziek + geluiden: speel die af en demp zolang de
+         lopende spelmuziek, zodat ze niet door elkaar lopen. */
+      elCutsceneVid.muted = !soundOn;
+      elCutsceneVid.volume = 1;
+      cutsceneDucked = true;
+      if (bgMusic) { try { bgMusic.pause(); } catch (e) {} }
+    } else {
+      elCutsceneVid.muted = true;
+      startMusic();                        // sfeermuziek onder de cinematic
+      if (!opts.noVoice) scheduleCutsceneAudio();   // karaktergeluidjes via Web-Audio
+    }
     const p = elCutsceneVid.play();
     if (p && p.catch) p.catch(() => {});   // autoplay-blokkade mag het spel niet breken
   }
@@ -5009,7 +5027,7 @@
     elTitle.hidden = true;
     /* Openingsfilm: hoe Finn's vader door wachters wordt meegenomen en hij op pad gaat.
        Daarna begint het spel. Overslaan kan met de knop in de cinematic. */
-    playCutscene('assets/video/opening.mp4', beginGame, { noVoice: true });
+    playCutscene('assets/video/opening.mp4', beginGame, { bakedAudio: true });
   });
 
   elReplayBtn.addEventListener('click', resetGame);
