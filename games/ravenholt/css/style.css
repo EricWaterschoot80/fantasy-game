@@ -697,12 +697,14 @@ html, body {
 
 /* Eind-afbeelding op het win-scherm + 'speel ander spel' knop */
 .win-banner {
-  display: block; width: 100%; max-width: 420px; aspect-ratio: 16 / 9;
-  object-fit: cover; image-rendering: pixelated;
+  display: block; width: 100%; max-width: 720px; aspect-ratio: 16 / 9;
+  object-fit: cover; image-rendering: auto;
   border: 2px solid var(--gold); border-radius: 3px;
   box-shadow: 0 0 0 2px #1f1410, 0 6px 16px rgba(0,0,0,.5);
-  margin: 0 auto 12px;
+  margin: 0 auto 14px;
 }
+/* Eind-scherm: het kasteelpoort-eindshot groot tonen */
+#win-screen .overlay-card { max-width: 760px; }
 .win-next { display: inline-block; margin-top: 10px; text-decoration: none; font-size: 15px; }
 
 /* Uitvergrote kaart/afbeelding (bv. het receptenblaadje) */
