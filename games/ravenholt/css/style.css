@@ -1142,13 +1142,12 @@ html, body {
 @media (pointer: coarse) {
   #bottomui { display: contents; }
 
-  /* knoppen allemaal links: geluid, taal, oog — inventory staat rechts */
-  .round-btn.sound { left: 12px; }
-  .round-btn.lang  { left: 60px; }
-  #hintBtn { left: 108px; right: auto; }
-  /* op mobiel staan (i) en EN ONDER ELKAAR; de tip-popover daar weer onder */
-  .round-btn.info { left: 60px; top: calc(var(--safe-top) + 56px); }
-  #quest { left: 12px; top: calc(var(--safe-top) + 106px); max-width: min(72vw, 300px); }
+  /* alle knoppen links ONDER ELKAAR (geluid, taal, tip); inventory staat rechts */
+  .round-btn.sound { left: 12px; right: auto; top: calc(var(--safe-top) + 8px); }
+  .round-btn.lang  { left: 12px; right: auto; top: calc(var(--safe-top) + 56px); }
+  .round-btn.info  { left: 12px; right: auto; top: calc(var(--safe-top) + 104px); }
+  /* tip-popover onder de icoon-kolom, links */
+  #quest { left: 12px; right: auto; top: calc(var(--safe-top) + 156px); max-width: min(66vw, 280px); }
 
   #invbar {
     position: fixed;
@@ -1169,15 +1168,15 @@ html, body {
      grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */
   #msg {
     position: fixed;
-    left: 6px;
-    right: 6px;
+    left: 64px;                 /* rechts van de icoon-kolom — niet over de volle breedte */
+    right: 8px;
     top: calc(var(--safe-top) + 6px);
     bottom: auto;
     transform: none;
-    max-width: none;
+    max-width: 460px;
     width: auto;
     margin: 0;
-    padding: 9px 32px 7px 12px;
+    padding: 9px 30px 7px 12px;
   }
   #homeBtn { left: 10px; right: auto; }
   #msgText { font-size: 15px; line-height: 1.3; }

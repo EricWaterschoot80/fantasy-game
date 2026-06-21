@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=147">
+  <link rel="stylesheet" href="css/style.css?v=148">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -42,6 +42,18 @@
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" }
   }
   </script>
+  <script>
+  /* Voorkom pinch-zoom en dubbel-tik-zoom op mobiel (anders blijf je ingezoomd hangen). */
+  (function () {
+    var stop = function (e) { if (e.cancelable) e.preventDefault(); };
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    document.addEventListener('touchmove', function (e) {
+      if (e.touches && e.touches.length > 1) stop(e);   // twee vingers = knijp-zoom → blokkeren
+    }, { passive: false });
+  })();
+  </script>
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -53,8 +65,6 @@
         <div id="hotspot-label" class="panel-mini" hidden></div>
       </div>
       <button id="soundBtn" class="round-btn sound" title="Geluid" aria-label="Geluid aan of uit"><img id="soundIcon" src="assets/icons/ui-sound-on.png" alt=""></button>
-      <button id="eyeBtn" class="round-btn eye" title="Spiek: waar kun je iets doen?" aria-label="Toon waar je iets kunt doen"><img src="assets/icons/ui-eye.png" alt=""></button>
-      <button id="devValleyBtn" class="round-btn dev" title="Direct naar de vallei" aria-label="Direct naar de vallei">🐉</button>
     </div>
 
     <a id="homeBtn" class="round-btn home" href="../../index.html" title="Home" aria-label="Terug naar de homepagina">⌂</a>
@@ -95,7 +105,7 @@
   </div>
 
   <div id="title-screen" class="overlay title">
-    <img class="title-bg" src="assets/art/title.jpg?v=147" alt="Whispers of Ravenholt" onerror="this.remove()">
+    <img class="title-bg" src="assets/art/title.jpg?v=148" alt="Whispers of Ravenholt" onerror="this.remove()">
     <div class="title-content">
       <h1 id="title-h1" hidden><span>Whispers of</span><br><span>Ravenholt</span></h1>
       <p id="title-sub" class="subtitle" hidden>Een point-and-click avontuur</p>
@@ -115,7 +125,7 @@
 
   <div id="win-screen" class="overlay" hidden>
     <div class="overlay-card panel">
-      <img class="win-banner" src="assets/art/win-deel2.jpg?v=147" alt="" onerror="this.remove()">
+      <img class="win-banner" src="assets/art/win-deel2.jpg?v=148" alt="" onerror="this.remove()">
       <h1 id="win-h1">Deel 1 uitgespeeld!</h1>
       <p class="intro" id="winText"></p>
       <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
@@ -227,10 +237,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=147"></script>
-  <script src="js/scenes.js?v=147"></script>
-  <script src="js/data.js?v=147"></script>
-  <script src="js/engine.js?v=147"></script>
+  <script src="js/sprites.js?v=148"></script>
+  <script src="js/scenes.js?v=148"></script>
+  <script src="js/data.js?v=148"></script>
+  <script src="js/engine.js?v=148"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
