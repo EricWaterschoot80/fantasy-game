@@ -4896,18 +4896,21 @@
     elCutscene.hidden = true;
     cb && cb();
   }
-  function playCutscene(src, onDone) {
+  function playCutscene(src, onDone, opts) {
+    opts = opts || {};
     if (!elCutscene || !elCutsceneVid) { onDone && onDone(); return; }
     cutsceneDone = onDone || (() => {});
     elCutsceneVid.src = src + AV;
     elCutscene.hidden = false;
     elCutsceneVid.currentTime = 0;
     startMusic();                          // sfeermuziek onder de cinematic
-    scheduleCutsceneAudio();               // karaktergeluidjes gesynct op de shots
+    if (!opts.noVoice) scheduleCutsceneAudio();   // karaktergeluidjes gesynct op de heks-strijd (niet bij de opening)
     const p = elCutsceneVid.play();
     if (p && p.catch) p.catch(() => {});   // autoplay-blokkade mag het spel niet breken
   }
   if (elCutsceneVid) elCutsceneVid.addEventListener('ended', endCutscene);
+  /* Mocht de video niet laden (bv. ontbrekend bestand), ga dan gewoon door i.p.v. vast te lopen. */
+  if (elCutsceneVid) elCutsceneVid.addEventListener('error', () => { if (cutsceneDone) endCutscene(); });
   if (elCutsceneSkip) elCutsceneSkip.addEventListener('click', endCutscene);
 
   /* ---------- Winst & herstart ---------- */
@@ -4993,16 +4996,20 @@
   if (elPrologue) elPrologue.addEventListener('click', advancePrologue);
   if (elPrologueSkip) elPrologueSkip.addEventListener('click', (e) => { e.stopPropagation(); if (soundOn) sfx('tap'); endPrologue(); });
 
+  function beginGame() {
+    started = true;
+    state.flags['visited_' + state.currentScene] = true;
+    updateQuest();
+    say(GAME.scenes[state.currentScene].entryText);
+  }
   elStartBtn.addEventListener('click', () => {
     ac();
     startMusic();
     sfx('tap');
     elTitle.hidden = true;
-    /* Geen proloog-panels meer: het titelscherm zelf is de openingsfoto; direct het spel in. */
-    started = true;
-    state.flags['visited_' + state.currentScene] = true;
-    updateQuest();
-    say(GAME.scenes[state.currentScene].entryText);
+    /* Openingsfilm: hoe Finn's vader door wachters wordt meegenomen en hij op pad gaat.
+       Daarna begint het spel. Overslaan kan met de knop in de cinematic. */
+    playCutscene('assets/video/opening.mp4', beginGame, { noVoice: true });
   });
 
   elReplayBtn.addEventListener('click', resetGame);
