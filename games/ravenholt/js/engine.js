@@ -4679,7 +4679,7 @@
       g.addColorStop(1, 'rgba(120,195,255,0)');
       fctx.fillStyle = g; fctx.fillRect(st.x - gr, cy - gr, gr * 2, gr * 2);
       if (ready(img)) {
-        const rw = 28, rh = rw * img.naturalHeight / img.naturalWidth;   // iets kleiner
+        const rw = st.rw || 28, rh = rw * img.naturalHeight / img.naturalWidth;   // per-steen grootte (rw), standaard 28
         fctx.globalAlpha = 0.58 + 0.20 * pulse;                          // doorschijnend
         fctx.drawImage(img, Math.round(st.x - rw / 2), Math.round(cy - rh / 2), rw, rh);
         fctx.globalAlpha = 1;

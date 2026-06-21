@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '140',
+  assetVer: '141',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -895,15 +895,15 @@ const GAME = {
            signY = waar het blauwe rune-teken bóven de steen zweeft; fire = blauwe vlam uit die 'fakkel'. */
         stones: [
           { x: 40,  y: 150, signY: 70,  sym: '🐺', rune: 'runeWolf'  },
-          { x: 176, y: 138, signY: 84,  sym: '🦉', rune: 'runeOwl'   },
-          { x: 392, y: 138, signY: 84,  sym: '🐍', rune: 'runeSnake' },
+          { x: 176, y: 138, signY: 84,  sym: '🦉', rune: 'runeOwl',  rw: 24 },   // uil iets kleiner
+          { x: 382, y: 138, signY: 84,  sym: '🐍', rune: 'runeSnake', rw: 24 },  // slang 10px naar links + iets kleiner
           { x: 528, y: 150, signY: 70,  sym: '🐉', rune: 'runeDragon'}
         ],
         /* De 4 fakkels (vuurbakens) waaruit blauw vuur slaat — los van de stenen.
            De 2 voorste (links/rechts) staan lager + groter; de 2 achterste blijven hoger. */
         fires: [
-          { x: 28,  y: 184, h: 40 },   // voorste links — 2px naar rechts + 2px omlaag
-          { x: 540, y: 184, h: 40 },   // voorste rechts — 2px naar links + 2px omlaag
+          { x: 28,  y: 189, h: 40 },   // voorste links — 5px lager
+          { x: 540, y: 189, h: 40 },   // voorste rechts — 5px lager
           { x: 120, y: 112, h: 24 },   // achterste links
           { x: 432, y: 120, h: 24 }    // achterste rechts
         ],
