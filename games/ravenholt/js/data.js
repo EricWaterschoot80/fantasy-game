@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '127',
+  assetVer: '128',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -749,10 +749,9 @@ const GAME = {
             item: 'dragonspell',
             requiresFlag: 'dragonSpellLearned',
             setFlag: 'guardFled',
-            win: true,
-            dragonSequence: true,        // speelt eerst de drakenschaduw-flyby + verbaasde wacht/handelsman af
+            dragonSequence: true,        // speelt eerst de drakenschaduw-flyby + verbaasde wacht/handelsman af; daarna verschijnt de pijl naar binnen
             needText: { nl: 'Je voelt dat hier een machtige spreuk nodig is om langs de wacht te komen — maar zo’n spreuk ken je nog niet.', en: 'You sense it would take a mighty spell to get past the guard — but you don’t know one like that yet.' },
-            text: { nl: 'Je heft je staf hoog en spreekt met donderende stem de DRAKENSPREUK: “Draconis Umbra!” Boven de poort rijst een kolossale, vuurogige drakenschaduw op die de hele muur verduistert en een loeiend gebrul laat klinken. De poortwacht verbleekt, laat zijn hellebaard kletterend vallen en vlucht gillend door de poort naar binnen. De weg naar kasteel Eldoria ligt open... (wordt vervolgd)', en: 'You raise your staff high and speak the DRAGON SPELL in a thundering voice: “Draconis Umbra!” Above the gate a colossal, fire-eyed dragon shadow rears up, darkening the whole wall with a roaring bellow. The guard turns pale, drops his halberd with a clatter and flees screaming through the gate. The way to castle Eldoria lies open... (to be continued)' }
+            text: { nl: 'Je heft je staf hoog en spreekt met donderende stem de DRAKENSPREUK: “Draconis Umbra!” Boven de poort rijst een kolossale, vuurogige drakenschaduw op die de hele muur verduistert en een loeiend gebrul laat klinken. De poortwacht verbleekt, laat zijn hellebaard kletterend vallen en vlucht gillend door de poort naar binnen. De weg naar kasteel Eldoria ligt open — loop nu de poort binnen! (een pijl wijst naar binnen)', en: 'You raise your staff high and speak the DRAGON SPELL in a thundering voice: “Draconis Umbra!” Above the gate a colossal, fire-eyed dragon shadow rears up, darkening the whole wall with a roaring bellow. The guard turns pale, drops his halberd with a clatter and flees screaming through the gate. The way to castle Eldoria lies open — step through the gate now! (an arrow points inside)' }
           },
           setFlag: 'metGuard'
         },
@@ -811,6 +810,16 @@ const GAME = {
             en: 'The gate gearworks has completely fallen apart and is badly rusted — nothing to repair here for now. (The mill has a gearworks just like this — there, with the mill wheel, lies your real task.)'
           },
           setFlag: 'sawGateGears'
+        },
+        {
+          id: 'gateIn',
+          name: { nl: 'De Open Poort', en: 'The Open Gate' },
+          rect: { x: 360, y: 120, w: 84, h: 150 },        // de poortopening; verschijnt zodra de wacht is gevlucht
+          walkTo: { x: 400, y: 284 },
+          arrow: { x: 400, y: 150, dir: 'up' },           // pijl wijst naar binnen (de poort in)
+          appearFlag: 'guardFled',
+          endGame: true,
+          enterText: { nl: 'Je stapt door de wijd open poort, kasteel Eldoria binnen. De drakenschaduw cirkelt nog na in de lucht. Voor je rijst het machtige kasteel op, waar ergens je vader gevangen zit... Een nieuw avontuur begint. (Deel 2)', en: 'You step through the wide-open gate, into castle Eldoria. The dragon-shadow still circles overhead. Before you the mighty castle rises, where your father is held captive somewhere... A new adventure begins. (Part 2)' }
         },
         {
           id: 'toMill',

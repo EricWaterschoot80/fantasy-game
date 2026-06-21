@@ -2052,7 +2052,7 @@
   function drawExitArrows(now) {
     const scene = GAME.scenes[state.currentScene];
     for (const hs of scene.hotspots) {
-      if (!hs.exit || !hs.arrow) continue;
+      if ((!hs.exit && !hs.endGame) || !hs.arrow) continue;
       if (!flagVisible(hs)) continue;
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) continue;
       const a = hs.arrow;
@@ -4178,6 +4178,12 @@
         return;
       }
       openJigsaw(hs);
+      return;
+    }
+    if (hs.endGame) {                                   // door de open poort stappen → eindkaart (Deel 2)
+      sfx('win');
+      say(hs.enterText || GAME.winText);
+      pendingWin = true;                                // bij wegtikken van de tekst → fade naar de eindkaart
       return;
     }
     if (hs.exit) {
