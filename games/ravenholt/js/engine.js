@@ -4606,7 +4606,7 @@
     const W = 48, h = W * fh / fw;                          // pixel-kikker, klein in beeld (scherpe pixels)
     const wob = Math.sin(p * Math.PI * 4) * 0.05;           // heel lichte kanteling tijdens de vlucht
     fctx.save();
-    fctx.imageSmoothingEnabled = false;                     // chunky 32-bit pixels, niet vervagen
+    fctx.imageSmoothingEnabled = true;                      // vloeiende geschilderde kikker-sprite (Higgsfield), niet pixelig
     fctx.globalAlpha = a;
     fctx.translate(Math.round(x), Math.round(y));
     fctx.scale(dir, 1);                                     // spiegelt mee met de vliegrichting

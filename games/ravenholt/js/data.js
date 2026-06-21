@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '126',
+  assetVer: '127',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -252,7 +252,7 @@ const GAME = {
            Twee straaltjes (links + rechts); rimpels/knippering iets lager en linkser. */
         fountain: { requiresFlag: 'millFixed', jets: [{ sx: 234, sy: 198 }, { sx: 254, sy: 198 }], len: 13, wx: 232, wy: 244 },
         /* het meisje bij de kraam huilt zodra je haar het gedicht voorleest (tot de traan opgevangen is) */
-        cry: { x: 497, y: 223, flag: 'girlCrying', stopFlag: 'gotTear' },
+        cry: { x: 494, y: 221, flag: 'girlCrying', stopFlag: 'gotTear' },
         /* opstijgende (donkere) rook uit twee schoorstenen van de dorpshuizen */
         smoke: [
           { x: 374, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
