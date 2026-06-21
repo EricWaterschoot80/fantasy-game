@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '146',
+  assetVer: '147',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -428,7 +428,7 @@ const GAME = {
       ],
       npcs: [
         /* De glanzende raaf is vanuit de vallei meegevlogen en zit nu op de wegwijzer; hij wijst je het recept onder de steen. Vliegt weg zodra je het recept hebt. */
-        { id: 'ravenMill', sprite: 'ravenPerch', x: 50, y: 196, scale: 0.82, flip: false, appearFlag: 'recipeRevealed', hideFlag: 'gotRecipe', peck: true, peckAmt: 0.4 }
+        { id: 'ravenMill', sprite: 'ravenPerch', x: 50, y: 196, scale: 0.82, flip: false, appearFlag: 'recipeRevealed', hideFlag: 'recipeTaken', peck: true, peckAmt: 0.4 }
       ],
       fx: {},   // geen glitters bij de brievenbus; de omhoog staande vlag in de achtergrond is de hint
       hotspots: [
@@ -439,7 +439,7 @@ const GAME = {
           walkTo: { x: 80, y: 300 },
           face: 'assets/art/face-raven.png',
           appearFlag: 'recipeRevealed',
-          hideFlag: 'gotRecipe',
+          hideFlag: 'recipeTaken',
           look: { nl: 'De glanzende raaf zit boven op de wegwijzer en kraait schor, terwijl hij met zijn snavel naar de losse steen onder de paal wijst: “Het recept... ónder de steen, onder de steen! Wip hem maar omhoog.”', en: 'The glossy raven perches atop the signpost and rasps, jabbing its beak at the loose stone below the post: “The recipe... UNDER the stone, under the stone! Lever it up.”' },
           setFlag: 'metMillRaven'
         },
@@ -488,6 +488,7 @@ const GAME = {
           arrow: { x: 72, y: 244, dir: 'down' },
           gives: {
             item: 'recipe',                              // je pakt het recept als los blaadje op; bekijk je het, dan gaat het in je boek
+            setFlag: 'recipeTaken',                      // raaf verdwijnt zodra je het recept oppakt (niet pas bij het inboeken)
             flyNpc: 'ravenMill', flyDir: 'right',        // de raaf wiekt op en vliegt weg zodra je het recept hebt
             giveText: { nl: 'Bij de wegwijzer wip je de losse steen omhoog — precies waar de raaf op tikte. Eronder ligt een opgevouwen, vergeeld blaadje: het récept voor de ketel! Je stopt het in je tas. (tik het recept aan om te bekijken; daarna gaat het als bladzijde in je toverboek)', en: 'By the signpost you lever up the loose stone — exactly where the raven tapped. Beneath it lies a folded, yellowed sheet: the RECIPE for the cauldron! You tuck it into your bag. (tap the recipe to view it; then it goes as a page into your spellbook)' },
             emptyText: { nl: 'Onder de steen is verder niets meer.', en: 'There is nothing else under the stone.' }
