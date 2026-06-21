@@ -4533,16 +4533,19 @@
     state.flags.duelActive = false;
     if (cfg.setFlag) (Array.isArray(cfg.setFlag) ? cfg.setFlag : [cfg.setFlag]).forEach((f) => { state.flags[f] = true; });
     if (cfg.give) addItem(cfg.give);
-    /* De heks lost op in een wolk groene rook op haar eigen plek. */
-    const wsc = GAME.scenes[state.currentScene];
-    const wn = wsc && (wsc.npcs || []).find((n) => n.id === 'witch');
-    witchPoof = { t0: performance.now(), x: wn ? wn.x : 198, y: wn ? wn.y - 34 : 196 };
-    witchFrog = { t0: performance.now(), x: witchPoof.x, y: witchPoof.y, dir: witchPoof.x < SCENE_W / 2 ? 1 : -1 };   // uit de rook fladdert een gevleugelde kikker weg
-    sfx('win');
-    say(cfg.winText);
-    if (cfg.win) pendingWin = true;
     updateQuest();
     paintBackground();   // achtergrond wisselt naar de rustige vallei (witchDefeated)
+    /* Speel eerst de filmische heksengevecht-cinematic; daarná lost de heks op in rook,
+       fladdert de kikker weg en valt de ring (met de wintekst). */
+    playCutscene('assets/video/witch-cinematic.mp4', () => {
+      const wsc = GAME.scenes[state.currentScene];
+      const wn = wsc && (wsc.npcs || []).find((n) => n.id === 'witch');
+      witchPoof = { t0: performance.now(), x: wn ? wn.x : 198, y: wn ? wn.y - 34 : 196 };
+      witchFrog = { t0: performance.now(), x: witchPoof.x, y: witchPoof.y, dir: witchPoof.x < SCENE_W / 2 ? 1 : -1 };   // uit de rook fladdert een gevleugelde kikker weg
+      sfx('win');
+      say(cfg.winText);
+      if (cfg.win) pendingWin = true;
+    });
   }
 
   function drawWitchPoof(now) {
