@@ -4684,14 +4684,15 @@
       const pulse = 0.5 + 0.5 * Math.sin(now / 380 + st.x);
       const cy = (st.signY != null ? st.signY : st.y - 24) + Math.sin(now / 520 + st.x) * 2;
       const img = art.sprites[st.rune];
-      const gr = 22;
-      const g = fctx.createRadialGradient(st.x, cy, 1, st.x, cy, gr);   // blauwe gloed achter het teken
-      g.addColorStop(0, 'rgba(120,195,255,' + (0.26 + 0.16 * pulse).toFixed(2) + ')');
+      const gr = 30;
+      const g = fctx.createRadialGradient(st.x, cy, 1, st.x, cy, gr);   // grotere, helderdere blauwe gloed achter het teken
+      g.addColorStop(0, 'rgba(130,200,255,' + (0.40 + 0.24 * pulse).toFixed(2) + ')');
+      g.addColorStop(0.55, 'rgba(110,180,255,' + (0.16 + 0.12 * pulse).toFixed(2) + ')');
       g.addColorStop(1, 'rgba(120,195,255,0)');
       fctx.fillStyle = g; fctx.fillRect(st.x - gr, cy - gr, gr * 2, gr * 2);
       if (ready(img)) {
         const rw = st.rw || 28, rh = rw * img.naturalHeight / img.naturalWidth;   // per-steen grootte (rw), standaard 28
-        fctx.globalAlpha = 0.58 + 0.20 * pulse;                          // doorschijnend
+        fctx.globalAlpha = 0.40 + 0.22 * pulse;                          // sterker vervagend / mysterieuzer (pulseert in en uit)
         fctx.drawImage(img, Math.round(st.x - rw / 2), Math.round(cy - rh / 2), rw, rh);
         fctx.globalAlpha = 1;
       } else {

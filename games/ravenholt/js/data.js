@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '142',
+  assetVer: '143',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -72,8 +72,8 @@ const GAME = {
   startItems: ['staff'],
 
   winText: {
-    nl: 'De drakenschaduw vervaagt en de poort van kasteel Eldoria staat eindelijk open. Finn haalt diep adem — híer ergens zit zijn vader gevangen. Maar dat verhaal, en wat er achter de poort schuilt, bewaren we voor DEEL 2. Knap gedaan, held — tot snel!',
-    en: 'The dragon-shadow fades and the gate of castle Eldoria finally stands open. Finn draws a deep breath — his father is held captive somewhere inside. But that tale, and whatever lurks beyond the gate, we save for PART 2. Well done, hero — see you soon!'
+    nl: 'Gefeliciteerd — je hebt DEEL 1 van Whispers of Ravenholt uitgespeeld! De drakenschaduw vervaagt, de wacht is gevlucht en Finn stapt door de open poort het kasteel van Eldoria binnen. Híer ergens zit zijn vader gevangen... maar dat verhaal, en wat er achter de poort schuilt, bewaren we voor DEEL 2. Knap gedaan, held — tot snel!',
+    en: 'Congratulations — you have completed PART 1 of Whispers of Ravenholt! The dragon-shadow fades, the guard has fled, and Finn steps through the open gate into the castle of Eldoria. His father is held captive somewhere inside... but that tale, and whatever lurks beyond the gate, we save for PART 2. Well done, hero — see you soon!'
   },
 
   strings: {
@@ -88,7 +88,7 @@ const GAME = {
                   en: 'In the kingdom of Eldoria the village-square fountain has been running dry for weeks. Young Finn — who dreams of magic and whose father is imprisoned in the castle — sets out to investigate.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
-    winTitle:   { nl: 'Wordt vervolgd — Deel 2 komt eraan!', en: 'To be continued — Part 2 is coming!' },
+    winTitle:   { nl: 'Deel 1 uitgespeeld!', en: 'Part 1 complete!' },
     replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
     playOther:  { nl: '▸ Speel een ander avontuur', en: '▸ Play another adventure' },
     deathTitle: { nl: 'Verloren in de mist...', en: 'Lost in the fog...' },
@@ -895,8 +895,8 @@ const GAME = {
            signY = waar het blauwe rune-teken bóven de steen zweeft; fire = blauwe vlam uit die 'fakkel'. */
         stones: [
           { x: 40,  y: 150, signY: 70,  sym: '🐺', rune: 'runeWolf'  },
-          { x: 176, y: 138, signY: 84,  sym: '🦉', rune: 'runeOwl',  rw: 24 },   // uil iets kleiner
-          { x: 382, y: 138, signY: 84,  sym: '🐍', rune: 'runeSnake', rw: 24 },  // slang 10px naar links + iets kleiner
+          { x: 176, y: 138, signY: 80,  sym: '🦉', rune: 'runeOwl',  rw: 22 },   // uil nog iets kleiner + 4px omhoog
+          { x: 378, y: 138, signY: 80,  sym: '🐍', rune: 'runeSnake', rw: 22 },  // slang nog 4px links + 4px omhoog + iets kleiner
           { x: 528, y: 150, signY: 70,  sym: '🐉', rune: 'runeDragon'}
         ],
         /* De 4 fakkels (vuurbakens) waaruit blauw vuur slaat — los van de stenen.
