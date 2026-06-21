@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '124',
+  assetVer: '125',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -155,8 +155,8 @@ const GAME = {
     dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', img: 'assets/art/item-dragonspell.png', border: 'blue',
              look: { nl: 'De drakenspreuk “Draconis Umbra” die zich in je toverboek schreef. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” that wrote itself into your spellbook. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
     ring: { name: { nl: 'Drakenring', en: 'Dragon Ring' }, icon: '💍', img: 'assets/art/item-ring.png', border: 'blue', sparkle: true,
-             look: { nl: 'Een prachtige gouden ring met een gloeiende blauwe steen, die de heks achterliet. Hij tintelt van oude drakenmagie. Schuif hem om je vinger en combineer hem met je toverboek — dan schrijft de drakenspreuk zich vanzelf.', en: 'A beautiful golden ring set with a glowing blue gem, left behind by the witch. It tingles with old dragon magic. Slip it on and combine it with your spellbook — the dragon spell will write itself.' } },
-    poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-poem.png', zoomImg: 'assets/art/gedicht-kraammeisje.jpg',
+             look: { nl: 'Een prachtige gouden ring met een gloeiende blauwe steen, die de heks achterliet. Sinds je hem omschoof tintelt de drakenmagie door je heen — de drakenspreuk staat nu in je toverboek.', en: 'A beautiful golden ring set with a glowing blue gem, left behind by the witch. Since you slipped it on, dragon magic tingles through you — the dragon spell is now in your spellbook.' } },
+    poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-poem.png', zoomImg: 'assets/art/gedicht-kraammeisje.jpg', viewOnceFlag: 'poemSeen',
              look: { nl: 'Het gloeiende briefje uit de brievenbus bij de molen, zonder afzender:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The glowing note from the mailbox by the mill, with no sender:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nYou should read this aloud to someone who carries sorrow...' } },
     map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-map.png', zoomImg: 'assets/art/map-valley.png', fileFlag: 'mapFiled',
              look: { nl: 'De geheime kaart van burgemeester Bram. Een pad slingert het dorp uit, langs het bos, naar de mistige vallei met de runenstenen — met een rood kruis dat de plek markeert. (tik aan om te bekijken; daarna gaat hij als eerste bladzijde in je toverboek)', en: 'Mayor Bram’s secret map. A path winds out of the village, past the wood, to the misty valley with the rune-stones — with a red cross marking the spot. (tap to view; then it goes as the first page into your spellbook)' } },
@@ -572,7 +572,7 @@ const GAME = {
             title: { nl: 'Het Molenradwerk', en: 'The Mill Gearworks' },
             hint: { nl: 'Je hebt het molenrad! Sleep de 5 radjes op maat op hun plek zodat het rad weer aangrijpt.', en: 'You have the mill wheel! Drag the 5 gears into place (by size) so the wheel engages again.' },
             setFlag: 'millFixed',
-            solvedText: { nl: 'Je zet het zware molenrad terug en de radjes grijpen aan. Met een diep gekraak komt het waterrad weer in beweging — water klatert door de goot, op weg naar het dorp! (wordt vervolgd)', en: 'You set the heavy mill wheel back and the gears engage. With a deep groan the water wheel turns again — water gushes down the channel, on its way to the village! (to be continued)' }
+            solvedText: { nl: 'Je zet het zware molenrad terug en de radjes grijpen aan. Met een diep gekraak komt de MOLEN weer in beweging — het waterrad draait, water klatert weer door de goot, en de maalsteen begint te malen: er wordt weer GRAAN gemaakt! Pak een handvol vers graan; daar kun je vast iemand blij mee maken. (kijk rond in de molen)', en: 'You set the heavy mill wheel back and the gears engage. With a deep groan the MILL starts turning again — the water wheel spins, water gushes down the channel once more, and the millstone begins to grind: fresh GRAIN is being made again! Grab a handful of fresh grain; it’s bound to make someone happy. (look around the mill)' }
           },
           look: {
             nl: 'Het grote houten tandrad draait weer soepel; het waterrad buiten klatert. (wordt vervolgd)',
@@ -920,8 +920,8 @@ const GAME = {
           hideFlag: 'gotRing',
           arrow: { x: 200, y: 216, dir: 'down' },
           gives: {
-            item: 'ring', setFlag: 'gotRing',
-            giveText: { nl: 'Je raapt de gloeiende blauwe drakenring op. Hij is warm en tintelt van magie. Schuif hem om je vinger en combineer hem met je toverboek! (combineer de ring met je boek)', en: 'You pick up the glowing blue dragon ring. It is warm and tingles with magic. Slip it on and combine it with your spellbook! (combine the ring with your book)' },
+            item: 'ring', also: 'dragonspell', setFlag: ['gotRing', 'dragonSpellLearned', 'ringWorn'],
+            giveText: { nl: 'Je raapt de gloeiende blauwe drakenring op en schuift hem om je vinger. De diepblauwe magie stroomt door je hand recht in je toverboek — razendsnel schrijft de DRAKENSPREUK, “Draconis Umbra”, zich met oplichtende letters op een nieuwe bladzijde! Je kent nu de drakenspreuk. (de spreuk staat rechts in je tas, en op een nieuwe bladzijde in je boek)', en: 'You pick up the glowing blue dragon ring and slip it onto your finger. The deep-blue magic flows through your hand straight into your spellbook — in a flash the DRAGON SPELL, “Draconis Umbra”, writes itself in glowing letters on a fresh page! You now know the dragon spell. (the spell is on the right in your bag, and on a new page in your book)' },
             emptyText: { nl: 'Er ligt verder niets.', en: 'There’s nothing else here.' }
           }
         },

@@ -2792,10 +2792,14 @@
       if (state.selectedItem && state.selectedItem !== 'spellbook') { tryCombine(state.selectedItem, 'spellbook'); return; }   // bv. ring + boek = drakenspreuk schrijven
       if (state.flags.spellWritten) { state.selectedItem = null; openBook(); renderInventory(); return; }   // anders: blader door de pagina's
     }
-    if (item && item.zoomImg && (!item.zoomImgFlag || state.flags[item.zoomImgFlag])) {   // leesbaar item; leeg toverboek nog niet (dan combineerbaar)
+    /* viewOnceFlag (bv. het gedicht): de eerste keer opent de afbeelding; daarna NIET meer,
+       zodat je het item kunt selecteren en op iemand kunt gebruiken (gedicht → kraammeisje). */
+    if (item && item.zoomImg && (!item.zoomImgFlag || state.flags[item.zoomImgFlag])
+        && !(item.viewOnceFlag && state.flags[item.viewOnceFlag])) {   // leesbaar item; leeg toverboek nog niet (dan combineerbaar)
       state.selectedItem = null;
       sfx('tap');
       openZoom(typeof item.zoomImg === 'function' ? item.zoomImg(state) : item.zoomImg);   // zoomImg mag een functie zijn (bv. toverboek: dans-spreuk → drakenspreuk)
+      if (item.viewOnceFlag) state.flags[item.viewOnceFlag] = true;   // voortaan selecteerbaar i.p.v. opnieuw tonen
       /* Los blaadje (kaart, recept): zodra je het bekeken hebt, gaat het als bladzijde in je
          toverboek en verdwijnt het uit je tas. */
       if (item.fileFlag && !state.flags[item.fileFlag]) {
@@ -3924,6 +3928,7 @@
         gears = null;
         if (cfg.needItem) removeItem(cfg.needItem);   // het molenrad is nu ingebouwd → uit de tas
         if (cfg.setFlag) { state.flags[cfg.setFlag] = true; updateQuest(); }
+        paintBackground();                            // de molen draait → meteen de graan-achtergrond laden
         if (cfg.solvedText) say(cfg.solvedText);
       }, 1800);
     } else {
@@ -4298,14 +4303,24 @@
       }
       if (!repeat) state.flags[takenFlag(hs)] = true;
       if (hs.gives.setFlag) {
-        state.flags[hs.gives.setFlag] = true;           // bv. flesjes pakken zet 'gotVials', brief pakken zet 'poemRead'
+        const fls = Array.isArray(hs.gives.setFlag) ? hs.gives.setFlag : [hs.gives.setFlag];   // mag een lijst zijn (bv. ring → gotRing + dragonSpellLearned + ringWorn)
+        fls.forEach((f) => { state.flags[f] = true; });   // bv. flesjes pakken zet 'gotVials', brief pakken zet 'poemRead'
         const sc = GAME.scenes[state.currentScene];     // wissel evt. de achtergrond (bv. brievenbus-vlag weer omlaag)
-        if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === hs.gives.setFlag || v.notFlag === hs.gives.setFlag)) paintBackground();
+        if (sc && sc.bgVariants && sc.bgVariants.some((v) => fls.includes(v.flag) || fls.includes(v.notFlag))) paintBackground();
       }
       if (hs.gives.item) addItem(hs.gives.item);   // mag ook leeg zijn (bv. het recept gaat rechtstreeks in je boek, niet in je tas)
       if (hs.gives.also) (Array.isArray(hs.gives.also) ? hs.gives.also : [hs.gives.also]).forEach(addItem);   // extra voorwerpen (bv. 3 flesjes tegelijk)
       sfx('pickup');
       say(hs.gives.giveText);
+      /* Voorwerp met viewOnceFlag (bv. het gedicht): toon de afbeelding meteen bij het oppakken;
+         daarna is het item selecteerbaar om op iemand te gebruiken (gedicht → kraammeisje). */
+      if (hs.gives.item) {
+        const gi = GAME.items[hs.gives.item];
+        if (gi && gi.zoomImg && gi.viewOnceFlag && !state.flags[gi.viewOnceFlag]) {
+          state.flags[gi.viewOnceFlag] = true;
+          openZoom(typeof gi.zoomImg === 'function' ? gi.zoomImg(state) : gi.zoomImg);
+        }
+      }
       /* Een NPC kan wegvliegen zodra dit voorwerp gepakt is (bv. de raaf op de
          kar die wegvliegt naar de vallei zodra je het molenrad pakt). */
       if (hs.gives.flyNpc) {
