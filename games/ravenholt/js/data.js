@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '141',
+  assetVer: '142',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -904,7 +904,7 @@ const GAME = {
         fires: [
           { x: 28,  y: 189, h: 40 },   // voorste links — 5px lager
           { x: 540, y: 189, h: 40 },   // voorste rechts — 5px lager
-          { x: 120, y: 112, h: 24 },   // achterste links
+          { x: 116, y: 116, h: 24 },   // achterste links (links boven) — 4px naar links + 4px lager
           { x: 432, y: 120, h: 24 }    // achterste rechts
         ],
         cauldron: { x: 286, y: 144, h: 48 },   // de ketel spuwt blauw vuur — iets meer omhoog

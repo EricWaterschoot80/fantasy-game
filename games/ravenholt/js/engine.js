@@ -4571,18 +4571,29 @@
 
   function drawWitchPoof(now) {
     if (!witchPoof) return;
-    const el = (now - witchPoof.t0) / 1700;
+    const el = (now - witchPoof.t0) / 2200;            // iets langer, vollere rook
     if (el >= 1) { witchPoof = null; return; }
     const a = 1 - el;
     if (el < 0.22) {                                   // korte groene flits bij het oplossen
       fctx.fillStyle = 'rgba(150,255,150,' + (0.42 * (1 - el / 0.22)).toFixed(2) + ')';
-      fctx.beginPath(); fctx.arc(witchPoof.x, witchPoof.y, 24, 0, Math.PI * 2); fctx.fill();
+      fctx.beginPath(); fctx.arc(witchPoof.x, witchPoof.y, 26, 0, Math.PI * 2); fctx.fill();
     }
-    for (let i = 0; i < 14; i++) {                     // opstijgende groen-grijze rookwolkjes
+    /* dichte, lage rookwolk die opbolt waar de heks stond */
+    for (let i = 0; i < 12; i++) {
+      const ang = i * 0.62;
+      const px = witchPoof.x + Math.cos(ang) * (10 + el * 18);
+      const py = witchPoof.y + 16 - el * 30 + Math.sin(ang) * 4;
+      const r = 10 + el * 18 + (i % 3) * 3;
+      const al = a * 0.5 * (0.72 - (i % 3) * 0.12);
+      if (al <= 0.02) continue;
+      fctx.fillStyle = (i % 2) ? 'rgba(110,135,108,' + al.toFixed(2) + ')' : 'rgba(140,150,140,' + al.toFixed(2) + ')';
+      fctx.beginPath(); fctx.arc(px, py, r, 0, Math.PI * 2); fctx.fill();
+    }
+    for (let i = 0; i < 22; i++) {                     // meer opstijgende groen-grijze rookwolkjes
       const ang = i * 0.9;
-      const px = witchPoof.x + Math.cos(ang) * (6 + el * 22) + Math.sin(now / 200 + i) * 3;
-      const py = witchPoof.y - el * 48 + Math.sin(ang) * 6 - (i % 3) * 4;
-      const r = 4 + el * 11 + (i % 3) * 2;
+      const px = witchPoof.x + Math.cos(ang) * (6 + el * 26) + Math.sin(now / 200 + i) * 3;
+      const py = witchPoof.y - el * 60 + Math.sin(ang) * 6 - (i % 3) * 4;
+      const r = 4 + el * 13 + (i % 3) * 2;
       const al = a * (0.5 - (i % 4) * 0.06);
       if (al <= 0.02) continue;
       fctx.fillStyle = (i % 2) ? 'rgba(120,150,110,' + al.toFixed(2) + ')' : 'rgba(150,160,150,' + al.toFixed(2) + ')';
@@ -4609,7 +4620,7 @@
     const bob = [-1, 0, 2, 0][fi];                          // lichaam deint mee met de wiekslag
     const y = witchFrog.y - 6 - p * 138 + Math.sin(p * Math.PI * 5) * 5 + bob;
     const a = p > 0.84 ? Math.max(0, 1 - (p - 0.84) / 0.16) : 1;           // vervaagt vlak voor het einde
-    const W = 48, h = W * fh / fw;                          // pixel-kikker, klein in beeld (scherpe pixels)
+    const W = 38, h = W * fh / fw;                          // wat kleinere vliegende kikker
     const wob = Math.sin(p * Math.PI * 4) * 0.05;           // heel lichte kanteling tijdens de vlucht
     fctx.save();
     fctx.imageSmoothingEnabled = true;                      // vloeiende geschilderde kikker-sprite (Higgsfield), niet pixelig
@@ -4644,17 +4655,17 @@
   /* Fijnere blauwe vlam (een 'fakkel'): veel kleine, fijne vonkjes (geen grove blokken) met
      een witblauwe kern en een zachte basisgloed. */
   function drawBlueFlame(x, y, now, h) {
-    const N = 18;
+    const N = 24;
     for (let i = 0; i < N; i++) {
       const t = ((now / 640) + i / N + x * 0.011) % 1;
       const fy = y - t * h;
       const fx = x + Math.sin(t * 5.5 + i * 1.7 + x) * (1.1 + t * (2.4 + h / 22));
-      const r = (1 - t) * (0.8 + (i % 3) * 0.8);                 // kleine, fijne vonkjes
+      const r = (1 - t) * (0.5 + (i % 3) * 0.45);                // nóg fijnere, kleinere vonkjes
       const a = Math.sin(t * Math.PI) * 0.8;
       if (a <= 0.04) continue;
       const col = (i % 4 === 0) ? '215,240,255' : (t < 0.4 ? '120,190,255' : '80,150,255');   // kern witblauw, top dieper blauw
       fctx.fillStyle = 'rgba(' + col + ',' + a.toFixed(2) + ')';
-      const s = Math.max(1, Math.round(r * 1.6));
+      const s = Math.max(1, Math.round(r));                     // kleinere pixels (1–2px)
       fctx.fillRect(Math.round(fx - s / 2), Math.round(fy - s / 2), s, s);
     }
     fctx.fillStyle = 'rgba(120,185,255,0.16)'; fctx.fillRect(x - 7, y - 3, 14, 7);
