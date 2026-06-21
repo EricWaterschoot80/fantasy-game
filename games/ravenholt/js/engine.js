@@ -4108,12 +4108,21 @@
             if (cb.startDuel) startDuel();
           }
         }
-      } else {
+        return;
+      }
+      /* Geen directe 'use'-actie. Verwacht deze hotspot dit voorwerp tóch via
+         givesWhen (bv. de gouden munt aan de raaf) of castWith (een spreuk)?
+         Laat dan de normale afhandeling hieronder het oppakken i.p.v. meteen
+         een foutmelding — zo werkt "selecteer munt → tik raaf" gewoon. */
+      const gwOK = hs.givesWhen && (!hs.givesWhen.needItem || hs.givesWhen.needItem === sel);
+      const cwOK = hs.castWith && hs.castWith.item === sel;
+      if (!gwOK && !cwOK) {
         sfx('error');
         const it = GAME.items[sel];
         say((it && it.noUseText) || GAME.strings.noEffect);
+        return;
       }
-      return;
+      /* anders: val door naar givesWhen / castWith hieronder */
     }
 
     if (hs.choice && !(hs.choice.doneFlag && state.flags[hs.choice.doneFlag]) && !(hs.choice.skipFlag && state.flags[hs.choice.skipFlag])) {
@@ -4460,7 +4469,18 @@
 
   function hotspotAt(sx, sy) {
     const scene = GAME.scenes[state.currentScene];
+    const sel = state.selectedItem;
+    /* Accepteert deze hotspot het voorwerp dat je vasthoudt? (use / givesWhen / castWith) */
+    const accepts = (hs) => {
+      if (!sel) return false;
+      if (hs.use && hs.use[sel]) return true;
+      if (hs.givesWhen && (!hs.givesWhen.needItem || hs.givesWhen.needItem === sel)) return true;
+      if (hs.castWith && hs.castWith.item === sel) return true;
+      return false;
+    };
     let best = null, bestArea = Infinity;
+    let target = null, targetD = Infinity;
+    const PAD = 26;   // royaal extra klikgebied rond een geschikt doelwit
     for (const hs of scene.hotspots) {
       if (!flagVisible(hs)) continue;
       const r = hsRect(hs);
@@ -4468,7 +4488,19 @@
         const area = r.w * r.h;
         if (area < bestArea) { best = hs; bestArea = area; }
       }
+      /* Houd je een voorwerp vast, dan krijgen de hotspots die dat voorwerp
+         accepteren een veel groter klikvak, zodat "geven/gebruiken" makkelijk lukt
+         (bv. de munt aan de raaf, het gedicht aan het meisje). */
+      if (accepts(hs) &&
+          sx >= r.x - PAD && sx <= r.x + r.w + PAD &&
+          sy >= r.y - PAD && sy <= r.y + r.h + PAD) {
+        const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+        const d = Math.hypot(sx - cx, sy - cy);
+        if (d < targetD) { target = hs; targetD = d; }
+      }
     }
+    /* Met een voorwerp in de hand gaat een geschikt doelwit vóór een toevallig kleiner vakje. */
+    if (sel && target) return target;
     return best;
   }
 
