@@ -1092,29 +1092,7 @@
       }
     }
 
-    /* Blauwe drakensteen in de staf: een echt klein blauw glinster-steentje bovenin Finns staf.
-       Beweegt mee terwijl Finn loopt (volgt player.x/player.y). */
-    if (started && state.flags.ringWorn && !dark) {
-      const ds = depthScaleAt(player.y);
-      const fsign = player.flip ? -1 : 1;
-      const extraRight = fsign > 0 ? 2 : 0;                    // 2px extra naar rechts als Finn naar rechts kijkt
-      const sx = Math.round(player.x + fsign * 17 * ds + 3 + extraRight);
-      const sy = Math.round(player.y - 68 * ds);              // bovenin de staf
-      /* Vooral een zachte blauwe gloed, met een héél klein lichtpuntje als steen. */
-      const r = 8 + 2 * Math.sin(now / 230);
-      const g = fctx.createRadialGradient(sx, sy, 0, sx, sy, r);
-      g.addColorStop(0, 'rgba(150,205,255,0.55)');
-      g.addColorStop(0.5, 'rgba(125,195,255,0.26)');
-      g.addColorStop(1, 'rgba(120,195,255,0)');
-      fctx.fillStyle = g;
-      fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
-      /* het steentje: een heel klein puntje (2px) met een lichte kern */
-      fctx.fillStyle = 'rgba(95,165,250,0.95)';
-      fctx.fillRect(sx - 1, sy - 1, 2, 2);
-      fctx.fillStyle = 'rgba(205,235,255,0.95)';
-      fctx.fillRect(sx, sy - 1, 1, 1);
-      twinkle(sx, sy, 0.5 + 0.4 * Math.sin(now / 170));
-    }
+    /* (Het permanente blauwe licht-effect op Finns staf is verwijderd — niet meer nodig.) */
 
     drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)
     drawWitchPoof(now);      // de heks lost op in groene rook
@@ -4620,7 +4598,7 @@
     const bob = [-1, 0, 2, 0][fi];                          // lichaam deint mee met de wiekslag
     const y = witchFrog.y - 6 - p * 138 + Math.sin(p * Math.PI * 5) * 5 + bob;
     const a = p > 0.84 ? Math.max(0, 1 - (p - 0.84) / 0.16) : 1;           // vervaagt vlak voor het einde
-    const W = 38, h = W * fh / fw;                          // wat kleinere vliegende kikker
+    const W = 31, h = W * fh / fw;                          // nog wat kleinere vliegende kikker
     const wob = Math.sin(p * Math.PI * 4) * 0.05;           // heel lichte kanteling tijdens de vlucht
     fctx.save();
     fctx.imageSmoothingEnabled = true;                      // vloeiende geschilderde kikker-sprite (Higgsfield), niet pixelig
@@ -4839,9 +4817,47 @@
   /* ---------- Cinematic-cutscene (fullscreen video) ----------
      De spelmuziek blijft gewoon doorlopen onder de stille clip. */
   let cutsceneDone = null;
+  let cutsceneTimers = [];
+  function clearCutsceneAudio() { cutsceneTimers.forEach(clearTimeout); cutsceneTimers = []; }
+  /* Karaktergeluidjes voor de eind-cinematic, met de spel-audio-engine gemaakt en
+     gesynct op de 8 shots (~38s). De sfeermuziek loopt er onder door. */
+  function cutsceneVoice(name) {
+    if (!soundOn) return;
+    try {
+      switch (name) {
+        case 'mist':    tone(70, 2.2, { type: 'sine', slide: 8, vol: 0.05 });
+                        tone(110, 2.0, { type: 'triangle', delay: 0.3, slide: -12, vol: 0.03 }); break;
+        case 'runes':   [880, 1180, 1480].forEach((f, i) => tone(f, 0.5, { delay: i * 0.18, vol: 0.04 })); break;
+        case 'cackle':  [360, 300, 330, 260].forEach((f, i) => tone(f, 0.12, { type: 'square', delay: i * 0.16, slide: -40, vol: 0.06 })); break;
+        case 'clash':   tone(180, 0.18, { type: 'sawtooth', slide: 520, vol: 0.08 });
+                        tone(700, 0.16, { type: 'sawtooth', delay: 0.14, slide: -480, vol: 0.07 }); break;
+        case 'roar':    tone(64, 1.4, { type: 'sawtooth', slide: 18, vol: 0.12 });
+                        tone(96, 1.2, { type: 'sawtooth', delay: 0.08, slide: -20, vol: 0.08 });
+                        tone(48, 1.5, { type: 'sine', delay: 0.1, slide: -8, vol: 0.1 }); break;
+        case 'poof':    tone(300, 0.5, { type: 'triangle', slide: -260, vol: 0.07 });
+                        tone(520, 0.3, { type: 'square', delay: 0.05, slide: -300, vol: 0.05 }); break;
+        case 'shriek':  [620, 540, 700].forEach((f, i) => tone(f, 0.14, { type: 'square', delay: i * 0.1, slide: -120, vol: 0.05 })); break;
+        case 'chime':   [1175, 1568, 2093].forEach((f, i) => tone(f, 0.5, { delay: i * 0.12, vol: 0.07 })); break;
+        case 'ribbit':  tone(150, 0.1, { type: 'triangle', vol: 0.07 });
+                        tone(110, 0.12, { delay: 0.12, type: 'triangle', vol: 0.07 }); break;
+        case 'resolve': [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.5, { delay: i * 0.14, vol: 0.07 })); break;
+      }
+    } catch (e) { /* audio mag nooit het spel breken */ }
+  }
+  function scheduleCutsceneAudio() {
+    clearCutsceneAudio();
+    if (!soundOn) return;
+    const cues = [
+      [300, 'mist'], [1900, 'mist'], [5400, 'runes'], [8600, 'cackle'], [9500, 'cackle'],
+      [13000, 'clash'], [14100, 'clash'], [17500, 'roar'], [21500, 'poof'], [22300, 'shriek'],
+      [26000, 'chime'], [26700, 'ribbit'], [31000, 'resolve']
+    ];
+    cues.forEach(([t, n]) => cutsceneTimers.push(setTimeout(() => cutsceneVoice(n), t)));
+  }
   function endCutscene() {
     if (!cutsceneDone) return;
     const cb = cutsceneDone; cutsceneDone = null;
+    clearCutsceneAudio();
     try { elCutsceneVid.pause(); } catch (e) {}
     elCutsceneVid.removeAttribute('src');
     try { elCutsceneVid.load(); } catch (e) {}
@@ -4854,6 +4870,8 @@
     elCutsceneVid.src = src + AV;
     elCutscene.hidden = false;
     elCutsceneVid.currentTime = 0;
+    startMusic();                          // sfeermuziek onder de cinematic
+    scheduleCutsceneAudio();               // karaktergeluidjes gesynct op de shots
     const p = elCutsceneVid.play();
     if (p && p.catch) p.catch(() => {});   // autoplay-blokkade mag het spel niet breken
   }
