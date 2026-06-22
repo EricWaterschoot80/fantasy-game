@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '159',
+  assetVer: '160',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -365,6 +365,7 @@ const GAME = {
           },
           use: {
             poem: {
+              consume: 'poem',                          // het gedicht is voorgelezen → verdwijnt uit je tas
               setFlag: 'girlCrying',
               text: { nl: 'Je leest het gloeiende gedicht zachtjes voor aan het meisje. Haar lip trilt, haar ogen lopen vol... en stil begint ze te huilen. Snel — tik haar aan om met een leeg flesje een traan op te vangen!', en: 'You softly read the glowing poem to the girl. Her lip trembles, her eyes brim over... and quietly she begins to cry. Quick — tap her to catch a tear in an empty vial!' }
             },
