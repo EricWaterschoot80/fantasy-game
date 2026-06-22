@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '154',
+  assetVer: '155',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -742,6 +742,7 @@ const GAME = {
           name: { nl: 'De Poortwacht', en: 'The Gate Guard' },
           rect: { x: 362, y: 140, w: 76, h: 138 },
           walkTo: { x: 388, y: 284 },
+          hideFlag: 'guardFled',           // zodra de wacht is gevlucht reageert alleen nog de open poort (geen wacht-tekstwolk meer)
           face: 'assets/art/face-guard.png',
           look: (state) => state.flags.gateOpen
             ? { nl: 'De wacht plant grinnikend zijn hellebaard neer en lacht bulderend. “Hahá! Het radwerk draait weer, knap werk hoor, knul — maar híer kom je echt niet langs! Niemand het kasteel in zonder zegel, en al helemáál geen ukkie als jij. Ik sta hier dag en nacht en ik ben voor niemand of níéts bang!” Hij verspert breeduit de poort en knipoogt. (misschien helpt een machtige spreuk...)', en: 'The guard plants his halberd with a smirk and a booming laugh. “Haha! The gearworks turns again, fine work, lad — but you’re NOT getting past HERE! No one enters the castle without a seal, least of all a little squirt like you. I stand here day and night and I’m afraid of no one and NOTHING!” He blocks the gate wide and winks. (perhaps a mighty spell could help...)' }

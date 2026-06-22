@@ -2561,18 +2561,20 @@
     dragonShadow = { t0: performance.now() };
     state.flags.dragonScare = true;                // handelsman (en wacht) schrikken op
     sfx('win');
-    say(c.text, hsSpeaker(hs), hsFace(hs));         // tekst beschrijft de hele scène (staat bovenin)
+    /* GEEN tekst nu: laat eerst de drakenschaduw-flyby + de vluchtende wacht zien,
+       anders dekt de grote tekstwolk de animatie af. */
     setTimeout(() => {                              // ~2,8s verbaasd → de wacht vlucht door de poort
       const g = npcRt.guard;
       if (g) burstAt(g.x, g.y - 30, { n: 14, col: '210,200,180', up: 8, life: 0.9 });
       fls.forEach((f) => { state.flags[f] = true; });   // guardFled → de wacht is weg
       sfx('use');
     }, 2800);
-    setTimeout(() => {                              // schrik voorbij → win (wordt vervolgd)
+    setTimeout(() => {                              // animatie voorbij → pas NU de tekst tonen
       state.flags.dragonScare = false;
       dragonShadow = null;
-      if (c.win) { pendingWin = true; if (!msgOpen()) showNextMsg(); }
       updateQuest();
+      say(c.text);                                 // neutrale verteltekst (geen wacht-tekstwolk)
+      if (c.win) { pendingWin = true; }
     }, 4900);
   }
 
@@ -4577,9 +4579,13 @@
       const wn = wsc && (wsc.npcs || []).find((n) => n.id === 'witch');
       witchPoof = { t0: performance.now(), x: wn ? wn.x : 198, y: wn ? wn.y - 34 : 196 };
       witchFrog = { t0: performance.now(), x: witchPoof.x, y: witchPoof.y, dir: witchPoof.x < SCENE_W / 2 ? 1 : -1 };   // uit de rook fladdert een gevleugelde kikker weg
-      sfx('win');
-      say(cfg.winText);
-      if (cfg.win) pendingWin = true;
+      /* Laat eerst de rook + wegfladderende kikker zien; pas daarna de wintekst,
+         anders dekt de tekstwolk de animatie af. */
+      setTimeout(() => {
+        sfx('win');
+        say(cfg.winText);
+        if (cfg.win) pendingWin = true;
+      }, 2700);
     }, { bakedAudio: true });
   }
 
