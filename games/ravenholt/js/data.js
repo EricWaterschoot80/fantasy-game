@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '160',
+  assetVer: '161',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -287,7 +287,7 @@ const GAME = {
               give: 'coinGold',
               also: 'map',
               setFlag: ['gotMayorCoin', 'gotMap'],
-              text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Hij neemt een diepe slok, zucht voldaan en grijpt je dan bij de schouders: “Wat een traktatie, Finn! Je hebt het water teruggebracht én een oude man verkwikt. Hier — een glanzende gouden munt voor jou, én een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos, naar de vallei.” Hij drukt je een gouden munt en een vergeelde kaart in handen. (geef de munt aan de raaf in de vallei)', en: 'You offer Mayor Bram the vial of wine. He takes a deep sip, sighs contentedly, then grips your shoulders: “What a treat, Finn! You’ve brought the water back AND revived an old man. Here — a shiny gold coin for you, AND a secret map your father once entrusted to me. Follow the path beyond the wood, to the valley.” He presses a gold coin and a yellowed map into your hands. (give the coin to the raven in the valley)' }
+              text: { nl: 'Je biedt burgemeester Bram het flesje wijn aan. Hij neemt een diepe slok, zucht voldaan en grijpt je dan bij de schouders: “Wat een traktatie, Finn! Je hebt het water teruggebracht én een oude man verkwikt. Hier — een glanzende gouden munt voor jou, én een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos, naar de vallei.” Hij drukt je een gouden munt en een vergeelde kaart in handen.', en: 'You offer Mayor Bram the vial of wine. He takes a deep sip, sighs contentedly, then grips your shoulders: “What a treat, Finn! You’ve brought the water back AND revived an old man. Here — a shiny gold coin for you, AND a secret map your father once entrusted to me. Follow the path beyond the wood, to the valley.” He presses a gold coin and a yellowed map into your hands.' }
             }
           },
           setFlag: 'metMayor'
@@ -354,10 +354,10 @@ const GAME = {
             : state.flags.girlCrying
             ? { nl: 'Het meisje huilt zachtjes om het gedicht; een traan glinstert op haar wang. Tik haar aan om die traan op te vangen in een leeg flesje.', en: 'The girl is crying softly over the poem; a tear glistens on her cheek. Tap her to catch that tear in an empty vial.' }
             : state.flags.poemRead
-            ? { nl: 'Het meisje kijkt weemoedig voor zich uit. Misschien raakt dat gloeiende gedicht uit de molen haar wel... (gebruik het gedicht op haar)', en: 'The girl gazes wistfully ahead. Perhaps that glowing poem from the mill would move her... (use the poem on her)' }
+            ? { nl: 'Het meisje kijkt weemoedig voor zich uit. Misschien raakt dat gloeiende gedicht uit de molen haar wel...', en: 'The girl gazes wistfully ahead. Perhaps that glowing poem from the mill would move her...' }
             : state.flags.gotCheese
             ? { nl: 'Het meisje knikt vriendelijk achter haar kraam vol kaas en fruit. “Smakelijk eten met dat ruiltje!”', en: 'The girl nods kindly behind her stall of cheese and fruit. “Enjoy that trade!”' }
-            : { nl: 'Een meisje staat achter haar kraam vol gele kazen en fruit. Ze zucht. “Ik zou zo graag vers brood bakken, maar daar heb ik graan voor nodig — en de molen ligt al weken stil. Breng je me een handvol vers graan? Dan geef ik je met alle plezier een stuk kaas.” (gebruik graan op de kraam)', en: 'A girl stands behind her stall of yellow cheeses and fruit. She sighs. “I’d love to bake fresh bread, but I need grain for that — and the mill has stood still for weeks. Bring me a handful of fresh grain? Then I’ll gladly give you a wedge of cheese.” (use grain on the stall)' },
+            : { nl: 'Een meisje staat achter haar kraam vol gele kazen en fruit. Ze zucht. “Ik zou zo graag vers brood bakken, maar daar heb ik graan voor nodig — en de molen ligt al weken stil. Breng je me een handvol vers graan? Dan geef ik je met alle plezier een stuk kaas.”', en: 'A girl stands behind her stall of yellow cheeses and fruit. She sighs. “I’d love to bake fresh bread, but I need grain for that — and the mill has stood still for weeks. Bring me a handful of fresh grain? Then I’ll gladly give you a wedge of cheese.”' },
           givesWhen: {
             flag: 'girlCrying', needItem: 'vialTear', consume: 'vialTear', setFlag: 'gotTear', item: 'tear',
             needText: { nl: 'Het meisje huilt — maar je hebt een leeg flesje nodig om een traan op te vangen. (er staan flesjes in de kast in de molen)', en: 'The girl is crying — but you need an empty vial to catch a tear. (there are vials in the cupboard in the mill)' },
@@ -684,7 +684,7 @@ const GAME = {
           look: (state) => state.flags.gotWine
             ? { nl: 'De oude wijnton met de nu losse tap. Je flesje zit vol diep robijnrode wijn.', en: 'The old wine barrel with its now-loosened tap. Your vial is full of deep ruby-red wine.' }
             : state.flags.wineTapLoose
-            ? { nl: 'De tap van de wijnton zit nu los, dankzij de muis. Met een leeg flesje kun je er wijn uittappen. (gebruik een leeg flesje op de ton)', en: 'The wine barrel’s tap is loose now, thanks to the mouse. With an empty vial you can draw wine. (use an empty vial on the barrel)' }
+            ? { nl: 'De tap van de wijnton zit nu los, dankzij de muis. Met een leeg flesje kun je er wijn uittappen.', en: 'The wine barrel’s tap is loose now, thanks to the mouse. With an empty vial you can draw wine.' }
             : { nl: 'Een dikke oude wijnton tegen de muur. De tap zit muurvast en half verstopt achter de duigen — met je grote handen krijg je er met geen mogelijkheid bij. Iets kleins en behendigs zou wél bij die tap kunnen...', en: 'A fat old wine barrel against the wall. The tap is jammed tight and half-hidden behind the staves — with your big hands you can’t reach it at all. Something small and nimble could get to that tap, though...' },
           use: {
             vialWine: {
@@ -782,7 +782,7 @@ const GAME = {
           walkTo: { x: 440, y: 300 },
           look: (state) => state.flags.flowerDancing
             ? { nl: 'De bloemen zwieren uitbundig heen en weer; de handelsman kan zijn ogen er niet vanaf houden.', en: 'The flowers sway wildly to and fro; the merchant can’t take his eyes off them.' }
-            : { nl: 'Een groep bloemen naast de poort, met één grote ertussen. Als die eens zouden gaan dansen... (lees je toverboek)', en: 'A cluster of flowers by the gate, one big one among them. If only they would dance... (read your spellbook)' },
+            : { nl: 'Een groep bloemen naast de poort, met één grote ertussen. Als die eens zouden gaan dansen...', en: 'A cluster of flowers by the gate, one big one among them. If only they would dance...' },
           castWith: {
             item: 'spellbook',
             requiresFlag: 'spellWritten',
@@ -1006,7 +1006,7 @@ const GAME = {
           look: { nl: 'Op de oude runensteen zit dezelfde glanzende raaf van het dorpsplein, kop scheef. Zijn kraaloogjes glinsteren zodra je iets glimmends bij je hebt — hij wil duidelijk weer ruilen.', en: 'On the old rune-stone perches the same glossy raven from the village square, head cocked. Its beady eyes glint at anything shiny you carry — it clearly wants to trade again.' },
           givesWhen: {
             flag: 'visited_valley', needItem: 'coinGold', consume: 'coinGold', setFlag: 'recipeRevealed', flyNpc: 'ravenValley', flyDir: 'right',
-            needText: { nl: 'De raaf tikt ongeduldig met zijn snavel — hij wil iets glimmends. (geef de burgemeester de wijn, dan krijg je een muntje)', en: 'The raven taps impatiently with its beak — it wants something shiny. (give the mayor the wine and he’ll hand you a coin)' },
+            needText: { nl: 'De raaf tikt ongeduldig met zijn snavel — hij wil iets glimmends.', en: 'The raven taps impatiently with its beak — it wants something shiny.' },
             giveText: { nl: 'De raaf grist het muntje weg en krast traag, alsof hij een recept opzegt: “Eén drakenschub... één traan van een onschuldige... en het licht van een vuurvliegje.” Dan wijst hij met zijn snavel richting de molen, klapwiekt op en vliegt weg — bij de molen tikt hij op een losse steen links. Daaronder moet iets liggen...', en: 'The raven snatches the coin and rasps slowly, as if reciting a recipe: “One dragon scale... one tear of an innocent... and the light of a firefly.” Then it points its beak toward the mill, takes wing and flies off — by the mill it taps a loose stone on the left. Something must lie beneath it...' }
           }
         },
