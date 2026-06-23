@@ -1,18 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://www.retroadventureworld.com/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/"/>
+    <xhtml:link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.retroadventureworld.com/"/>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.retroadventureworld.com/games/maanhoef/</loc>
+    <loc>https://www.retroadventureworld.com/point-and-click-adventure-games/</loc>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.retroadventureworld.com/games/emberfall/</loc>
+    <loc>https://www.retroadventureworld.com/games/ravenholt/</loc>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.retroadventureworld.com/games/maanhoef/</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.retroadventureworld.com/games/emberfall/</loc>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

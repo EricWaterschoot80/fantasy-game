@@ -10,6 +10,9 @@
   <meta name="description" content="Play Maanhoef free online — a gentle 16-bit point-and-click pixel adventure. Help Loïs rescue her horse Moonhoof: solve a riddle, charm a snake and find the stable key. No download, phone & desktop.">
   <meta name="keywords" content="maanhoef, point and click adventure, 16 bit pixel game, retro adventure game, free browser game, horse adventure game">
   <link rel="canonical" href="https://www.retroadventureworld.com/games/maanhoef/">
+  <link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/games/maanhoef/">
+  <link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/games/maanhoef/">
+  <link rel="alternate" hreflang="x-default" href="https://www.retroadventureworld.com/games/maanhoef/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Maanhoef — Free 16-bit Point-and-Click Adventure">
   <meta property="og:description" content="Help Loïs rescue her horse Moonhoof in this cosy 16-bit point-and-click adventure. Free in your browser.">
@@ -44,6 +47,10 @@
   </script>
 </head>
 <body>
+  <header style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">
+    <h1>Maanhoef — free 16-bit point-and-click adventure game</h1>
+    <p>Play Maanhoef, a gentle free point-and-click adventure game in your browser — no download. Help Loïs rescue her horse Moonhoof: explore the farm, solve a riddle, charm a snake and find the stable key. A relaxed, beginner-friendly pixel-art adventure for phone and desktop, in English and Dutch. Press Start to play.</p>
+  </header>
   <canvas id="game"></canvas>
 
   <div id="ui">
@@ -176,6 +183,19 @@
         navigator.serviceWorker.register('sw.js').catch(() => {});
       });
     }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is Maanhoef free to play?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Maanhoef is 100% free to play in your browser, with no download and no sign-up." } },
+      { "@type": "Question", "name": "Do I need to download anything?", "acceptedAnswer": { "@type": "Answer", "text": "No. The game runs directly in your web browser on phone, tablet and desktop." } },
+      { "@type": "Question", "name": "Is Maanhoef good for beginners?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Maanhoef is a gentle, beginner-friendly point-and-click adventure of about 20 minutes." } },
+      { "@type": "Question", "name": "What is Maanhoef about?", "acceptedAnswer": { "@type": "Answer", "text": "You play Loïs, who must rescue her horse Moonhoof by exploring the farm, solving a riddle, charming a snake and finding the stable key." } },
+      { "@type": "Question", "name": "Can I play on my phone?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is touch-friendly and works on iOS and Android in the browser, in both English and Dutch." } }
+    ]
+  }
   </script>
 </body>
 </html>

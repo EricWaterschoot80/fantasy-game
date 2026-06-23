@@ -10,6 +10,9 @@
   <meta name="description" content="Play Whispers of Ravenholt free online — a classic-style 16-bit point-and-click mystery adventure in a fog-shrouded village. No download, phone & desktop.">
   <meta name="keywords" content="whispers of ravenholt, point and click adventure, 16 bit pixel game, retro mystery adventure, free browser game">
   <link rel="canonical" href="https://www.retroadventureworld.com/games/ravenholt/">
+  <link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/games/ravenholt/">
+  <link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/games/ravenholt/">
+  <link rel="alternate" hreflang="x-default" href="https://www.retroadventureworld.com/games/ravenholt/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Whispers of Ravenholt — Free 16-bit Point-and-Click Mystery Adventure">
   <meta property="og:description" content="A fog-shrouded village hides its secrets in this classic-style 16-bit point-and-click mystery. Free in your browser.">
@@ -23,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=161">
+  <link rel="stylesheet" href="css/style.css?v=162">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -56,6 +59,10 @@
   </script>
 </head>
 <body>
+  <header style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">
+    <h1>Whispers of Ravenholt — free 16-bit point-and-click mystery adventure</h1>
+    <p>Play Whispers of Ravenholt, a free point-and-click adventure game in your browser — no download. In the kingdom of Eldoria the village fountain is running dry. Play as young Finn: question the mayor, trade a shiny coin with a clever raven for a hint, fix the silent water mill and brave the misty valley to uncover the secret of the lights. A pixel-art mystery for phone and desktop, in English and Dutch. Press Start to play.</p>
+  </header>
   <canvas id="game"></canvas>
 
   <div id="ui">
@@ -105,7 +112,7 @@
   </div>
 
   <div id="title-screen" class="overlay title">
-    <img class="title-bg" src="assets/art/title.jpg?v=161" alt="Whispers of Ravenholt" onerror="this.remove()">
+    <img class="title-bg" src="assets/art/title.jpg?v=162" alt="Whispers of Ravenholt" onerror="this.remove()">
     <div class="title-content">
       <h1 id="title-h1" hidden><span>Whispers of</span><br><span>Ravenholt</span></h1>
       <p id="title-sub" class="subtitle" hidden>Een point-and-click avontuur</p>
@@ -125,7 +132,7 @@
 
   <div id="win-screen" class="overlay" hidden>
     <div class="overlay-card panel">
-      <img class="win-banner" src="assets/art/win-deel2.jpg?v=161" alt="" onerror="this.remove()">
+      <img class="win-banner" src="assets/art/win-deel2.jpg?v=162" alt="" onerror="this.remove()">
       <h1 id="win-h1">Deel 1 uitgespeeld!</h1>
       <p class="intro" id="winText"></p>
       <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
@@ -237,16 +244,29 @@
     </div>
   </div>
 
-  <script src="js/sprites.js?v=161"></script>
-  <script src="js/scenes.js?v=161"></script>
-  <script src="js/data.js?v=161"></script>
-  <script src="js/engine.js?v=161"></script>
+  <script src="js/sprites.js?v=162"></script>
+  <script src="js/scenes.js?v=162"></script>
+  <script src="js/data.js?v=162"></script>
+  <script src="js/engine.js?v=162"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(() => {});
       });
     }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is Whispers of Ravenholt free to play?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Whispers of Ravenholt is 100% free to play in your browser, with no download and no sign-up." } },
+      { "@type": "Question", "name": "Do I need to download anything?", "acceptedAnswer": { "@type": "Answer", "text": "No. The game runs directly in your web browser on phone, tablet and desktop." } },
+      { "@type": "Question", "name": "How long is Whispers of Ravenholt?", "acceptedAnswer": { "@type": "Answer", "text": "About 15 to 20 minutes, so you can finish it in one sitting. It is a little more challenging than our beginner games." } },
+      { "@type": "Question", "name": "What is the game about?", "acceptedAnswer": { "@type": "Answer", "text": "You play young Finn in the village of Eldoria, where the fountain has run dry. You question the mayor, trade with a clever raven, repair the water mill and uncover the secret of the lights in the misty valley." } },
+      { "@type": "Question", "name": "Can I play on my phone?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is touch-friendly and works on iOS and Android in the browser, in both English and Dutch." } }
+    ]
+  }
   </script>
 </body>
 </html>
