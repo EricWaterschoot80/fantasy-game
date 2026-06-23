@@ -313,7 +313,7 @@
 
   <script>
     (function () {
-      var lang = localStorage.getItem('raw-lang') || 'en';
+      var lang = localStorage.getItem('raw-lang') || ((navigator.language || navigator.userLanguage || '').toLowerCase().indexOf('nl') === 0 ? 'nl' : 'en');
       var btn = document.getElementById('lang');
       function apply() {
         document.documentElement.lang = lang;

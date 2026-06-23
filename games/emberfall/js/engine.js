@@ -46,7 +46,7 @@
 
   /* ---------- Taal ---------- */
   let lang = 'nl';
-  try { lang = localStorage.getItem('emberfall_lang') || 'nl'; } catch (e) { /* prima */ }
+  try { lang = localStorage.getItem('emberfall_lang') || ((navigator.language || '').toLowerCase().indexOf('nl') === 0 ? 'nl' : 'en'); } catch (e) { /* prima */ }
   const L = (v) => v == null ? '' : (typeof v === 'string' ? v : (v[lang] || v.nl || ''));
 
   function applyLang() {
