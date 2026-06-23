@@ -212,6 +212,52 @@
     </div>
   </article>
 
+  <h2 class="sec">Pixel-art achtergronden (in-game)</h2>
+  <p style="color:#544d39;margin:0 0 12px">Eerste hoge-res <b>pixel-art achtergronden</b> in de 16-bit stijl van het spel — <b>zonder personages</b> (die komen als losse sprites er bovenop). Dit worden de speelbare scène-achtergronden van Deel 2.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <figure style="margin:0"><img src="shots/deel2-pixel/pixel-1.jpg" alt="Pixel-art binnenplaats" style="width:100%;display:block;border-radius:12px;border:1px solid var(--line)"><figcaption style="font-family:Menlo,monospace;font-size:12px;color:#7a7158;margin-top:5px">1 · Binnenplaats</figcaption></figure>
+    <figure style="margin:0"><img src="shots/deel2-pixel/pixel-2.jpg" alt="Pixel-art grote hal" style="width:100%;display:block;border-radius:12px;border:1px solid var(--line)"><figcaption style="font-family:Menlo,monospace;font-size:12px;color:#7a7158;margin-top:5px">2 · Grote Hal</figcaption></figure>
+    <figure style="margin:0"><img src="shots/deel2-pixel/pixel-3.jpg" alt="Pixel-art keuken" style="width:100%;display:block;border-radius:12px;border:1px solid var(--line)"><figcaption style="font-family:Menlo,monospace;font-size:12px;color:#7a7158;margin-top:5px">3 · Keuken &amp; Kelder</figcaption></figure>
+    <figure style="margin:0"><img src="shots/deel2-pixel/pixel-4.jpg" alt="Pixel-art kerker" style="width:100%;display:block;border-radius:12px;border:1px solid var(--line)"><figcaption style="font-family:Menlo,monospace;font-size:12px;color:#7a7158;margin-top:5px">4 · Kerker</figcaption></figure>
+    <figure style="margin:0"><img src="shots/deel2-pixel/pixel-5.jpg" alt="Pixel-art toren" style="width:100%;display:block;border-radius:12px;border:1px solid var(--line)"><figcaption style="font-family:Menlo,monospace;font-size:12px;color:#7a7158;margin-top:5px">5 · Toren van Corvain</figcaption></figure>
+    <figure style="margin:0"><img src="shots/deel2-pixel/pixel-6.jpg" alt="Pixel-art troonzaal" style="width:100%;display:block;border-radius:12px;border:1px solid var(--line)"><figcaption style="font-family:Menlo,monospace;font-size:12px;color:#7a7158;margin-top:5px">6 · Troonzaal</figcaption></figure>
+  </div>
+
+  <h2 class="sec">Bouwklare puzzels</h2>
+  <div class="cols">
+    <div class="box puzzle"><h4>🧩 1 · Bakens op volgorde (Grote Hal)</h4>
+      <ul>
+        <li><b>Doel:</b> de geheime doorgang naar de kelder openen.</li>
+        <li><b>Aanwijzing:</b> het wapenschild op het portret toont 4 symbolen in een vaste kleurvolgorde (bv. 🦁 rood → ⚜️ blauw → 🐉 groen → 👑 goud).</li>
+        <li><b>Oplossing:</b> ontsteek met de fakkel de 4 bakens in die volgorde. Fout → alle bakens doven en de patrouille komt dichterbij.</li>
+        <li><b>Bouw:</b> hergebruik de "juiste-volgorde"-popup (rune/tegel) met 4 knoppen; vlag <code>hallOpen</code>.</li>
+      </ul>
+    </div>
+    <div class="box puzzle"><h4>🧩 2 · Slaapdrank brouwen (Keuken)</h4>
+      <ul>
+        <li><b>Doel:</b> een drank waarmee de cipier in slaap valt.</li>
+        <li><b>Recept:</b> <code>slaapkruid + melk + honing</code> in een lege kruik, verwarmd boven het haardvuur.</li>
+        <li><b>Truc:</b> leid de kok af (laat de pot overkoken) → pak het slaapkruid van het rek.</li>
+        <li><b>Bouw:</b> hergebruik de recept/ketel-mechaniek (zoals de drakenspreuk-ingrediënten); resultaat-item <code>slaapdrank</code>.</li>
+      </ul>
+    </div>
+    <div class="box puzzle"><h4>🧩 3 · Spiegel &amp; licht (Toren)</h4>
+      <ul>
+        <li><b>Doel:</b> Corvains illusie verbreken vóór het duel.</li>
+        <li><b>Oplossing:</b> draai 2–3 spiegels zo dat de maanlichtstraal uit het raam via de spiegels op het duistere bekken valt.</li>
+        <li><b>Bouw:</b> <b>nieuw</b> licht-puzzel-paneel: per spiegel een rotatiestand; correct pad → vlag <code>illusionBroken</code>.</li>
+      </ul>
+    </div>
+    <div class="box puzzle"><h4>🧩 4 · Finale-spreukvolgorde (Troonzaal)</h4>
+      <ul>
+        <li><b>Doel:</b> Corvain verslaan zonder de koning te raken.</li>
+        <li><b>Oplossing:</b> spreek <b>1. Lumen Veritas</b> (onthult de waarheid, breekt de koningsbetovering) → daarna <b>2. Draconis Umbra</b> (verjaagt Corvain). Verkeerde volgorde → het mislukt, probeer opnieuw.</li>
+        <li><b>Bouw:</b> hergebruik de cast-knop + cinematic; controleer de vlag-volgorde <code>truthCast</code> → <code>dragonCast</code>.</li>
+      </ul>
+    </div>
+  </div>
+  <p style="color:#7a7158;font-size:13.5px;margin-top:10px">Kleinere puzzels (afleiding bij de put, vermomming met het pagekleed, hond met kaas, sleutel vissen met een haak) staan per scène hierboven beschreven.</p>
+
   <h2 class="sec">Onder de motorkap</h2>
   <div class="cols">
     <div class="notes">
