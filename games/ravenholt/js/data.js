@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '163',
+  assetVer: '164',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -257,7 +257,9 @@ const GAME = {
         smoke: [
           { x: 374, y: 50, rise: 46, spread: 9, drift: 6, speed: 3200, puffs: 8 },
           { x: 480, y: 46, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 }
-        ]
+        ],
+        /* glinster-hint op het muntje op de bodem van de fontein (tot het opgeraapt is) */
+        glints: [{ x: 208, y: 250, notFlag: 'taken_square_coin', col: '255,228,150' }]
       },
 
       hotspots: [
@@ -431,7 +433,13 @@ const GAME = {
         /* De glanzende raaf is vanuit de vallei meegevlogen en zit nu op de wegwijzer; hij wijst je het recept onder de steen. Vliegt weg zodra je het recept hebt. */
         { id: 'ravenMill', sprite: 'ravenPerch', x: 50, y: 196, scale: 0.82, flip: false, appearFlag: 'recipeRevealed', hideFlag: 'recipeTaken', peck: true, peckAmt: 0.4 }
       ],
-      fx: {},   // geen glitters bij de brievenbus; de omhoog staande vlag in de achtergrond is de hint
+      fx: {
+        /* glinster-hints: de zwarte bessen (tot geplukt) en de losse steen met het recept (zodra de raaf 'm aanwees) */
+        glints: [
+          { x: 490, y: 288, notFlag: 'taken_mill_berries', col: '170,120,210' },
+          { x: 71,  y: 266, flag: 'recipeRevealed', notFlag: 'recipeTaken', col: '255,228,150' }
+        ]
+      },
       hotspots: [
         {
           id: 'ravenMill',
