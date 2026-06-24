@@ -4729,12 +4729,31 @@
   canvas.addEventListener('pointerdown', (e) => {
     ac();
     if (!started || fade.mode === 'out' || !elDeath.hidden || revive) return;
-    if (msgOpen()) { showNextMsg(); return; }
     const p = screenToScene(e.clientX, e.clientY);
-    if (p.x < 0 || p.x > SCENE_W || p.y < 0 || p.y > SCENE_H) return;
+    const inBounds = !(p.x < 0 || p.x > SCENE_W || p.y < 0 || p.y > SCENE_H);
 
-    /* Tijdens de stenen-strijd: alleen de gloeiende stenen reageren; een misser herhaalt het raadsel. */
-    if (state.flags.duelActive && duel) { if (!tryDuelStone(p.x, p.y)) sayRiddle(); return; }
+    /* Stenen-strijd: een tik op een gloeiende steen telt meteen, óók als de raadsel-tekst nog
+       open staat — zo is 1 keer klikken genoeg bij de heks. (een misser herhaalt het raadsel) */
+    if (inBounds && state.flags.duelActive && duel) {
+      if (msgOpen()) showNextMsg();
+      if (!tryDuelStone(p.x, p.y)) sayRiddle();
+      return;
+    }
+
+    /* Staat er nog tekst open? Sluit die. Maar tik je meteen op een voorwerp, NPC of het hondje,
+       verwerk die tik dan in dezelfde klik — zodat 1 keer klikken genoeg is (bv. bij de dieren).
+       Een keuze-dialoog of meerdere tekstregels handel je eerst gewoon af. */
+    if (msgOpen()) {
+      if (choiceActive) return;
+      const onFollower = follower.active && !follower.scared &&
+        p.x >= follower.x - 24 && p.x <= follower.x + 24 && p.y >= follower.y - 42 && p.y <= follower.y + 6;
+      const hsPeek = inBounds ? hotspotAt(p.x, p.y) : null;
+      showNextMsg();
+      if (msgOpen() || revive || (!hsPeek && !onFollower)) return;
+      /* anders: laatste regel weg én je tikte op iets interactiefs → val door en interacteer */
+    } else if (!inBounds) {
+      return;
+    }
 
     const hs = hotspotAt(p.x, p.y);
 
