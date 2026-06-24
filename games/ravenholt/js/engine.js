@@ -4451,6 +4451,7 @@
         say(scene.entryText);
       }
       updateQuest();
+      if (started) saveGame(true);   // automatisch opslaan bij elke scène-wissel (stil, geen melding)
     }, fade.dur);
   }
 
