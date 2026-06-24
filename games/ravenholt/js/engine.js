@@ -5020,9 +5020,64 @@
   if (elPrologue) elPrologue.addEventListener('click', advancePrologue);
   if (elPrologueSkip) elPrologueSkip.addEventListener('click', (e) => { e.stopPropagation(); if (soundOn) sfx('tap'); endPrologue(); });
 
+  /* ---------- Opslaan & verder spelen (browser-cache / localStorage) ---------- */
+  const SAVE_KEY = 'ravenholt-save-v1';
+  const elSaveBtn = document.getElementById('saveBtn');
+  const elContinueBtn = document.getElementById('continueBtn');
+  function hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
+  function saveGame(silent) {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ scene: state.currentScene, inventory: state.inventory, flags: state.flags }));
+      if (!silent) { sfx('tap'); showToast(L({ nl: 'Spel opgeslagen ✓', en: 'Game saved ✓' })); }
+    } catch (e) { if (!silent) showToast(L({ nl: 'Opslaan lukte niet', en: 'Could not save' })); }
+  }
+  function loadSavedState() {
+    let s = null; try { s = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) {}
+    if (!s || !s.scene || !GAME.scenes[s.scene]) return false;
+    state = newState();
+    state.currentScene = s.scene;
+    state.inventory = Array.isArray(s.inventory) ? s.inventory.slice() : state.inventory;
+    state.flags = (s.flags && typeof s.flags === 'object') ? s.flags : {};
+    state.selectedItem = null;
+    return true;
+  }
+  function resumeSavedGame() {
+    if (!loadSavedState()) return false;
+    msgQueue = [];
+    pendingWin = false; minoWalk = null; amuletRiseT0 = 0; revive = null;
+    elMsg.hidden = true; elBubble.hidden = true; elWin.hidden = true; elDeath.hidden = true;
+    const sc = GAME.scenes[state.currentScene];
+    const sp = sc.playerStart || { x: SCENE_W / 2, y: SCENE_H - 40 };
+    player.x = sp.x; player.y = sp.y;
+    player.target = null; player.pending = null; player.dir = 'down'; player.flip = false; player.phase = 0;
+    follower.active = false; follower.scared = false;
+    exitArm = {};
+    initNpcs();
+    initFireflies((sc.fx && sc.fx.fireflies) || 0);
+    embers.length = 0;
+    paintBackground();
+    renderInventory();
+    updateQuest();
+    fade.mode = 'in'; fade.t0 = performance.now();
+    started = true;
+    return true;
+  }
+  if (elSaveBtn) elSaveBtn.addEventListener('click', () => { if (started) saveGame(false); });
+  if (elContinueBtn) {
+    if (hasSave()) elContinueBtn.hidden = false;
+    elContinueBtn.addEventListener('click', () => {
+      ac(); startMusic(); sfx('tap');
+      if (resumeSavedGame()) {
+        elTitle.hidden = true;
+        if (elSaveBtn) elSaveBtn.hidden = false;
+      }
+    });
+  }
+
   function beginGame() {
     started = true;
     state.flags['visited_' + state.currentScene] = true;
+    if (elSaveBtn) elSaveBtn.hidden = false;
     updateQuest();
     say(GAME.scenes[state.currentScene].entryText);
   }

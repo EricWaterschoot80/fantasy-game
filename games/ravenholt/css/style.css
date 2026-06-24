@@ -132,6 +132,16 @@ html, body {
 }
 .round-btn.info.on { background: var(--gold); color: #2a1c10; }
 
+/* Opslaan-knop rechtsboven (los van de linker iconen-stapel) */
+.round-btn.save {
+  position: fixed;
+  right: 12px;
+  left: auto;
+  top: calc(var(--safe-top) + 8px);
+  z-index: 30;
+  font-size: 17px;
+}
+
 /* Geluidsknop links, hintknop rechts — banner vrij in het midden */
 .round-btn.sound {
   right: auto;
