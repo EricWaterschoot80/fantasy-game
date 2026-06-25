@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '6',
+  assetVer: '7',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -245,15 +245,15 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', x: 462, y: 252, scale: 1.04, flip: true }   // realistische, geanimeerde schildknaap, meer naar rechts
+        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', x: 486, y: 272, scale: 1.18, flip: false }   // schildknaap meer naar voren + rechts, kijkt naar links
       ],
       fx: {},
       hotspots: [
         {
           id: 'squire',
           name: { nl: 'De Schildknaap', en: 'The Squire' },
-          rect: { x: 436, y: 172, w: 60, h: 88 },
-          walkTo: { x: 430, y: 296 },
+          rect: { x: 456, y: 184, w: 70, h: 104 },
+          walkTo: { x: 452, y: 300 },
           look: {
             nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de tent. Hij knikt je vriendelijk toe. “De prins is op jacht en de koning ontvangt niemand. Maar de slottuin links... daar mag je gerust rondkijken, hoor.”',
             en: 'A young squire in a blue tabard keeps watch by the tent. He gives you a friendly nod. “The prince is out hunting and the king sees no one. But the castle garden to your left... you’re welcome to look around there.”'
