@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#221a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Whispers of Ravenholt — Free 16-bit Point-and-Click Mystery Adventure | RetroAdventureWorld</title>
+  <meta name="description" content="Play Whispers of Ravenholt free online — a classic-style 16-bit point-and-click mystery adventure in a fog-shrouded village. No download, phone & desktop.">
+  <meta name="keywords" content="whispers of ravenholt, point and click adventure, 16 bit pixel game, retro mystery adventure, free browser game">
+  <link rel="canonical" href="https://www.retroadventureworld.com/games/ravenholt/">
+  <link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/games/ravenholt/">
+  <link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/games/ravenholt/">
+  <link rel="alternate" hreflang="x-default" href="https://www.retroadventureworld.com/games/ravenholt/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Whispers of Ravenholt — Free 16-bit Point-and-Click Mystery Adventure">
+  <meta property="og:description" content="A fog-shrouded village hides its secrets in this classic-style 16-bit point-and-click mystery. Free in your browser.">
+  <meta property="og:url" content="https://www.retroadventureworld.com/games/ravenholt/">
+  <meta property="og:image" content="https://www.retroadventureworld.com/games/ravenholt/assets/art/title.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.retroadventureworld.com/games/ravenholt/assets/art/title.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=2">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Whispers of Ravenholt",
+    "url": "https://www.retroadventureworld.com/games/ravenholt/",
+    "image": "https://www.retroadventureworld.com/games/ravenholt/assets/art/title.png",
+    "description": "Whispers of Ravenholt is a story-driven 16-bit point-and-click mystery adventure, free to play in your browser with no download. In the kingdom of Eldoria the village fountain is running dry. Play as young Finn: question the mayor, trade a shiny coin with a clever raven for a hint, follow the path to the silent water mill and search its dusty interior to uncover why the wheel has stopped and what the strange lights in the valley mean. A pixel-art mystery for phone and desktop, in English and Dutch.",
+    "genre": ["Point-and-click adventure", "Pixel art", "Mystery"],
+    "gamePlatform": "Web browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any (modern browser)",
+    "inLanguage": ["en", "nl"],
+    "playMode": "SinglePlayer",
+    "author": { "@type": "Organization", "name": "RetroAdventureWorld" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <script>
+  /* Voorkom pinch-zoom en dubbel-tik-zoom op mobiel (anders blijf je ingezoomd hangen). */
+  (function () {
+    var stop = function (e) { if (e.cancelable) e.preventDefault(); };
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('gestureend', stop, { passive: false });
+    document.addEventListener('touchmove', function (e) {
+      if (e.touches && e.touches.length > 1) stop(e);   // twee vingers = knijp-zoom → blokkeren
+    }, { passive: false });
+  })();
+  </script>
+</head>
+<body>
+  <header style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">
+    <h1>Whispers of Ravenholt — free 16-bit point-and-click mystery adventure</h1>
+    <p>Play Whispers of Ravenholt, a free point-and-click adventure game in your browser — no download. In the kingdom of Eldoria the village fountain is running dry. Play as young Finn: question the mayor, trade a shiny coin with a clever raven for a hint, fix the silent water mill and brave the misty valley to uncover the secret of the lights. A pixel-art mystery for phone and desktop, in English and Dutch. Press Start to play.</p>
+  </header>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.retroadventureworld.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Point-and-Click Adventure Games", "item": "https://www.retroadventureworld.com/point-and-click-adventure-games/" },
+      { "@type": "ListItem", "position": 3, "name": "Whispers of Ravenholt", "item": "https://www.retroadventureworld.com/games/ravenholt/" }
+    ]
+  }
+  </script>
+  <canvas id="game"></canvas>
+
+  <div id="ui">
+    <div id="topbar">
+      <div id="topcenter">
+        <div id="quest" class="panel-mini" hidden></div>
+        <div id="hotspot-label" class="panel-mini" hidden></div>
+      </div>
+      <button id="soundBtn" class="round-btn sound" title="Geluid" aria-label="Geluid aan of uit"><img id="soundIcon" src="assets/icons/ui-sound-on.png" alt=""></button>
+    </div>
+
+    <a id="homeBtn" class="round-btn home" href="../../index.html" title="Home" aria-label="Terug naar de homepagina">⌂</a>
+
+    <div id="bubble" class="speech" hidden>
+      <button id="bubbleClose" class="bubble-x" aria-label="Sluiten">✕</button>
+      <img id="bubbleFace" alt="" hidden>
+      <p id="bubbleText"></p>
+      <span class="tail"></span>
+    </div>
+    <div id="toast" hidden></div>
+
+    <div id="bottomui">
+      <div id="msg" class="panel" hidden>
+        <button id="msgClose" class="bubble-x" aria-label="Sluiten">✕</button>
+        <img id="msgFace" alt="" hidden>
+        <div class="msg-body">
+          <p id="msgText"></p>
+          <div id="choice-opts" class="choice-opts" hidden></div>
+          <span id="msgMore">tik om verder te gaan ▸</span>
+        </div>
+      </div>
+      <div id="invrow">
+        <div id="invbar" class="panel" aria-label="Inventaris"></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="saveBtn" class="round-btn save" title="Opslaan" aria-label="Spel opslaan" hidden>💾</button>
+  <button id="langBtn" class="round-btn lang" title="Taal / Language" aria-label="Wissel taal">EN</button>
+  <button id="infoBtn" class="round-btn info" title="Tip" aria-label="Toon de tip" hidden>i</button>
+
+  <div id="loading-screen" class="overlay loading">
+    <div class="loading-box">
+      <p class="loading-title">Whispers of Ravenholt</p>
+      <div class="loading-bar"><div id="loading-fill"></div></div>
+      <p id="loading-pct" class="loading-pct">Laden… 0%</p>
+    </div>
+  </div>
+
+  <div id="title-screen" class="overlay title">
+    <img class="title-bg" src="assets/art/title.jpg?v=2" alt="Whispers of Ravenholt" onerror="this.remove()">
+    <div class="title-content">
+      <h1 id="title-h1" hidden><span>Whispers of</span><br><span>Ravenholt</span></h1>
+      <p id="title-sub" class="subtitle" hidden>Een point-and-click avontuur</p>
+      <p id="title-intro" class="intro" hidden></p>
+      <button id="continueBtn" class="gold-btn" hidden>Verder spelen</button>
+      <button id="startBtn" class="gold-btn">Begin het avontuur</button>
+      <p id="title-credit" class="title-credit">Gemaakt voor Sandra</p>
+    </div>
+  </div>
+
+  <div id="prologue-screen" class="overlay prologue" hidden>
+    <img id="prologue-img" class="prologue-img" alt="">
+    <div class="prologue-shade"></div>
+    <p id="prologue-text" class="prologue-text"></p>
+    <span id="prologue-tap" class="prologue-tap">tik om verder te gaan ▸</span>
+    <button id="prologue-skip" class="prologue-skip">Overslaan ▸</button>
+  </div>
+
+  <div id="win-screen" class="overlay" hidden>
+    <div class="overlay-card panel">
+      <img class="win-banner" src="assets/art/win-deel2.jpg?v=2" alt="" onerror="this.remove()">
+      <h1 id="win-h1">Deel 1 uitgespeeld!</h1>
+      <p class="intro" id="winText"></p>
+      <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
+      <a id="winNextBtn" class="gold-btn win-next" href="../maanhoef/index.html">▸ Speel Maanhoef</a>
+    </div>
+  </div>
+
+  <div id="death-screen" class="overlay" hidden>
+    <div class="overlay-card panel death">
+      <div class="ornament">💀</div>
+      <h1 id="death-h1">Verslagen...</h1>
+      <p class="intro" id="deathText"></p>
+      <button id="retryBtn" class="gold-btn">Probeer opnieuw</button>
+    </div>
+  </div>
+
+  <div id="cutscene-screen" class="overlay cutscene" hidden>
+    <video id="cutscene-video" class="cutscene-vid" muted playsinline preload="auto"></video>
+    <button id="cutscene-skip" class="cutscene-skip">Overslaan ▸</button>
+  </div>
+
+  <div id="puzzle-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card" id="puzzle-card">
+      <button id="puzzle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="puzzle-title">Het Embleem van de Orde</h2>
+      <button id="puzzle-hint-btn" class="gold-btn puz-hint-btn">💡 Hint</button>
+      <div id="puzzle-grid"></div>
+      <p id="puzzle-tip" class="puz-tip" hidden></p>
+    </div>
+  </div>
+
+  <div id="riddle-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card">
+      <button id="riddle-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <div class="riddle-head">
+        <img id="riddle-face" alt="" hidden>
+        <h2 id="riddle-title">Het Raadsel van de Ziener</h2>
+      </div>
+      <p id="riddle-question" class="riddle-q"></p>
+      <div id="riddle-answers"></div>
+    </div>
+  </div>
+
+  <div id="chess-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card chess-card">
+      <button id="chess-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="chess-title">Schaakmat in Drie</h2>
+      <p id="chess-hint" class="maze-hint"></p>
+      <div id="chess-board" class="chess-board"></div>
+    </div>
+  </div>
+
+  <div id="rune-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card">
+      <button id="rune-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="rune-title">De Runenstenen</h2>
+      <div id="rune-imgwrap" class="rune-imgwrap" hidden>
+        <img id="rune-img" class="rune-img" alt="" draggable="false">
+        <div id="rune-hotspots" class="rune-hotspots"></div>
+      </div>
+      <p id="rune-hint" class="riddle-q"></p>
+      <div id="rune-btns" class="rune-btn-row"></div>
+      <p id="rune-status" class="rune-status"></p>
+    </div>
+  </div>
+
+  <div id="maze-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card" id="maze-card">
+      <button id="maze-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="maze-title">De Waterloop van de Ward</h2>
+      <p id="maze-hint" class="maze-hint"></p>
+      <div class="maze-body">
+        <canvas id="maze-canvas" width="264" height="264"></canvas>
+        <div id="maze-dpad">
+          <button id="maze-up" class="gold-btn maze-btn" aria-label="Omhoog">▲</button>
+          <div class="maze-mid">
+            <button id="maze-left" class="gold-btn maze-btn" aria-label="Links">◀</button>
+            <button id="maze-right" class="gold-btn maze-btn" aria-label="Rechts">▶</button>
+          </div>
+          <button id="maze-down" class="gold-btn maze-btn" aria-label="Omlaag">▼</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gear-screen" class="overlay" hidden>
+    <div class="overlay-card panel puzzle-card" id="gear-card">
+      <button id="gear-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+      <h2 id="gear-title">Het Radwerk</h2>
+      <p id="gear-hint" class="maze-hint"></p>
+      <canvas id="gear-canvas" width="440" height="268"></canvas>
+      <button id="gear-lever" class="gold-btn gear-lever-btn">⎇ Hendel overhalen</button>
+    </div>
+  </div>
+
+  <div id="zoom-screen" class="overlay" hidden>
+    <button id="zoom-close" class="round-btn puz-x" aria-label="Sluiten">✕</button>
+    <button id="zoom-prev" class="book-nav book-prev" aria-label="Vorige bladzijde" hidden>‹</button>
+    <img id="zoom-img" class="zoom-img" alt="">
+    <button id="zoom-next" class="book-nav book-next" aria-label="Volgende bladzijde" hidden>›</button>
+    <span id="zoom-page" class="book-page" hidden></span>
+  </div>
+
+  <div id="rotate-hint" class="overlay">
+    <div class="overlay-card panel">
+      <div class="ornament">📱↻</div>
+      <h1 id="rotate-h1">Draai je telefoon</h1>
+      <p class="intro" id="rotate-text">Dit avontuur speelt liggend. Draai je scherm een kwartslag.</p>
+    </div>
+  </div>
+
+  <script src="js/sprites.js?v=2"></script>
+  <script src="js/scenes.js?v=2"></script>
+  <script src="js/data.js?v=2"></script>
+  <script src="js/engine.js?v=2"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is Whispers of Ravenholt free to play?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Whispers of Ravenholt is 100% free to play in your browser, with no download and no sign-up." } },
+      { "@type": "Question", "name": "Do I need to download anything?", "acceptedAnswer": { "@type": "Answer", "text": "No. The game runs directly in your web browser on phone, tablet and desktop." } },
+      { "@type": "Question", "name": "How long is Whispers of Ravenholt?", "acceptedAnswer": { "@type": "Answer", "text": "About 15 to 20 minutes, so you can finish it in one sitting. It is a little more challenging than our beginner games." } },
+      { "@type": "Question", "name": "What is the game about?", "acceptedAnswer": { "@type": "Answer", "text": "You play young Finn in the village of Eldoria, where the fountain has run dry. You question the mayor, trade with a clever raven, repair the water mill and uncover the secret of the lights in the misty valley." } },
+      { "@type": "Question", "name": "Can I play on my phone?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is touch-friendly and works on iOS and Android in the browser, in both English and Dutch." } }
+    ]
+  }
+  </script>
+</body>
+</html>
