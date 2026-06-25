@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '4',
+  assetVer: '5',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -245,15 +245,15 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', x: 420, y: 252, scale: 1.04, flip: true }   // realistische, geanimeerde schildknaap rechts (zoals de vorige)
+        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', x: 462, y: 252, scale: 1.04, flip: true }   // realistische, geanimeerde schildknaap, meer naar rechts
       ],
       fx: {},
       hotspots: [
         {
           id: 'squire',
           name: { nl: 'De Schildknaap', en: 'The Squire' },
-          rect: { x: 392, y: 172, w: 60, h: 88 },
-          walkTo: { x: 388, y: 296 },
+          rect: { x: 436, y: 172, w: 60, h: 88 },
+          walkTo: { x: 430, y: 296 },
           look: {
             nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de tent. Hij knikt je vriendelijk toe. “De prins is op jacht en de koning ontvangt niemand. Maar de slottuin links... daar mag je gerust rondkijken, hoor.”',
             en: 'A young squire in a blue tabard keeps watch by the tent. He gives you a friendly nod. “The prince is out hunting and the king sees no one. But the castle garden to your left... you’re welcome to look around there.”'
@@ -339,15 +339,15 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'princess', sprite: 'princess', idleFrames: 'princess-idle', x: 384, y: 250, scale: 0.95 }   // geanimeerde prinses rechts tussen de rozen
+        { id: 'princess', sprite: 'princess', idleFrames: 'princess-idle', x: 424, y: 250, scale: 0.95 }   // geanimeerde prinses, iets meer naar rechts tussen de rozen
       ],
       fx: {},
       hotspots: [
         {
           id: 'princess',
           name: { nl: 'De Prinses', en: 'The Princess' },
-          rect: { x: 360, y: 170, w: 60, h: 90 },
-          walkTo: { x: 358, y: 296 },
+          rect: { x: 400, y: 170, w: 60, h: 90 },
+          walkTo: { x: 398, y: 296 },
           look: (state) => state.flags.showedMedallion
             ? { nl: 'De prinses houdt het medaillon tegen haar hart. “Bewaar het goed, Finn. Kom je morgen weer?” Haar glimlach maakt je sprakeloos.', en: 'The princess holds the medallion to her heart. “Keep it safe, Finn. Will you come again tomorrow?” Her smile leaves you speechless.' }
             : state.flags.metPrincess
