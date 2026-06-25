@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '2',
+  assetVer: '3',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -244,7 +244,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'squire', sprite: 'squire', x: 416, y: 250, scale: 1.0, flip: true }   // schildknaap rechts, kijkt naar het midden
+        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', x: 420, y: 252, scale: 1.16, flip: true }   // grotere, geanimeerde grappige schildknaap rechts
       ],
       fx: {},
       hotspots: [
@@ -318,7 +318,8 @@ const GAME = {
     garden: {
       name: { nl: 'De Slottuin', en: 'The Castle Garden' },
       bg: 'assets/art/scene-garden.jpg',
-      charFilter: 'saturate(1.06) brightness(1.03)',
+      charFilter: 'saturate(1.05) brightness(1.04) sepia(0.12) contrast(0.98)',   // warme tuin-belichting zodat de figuren in de omgeving opgaan
+      heroShade: 0.96,
       entryText: {
         nl: 'De ommuurde slottuin staat vol rozen en klimop. In het midden waakt een ridderbeeld; links klatert een leeuwenfontein, rechts staat een bankje onder een rozenboog. En daar — tussen de bloemen — wandelt de prinses.',
         en: 'The walled castle garden is full of roses and ivy. A knight statue watches at its centre; a lion fountain trickles to the left, a bench rests under a rose arbour to the right. And there — among the flowers — walks the princess.'
@@ -337,7 +338,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'princess', sprite: 'princess', x: 384, y: 250, scale: 0.95 }   // prinses rechts tussen de rozen
+        { id: 'princess', sprite: 'princess', idleFrames: 'princess-idle', x: 384, y: 250, scale: 0.95 }   // geanimeerde prinses rechts tussen de rozen
       ],
       fx: {},
       hotspots: [
