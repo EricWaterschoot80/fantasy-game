@@ -153,7 +153,7 @@
   }
   /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
   art.frames = {};
-  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 4, 'princess-idle': 4 };
+  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 6, 'princess-idle': 6 };
   for (const [name, count] of Object.entries(FRAME_SEQS)) {
     art.frames[name] = [];
     for (let i = 1; i <= count; i++) {
@@ -2322,14 +2322,23 @@
                                      : intro + (((now / 150) | 0) % (total - intro));
         if (ready(fr[fi])) img = fr[fi];
       } else if (npc.idleFrames && art.frames[npc.idleFrames]) {
-        /* Rust-gebaar: meestal stil op frame 1; om de ~5 sec één snelle beweging (heen en terug). */
         const fr = art.frames[npc.idleFrames], n = fr.length;
-        const phase = (now + (npc.x || 0) * 11) % 5000;       // periode van 5 sec (per npc iets verschoven)
-        const stepMs = 70, gestureMs = (n - 1) * 2 * stepMs;  // snelle ping-pong door alle frames
         let fi = 0;
-        if (phase < gestureMs) {
-          const s = (phase / stepMs) | 0;                     // 0..2(n-1)
-          fi = s < n ? s : (2 * (n - 1) - s);                 // heen (0..n-1) en terug (n-1..0)
+        if (npc.idleLoop && n > 1) {
+          /* Doorlopende, natuurlijke idle-lus: rustig heen-en-terug door álle frames,
+             zodat de figuur continu zacht beweegt (ademen/wiegen). */
+          const stepMs = npc.idleStepMs || 180;
+          const period = (n - 1) * 2;                          // ping-pong-lengte
+          const s = (((now + (npc.x || 0) * 13) / stepMs) | 0) % period;
+          fi = s < n ? s : (2 * (n - 1) - s);
+        } else {
+          /* Rust-gebaar: meestal stil op frame 1; om de ~5 sec één snelle beweging (heen en terug). */
+          const phase = (now + (npc.x || 0) * 11) % 5000;       // periode van 5 sec (per npc iets verschoven)
+          const stepMs = 70, gestureMs = (n - 1) * 2 * stepMs;  // snelle ping-pong door alle frames
+          if (phase < gestureMs) {
+            const s = (phase / stepMs) | 0;                     // 0..2(n-1)
+            fi = s < n ? s : (2 * (n - 1) - s);                 // heen (0..n-1) en terug (n-1..0)
+          }
         }
         if (ready(fr[fi])) img = fr[fi];
       }
