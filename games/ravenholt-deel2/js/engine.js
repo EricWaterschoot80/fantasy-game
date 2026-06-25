@@ -2370,6 +2370,16 @@
         } else if (ges && ready(ges) && gestureState(npc.id, now, 1100, 2400, 5200) > 0) {
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
+        } else if (npc.idleBreathe) {
+          /* Vloeiende, natuurlijke idle: doorlopende sinus-beweging (ademen + zacht wiegen),
+             geen losse frames -> geen haperige sprongen. */
+          const ph = (npc.x || 0) * 0.07;
+          const bob  = Math.sin(now / 1450 + ph) * 1.7;          // zachte op-en-neer (px)
+          const rock = Math.sin(now / 1700 + ph) * 0.02          // trage lichaamskanteling
+                     + Math.sin(now / 760  + ph) * 0.006;        // subtiele tweede laag
+          const drift = Math.sin(now / 2600 + ph) * 0.8;         // heel licht zijwaarts gewicht
+          const sq   = 1 + 0.02 * Math.sin(now / 1450 + ph + 0.5); // ademhaling
+          drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: bob, squashY: sq });
         } else {
           drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         }
