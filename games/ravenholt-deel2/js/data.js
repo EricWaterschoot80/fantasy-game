@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '10',
+  assetVer: '11',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -306,7 +306,7 @@ const GAME = {
           name: { nl: 'De Slottuin', en: 'The Castle Garden' },
           rect: { x: 112, y: 66, w: 96, h: 98 },
           walkTo: { x: 168, y: 250 },
-          arrow: { x: 158, y: 92, dir: 'up' },
+          arrow: { x: 158, y: 126, dir: 'up' },
           exit: { to: 'garden', travelText: { nl: 'Je loopt onder de begroeide boog door, de bloeiende slottuin in...', en: 'You pass under the ivy-clad arch, into the blooming castle garden...' } }
         }
       ]

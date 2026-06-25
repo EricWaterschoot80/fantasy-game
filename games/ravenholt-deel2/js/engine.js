@@ -2371,14 +2371,15 @@
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         } else if (npc.idleBreathe) {
-          /* Vloeiende, natuurlijke idle: doorlopende sinus-beweging (ademen + zacht wiegen),
-             geen losse frames -> geen haperige sprongen. */
+          /* Vloeiende, natuurlijke idle zonder losse frames: een TRAGE gewichtsverplaatsing
+             (voet naar voet) + zachte ademhaling. Geen zweverig op-en-neer. */
           const ph = (npc.x || 0) * 0.07;
-          const bob  = Math.sin(now / 1450 + ph) * 1.7;          // zachte op-en-neer (px)
-          const rock = Math.sin(now / 1700 + ph) * 0.02          // trage lichaamskanteling
-                     + Math.sin(now / 760  + ph) * 0.006;        // subtiele tweede laag
-          const drift = Math.sin(now / 2600 + ph) * 0.8;         // heel licht zijwaarts gewicht
-          const sq   = 1 + 0.02 * Math.sin(now / 1450 + ph + 0.5); // ademhaling
+          const shift  = Math.sin(now / 4100 + ph);              // langzaam gewicht van voet naar voet (~8s)
+          const rock   = shift * 0.024 + Math.sin(now / 1900 + ph) * 0.006;  // lichaam kantelt mee
+          const drift  = shift * 1.5;                            // gewicht schuift licht zijwaarts mee
+          const breath = Math.sin(now / 2100 + ph * 1.3);        // ademhaling (borst zet uit)
+          const sq     = 1 + 0.024 * breath;                     // verticale rek, voeten blijven staan
+          const bob    = -0.7 * Math.max(0, breath);             // heel licht omhoog bij inademen
           drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: bob, squashY: sq });
         } else {
           drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
