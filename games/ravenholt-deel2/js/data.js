@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '11',
+  assetVer: '12',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -245,7 +245,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'squire', sprite: 'squire', idleBreathe: true, x: 486, y: 270, scale: 1.0, flip: true }   // schildknaap: schone cutout + vloeiende ademende idle
+        { id: 'squire', sprite: 'squire', idleBreathe: true, x: 486, y: 284, scale: 1.0, flip: true }   // schildknaap: schone halo-vrije cutout, iets lager + vloeiende idle
       ],
       fx: {},
       hotspots: [
@@ -395,9 +395,9 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Terug naar de Binnenplaats', en: 'Back to the Courtyard' },
-          rect: { x: 12, y: 256, w: 82, h: 60 },
-          walkTo: { x: 56, y: 300 },
-          arrow: { x: 40, y: 268, dir: 'down' },
+          rect: { x: 12, y: 256, w: 100, h: 60 },
+          walkTo: { x: 70, y: 300 },
+          arrow: { x: 86, y: 268, dir: 'down' },
           exit: { to: 'courtyard', travelText: { nl: 'Je loopt de tuin weer uit, terug naar de binnenplaats.', en: 'You leave the garden, back to the courtyard.' } }
         }
       ]
