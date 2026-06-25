@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '3',
+  assetVer: '4',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -225,7 +225,8 @@ const GAME = {
     courtyard: {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
       bg: 'assets/art/scene-courtyard.jpg',
-      charFilter: 'saturate(1.05) brightness(1.02)',
+      charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
+      heroShade: 0.95,
       entryText: {
         nl: 'De binnenplaats van het kasteel van Eldoria baadt in het late ochtendlicht. Een standbeeld van een knielende ridder waakt over de keien. Links leidt een begroeide boog naar de slottuin; rechts staat een markttent bij de grote kasteeldeur.',
         en: 'The courtyard of Eldoria castle bathes in late morning light. A statue of a kneeling knight watches over the cobbles. To the left an ivy-clad arch leads to the castle garden; to the right a market tent stands by the great castle door.'
@@ -244,7 +245,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', x: 420, y: 252, scale: 1.16, flip: true }   // grotere, geanimeerde grappige schildknaap rechts
+        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', x: 420, y: 252, scale: 1.04, flip: true }   // realistische, geanimeerde schildknaap rechts (zoals de vorige)
       ],
       fx: {},
       hotspots: [
@@ -318,8 +319,8 @@ const GAME = {
     garden: {
       name: { nl: 'De Slottuin', en: 'The Castle Garden' },
       bg: 'assets/art/scene-garden.jpg',
-      charFilter: 'saturate(1.05) brightness(1.04) sepia(0.12) contrast(0.98)',   // warme tuin-belichting zodat de figuren in de omgeving opgaan
-      heroShade: 0.96,
+      charFilter: 'saturate(1.06) brightness(1.05) sepia(0.06) contrast(1.03)',   // helder zonnig tuinlicht; lichte warmte zodat de figuren in de omgeving opgaan
+      heroShade: 0.98,
       entryText: {
         nl: 'De ommuurde slottuin staat vol rozen en klimop. In het midden waakt een ridderbeeld; links klatert een leeuwenfontein, rechts staat een bankje onder een rozenboog. En daar — tussen de bloemen — wandelt de prinses.',
         en: 'The walled castle garden is full of roses and ivy. A knight statue watches at its centre; a lion fountain trickles to the left, a bench rests under a rose arbour to the right. And there — among the flowers — walks the princess.'
