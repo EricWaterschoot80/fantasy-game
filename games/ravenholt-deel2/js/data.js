@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '8',
+  assetVer: '9',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -245,7 +245,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', idleLoop: true, idleStepMs: 200, x: 486, y: 272, scale: 1.18, flip: false }   // schildknaap, groter hoofd, doorlopende natuurlijke idle
+        { id: 'squire', sprite: 'squire', idleFrames: 'squire-idle', idleLoop: true, idleStepMs: 340, x: 486, y: 270, scale: 1.0, flip: true }   // schildknaap omgedraaid + kleiner, rustige idle
       ],
       fx: {},
       hotspots: [
@@ -339,7 +339,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'princess', sprite: 'princess', idleFrames: 'princess-idle', idleLoop: true, idleStepMs: 210, x: 424, y: 250, scale: 1.02 }   // prinses, groter hoofd + iets groter, doorlopende natuurlijke idle
+        { id: 'princess', sprite: 'princess', idleFrames: 'princess-idle', idleLoop: true, idleStepMs: 360, x: 424, y: 250, scale: 0.9 }   // prinses iets kleiner, rustige idle
       ],
       fx: {},
       hotspots: [
