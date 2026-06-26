@@ -153,7 +153,7 @@
   }
   /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
   art.frames = {};
-  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 6, 'princess-idle': 8 };
+  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 6, 'princess-idle': 10 };
   for (const [name, count] of Object.entries(FRAME_SEQS)) {
     art.frames[name] = [];
     for (let i = 1; i <= count; i++) {
