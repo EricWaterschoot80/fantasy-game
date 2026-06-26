@@ -153,7 +153,7 @@
   }
   /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
   art.frames = {};
-  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 6, 'princess-idle': 10 };
+  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 6, 'princess-idle': 8 };
   for (const [name, count] of Object.entries(FRAME_SEQS)) {
     art.frames[name] = [];
     for (let i = 1; i <= count; i++) {
@@ -1143,6 +1143,7 @@
 
     /* Bijtjes en vlinders dansen mee rond de betoverde bloemen (zodra ze dansen). */
     if (state.currentScene === 'castle' && state.flags.flowerDancing && !state.flags.taken_castle_cart) drawCastleDancers(now);
+    if (state.currentScene === 'garden') drawGardenButterflies(now);   // vlinders fladderen door de slottuin
     if (state.flags.duelActive) drawDuel(now);
 
     /* Lage drijvende mist VÓÓR de personages (zo lijkt het of de heks in de mist staat). */
@@ -2456,6 +2457,35 @@
       fctx.fillStyle = v.w;
       fctx.fillRect(vx - ww, vy, ww, 1); fctx.fillRect(vx - ww, vy + 1, ww, 1);
       fctx.fillRect(vx + 1, vy, ww, 1); fctx.fillRect(vx + 1, vy + 1, ww, 1);
+    }
+    fctx.restore();
+  }
+
+  /* Vlinders die rustig en zwierig door de slottuin fladderen (boven de rozen).
+     Elke vlinder zweeft langs een eigen trage Lissajous-baan met zachte vleugelslag. */
+  function drawGardenButterflies(now) {
+    const f = sceneFilter();
+    fctx.save();
+    fctx.imageSmoothingEnabled = false;
+    if (f !== 'none') fctx.filter = f;
+    const FLIES = [
+      { cx: 150, cy: 150, rx: 44, ry: 26, sp: 1700, ph: 0.0, w: '#f2dc84', e: '#caa83e' },  // geel, links-boven
+      { cx: 300, cy: 124, rx: 58, ry: 30, sp: 1950, ph: 2.2, w: '#ef9ec0', e: '#cf6e98' },  // roze, midden-boven
+      { cx: 466, cy: 162, rx: 40, ry: 24, sp: 1780, ph: 4.1, w: '#a6cdf2', e: '#6d9fda' },  // blauw, rechts
+      { cx: 232, cy: 206, rx: 34, ry: 18, sp: 1560, ph: 1.3, w: '#f2a866', e: '#d07f44' }   // oranje, laag-midden
+    ];
+    for (const v of FLIES) {
+      const t = now / v.sp + v.ph;
+      const vx = Math.round(v.cx + Math.sin(t) * v.rx + Math.cos(t * 0.6) * 5);
+      const vy = Math.round(v.cy + Math.cos(t * 1.2) * v.ry - Math.abs(Math.sin(now / 300 + v.ph)) * 3);
+      const flap = Math.abs(Math.sin(now / 95 + v.ph));               // vleugelslag 0..1
+      const ww = 1 + Math.round(flap * 2);                            // vleugelbreedte 1..3
+      fctx.fillStyle = '#2a1c12'; fctx.fillRect(vx, vy, 1, 3);        // lijfje
+      fctx.fillStyle = v.e;                                           // donkere vleugelrand
+      fctx.fillRect(vx - ww, vy - 1, ww, 1); fctx.fillRect(vx + 1, vy - 1, ww, 1);
+      fctx.fillStyle = v.w;                                           // lichte vleugels
+      fctx.fillRect(vx - ww, vy, ww, 2); fctx.fillRect(vx + 1, vy, ww, 2);
+      if (flap > 0.65) { fctx.fillStyle = 'rgba(255,255,255,0.5)'; fctx.fillRect(vx - ww, vy, 1, 1); fctx.fillRect(vx + ww, vy, 1, 1); }
     }
     fctx.restore();
   }
