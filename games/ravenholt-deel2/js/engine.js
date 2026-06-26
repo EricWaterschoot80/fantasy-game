@@ -3626,15 +3626,33 @@
   }
   function renderSymbolPuzzle() {
     const pz = symHs.symbolPuzzle;
-    elRuneBtns.className = 'rune-btn-row';
-    elRuneBtns.innerHTML = '';
-    pz.symbols.forEach((s) => {
-      const btn = document.createElement('button');
-      btn.className = 'rune-stone-btn';
-      btn.innerHTML = s.emoji + '<br>' + L(s.label);
-      btn.addEventListener('click', () => symbolTap(s.key));
-      elRuneBtns.appendChild(btn);
-    });
+    if (pz.zones && elRuneHotspots) {
+      /* Je drukt rechtstreeks op de tekens IN de afbeelding (zoals de boeken-puzzel). */
+      if (elRuneBtns) { elRuneBtns.innerHTML = ''; elRuneBtns.hidden = true; }
+      elRuneHotspots.innerHTML = '';
+      pz.zones.forEach((z) => {
+        const done = pz.sequence.indexOf(z.key) < symProg;   // al correct ingedrukt deze ronde
+        const btn = document.createElement('button');
+        btn.className = 'book-hot' + (done ? ' pulled' : '');
+        btn.style.left = z.left + '%'; btn.style.top = z.top + '%';
+        btn.style.width = z.width + '%'; btn.style.height = z.height + '%';
+        btn.setAttribute('aria-label', z.key);
+        if (!done) btn.addEventListener('click', () => symbolTap(z.key));
+        elRuneHotspots.appendChild(btn);
+      });
+    } else {
+      if (elRuneHotspots) elRuneHotspots.innerHTML = '';
+      elRuneBtns.hidden = false;
+      elRuneBtns.className = 'rune-btn-row';
+      elRuneBtns.innerHTML = '';
+      pz.symbols.forEach((s) => {
+        const btn = document.createElement('button');
+        btn.className = 'rune-stone-btn';
+        btn.innerHTML = s.emoji + '<br>' + L(s.label);
+        btn.addEventListener('click', () => symbolTap(s.key));
+        elRuneBtns.appendChild(btn);
+      });
+    }
     elRuneStatus.textContent = '';
   }
   function symbolTap(key) {
@@ -3651,12 +3669,14 @@
         const h = symHs; symHs = null;
         setTimeout(() => { elRune.hidden = true; if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 450);
       } else {
+        if (pz.zones) renderSymbolPuzzle();        // licht het ingedrukte teken op
         const rem = pz.sequence.length - symProg;
         elRuneStatus.textContent = lang === 'nl' ? ('Goed! Nog ' + rem + '...') : ('Good! ' + rem + ' more...');
       }
     } else {
       symProg = 0;
       sfx('error');
+      if (pz.zones) renderSymbolPuzzle();          // alle tekens weer dimmen
       elRuneStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'Mis! Begin opnieuw.' : 'Wrong! Start over.');
     }
   }

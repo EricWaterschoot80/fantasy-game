@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '48',
+  assetVer: '49',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -278,14 +278,20 @@ const GAME = {
           symbolPuzzle: {
             img: 'assets/art/puzzle-well.jpg',
             title: { nl: 'De Oude Put', en: 'The Old Well' },
-            hint: { nl: 'In de rand van de put zijn vier tekens gebeiteld (zie de steen). Druk ze in dezelfde volgorde om het oude windwerk los te maken.', en: 'Four signs are carved into the well-rim (see the stone). Press them in the same order to release the old winding gear.' },
+            hint: { nl: 'In de putrand zijn vier tekens uitgehouwen. De oude spreuk luidt: “water, maan, schelp, ster.” Druk de tekens op de stenen in die volgorde.', en: 'Four signs are cut into the well-rim. The old verse reads: “water, moon, shell, star.” Press the carved signs on the stones in that order.' },
+            zones: [
+              { key: 'maan',   left: 29, top: 65, width: 13, height: 26 },
+              { key: 'ster',   left: 41, top: 62, width: 12, height: 28 },
+              { key: 'water',  left: 52, top: 65, width: 12, height: 26 },
+              { key: 'schelp', left: 62, top: 63, width: 14, height: 28 }
+            ],
             symbols: [
               { key: 'water',  emoji: '💧', label: { nl: 'Water',  en: 'Water' } },
               { key: 'schelp', emoji: '🐚', label: { nl: 'Schelp', en: 'Shell' } },
               { key: 'maan',   emoji: '🌙', label: { nl: 'Maan',   en: 'Moon'  } },
               { key: 'ster',   emoji: '⭐', label: { nl: 'Ster',   en: 'Star'  } }
             ],
-            sequence: ['maan', 'ster', 'water', 'schelp'],
+            sequence: ['water', 'maan', 'schelp', 'ster'],
             setFlag: 'wellUnlocked',
             solvedText: { nl: 'De vier tekens lichten op en diep in de put klikt het oude windwerk los. Nu zou je met een touw iets uit de diepte omhoog kunnen vissen.', en: 'The four signs light up and deep in the well the old winding gear clicks free. Now, with a rope, you could fish something up from below.' },
             resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
@@ -414,14 +420,20 @@ const GAME = {
           symbolPuzzle: {
             img: 'assets/art/puzzle-crest.jpg',
             title: { nl: 'Het Wapen van de Ridder', en: 'The Knight’s Crest' },
-            hint: { nl: 'In de sokkel staan vier wapenschilden gebeiteld (zie de steen). Druk ze in dezelfde volgorde van links naar rechts.', en: 'Four crests are carved into the plinth (see the stone). Press them in the same order, left to right.' },
+            hint: { nl: 'In de sokkel zijn vier wapenschilden gebeiteld. De spreuk van de orde luidt: “de leeuw, de lelie, het zwaard, de kroon.” Druk de schilden op de steen in die volgorde.', en: 'Four crests are carved into the plinth. The order’s motto reads: “the lion, the lily, the sword, the crown.” Press the carved crests in that order.' },
+            zones: [
+              { key: 'lelie',  left: 6,  top: 26, width: 19, height: 50 },
+              { key: 'kroon',  left: 28, top: 22, width: 19, height: 56 },
+              { key: 'leeuw',  left: 51, top: 26, width: 19, height: 52 },
+              { key: 'zwaard', left: 74, top: 24, width: 18, height: 54 }
+            ],
             symbols: [
               { key: 'leeuw',  emoji: '🦁', label: { nl: 'Leeuw',  en: 'Lion'  } },
               { key: 'zwaard', emoji: '⚔️', label: { nl: 'Zwaard', en: 'Sword' } },
               { key: 'kroon',  emoji: '👑', label: { nl: 'Kroon',  en: 'Crown' } },
               { key: 'lelie',  emoji: '⚜️', label: { nl: 'Lelie',  en: 'Lily'  } }
             ],
-            sequence: ['lelie', 'kroon', 'leeuw', 'zwaard'],
+            sequence: ['leeuw', 'lelie', 'zwaard', 'kroon'],
             setFlag: 'statuePuzzleSolved',
             give: 'hammer',
             solvedText: { nl: 'De vier wapenschilden klikken één voor één op hun plek. Met een steenachtig gerommel schuift een vakje in de sokkel open — daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Vlak eronder zit nog die barst die hól klinkt...', en: 'One by one the four crests click into place. With a stony rumble a niche slides open in the plinth — inside lies the old hero’s heavy blacksmith’s hammer! You take it. Just below it runs that crack that sounds hollow...' },
