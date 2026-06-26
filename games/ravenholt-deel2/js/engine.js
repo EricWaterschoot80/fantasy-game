@@ -2395,19 +2395,17 @@
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         } else if (npc.idleBreathe) {
-          /* Heel zachte, vloeiende wieg. De beweging zit vooral in een lichte
-             ROTATIE om de voeten (sub-pixel = glad), niet in horizontale translatie
-             (die wordt op hele pixels afgerond -> houterig bij kleine waarden).
-             GEEN verticale beweging, zodat de figuur niet lijkt op te stijgen. */
+          /* Organische, levende idle: meerdere TRAGE sinussen met onderling
+             oneven periodes (1,7s / 2,9s / 4,3s) opgeteld, zodat de wieg nooit
+             exact herhaalt en niet mechanisch tikt. De beweging zit in een zachte
+             ROTATIE om de voeten (sub-pixel = glad, niet houterig); horizontale
+             translatie blijft minimaal en er is GEEN verticale beweging. */
           const ph = (npc.x || 0) * 0.07;
-          const w1     = Math.sin(now / 1300 + ph);              // trage wieg (~8s)
-          let rock     = w1 * 0.016;                             // vloeiende pivot-sway (kop beweegt zacht mee)
-          let drift    = w1 * 0.35;                              // minimale horizontale translatie
-          if (npc.sway) {                                        // tweede, iets ander tempo zodat het niet mechanisch herhaalt
-            const s = Math.sin(now / 2100 + ph * 1.7);
-            rock  += s * 0.009;
-            drift += s * 0.2;
-          }
+          const a = Math.sin(now / 1700 + ph);
+          const b = Math.sin(now / 2900 + ph * 1.7 + 1.3);
+          const c = Math.sin(now / 4300 + ph * 0.6 + 2.1);
+          const rock  = a * 0.011 + b * 0.006 + c * 0.004;       // vloeiende, niet-repeterende kanteling (~max 1,2°)
+          const drift = a * 0.45 + b * 0.25;                     // heel licht zijwaarts
           drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: 1 });
         } else if (crossImg && crossT > 0.01) {
           /* Vloeiende idle-lus: huidige frame VOL tekenen en het volgende erover laten
