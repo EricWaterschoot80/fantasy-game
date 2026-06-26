@@ -5033,6 +5033,8 @@
 
   /* ---------- Winst & herstart ---------- */
   function showWin() {
+    state.flags.gameComplete = true;        // markeer als uitgespeeld (zichtbaar in je account-overzicht)
+    try { saveGame(true); } catch (e) {}    // voortgang + completion bewaren (ook naar de cloud als je bent ingelogd)
     elWinText.textContent = L(GAME.winText);
     elWin.hidden = false;
     elQuest.hidden = true;

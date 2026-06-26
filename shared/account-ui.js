@@ -47,7 +47,18 @@
       '.ra-acc-card{position:relative}',
       '.ra-acc-who{font-size:14px;color:#efe6cf;margin:6px 0 14px;word-break:break-all}',
       '.ra-acc-who b{color:#f3e2a8}',
-      '.ra-acc-foot{margin-top:14px;font-size:11px;color:#8a7f63;text-align:center}'
+      '.ra-acc-foot{margin-top:14px;font-size:11px;color:#8a7f63;text-align:center}',
+      '.ra-acc-gtitle{font-size:11px;color:#b6a982;margin:4px 0 7px;text-transform:uppercase;letter-spacing:.05em}',
+      '.ra-acc-games{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}',
+      '.ra-acc-game{display:flex;align-items:center;justify-content:space-between;gap:10px;',
+      'padding:9px 11px;border:1px solid #5a4e34;border-radius:10px;background:#2a2418;text-decoration:none}',
+      '.ra-acc-game:hover{background:#342c1c;border-color:#c9a24b}',
+      '.ra-acc-game b{color:#efe6cf;font-size:13px;font-weight:600}',
+      '.ra-st{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}',
+      '.ra-st.done{background:#c9a24b;color:#211c15}',
+      '.ra-st.busy{background:#3a5a8c;color:#eaf1fb}',
+      '.ra-st.none{background:#332b1d;color:#9a8f72;font-weight:600}',
+      '.ra-acc-gload{font-size:12px;color:#9a8f72;padding:4px 2px}'
     ].join('');
     document.head.appendChild(css);
 
@@ -71,9 +82,12 @@
           '<div class="ra-acc-card"><button class="ra-acc-x" data-x>×</button>' +
           '<h2>Je bent ingelogd</h2>' +
           '<p class="ra-acc-who">Ingelogd als <b>' + esc(shortEmail(u)) + '</b></p>' +
-          '<p class="ra-acc-sub">Je voortgang wordt automatisch in de cloud bewaard en op elk apparaat geladen zodra je inlogt.</p>' +
+          '<div class="ra-acc-gtitle">Mijn spellen</div>' +
+          '<div class="ra-acc-games" data-games><div class="ra-acc-gload">Spellen laden…</div></div>' +
+          '<p class="ra-acc-sub" style="margin-top:12px">Je voortgang wordt automatisch in de cloud bewaard en op elk apparaat geladen zodra je inlogt.</p>' +
           '<button class="ra-acc-go" data-logout>Uitloggen</button>' +
           '<div class="ra-acc-foot">RetroAdventureWorld-account</div></div>';
+        fillGames();
       } else {
         ov.innerHTML =
           '<div class="ra-acc-card"><button class="ra-acc-x" data-x>×</button>' +
@@ -91,6 +105,26 @@
     }
 
     function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+    /* Vul de 'Mijn spellen'-lijst met welke spellen je speelt / hebt uitgespeeld. */
+    function fillGames() {
+      var box = ov.querySelector('[data-games]');
+      if (!box || !RA.listProgress) return;
+      RA.listProgress().then(function (list) {
+        var b = ov.querySelector('[data-games]');
+        if (!b) return;                                   // modal kan ondertussen gesloten/herrenderd zijn
+        b.innerHTML = list.map(function (g) {
+          var st = g.completed ? '<span class="ra-st done">✓ Uitgespeeld</span>'
+                 : g.played    ? '<span class="ra-st busy">Bezig</span>'
+                 :               '<span class="ra-st none">Nog niet gespeeld</span>';
+          return '<a class="ra-acc-game" href="' + g.url + '"><b>' + esc(g.title) + '</b>' + st + '</a>';
+        }).join('');
+      }).catch(function () {
+        var b = ov.querySelector('[data-games]');
+        if (b) b.innerHTML = '<div class="ra-acc-gload">Kon je spellen niet laden.</div>';
+      });
+    }
+
     function open() { render(); ov.classList.add('open'); }
     function close() { ov.classList.remove('open'); }
 

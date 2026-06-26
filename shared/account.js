@@ -128,6 +128,35 @@
     _pullAll: function () {
       if (!currentUser) return;
       Object.keys(saves).forEach(function (s) { RA._pull(s); });
+    },
+
+    /* Catalogus van alle RetroAdventureWorld-spellen (voor het account-overzicht). */
+    GAMES: [
+      { slug: 'ravenholt',       title: 'Whispers of Ravenholt — Deel 1', url: '/games/ravenholt/' },
+      { slug: 'ravenholt-deel2', title: 'Whispers of Ravenholt — Deel 2', url: '/games/ravenholt-deel2/' }
+    ],
+
+    /* Haal voor de ingelogde speler op welke spellen hij speelt of heeft uitgespeeld.
+       Geeft per spel: { slug, title, url, played, completed }. */
+    listProgress: function () {
+      if (!currentUser) return Promise.resolve(RA.GAMES.map(function (g) {
+        return { slug: g.slug, title: g.title, url: g.url, played: false, completed: false };
+      }));
+      return client.from('game_saves').select('game,data').eq('user_id', currentUser.id)
+        .then(function (r) {
+          var byGame = {};
+          (r.data || []).forEach(function (row) { byGame[row.game] = row.data; });
+          return RA.GAMES.map(function (g) {
+            var d = byGame[g.slug];
+            var done = !!(d && d.flags && d.flags.gameComplete);
+            return { slug: g.slug, title: g.title, url: g.url, played: !!d, completed: done };
+          });
+        })
+        .catch(function () {
+          return RA.GAMES.map(function (g) {
+            return { slug: g.slug, title: g.title, url: g.url, played: false, completed: false };
+          });
+        });
     }
   };
 
