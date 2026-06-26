@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '40',
+  assetVer: '42',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -127,6 +127,10 @@ const GAME = {
              look: { nl: 'De houten staf van mijn vader. Hij voelt vertrouwd in je hand — met de juiste spreuk in je boek kun je hem laten werken.', en: 'My father’s wooden staff. It feels familiar in your hand — with the right spell in your book you can make it work.' } },
     hammer: { name: { nl: 'Smidshamer', en: 'Blacksmith’s Hammer' }, icon: '🔨', img: 'assets/art/item-hammer.png',
              look: { nl: 'Een zware smidshamer van de smidse op de binnenplaats. Stevig genoeg om een gebarsten steen open te breken.', en: 'A heavy blacksmith’s hammer from the courtyard forge. Sturdy enough to crack open a split stone.' } },
+    swordBroken: { name: { nl: 'Gebroken Zwaard', en: 'Broken Sword' }, icon: '🗡️', img: 'assets/art/item-sword-broken.png',
+             look: { nl: 'Een oud zwaard, doormidden gebroken. Het gevest zit nog stevig in elkaar; misschien kan een smid het opnieuw smeden.', en: 'An old sword, snapped clean in two. The hilt is still solid; perhaps a smith could reforge it.' } },
+    flower: { name: { nl: 'Bloem', en: 'Flower' }, icon: '🌸', img: 'assets/art/item-flower.png',
+             look: { nl: 'Een mooie bloem uit de slottuin — een lief klein cadeautje voor iemand bijzonders.', en: 'A pretty flower from the castle garden — a sweet little gift for someone special.' } },
     medallion: { name: { nl: 'Gouden Medaillon', en: 'Golden Medallion' }, icon: '🎖️', img: 'assets/art/item-medallion.png', sparkle: true, border: 'gold',
              look: { nl: 'Een glanzend gouden medaillon met hetzelfde ridderwapen als op het standbeeld — een blauwe lelie. Het lag verborgen in de sokkel. Wie zou het daar bewaard hebben?', en: 'A gleaming gold medallion bearing the same knight’s crest as the statue — a blue fleur-de-lis. It lay hidden in the plinth. Who could have kept it there?' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
@@ -339,7 +343,8 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.14 }   // prinses; zelfde soort wieg als de poortwacht maar met kleinere amplitude (minder wankelen)
+        { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.14 },   // prinses; zelfde soort wieg als de poortwacht maar met kleinere amplitude (minder wankelen)
+        { id: 'gardenRaven', sprite: 'ravenPerch', x: 506, y: 206, scale: 0.95, flip: true, peck: true, peckAmt: 0.4 }   // de raaf is meegekomen naar de slottuin; zit op de rugleuning van het bankje en pikt af en toe
       ],
       fx: {},
       hotspots: [
