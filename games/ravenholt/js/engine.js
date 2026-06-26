@@ -2616,14 +2616,36 @@
     if (!lines.length) { const k = questKey(); if (k) lines.push(L(GAME.ui[k])); }
     return lines;
   }
+  /* De tip verschijnt als je op de 💡-knop tikt, óf vanzelf na 3 minuten zonder
+     voortgang. De timer herstart telkens als de hint verandert (nieuwe ruimte of
+     een puzzelstap), zodat hij 3 min ná je laatste vooruitgang opduikt. */
+  const HINT_AUTO_MS = 180000;
+  let hintAutoTimer = null;
+  let lastHintText = '';
+  function clearHintTimer() { if (hintAutoTimer) { clearTimeout(hintAutoTimer); hintAutoTimer = null; } }
+  function armHintTimer() {
+    clearHintTimer();
+    hintAutoTimer = setTimeout(() => {
+      hintAutoTimer = null;
+      if (!started || infoOpen) return;
+      if (!elInfoBtn || elInfoBtn.hidden) return;   // geen hint beschikbaar
+      infoOpen = true;
+      elInfoBtn.classList.add('on');
+      updateQuest(true);
+    }, HINT_AUTO_MS);
+  }
   function updateQuest(force) {
     updateSpellBtn();
     const lines = hintLines();
     const has = lines.length > 0;
     if (elInfoBtn) elInfoBtn.hidden = !has;        // hint-knop alleen tonen als er een hint is
-    if (!has) { elQuest.hidden = true; return; }
+    if (!has) { elQuest.hidden = true; lastHintText = ''; clearHintTimer(); return; }
     const t = lines.map((l) => '💡 ' + l).join('\n');
     elQuest.style.whiteSpace = 'pre-line';
+    if (t !== lastHintText) {                       // nieuwe ruimte / nieuwe stap → 3-min-klok opnieuw starten
+      lastHintText = t;
+      if (!infoOpen) armHintTimer();
+    }
     if (elQuest.textContent !== t || force) {
       elQuest.textContent = t;
       elQuest.style.opacity = '0';
@@ -2635,6 +2657,8 @@
     infoOpen = !infoOpen;
     elInfoBtn.classList.toggle('on', infoOpen);
     if (soundOn) sfx('tap');
+    if (infoOpen) clearHintTimer();                 // zelf geopend → geen auto-tip meer nodig
+    else armHintTimer();                            // weer dichtgeklapt → over 3 min opnieuw aanbieden
     updateQuest(true);
   });
 
