@@ -281,5 +281,11 @@
     ]
   }
   </script>
+
+  <!-- Accounts + cloud-opslag (Supabase) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/shared/account.js?v=1"></script>
+  <script src="/shared/account-ui.js?v=1"></script>
+  <script>window.RAAuth && RAAuth.registerSave('ravenholt', 'ravenholt-save-v1');</script>
 </body>
 </html>

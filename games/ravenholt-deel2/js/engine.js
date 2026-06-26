@@ -5064,7 +5064,7 @@
   if (elPrologueSkip) elPrologueSkip.addEventListener('click', (e) => { e.stopPropagation(); if (soundOn) sfx('tap'); endPrologue(); });
 
   /* ---------- Opslaan & verder spelen (browser-cache / localStorage) ---------- */
-  const SAVE_KEY = 'ravenholt-save-v1';
+  const SAVE_KEY = 'ravenholt-deel2-save-v1';
   const elSaveBtn = document.getElementById('saveBtn');
   const elContinueBtn = document.getElementById('continueBtn');
   function hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
