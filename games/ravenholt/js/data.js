@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '169',
+  assetVer: '170',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -209,6 +209,10 @@ const GAME = {
   scenes: {
     square: {
       name: { nl: 'Het Dorpsplein', en: 'The Village Square' },
+      hints: [
+        { nl: 'Praat met burgemeester Bram en kijk wat hij van je wil; een lekker drankje stemt hem vast mild.', en: 'Talk to Mayor Bram and see what he wants; a nice drink will surely soften him up.' },
+        { nl: 'Er glinstert iets op de bodem van de droge fontein — en een glanzende raaf is gek op glimmende dingen.', en: 'Something glints at the bottom of the dry fountain — and a glossy raven loves shiny things.' }
+      ],
       bg: 'assets/art/scene-square.jpg',
       bgVariants: [
         { img: 'assets/art/scene-square-chess.jpg', flag: 'mayorGone' },         // burgemeester vertrokken: oude man schaakt + fontein klatert
@@ -408,6 +412,10 @@ const GAME = {
 
     mill: {
       name: { nl: 'De Oude Molen', en: 'The Old Mill' },
+      hints: [
+        { nl: 'Ga de molen bínnen om te ontdekken waarom het waterrad stilstaat.', en: 'Go inside the mill to find out why the water wheel has stopped.' },
+        { nl: 'Rechts van de molen groeit een struik vol donkere bessen — handig voor inkt.', en: 'To the right of the mill grows a bush full of dark berries — useful for ink.' }
+      ],
       bg: 'assets/art/scene-mill.jpg',
       bgVariants: [
         { img: 'assets/art/scene-mill-poem.jpg', flag: 'visited_valley', notFlag: 'poemRead' },   // terug uit de vallei: vlag omhoog; zodra de brief is gepakt weer omlaag
@@ -532,6 +540,10 @@ const GAME = {
 
     millInside: {
       name: { nl: 'In de Molen', en: 'Inside the Mill' },
+      hints: [
+        { nl: 'In de kast staan lege glazen flesjes en aan de plank zitten gekleurde boeken vast — beide het onderzoeken waard.', en: 'Empty glass vials sit in the cupboard and coloured books are stuck on the shelf — both worth examining.' },
+        { nl: 'Het tandrad mist een onderdeel, en het muisje bij de wijnton lust vast wel iets lekkers.', en: 'The gearworks is missing a part, and the little mouse by the wine barrel would surely like a treat.' }
+      ],
       bg: 'assets/art/scene-mill-inside.jpg',
       bgVariants: [
         { img: 'assets/art/scene-mill-inside-grain.jpg', flag: 'millFixed' },   // molen draait weer → verse graanzak verschijnt
@@ -554,7 +566,11 @@ const GAME = {
         { id: 'mouse', sprite: 'mouse', x: 179, y: 188, scale: 0.44, flip: false, peck: true, peckAmt: 0.45, filter: 'brightness(0.82)', hideFlag: 'wineTapLoose' }   // muisje hoog naast de wijnton; knabbelt rustig (peck) en verdwijnt zodra je hem kaas geeft (wineTapLoose)
       ],
       fx: {
-        glints: [{ x: 374, y: 256, flag: 'millFixed', col: '255,228,150' }]   // de graanzak glinstert zodra de molen weer maalt (hint om op te pakken)
+        glints: [
+          { x: 374, y: 256, flag: 'millFixed', col: '255,228,150' },             // de graanzak glinstert zodra de molen weer maalt
+          { x: 60, y: 84,  notFlag: 'gotVials',     col: '190,225,255' },          // de glazen flesjes in de kast glinsteren (glas) tot je ze pakt
+          { x: 62, y: 140, notFlag: 'gotSpellbook', col: '235,210,150' }           // de vastzittende boeken glinsteren tot de boeken-puzzel opgelost is
+        ]
       },
       hotspots: [
         {
@@ -718,6 +734,9 @@ const GAME = {
 
     castle: {
       name: { nl: 'De Kasteelpoort', en: 'The Castle Gate' },
+      hints: [
+        { nl: 'De poortwacht laat niemand door — een angstaanjagende spreuk uit je toverboek doet wonderen.', en: 'The gate guard lets no one pass — a terrifying spell from your spellbook works wonders.' }
+      ],
       bg: 'assets/art/scene-castle.png',
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // zelfde warme ochtendzon
       heroShade: 0.87,                                            // Finn iets donkerder bij de poort (meer in de schaduw)
@@ -854,6 +873,10 @@ const GAME = {
 
     valley: {
       name: { nl: 'De Mistige Vallei', en: 'The Misty Valley' },
+      hints: [
+        { nl: 'Verzamel de drie ingrediënten voor de ketel — het recept in je toverboek wijst de weg.', en: 'Gather the three ingredients for the cauldron — the recipe in your spellbook shows the way.' },
+        { nl: 'Bij de ketel woont een heks die de drakenspreuk kent; los haar raadsels op met de juiste gloeiende steen.', en: 'A witch who knows the dragon spell lives by the cauldron; answer her riddles with the right glowing stone.' }
+      ],
       bg: 'assets/art/scene-valley.jpg',
       bgVariants: [
         { img: 'assets/art/scene-valley-after.jpg', flag: 'witchDefeated' },  // heks verslagen → de blauwe magie dooft, rustige vallei

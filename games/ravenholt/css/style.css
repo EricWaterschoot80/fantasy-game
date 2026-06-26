@@ -125,10 +125,9 @@ html, body {
   left: 112px;
   top: calc(var(--safe-top) + 8px);
   z-index: 30;
-  font-family: var(--font-pixel);
   font-size: 18px;
   font-weight: 700;
-  font-style: italic;
+  font-style: normal;
 }
 .round-btn.info.on { background: var(--gold); color: #2a1c10; }
 

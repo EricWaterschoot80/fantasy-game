@@ -2601,18 +2601,29 @@
     fctx.globalAlpha = 1;
   }
 
+  /* Hints per ruimte (scene.hints, 1-2 stuks). Geen scene-hints → val terug op het doel. */
+  function hintLines() {
+    if (!started) return [];
+    const sc = GAME.scenes[state.currentScene];
+    const lines = [];
+    if (sc && sc.hints) sc.hints.forEach((h) => lines.push(L(h)));
+    if (!lines.length) { const k = questKey(); if (k) lines.push(L(GAME.ui[k])); }
+    return lines;
+  }
   function updateQuest(force) {
     updateSpellBtn();
-    const key = started ? questKey() : null;
-    if (elInfoBtn) elInfoBtn.hidden = !key;        // (i)-knop alleen tonen als er een tip is
-    if (!key) { elQuest.hidden = true; return; }
-    const t = L(GAME.ui[key]);
+    const lines = hintLines();
+    const has = lines.length > 0;
+    if (elInfoBtn) elInfoBtn.hidden = !has;        // hint-knop alleen tonen als er een hint is
+    if (!has) { elQuest.hidden = true; return; }
+    const t = lines.map((l) => '💡 ' + l).join('\n');
+    elQuest.style.whiteSpace = 'pre-line';
     if (elQuest.textContent !== t || force) {
       elQuest.textContent = t;
       elQuest.style.opacity = '0';
       setTimeout(() => { elQuest.style.opacity = '1'; }, 30);
     }
-    elQuest.hidden = !infoOpen;                    // tip alleen zichtbaar als (i) aan staat
+    elQuest.hidden = !infoOpen;                    // hint alleen zichtbaar als de hint-knop aan staat
   }
   if (elInfoBtn) elInfoBtn.addEventListener('click', () => {
     infoOpen = !infoOpen;
