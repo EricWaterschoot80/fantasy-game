@@ -2482,24 +2482,25 @@
     fctx.save();
     fctx.imageSmoothingEnabled = false;
     if (f !== 'none') fctx.filter = f;
+    /* Gedempte, zachte kleuren (niet fel): vaal-geel en gebroken wit met wat doorzicht. */
     const FLIES = [
-      { cx: 150, cy: 150, rx: 44, ry: 26, sp: 1700, ph: 0.0, w: '#f6e98a', e: '#cdaa3c' },  // geel, links-boven
-      { cx: 300, cy: 124, rx: 58, ry: 30, sp: 1950, ph: 2.2, w: '#fbfbf2', e: '#c9c6ac' },  // wit, midden-boven
-      { cx: 466, cy: 162, rx: 40, ry: 24, sp: 1780, ph: 4.1, w: '#f4e070', e: '#caa233' },  // geel, rechts
-      { cx: 232, cy: 206, rx: 34, ry: 18, sp: 1560, ph: 1.3, w: '#fdfdf6', e: '#cfccb4' }   // wit, laag-midden
+      { cx: 150, cy: 150, rx: 44, ry: 22, sp: 2100, ph: 0.0, w: 'rgba(214,200,138,0.78)', e: 'rgba(150,132,80,0.62)' },  // vaalgeel, links-boven
+      { cx: 300, cy: 126, rx: 56, ry: 26, sp: 2400, ph: 2.2, w: 'rgba(224,219,202,0.76)', e: 'rgba(160,153,130,0.6)' },  // gebroken wit, midden-boven
+      { cx: 466, cy: 162, rx: 40, ry: 20, sp: 2200, ph: 4.1, w: 'rgba(208,192,132,0.78)', e: 'rgba(146,127,76,0.62)' },  // vaalgeel, rechts
+      { cx: 232, cy: 204, rx: 34, ry: 16, sp: 1950, ph: 1.3, w: 'rgba(226,221,205,0.76)', e: 'rgba(162,154,131,0.6)' }   // gebroken wit, laag-midden
     ];
     for (const v of FLIES) {
       const t = now / v.sp + v.ph;
-      const vx = Math.round(v.cx + Math.sin(t) * v.rx + Math.cos(t * 0.6) * 5);
-      const vy = Math.round(v.cy + Math.cos(t * 1.2) * v.ry - Math.abs(Math.sin(now / 300 + v.ph)) * 3);
-      const flap = Math.abs(Math.sin(now / 95 + v.ph));               // vleugelslag 0..1
-      const ww = 1 + Math.round(flap * 2);                            // vleugelbreedte 1..3
-      fctx.fillStyle = '#2a1c12'; fctx.fillRect(vx, vy, 1, 3);        // lijfje
-      fctx.fillStyle = v.e;                                           // donkere vleugelrand
+      /* Zwierige, onregelmatige zweefbaan: hoofd-Lissajous + traag dwalen, zachte verticale deining. */
+      const vx = Math.round(v.cx + Math.sin(t) * v.rx + Math.sin(t * 0.43 + v.ph) * 9);
+      const vy = Math.round(v.cy + Math.sin(t * 0.8 + v.ph * 1.3) * v.ry + Math.cos(t * 1.7) * 2);
+      const flap = 0.5 + 0.5 * Math.sin(now / 150 + v.ph);            // zachte, vloeiende vleugelslag
+      const ww = 1 + Math.round(flap);                               // vleugelbreedte 1..2 (rustig)
+      fctx.fillStyle = 'rgba(60,48,36,0.8)'; fctx.fillRect(vx, vy, 1, 3);   // zacht lijfje (niet hard zwart)
+      fctx.fillStyle = v.e;                                           // gedempte vleugelrand
       fctx.fillRect(vx - ww, vy - 1, ww, 1); fctx.fillRect(vx + 1, vy - 1, ww, 1);
-      fctx.fillStyle = v.w;                                           // lichte vleugels
+      fctx.fillStyle = v.w;                                           // zachte vleugels
       fctx.fillRect(vx - ww, vy, ww, 2); fctx.fillRect(vx + 1, vy, ww, 2);
-      if (flap > 0.65) { fctx.fillStyle = 'rgba(255,255,255,0.5)'; fctx.fillRect(vx - ww, vy, 1, 1); fctx.fillRect(vx + ww, vy, 1, 1); }
     }
     fctx.restore();
   }
