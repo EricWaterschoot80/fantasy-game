@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '55',
+  assetVer: '56',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -87,8 +87,8 @@ const GAME = {
 
   ui: {
     subtitle:   { nl: 'Deel 2 — Het Kasteel van Eldoria', en: 'Part 2 — The Castle of Eldoria' },
-    intro:      { nl: 'Finn is door de poort het kasteel van Eldoria binnengeglipt. Op de binnenplaats houdt een schildknaap de wacht, en achter een begroeide boog ligt een geheime slottuin — waar de prinses op wie hij stiekem verliefd is tussen de rozen wandelt.',
-                  en: 'Finn has slipped through the gate into the castle of Eldoria. A squire keeps watch in the courtyard, and beyond an ivy-clad arch lies a secret garden — where the princess he secretly loves walks among the roses.' },
+    intro:      { nl: 'Finn is door de poort het kasteel van Eldoria binnengeglipt. Op de binnenplaats houdt een schildknaap de wacht, en achter een begroeide boog ligt een geheime slottuin — waar de prinses op wie hij stiekem verliefd is tussen de rozen wandelt. Maar Finn kwam niet voor de rozen: ergens diep in de burcht wordt zijn vader gevangen gehouden, en de enige weg naar binnen is de grote kasteeldeur, die op een eeuwenoud slot zit.',
+                  en: 'Finn has slipped through the gate into the castle of Eldoria. A squire keeps watch in the courtyard, and beyond an ivy-clad arch lies a secret garden — where the princess he secretly loves walks among the roses. But Finn did not come for the roses: somewhere deep in the keep his father is held captive, and the only way in is the great castle door, sealed with an ancient lock.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
     winTitle:   { nl: 'Deel 1 uitgespeeld!', en: 'Part 1 complete!' },
@@ -269,8 +269,8 @@ const GAME = {
           rect: { x: 456, y: 184, w: 70, h: 104 },
           walkTo: { x: 452, y: 300 },
           look: {
-            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de tent. Hij knikt je vriendelijk toe. “De prins is op jacht en de koning ontvangt niemand. Maar de slottuin links... daar mag je gerust rondkijken, hoor.”',
-            en: 'A young squire in a blue tabard keeps watch by the tent. He gives you a friendly nod. “The prince is out hunting and the king sees no one. But the castle garden to your left... you’re welcome to look around there.”'
+            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Toen hij sneuvelde brak zijn zwaard, raakte zijn medaillon zoek, en verstomde het hele kasteel van rouw. Men zegt dat zijn wapen overal in de burcht verborgen ligt: in de oude put, in de leeuwenfontein in de tuin, en in de sokkel van zijn standbeeld. De slottuin links mag je gerust bekijken, hoor — maar de grote deur blijft op slot.”',
+            en: 'A young squire in a blue tabard keeps watch. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. When he died his sword shattered, his medallion was lost, and the whole castle fell silent with grief. They say his arms lie hidden all over the keep: in the old well, in the lion fountain in the garden, and in the plinth of his statue. You’re welcome to look around the garden to the left — but the great door stays locked.”'
           },
           setFlag: 'metSquire'
         },
@@ -282,7 +282,7 @@ const GAME = {
           symbolPuzzle: {
             img: 'assets/art/puzzle-well.jpg',
             title: { nl: 'De Oude Put', en: 'The Old Well' },
-            hint: { nl: 'In de putrand zijn zes tekens uitgehouwen. De oude spreuk luidt: “de zon, het water, de maan, de schelp, de ster.” Druk die vijf tekens op de stenen in die volgorde — let op: niet álle tekens horen erbij.', en: 'Six signs are cut into the well-rim. The old verse reads: “the sun, the water, the moon, the shell, the star.” Press those five carved signs in that order — beware: not all the signs belong.' },
+            hint: { nl: 'In de putrand zijn zes tekens uitgehouwen. Het vers van de oude putwachter luidt: “Wat de dag opent gaat voorop; dan wat de zee doet golven; wat het strand bewaart; wat valt uit de wolk; wat heerst in de nacht; en wat de zeeman thuisbrengt.” Druk de zes tekens op de stenen in díe volgorde.', en: 'Six signs are cut into the well-rim. The old well-keeper’s verse reads: “What opens the day goes first; then what makes the sea swell; what the shore keeps; what falls from the cloud; what rules the night; and what brings the sailor home.” Press the six signs in that order.' },
             zones: [
               { key: 'maan',   left: 5,  top: 49, width: 13, height: 36 },
               { key: 'zon',    left: 18, top: 51, width: 13, height: 34 },
@@ -299,9 +299,9 @@ const GAME = {
               { key: 'ster',   emoji: '⭐', label: { nl: 'Ster',   en: 'Star'  } },
               { key: 'golf',   emoji: '🌊', label: { nl: 'Golf',   en: 'Wave'  } }
             ],
-            sequence: ['zon', 'water', 'maan', 'schelp', 'ster'],
+            sequence: ['zon', 'golf', 'schelp', 'water', 'maan', 'ster'],
             setFlag: 'wellUnlocked',
-            solvedText: { nl: 'De vier tekens lichten op en diep in de put klikt het oude windwerk los. Nu zou je met een touw iets uit de diepte omhoog kunnen vissen.', en: 'The four signs light up and deep in the well the old winding gear clicks free. Now, with a rope, you could fish something up from below.' },
+            solvedText: { nl: 'De zes tekens lichten één voor één op en diep in de put klikt het oude windwerk los. Nu zou je met een touw iets uit de diepte omhoog kunnen vissen.', en: 'The six signs light up one by one and deep in the well the old winding gear clicks free. Now, with a rope, you could fish something up from below.' },
             resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
             doneText: { nl: 'Het windwerk van de put is los. Laat er een touw in zakken om de glinstering op de bodem omhoog te vissen.', en: 'The well’s winding gear is free. Lower a rope to fish up the glint at the bottom.' }
           },
@@ -446,26 +446,17 @@ const GAME = {
           name: { nl: 'De Leeuwenfontein', en: 'The Lion Fountain' },
           rect: { x: 22, y: 118, w: 84, h: 100 },
           walkTo: { x: 96, y: 252 },
-          look: {
-            nl: 'Een stenen leeuwenkop spuwt helder water in een schelpvormig bekken. In de bemoste rand zijn vier tekens gehouwen — alsof ze iets bewaken.',
-            en: 'A stone lion’s head spouts clear water into a shell-shaped basin. Four signs are carved into the mossy rim — as if guarding something.'
-          },
-          symbolPuzzle: {
-            title: { nl: 'De Leeuwenfontein', en: 'The Lion Fountain' },
-            hint: { nl: 'Rond het schelpvormige bekken zijn vier tekens in de steen gehouwen. Onder de leeuwenkop staat een verweerd vers: “de zon, de druppel, de maan, de ster.” Druk die vier tekens in die volgorde — let op: de leeuw zelf hoort er niet bij.', en: 'Four signs are carved around the shell-shaped basin. Beneath the lion’s head a weathered verse reads: “the sun, the drop, the moon, the star.” Press those four signs in that order — beware: the lion itself does not belong.' },
-            symbols: [
-              { key: 'zon',     emoji: '☀️', label: { nl: 'Zon',     en: 'Sun'   } },
-              { key: 'druppel', emoji: '💧', label: { nl: 'Druppel', en: 'Drop'  } },
-              { key: 'leeuw',   emoji: '🦁', label: { nl: 'Leeuw',   en: 'Lion'  } },
-              { key: 'maan',    emoji: '🌙', label: { nl: 'Maan',    en: 'Moon'  } },
-              { key: 'ster',    emoji: '⭐', label: { nl: 'Ster',    en: 'Star'  } }
-            ],
-            sequence: ['zon', 'druppel', 'maan', 'ster'],
+          look: (state) => state.flags.fountainSolved
+            ? { nl: 'De bodem van het bekken ligt open en leeg; het gebroken zwaard van de gevallen ridder zit veilig in je tas.', en: 'The basin floor lies open and empty; the fallen knight’s broken sword is safe in your bag.' }
+            : { nl: 'Een stenen leeuwenkop spuwt water in een schelpvormig bekken. Op de bodem ligt, vertroebeld door het water, een stenen wapen-mozaïek dat in losse stukken is geschoven. Schuif de stukken weer op hun plaats om te zien wat het bewaakt.', en: 'A stone lion spouts water into a shell-shaped basin. On the floor, blurred by the water, lies a stone crest-mosaic shuffled into loose pieces. Slide them back into place to see what it guards.' },
+          slidePuzzle: {
+            size: 3,
+            img: 'assets/art/puzzle-fountain.jpg',
+            title: { nl: 'Het Wapen in de Fontein', en: 'The Crest in the Fountain' },
             setFlag: 'fountainSolved',
             give: 'swordBroken',
-            solvedText: { nl: 'De vier tekens lichten blauw op en met een diep gerommel kantelt de bodem van het bekken weg. Tussen het mos en het water ligt een oud, doormidden gebroken zwaard — het wapen van een gevallen ridder. Je vist het eruit.', en: 'The four signs glow blue and with a deep rumble the basin floor tilts away. Among the moss and water lies an old sword, snapped in two — the weapon of a fallen knight. You fish it out.' },
-            resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
-            doneText: { nl: 'De bodem van de fontein ligt open en leeg; het gebroken zwaard zit veilig in je tas. Bij een smidse zou je het weer heel kunnen smeden.', en: 'The fountain floor lies open and empty; the broken sword is safe in your bag. At a forge you could make it whole again.' }
+            burst: { x: 96, y: 150 },
+            solvedText: { nl: 'Het mozaïek klikt compleet op zijn plaats — het wapen van Sir Aldric, de Leeuw van Eldoria. Met een diep gerommel kantelt de bodem van het bekken weg, en tussen het mos ligt een oud, doormidden gebroken zwaard. Je vist het uit het water. Bij de smidse op de binnenplaats zou je het weer heel kunnen smeden.', en: 'The mosaic clicks complete — the arms of Sir Aldric, the Lion of Eldoria. With a deep rumble the basin floor tilts away, and among the moss lies an old sword, snapped in two. You fish it from the water. At the forge in the courtyard you could make it whole again.' }
           }
         },
         {
@@ -479,7 +470,7 @@ const GAME = {
           symbolPuzzle: {
             img: 'assets/art/puzzle-crest.jpg',
             title: { nl: 'Het Wapen van de Ridder', en: 'The Knight’s Crest' },
-            hint: { nl: 'In de sokkel zijn vier wapenschilden gebeiteld. De spreuk van de orde luidt: “de leeuw, de lelie, het zwaard, de kroon.” Druk de schilden op de steen in die volgorde.', en: 'Four crests are carved into the plinth. The order’s motto reads: “the lion, the lily, the sword, the crown.” Press the carved crests in that order.' },
+            hint: { nl: 'In de sokkel zijn vier wapenschilden gebeiteld. De eed van de Orde van de Leeuw luidt: “Wie brult bewaakt de poort; de witte bloem van trouw volgt hem; dan spreekt het scherpe staal; en wat een koning draagt bekroont de eed.” Druk de schilden in díe volgorde.', en: 'Four crests are carved into the plinth. The oath of the Order of the Lion reads: “He who roars guards the gate; the white flower of faith follows him; then speaks the keen steel; and what a king wears crowns the oath.” Press the crests in that order.' },
             zones: [
               { key: 'lelie',  left: 17, top: 31, width: 13, height: 36 },
               { key: 'kroon',  left: 34, top: 31, width: 13, height: 36 },

@@ -2718,6 +2718,7 @@
     elBubble.hidden = true;
     if (msgQueue.length === 0) {
       if (pendingWin) { pendingWin = false; revive = { t0: performance.now() }; }
+      updateQuest();                                   // doel-tip weer tonen (als (i) aan staat) nu de dialoog klaar is
       return;
     }
     const m = msgQueue.shift();
@@ -2727,9 +2728,11 @@
       if (m.face) { elBubbleFace.src = m.face; elBubbleFace.hidden = false; }
       else elBubbleFace.hidden = true;
       const bx = view.ox + m.anchor.x * view.scale;
-      elBubble.style.left = Math.max(window.innerWidth * 0.15,
+      elBubble.style.left = Math.max(window.innerWidth * 0.20,
         Math.min(window.innerWidth * 0.85, bx)) + 'px';
-      elBubble.style.top = (Math.max(0, view.oy) + 10) + 'px';   // tekstwolk bovenin de scène (niet meer over de personages)
+      /* tekstwolk net ONDER de knoppenbalk bovenin, zodat ze de knoppen + doel-tip niet overlappen */
+      elBubble.style.top = Math.max(Math.max(0, view.oy) + 10, 56) + 'px';
+      elQuest.hidden = true;                            // doel-tip even verbergen tijdens een tekstballon (geen overlap)
       elBubble.hidden = false;
     } else {
       /* paneel (op mobiel ook voor personages — met gezicht) */
