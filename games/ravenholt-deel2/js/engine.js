@@ -3602,7 +3602,61 @@
     }
   }
 
-  elRuneClose.addEventListener('click', () => { elRune.hidden = true; });
+  elRuneClose.addEventListener('click', () => { elRune.hidden = true; symHs = null; });
+
+  /* ---------- Symbolen-volgorde-puzzel (hergebruikt het runen-scherm) ----------
+     Druk de symbolen in de juiste volgorde. Op de oplossing: zet een vlag, en
+     geef optioneel een voorwerp (pz.give) of verbruik er een (pz.consume). Volledig
+     op de hotspot geconfigureerd (hs.symbolPuzzle), net als de boeken-puzzel. */
+  let symHs = null, symProg = 0;
+  function openSymbolPuzzle(hs) {
+    const pz = hs.symbolPuzzle;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    symHs = hs; symProg = 0;
+    if (elRuneImgWrap) elRuneImgWrap.hidden = true;
+    if (elRuneBtns) elRuneBtns.hidden = false;
+    elRuneTitle.textContent = L(pz.title);
+    if (elRuneHint) elRuneHint.textContent = L(pz.hint);
+    renderSymbolPuzzle();
+    elRune.hidden = false;
+    sfx('tap');
+  }
+  function renderSymbolPuzzle() {
+    const pz = symHs.symbolPuzzle;
+    elRuneBtns.className = 'rune-btn-row';
+    elRuneBtns.innerHTML = '';
+    pz.symbols.forEach((s) => {
+      const btn = document.createElement('button');
+      btn.className = 'rune-stone-btn';
+      btn.innerHTML = s.emoji + '<br>' + L(s.label);
+      btn.addEventListener('click', () => symbolTap(s.key));
+      elRuneBtns.appendChild(btn);
+    });
+    elRuneStatus.textContent = '';
+  }
+  function symbolTap(key) {
+    if (!symHs) return;
+    const pz = symHs.symbolPuzzle;
+    if (key === pz.sequence[symProg]) {
+      symProg++;
+      sfx('pickup');
+      if (symProg >= pz.sequence.length) {
+        state.flags[pz.setFlag] = true;
+        if (pz.consume) removeItem(pz.consume);
+        if (pz.give) addItem(pz.give);
+        sfx('combine');
+        const h = symHs; symHs = null;
+        setTimeout(() => { elRune.hidden = true; if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 450);
+      } else {
+        const rem = pz.sequence.length - symProg;
+        elRuneStatus.textContent = lang === 'nl' ? ('Goed! Nog ' + rem + '...') : ('Good! ' + rem + ' more...');
+      }
+    } else {
+      symProg = 0;
+      sfx('error');
+      elRuneStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'Mis! Begin opnieuw.' : 'Wrong! Start over.');
+    }
+  }
 
   /* ---------- Boeken-volgorde-puzzel (hergebruikt het runen-scherm) ----------
      Trek de vastzittende boeken in de juiste volgorde; dan komt het toverboek vrij. */
@@ -4307,6 +4361,15 @@
         return;
       }
       openBookPuzzle(hs);
+      return;
+    }
+    if (hs.symbolPuzzle) {
+      if (hs.symbolPuzzle.requiresFlag && !state.flags[hs.symbolPuzzle.requiresFlag]) {
+        sfx('error');
+        say(hs.symbolPuzzle.blockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      openSymbolPuzzle(hs);
       return;
     }
     /* Spreuk uitspreken: heb je het juiste voorwerp in je tas, dan werkt het meteen
