@@ -113,23 +113,36 @@
     },
 
     _pull: function (slug) {
+      var lsKey = saves[slug];
       return RA.cloudLoad(slug).then(function (got) {
-        if (got != null) window.dispatchEvent(new CustomEvent('ra-cloud-loaded', { detail: { game: slug } }));
-        return got;
+        if (got != null) {
+          window.dispatchEvent(new CustomEvent('ra-cloud-loaded', { detail: { game: slug } }));
+          return got;
+        }
+        // Geen cloud-opslag: lokale voortgang (cache) alvast uploaden zodat het bewaard is.
+        if (lsKey && localStorage.getItem(lsKey) != null) RA.cloudSave(slug);
+        return null;
       }).catch(function () { return null; });
+    },
+
+    _pullAll: function () {
+      if (!currentUser) return;
+      Object.keys(saves).forEach(function (s) { RA._pull(s); });
     }
   };
 
-  client.auth.onAuthStateChange(function (_ev, session) {
-    currentUser = (session && session.user) ? session.user : null;
+  var lastUid = null;
+  function onSession(user) {
+    var wasOut = !lastUid;
+    currentUser = user || null;
     RA.isReady = true;
     notify();
-  });
-  client.auth.getSession().then(function (r) {
-    currentUser = (r.data && r.data.session) ? r.data.session.user : null;
-    RA.isReady = true;
-    notify();
-  });
+    if (currentUser && (wasOut || lastUid !== currentUser.id)) RA._pullAll();   // bij inloggen: cloud ophalen
+    lastUid = currentUser ? currentUser.id : null;
+  }
+
+  client.auth.onAuthStateChange(function (_ev, session) { onSession(session && session.user); });
+  client.auth.getSession().then(function (r) { onSession(r.data && r.data.session ? r.data.session.user : null); });
 
   window.RAAuth = RA;
 })();

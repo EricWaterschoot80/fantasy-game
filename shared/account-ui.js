@@ -13,11 +13,11 @@
 
     var css = document.createElement('style');
     css.textContent = [
-      '#ra-acc-btn{position:fixed;right:12px;bottom:12px;z-index:2147483000;',
+      '#ra-acc-btn{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 54px);z-index:2147483000;',
       'font:600 13px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;',
       'background:rgba(28,24,18,.86);color:#f3e2a8;border:1px solid #c9a24b;',
-      'border-radius:999px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(4px);',
-      'box-shadow:0 4px 14px rgba(0,0,0,.4);max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+      'border-radius:999px;padding:9px 13px;cursor:pointer;backdrop-filter:blur(4px);',
+      'box-shadow:0 4px 14px rgba(0,0,0,.4);max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '#ra-acc-btn:hover{background:rgba(48,40,26,.95)}',
       '#ra-acc-ov{position:fixed;inset:0;z-index:2147483001;display:none;align-items:center;justify-content:center;',
       'background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}',
@@ -114,34 +114,13 @@
       if (!email || !pass) { msg.className = 'ra-acc-msg err'; msg.textContent = 'Vul je e-mail en wachtwoord in.'; return; }
       go.disabled = true; go.textContent = 'Even geduld…';
       var p = (mode === 'login') ? RA.signIn(email, pass) : RA.signUp(email, pass);
-      p.then(function () { return afterAuth(); })
-        .then(function (reloaded) {
-          if (reloaded) return; // pagina herlaadt
-          msg.className = 'ra-acc-msg ok'; msg.textContent = 'Gelukt!';
-          setTimeout(function () { render(); }, 400);
-        })
-        .catch(function (err) {
-          go.disabled = false; go.textContent = (mode === 'login' ? 'Inloggen' : 'Account aanmaken');
-          msg.className = 'ra-acc-msg err'; msg.textContent = err.message || 'Er ging iets mis.';
-        });
-    }
-
-    /* Na inloggen: cloud-opslag ophalen (of lokale opslag uploaden) per geregistreerde game.
-       Als er een cloud-save geladen is die de game moet tonen, herladen we de pagina. */
-    function afterAuth() {
-      var slugs = Object.keys(RA.saves || {});
-      if (!slugs.length) return Promise.resolve(false);
-      var pulledAny = false;
-      return slugs.reduce(function (chain, slug) {
-        return chain.then(function () {
-          return RA.cloudLoad(slug).then(function (cloud) {
-            if (cloud != null) { pulledAny = true; }
-            else { return RA.cloudSave(slug); } // geen cloud-save: lokale voortgang uploaden
-          });
-        });
-      }, Promise.resolve()).then(function () {
-        if (pulledAny) { setTimeout(function () { location.reload(); }, 250); return true; }
-        return false;
+      p.then(function () {
+        // Cloud-opslag wordt automatisch opgehaald door account.js (_pullAll) na het inloggen.
+        msg.className = 'ra-acc-msg ok'; msg.textContent = 'Gelukt!';
+        setTimeout(function () { render(); }, 350);
+      }).catch(function (err) {
+        go.disabled = false; go.textContent = (mode === 'login' ? 'Inloggen' : 'Account aanmaken');
+        msg.className = 'ra-acc-msg err'; msg.textContent = err.message || 'Er ging iets mis.';
       });
     }
 

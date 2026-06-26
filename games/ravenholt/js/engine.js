@@ -5048,7 +5048,14 @@
   function saveGame(silent) {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({ scene: state.currentScene, inventory: state.inventory, flags: state.flags }));
-      if (!silent) { sfx('tap'); showToast(L({ nl: 'Spel opgeslagen ✓', en: 'Game saved ✓' })); }
+      var ra = window.RAAuth, acc = !!(ra && ra.user && ra.user());
+      if (acc) { var slug = Object.keys(ra.saves || {}).find(function (s) { return ra.saves[s] === SAVE_KEY; }); if (slug) ra.cloudSave(slug); }
+      if (!silent) {
+        sfx('tap');
+        showToast(L(acc
+          ? { nl: 'Opgeslagen in je account ☁', en: 'Saved to your account ☁' }
+          : { nl: 'Opgeslagen in deze browser · log in voor cloud', en: 'Saved in this browser · log in for cloud' }));
+      }
     } catch (e) { if (!silent) showToast(L({ nl: 'Opslaan lukte niet', en: 'Could not save' })); }
   }
   function loadSavedState() {
@@ -5091,6 +5098,10 @@
         elTitle.hidden = true;
         if (elSaveBtn) elSaveBtn.hidden = false;
       }
+    });
+    /* Cloud-voortgang geladen na inloggen → toon 'Verder spelen' alsnog. */
+    window.addEventListener('ra-cloud-loaded', () => {
+      if (!started && hasSave()) elContinueBtn.hidden = false;
     });
   }
 
