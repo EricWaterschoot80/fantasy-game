@@ -2385,21 +2385,20 @@
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         } else if (npc.idleBreathe) {
-          /* Vloeiende, natuurlijke idle zonder losse frames: een TRAGE gewichtsverplaatsing
-             (voet naar voet) + zachte ademhaling. Geen zweverig op-en-neer. */
+          /* Heel lichte horizontale waggel (zacht heen en weer wiegen). GEEN verticale
+             lift, zodat de figuur niet lijkt op te stijgen/zweven. */
           const ph = (npc.x || 0) * 0.07;
-          const shift  = Math.sin(now / 4100 + ph);              // langzaam gewicht van voet naar voet (~8s)
-          let rock     = shift * 0.002 + Math.sin(now / 1900 + ph) * 0.001;  // vrijwel geen kanteling
-          let drift    = shift * 0.25;                           // vrijwel geen zijwaartse beweging
-          if (npc.sway) {                                        // optioneel: een héél lichte doorlopende wieg
-            const s = Math.sin(now / 950 + ph * 1.7);            // ~6s volledige schommel
-            rock  += s * 0.002;
-            drift += s * 0.2;
+          const w1     = Math.sin(now / 1100 + ph);              // trage waggel (~7s)
+          let rock     = w1 * 0.010;                             // wiegt heel licht mee (~0,6°)
+          let drift    = w1 * 1.0;                               // ~±1px zijwaarts
+          if (npc.sway) {                                        // tweede, iets ander tempo zodat het niet mechanisch herhaalt
+            const s = Math.sin(now / 1900 + ph * 1.7);
+            rock  += s * 0.006;
+            drift += s * 0.6;
           }
-          const breath = Math.sin(now / 2100 + ph * 1.3);        // ademhaling (borst zet uit)
-          const sq     = 1 + 0.024 * breath;                     // verticale rek, voeten blijven staan
-          const bob    = -0.7 * Math.max(0, breath);             // heel licht omhoog bij inademen
-          drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: bob, squashY: sq });
+          const breath = Math.sin(now / 2600 + ph * 1.3);        // nauwelijks waarneembare ademhaling
+          const sq     = 1 + 0.006 * breath;                     // minimale verticale rek, voeten blijven staan
+          drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: sq });
         } else if (crossImg && crossT > 0.01) {
           /* Vloeiende idle-lus: huidige frame VOL tekenen en het volgende erover laten
              invloeien. (Allebei half-doorzichtig tekenen zou de achtergrond laten
