@@ -153,7 +153,7 @@
   }
   /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
   art.frames = {};
-  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 6, 'princess-idle': 8 };
+  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 7, 'princess-idle': 8 };
   for (const [name, count] of Object.entries(FRAME_SEQS)) {
     art.frames[name] = [];
     for (let i = 1; i <= count; i++) {
@@ -1882,15 +1882,16 @@
   }
 
   /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
-  function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0, scale = 1 } = {}) {
+  function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0, scale = 1, alpha = 1, noShadow = false } = {}) {
     const D = GAME.spriteDetail || 1;   // sprites op 2x opgeslagen -> op halve maat tekenen = fijnere details
     const w = Math.max(1, Math.round(img.naturalWidth * scale / D));
     const h = Math.max(1, Math.round(img.naturalHeight * scale / D));
     const px = Math.round(x), py = Math.round(y + bob);
     const dh = Math.round(h * squashY);
-    shadow(x, y, w * 0.8);
+    if (!noShadow) shadow(x, y, w * 0.8);
     fctx.save();
     fctx.imageSmoothingEnabled = false;
+    if (alpha !== 1) fctx.globalAlpha = Math.max(0, Math.min(1, alpha));
     fctx.translate(px, py);
     if (rot) fctx.rotate(rot);
     if (flip) fctx.scale(-1, 1);
@@ -2316,6 +2317,7 @@
       }
       /* Geanimeerde npc (de heks): speelt een frame-reeks i.p.v. de statische sprite.
          Battle-reeks tijdens de strijd (1-12 eenmalig -> lus 13-17), anders de rust-lus. */
+      let crossImg = null, crossT = 0;   // tweede frame voor een vloeiende cross-fade in de idle-lus
       if (npc.battleFrames && state.flags.duelActive && art.frames[npc.battleFrames]) {
         const fr = art.frames[npc.battleFrames], intro = 13, total = fr.length;   // 1-13 eenmalig, daarna 14-17 in een lus
         const el = now - (window.__duelStart || now);
@@ -2327,11 +2329,19 @@
         let fi = 0;
         if (npc.idleLoop && n > 1) {
           /* Doorlopende, natuurlijke idle-lus: rustig heen-en-terug door álle frames,
-             zodat de figuur continu zacht beweegt (ademen/wiegen). */
+             zodat de figuur continu zacht beweegt (ademen/wiegen). Met cross-fade tussen
+             de frames zodat het vloeiend is i.p.v. schokkerig. */
           const stepMs = npc.idleStepMs || 180;
           const period = (n - 1) * 2;                          // ping-pong-lengte
-          const s = (((now + (npc.x || 0) * 13) / stepMs) | 0) % period;
-          fi = s < n ? s : (2 * (n - 1) - s);
+          let cont = ((now + (npc.x || 0) * 13) / stepMs) % period;
+          if (cont < 0) cont += period;
+          const pos = cont < (n - 1) ? cont : (2 * (n - 1) - cont);   // continue 0..n-1, heen en terug
+          const i0 = Math.min(n - 1, Math.floor(pos));
+          const i1 = Math.min(n - 1, i0 + 1);
+          let t = pos - i0;
+          t = t * t * (3 - 2 * t);                             // smoothstep voor een zachte overgang
+          fi = i0;
+          if (npc.idleSmooth !== false && i1 !== i0 && ready(fr[i1])) { crossImg = fr[i1]; crossT = t; }
         } else {
           /* Rust-gebaar: meestal stil op frame 1; af en toe één snelle vlaag (heen en terug).
              idlePeriod = hoe vaak (ms), idleStepMs = hoe snel de vlaag is. */
@@ -2390,6 +2400,10 @@
           const sq     = 1 + 0.024 * breath;                     // verticale rek, voeten blijven staan
           const bob    = -0.7 * Math.max(0, breath);             // heel licht omhoog bij inademen
           drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: bob, squashY: sq });
+        } else if (crossImg && crossT > 0.01) {
+          /* Vloeiende idle-lus: kruis-vervaag tussen twee opeenvolgende frames. */
+          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths, alpha: 1 - crossT });
+          drawArtSprite(crossImg, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths, alpha: crossT, noShadow: true });
         } else {
           drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         }
