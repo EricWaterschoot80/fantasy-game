@@ -2404,9 +2404,10 @@
           const a = Math.sin(now / 1700 + ph);
           const b = Math.sin(now / 2900 + ph * 1.7 + 1.3);
           const c = Math.sin(now / 4300 + ph * 0.6 + 2.1);
-          const rock  = a * 0.011 + b * 0.006 + c * 0.004;       // vloeiende, niet-repeterende kanteling (~max 1,2°)
-          const drift = a * 0.45 + b * 0.25;                     // heel licht zijwaarts
-          drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: 1 });
+          const rock = a * 0.011 + b * 0.006 + c * 0.004;        // vloeiende, niet-repeterende kanteling (~max 1,2°)
+          /* Geen horizontale translatie: die wordt op hele pixels afgerond -> hapering.
+             Alleen de rotatie (sub-pixel via canvas) -> volledig vloeiend. */
+          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: 1 });
         } else if (crossImg && crossT > 0.01) {
           /* Vloeiende idle-lus: huidige frame VOL tekenen en het volgende erover laten
              invloeien. (Allebei half-doorzichtig tekenen zou de achtergrond laten
