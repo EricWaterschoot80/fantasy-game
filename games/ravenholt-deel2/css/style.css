@@ -132,6 +132,16 @@ html, body {
 }
 .round-btn.info.on { background: var(--gold); color: #2a1c10; }
 
+/* Oogje: laat 2,8s lang de klikbare plekken (hotspots) oplichten */
+.round-btn.eye {
+  position: fixed;
+  right: auto;
+  left: 162px;
+  top: calc(var(--safe-top) + 8px);
+  z-index: 30;
+  font-size: 18px;
+}
+
 /* Opslaan-knop rechtsboven (los van de linker iconen-stapel) */
 .round-btn.save {
   position: fixed;
