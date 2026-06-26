@@ -2389,12 +2389,12 @@
              (voet naar voet) + zachte ademhaling. Geen zweverig op-en-neer. */
           const ph = (npc.x || 0) * 0.07;
           const shift  = Math.sin(now / 4100 + ph);              // langzaam gewicht van voet naar voet (~8s)
-          let rock     = shift * 0.006 + Math.sin(now / 1900 + ph) * 0.002;  // lichaam kantelt nauwelijks mee (heel subtiel)
-          let drift    = shift * 0.5;                            // gewicht schuift minimaal zijwaarts mee
-          if (npc.sway) {                                        // optioneel: zacht doorlopend schommelen (zoals de poortwacht), op eigen traag tempo
+          let rock     = shift * 0.002 + Math.sin(now / 1900 + ph) * 0.001;  // vrijwel geen kanteling
+          let drift    = shift * 0.25;                           // vrijwel geen zijwaartse beweging
+          if (npc.sway) {                                        // optioneel: een héél lichte doorlopende wieg
             const s = Math.sin(now / 950 + ph * 1.7);            // ~6s volledige schommel
-            rock  += s * 0.005;                                  // wiegt heel zacht om de heupen
-            drift += s * 0.45;                                   // en schuift amper zijwaarts
+            rock  += s * 0.002;
+            drift += s * 0.2;
           }
           const breath = Math.sin(now / 2100 + ph * 1.3);        // ademhaling (borst zet uit)
           const sq     = 1 + 0.024 * breath;                     // verticale rek, voeten blijven staan
