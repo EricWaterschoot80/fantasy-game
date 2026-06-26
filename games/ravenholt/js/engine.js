@@ -1369,6 +1369,26 @@
     }
   }
 
+  /* 'Tik hier'-hint: vier zacht pulserende hoek-haakjes rond een klikbaar gebied
+     (bv. de vastzittende boeken of het tandrad), zodat duidelijk is dat je erop
+     kunt klikken — rustiger en anders dan een glinstering. */
+  function drawTapHint(tp, now) {
+    const pulse = 0.5 + 0.5 * Math.sin(now / 560 + (tp.x || 0) * 0.01);
+    const a = 0.16 + 0.26 * pulse;
+    const pad = Math.round(3 + pulse * 2);
+    const x = Math.round(tp.x) - pad, y = Math.round(tp.y) - pad;
+    const w = Math.round(tp.w) + pad * 2, h = Math.round(tp.h) + pad * 2;
+    const L = 9;                                          // lengte van elk hoekhaakje
+    fctx.strokeStyle = `rgba(${tp.col || '255,224,150'},${a})`;
+    fctx.lineWidth = 1.6; fctx.lineCap = 'round'; fctx.lineJoin = 'round';
+    fctx.beginPath();
+    fctx.moveTo(x, y + L);       fctx.lineTo(x, y);         fctx.lineTo(x + L, y);          // linksboven
+    fctx.moveTo(x + w - L, y);   fctx.lineTo(x + w, y);     fctx.lineTo(x + w, y + L);      // rechtsboven
+    fctx.moveTo(x + w, y + h - L); fctx.lineTo(x + w, y + h); fctx.lineTo(x + w - L, y + h);// rechtsonder
+    fctx.moveTo(x + L, y + h);   fctx.lineTo(x, y + h);     fctx.lineTo(x, y + h - L);      // linksonder
+    fctx.stroke();
+  }
+
   function paintFx(scene, now) {
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
@@ -1588,6 +1608,13 @@
         if (r.flag && !state.flags[r.flag]) continue;
         if (r.notFlag && state.flags[r.notFlag]) continue;
         drawBerryRustle(r, now);
+      }
+    }
+    if (fx.taps) {
+      for (const tp of fx.taps) {
+        if (tp.flag && !state.flags[tp.flag]) continue;
+        if (tp.notFlag && state.flags[tp.notFlag]) continue;
+        drawTapHint(tp, now);
       }
     }
     if (fx.flowerFlies && state.flags[fx.flowerFlies.flag] && !(fx.flowerFlies.stopFlag && state.flags[fx.flowerFlies.stopFlag])) {

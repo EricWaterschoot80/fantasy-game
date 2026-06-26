@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '174',
+  assetVer: '175',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -570,9 +570,14 @@ const GAME = {
       ],
       fx: {
         glints: [
-          { x: 374, y: 256, flag: 'millFixed', col: '255,228,150' },             // de graanzak glinstert zodra de molen weer maalt
-          { x: 60, y: 84,  notFlag: 'gotVials',     col: '190,225,255', dim: 0.5 },   // de glazen flesjes glinsteren subtiel tot je ze pakt
-          { x: 62, y: 140, notFlag: 'gotSpellbook', col: '235,210,150', dim: 0.5 }    // de vastzittende boeken glinsteren subtiel tot de puzzel opgelost is
+          { x: 374, y: 256, flag: 'millFixed', col: '255,228,150', dim: 0.7 },        // de graanzak glinstert zodra de molen weer maalt
+          { x: 60, y: 84,  notFlag: 'gotVials',  col: '190,225,255', dim: 0.32 }       // de glazen flesjes glinsteren heel subtiel tot je ze pakt
+        ],
+        /* de boeken en het tandrad krijgen geen glinstering maar zachte 'tik hier'-hoekjes,
+           zodat duidelijk is dat je erop kunt klikken */
+        taps: [
+          { x: 10,  y: 118, w: 112, h: 48,  notFlag: 'gotSpellbook', col: '235,214,150' },  // vastzittende boeken
+          { x: 348, y: 124, w: 96,  h: 120, notFlag: 'millFixed',    col: '255,224,150' }   // het tandrad (molenradwerk)
         ]
       },
       hotspots: [
