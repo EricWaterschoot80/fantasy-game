@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '53',
+  assetVer: '54',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -380,7 +380,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
-        { id: 'gardenParrot', sprite: 'parrot', x: 508, y: 200, scale: 0.58, flip: true, peck: true, peckAmt: 0.35, filter: 'brightness(0.95) saturate(0.95)' }   // een kleine, realistische groene papagaai op het bankje; gaat op in het tuingroen
+        { id: 'gardenParrot', sprite: 'parrot', x: 508, y: 218, scale: 0.5, flip: true, peck: true, peckAmt: 0.35, filter: 'brightness(0.95) saturate(0.95)' }   // gedetailleerde groene pixel-art papagaai, staat op eigen pootjes (geen tak) iets lager op het bankje
       ],
       fx: {},
       hotspots: [
