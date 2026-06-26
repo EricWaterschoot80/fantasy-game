@@ -2385,8 +2385,9 @@
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         } else if (npc.idleBreathe) {
-          /* Heel lichte horizontale waggel (zacht heen en weer wiegen). GEEN verticale
-             lift, zodat de figuur niet lijkt op te stijgen/zweven. */
+          /* Alleen een heel lichte horizontale waggel (zacht heen en weer wiegen).
+             GEEN enkele verticale beweging (geen bob, geen squash) — anders lijkt
+             de figuur langzaam op te stijgen. */
           const ph = (npc.x || 0) * 0.07;
           const w1     = Math.sin(now / 1100 + ph);              // trage waggel (~7s)
           let rock     = w1 * 0.010;                             // wiegt heel licht mee (~0,6°)
@@ -2396,9 +2397,7 @@
             rock  += s * 0.006;
             drift += s * 0.6;
           }
-          const breath = Math.sin(now / 2600 + ph * 1.3);        // nauwelijks waarneembare ademhaling
-          const sq     = 1 + 0.006 * breath;                     // minimale verticale rek, voeten blijven staan
-          drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: sq });
+          drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: 1 });
         } else if (crossImg && crossT > 0.01) {
           /* Vloeiende idle-lus: huidige frame VOL tekenen en het volgende erover laten
              invloeien. (Allebei half-doorzichtig tekenen zou de achtergrond laten
