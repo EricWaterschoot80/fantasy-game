@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '42',
+  assetVer: '43',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -131,6 +131,10 @@ const GAME = {
              look: { nl: 'Een oud zwaard, doormidden gebroken. Het gevest zit nog stevig in elkaar; misschien kan een smid het opnieuw smeden.', en: 'An old sword, snapped clean in two. The hilt is still solid; perhaps a smith could reforge it.' } },
     flower: { name: { nl: 'Bloem', en: 'Flower' }, icon: '🌸', img: 'assets/art/item-flower.png',
              look: { nl: 'Een mooie bloem uit de slottuin — een lief klein cadeautje voor iemand bijzonders.', en: 'A pretty flower from the castle garden — a sweet little gift for someone special.' } },
+    rope: { name: { nl: 'Touw', en: 'Rope' }, icon: '🪢', img: 'assets/art/item-rope.png',
+             look: { nl: 'Een stevig opgerold touw. Lang genoeg om iets uit een diepe put omhoog te vissen.', en: 'A sturdy coil of rope. Long enough to fish something up from a deep well.' } },
+    wellKey: { name: { nl: 'Oude Sleutel', en: 'Old Key' }, icon: '🗝️', img: 'assets/art/item-wellkey.png', sparkle: true,
+             look: { nl: 'Een zware, oude sleutel vol roest en mos — je viste hem met het touw uit de put. Waar zou hij op passen?', en: 'A heavy old key, thick with rust and moss — you fished it from the well with the rope. What might it unlock?' } },
     medallion: { name: { nl: 'Gouden Medaillon', en: 'Golden Medallion' }, icon: '🎖️', img: 'assets/art/item-medallion.png', sparkle: true, border: 'gold',
              look: { nl: 'Een glanzend gouden medaillon met hetzelfde ridderwapen als op het standbeeld — een blauwe lelie. Het lag verborgen in de sokkel. Wie zou het daar bewaard hebben?', en: 'A gleaming gold medallion bearing the same knight’s crest as the statue — a blue fleur-de-lis. It lay hidden in the plinth. Who could have kept it there?' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
