@@ -2483,10 +2483,10 @@
     fctx.imageSmoothingEnabled = false;
     if (f !== 'none') fctx.filter = f;
     const FLIES = [
-      { cx: 150, cy: 150, rx: 44, ry: 26, sp: 1700, ph: 0.0, w: '#f2dc84', e: '#caa83e' },  // geel, links-boven
-      { cx: 300, cy: 124, rx: 58, ry: 30, sp: 1950, ph: 2.2, w: '#ef9ec0', e: '#cf6e98' },  // roze, midden-boven
-      { cx: 466, cy: 162, rx: 40, ry: 24, sp: 1780, ph: 4.1, w: '#a6cdf2', e: '#6d9fda' },  // blauw, rechts
-      { cx: 232, cy: 206, rx: 34, ry: 18, sp: 1560, ph: 1.3, w: '#f2a866', e: '#d07f44' }   // oranje, laag-midden
+      { cx: 150, cy: 150, rx: 44, ry: 26, sp: 1700, ph: 0.0, w: '#f6e98a', e: '#cdaa3c' },  // geel, links-boven
+      { cx: 300, cy: 124, rx: 58, ry: 30, sp: 1950, ph: 2.2, w: '#fbfbf2', e: '#c9c6ac' },  // wit, midden-boven
+      { cx: 466, cy: 162, rx: 40, ry: 24, sp: 1780, ph: 4.1, w: '#f4e070', e: '#caa233' },  // geel, rechts
+      { cx: 232, cy: 206, rx: 34, ry: 18, sp: 1560, ph: 1.3, w: '#fdfdf6', e: '#cfccb4' }   // wit, laag-midden
     ];
     for (const v of FLIES) {
       const t = now / v.sp + v.ph;
