@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '46',
+  assetVer: '48',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -65,7 +65,8 @@ const GAME = {
     runeSnake:     'assets/art/runeSnake.png',
     runeDragon:    'assets/art/runeDragon.png',
     squire:        'assets/art/squire.png',     // jonge schildknaap op de binnenplaats (Deel 2)
-    princess:      'assets/art/princess.png'     // de prinses in de slottuin (Deel 2)
+    princess:      'assets/art/princess.png',     // de prinses in de slottuin (Deel 2)
+    parrot:        'assets/art/parrot.png'        // kleurrijke papagaai in de slottuin (Deel 2)
   },
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -236,8 +237,8 @@ const GAME = {
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
       entryText: {
-        nl: 'De binnenplaats van het kasteel van Eldoria baadt in het late ochtendlicht. Een standbeeld van een knielende ridder waakt over de keien. Links leidt een begroeide boog naar de slottuin; rechts staat een markttent bij de grote kasteeldeur.',
-        en: 'The courtyard of Eldoria castle bathes in late morning light. A statue of a kneeling knight watches over the cobbles. To the left an ivy-clad arch leads to the castle garden; to the right a market tent stands by the great castle door.'
+        nl: 'De binnenplaats van het kasteel van Eldoria baadt in het late ochtendlicht. Midden op de keien staat een oude put met een houten dakje. Links gloeit de smidse na en leidt een begroeide boog naar de slottuin; rechts staat een markttent bij de grote kasteeldeur. Op de put zit een glanzende zwarte raaf.',
+        en: 'The courtyard of Eldoria castle bathes in late morning light. In the middle of the cobbles stands an old well with a wooden roof. To the left the forge glows and an ivy-clad arch leads to the castle garden; to the right a market tent stands by the great castle door. A glossy black raven perches on the well.'
       },
       playerStart: { x: 300, y: 296 },
       spawnFrom: { garden: { x: 178, y: 252 } },          // terug uit de tuin: bij de boog links
@@ -253,7 +254,8 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true }   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
+        { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
+        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 360, y: 126, scale: 0.62, flip: true, peck: true, peckAmt: 0.4 }   // de raaf is naar de binnenplaats gekomen; zit op het dakje van de put en pikt af en toe
       ],
       fx: {},
       hotspots: [
@@ -269,45 +271,51 @@ const GAME = {
           setFlag: 'metSquire'
         },
         {
-          id: 'statue',
-          name: { nl: 'Het Ridderbeeld', en: 'The Knight Statue' },
-          rect: { x: 232, y: 96, w: 96, h: 150 },
-          walkTo: { x: 286, y: 296 },
-          look: (state) => state.flags.statueOpened
-            ? { nl: 'Het opengebroken vakje onder in de sokkel is leeg — het gouden medaillon zit nu in je tas.', en: 'The broken-open niche at the base of the plinth is empty now — the golden medallion is in your bag.' }
-            : { nl: 'Een stenen ridder knielt op zijn zwaard, het hoofd gebogen. In de sokkel staat gebeiteld: “Voor wie de poort bewaakt en het hart bewaart.” Onderaan zit een fijne barst in de steen, en als je erop klopt klinkt het hól — alsof er iets achter verstopt zit. Met flink gereedschap zou je hem open kunnen breken.', en: 'A stone knight kneels upon his sword, head bowed. Chiselled into the plinth: “For the one who guards the gate and keeps the heart.” Near the base runs a fine crack, and when you knock it sounds hollow — as if something is hidden behind it. With a sturdy tool you could break it open.' },
+          id: 'well',
+          name: { nl: 'De Oude Put', en: 'The Old Well' },
+          rect: { x: 224, y: 150, w: 120, h: 108 },
+          walkTo: { x: 286, y: 300 },
           symbolPuzzle: {
-            title: { nl: 'Het Wapen van de Ridder', en: 'The Knight’s Crest' },
-            hint: { nl: 'In de sokkel staat de spreuk van de ridderorde gebeiteld: “de lelie, de kroon, de leeuw.” Druk de wapens in die volgorde.', en: 'Chiselled in the plinth is the order’s motto: “the lily, the crown, the lion.” Press the crests in that order.' },
+            img: 'assets/art/puzzle-well.jpg',
+            title: { nl: 'De Oude Put', en: 'The Old Well' },
+            hint: { nl: 'In de rand van de put zijn vier tekens gebeiteld (zie de steen). Druk ze in dezelfde volgorde om het oude windwerk los te maken.', en: 'Four signs are carved into the well-rim (see the stone). Press them in the same order to release the old winding gear.' },
             symbols: [
-              { key: 'leeuw', emoji: '🦁', label: { nl: 'Leeuw', en: 'Lion' } },
-              { key: 'kroon', emoji: '👑', label: { nl: 'Kroon', en: 'Crown' } },
-              { key: 'lelie', emoji: '⚜️', label: { nl: 'Lelie', en: 'Lily' } }
+              { key: 'water',  emoji: '💧', label: { nl: 'Water',  en: 'Water' } },
+              { key: 'schelp', emoji: '🐚', label: { nl: 'Schelp', en: 'Shell' } },
+              { key: 'maan',   emoji: '🌙', label: { nl: 'Maan',   en: 'Moon'  } },
+              { key: 'ster',   emoji: '⭐', label: { nl: 'Ster',   en: 'Star'  } }
             ],
-            sequence: ['lelie', 'kroon', 'leeuw'],
-            setFlag: 'statuePuzzleSolved',
-            give: 'hammer',
-            solvedText: { nl: 'De drie wapenschilden klikken één voor één op hun plek. Met een steenachtig gerommel schuift een vakje in de sokkel open — daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Vlak eronder zit nog een barst in de steen die hól klinkt...', en: 'One by one the three crests click into place. With a stony rumble a niche slides open in the plinth — inside lies the old hero’s heavy blacksmith’s hammer! You take it. Just below it runs a crack in the stone that sounds hollow...' },
-            resetText: { nl: 'De schilden draaien terug. Begin opnieuw.', en: 'The crests turn back. Start over.' },
-            doneText: { nl: 'Het vakje is open en leeg. Maar er loopt nóg een barst door de sokkel die hól klinkt — met de hamer kun je die misschien openbreken.', en: 'The niche is open and empty. But another crack runs through the plinth, sounding hollow — with the hammer you might break it open.' }
+            sequence: ['maan', 'ster', 'water', 'schelp'],
+            setFlag: 'wellUnlocked',
+            solvedText: { nl: 'De vier tekens lichten op en diep in de put klikt het oude windwerk los. Nu zou je met een touw iets uit de diepte omhoog kunnen vissen.', en: 'The four signs light up and deep in the well the old winding gear clicks free. Now, with a rope, you could fish something up from below.' },
+            resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
+            doneText: { nl: 'Het windwerk van de put is los. Laat er een touw in zakken om de glinstering op de bodem omhoog te vissen.', en: 'The well’s winding gear is free. Lower a rope to fish up the glint at the bottom.' }
           },
           use: {
-            hammer: {
-              consume: 'hammer',
-              give: 'medallion',
-              setFlag: 'statueOpened',
-              text: { nl: 'Je zet de smidshamer tegen de barst en geeft een paar flinke klappen. Met een doffe knál breekt de steen open en onthult een klein, met fluweel bekleed vakje. Daarin glinstert een gouden medaillon — met hetzelfde ridderwapen, een blauwe lelie. Je neemt het mee.', en: 'You set the hammer to the crack and strike hard a few times. With a dull crack the stone breaks open, revealing a small velvet-lined niche. Inside glints a golden medallion — bearing the same knight’s crest, a blue fleur-de-lis. You take it.' }
+            rope: {
+              requiresFlag: 'wellUnlocked',
+              requiresText: { nl: 'Het windwerk van de put zit nog op slot — eerst de tekens in de juiste volgorde.', en: 'The well’s winding gear is still locked — solve the carved signs first.' },
+              consume: 'rope',
+              give: 'wellKey',
+              setFlag: 'gotWellKey',
+              text: { nl: 'Je laat het touw over het losse windwerk in de put zakken en vist tot het ergens achter haakt. Met een natte plons hijs je een zware, met mos overdekte oude sleutel omhoog! Waar zou hij op passen?', en: 'You lower the rope over the freed gear into the well and fish until it snags. With a wet splash you haul up a heavy, moss-covered old key! What might it unlock?' }
             }
           }
         },
         {
           id: 'castledoor',
           name: { nl: 'De Kasteeldeur', en: 'The Castle Door' },
-          rect: { x: 388, y: 36, w: 86, h: 116 },
-          walkTo: { x: 432, y: 250 },
-          look: {
-            nl: 'De zware eikenhouten kasteeldeur zit op slot. Hierachter, ergens diep in het kasteel, wordt Finns vader vastgehouden... maar zó kom je er niet in. (wordt vervolgd)',
-            en: 'The heavy oak castle door is locked. Somewhere deep behind it Finn’s father is held... but you won’t get in this way. (to be continued)'
+          rect: { x: 408, y: 40, w: 76, h: 110 },
+          walkTo: { x: 436, y: 248 },
+          look: (state) => state.flags.castleDoorOpen
+            ? { nl: 'De zware kasteeldeur staat op een kier; een koele, donkere gang gaapt erachter. (wordt vervolgd in een volgend hoofdstuk)', en: 'The heavy castle door stands ajar; a cool, dark passage gapes beyond. (to be continued in a later chapter)' }
+            : { nl: 'De zware eikenhouten kasteeldeur zit op een fors, oud slot. Hierachter wordt Finns vader vastgehouden... Je hebt een sleutel nodig die op dit oude slot past.', en: 'The heavy oak castle door is held by a big, old lock. Finn’s father is held beyond... You’ll need a key that fits this ancient lock.' },
+          use: {
+            wellKey: {
+              consume: 'wellKey',
+              setFlag: 'castleDoorOpen',
+              text: { nl: 'De zware, met mos overdekte sleutel past! Met een knarsend gepiep draait het oude slot om en de kasteeldeur kiert open. Een koele, donkere gang gaapt erachter... (wordt vervolgd in een volgend hoofdstuk)', en: 'The heavy, moss-covered key fits! With a grinding squeal the old lock turns and the castle door creaks open. A cool, dark passage gapes beyond... (to be continued in a later chapter)' }
+            }
           }
         },
         {
@@ -362,7 +370,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
-        { id: 'gardenRaven', sprite: 'ravenPerch', x: 506, y: 206, scale: 0.95, flip: true, peck: true, peckAmt: 0.4 }   // de raaf is meegekomen naar de slottuin; zit op de rugleuning van het bankje en pikt af en toe
+        { id: 'gardenParrot', sprite: 'parrot', x: 506, y: 202, scale: 0.82, flip: true, peck: true, peckAmt: 0.35 }   // een kleurrijke papagaai in de slottuin; zit op de rugleuning van het bankje en wiebelt af en toe
       ],
       fx: {},
       hotspots: [
@@ -390,38 +398,9 @@ const GAME = {
           name: { nl: 'De Leeuwenfontein', en: 'The Lion Fountain' },
           rect: { x: 22, y: 118, w: 84, h: 100 },
           walkTo: { x: 96, y: 252 },
-          symbolPuzzle: {
-            title: { nl: 'De Leeuwenfontein', en: 'The Lion Fountain' },
-            hint: { nl: 'Rond het bekken zijn drie tekens gebeiteld. Op de bodem, onder het water, lees je vaag: “de leeuw, de schelp, het water.” Druk ze in die volgorde.', en: 'Three signs are carved around the basin. On the bottom, beneath the water, you faintly read: “the lion, the shell, the water.” Press them in that order.' },
-            symbols: [
-              { key: 'water',  emoji: '💧', label: { nl: 'Water',  en: 'Water' } },
-              { key: 'leeuw',  emoji: '🦁', label: { nl: 'Leeuw',  en: 'Lion'  } },
-              { key: 'schelp', emoji: '🐚', label: { nl: 'Schelp', en: 'Shell' } }
-            ],
-            sequence: ['leeuw', 'schelp', 'water'],
-            setFlag: 'secretDoorOpen',
-            solvedText: { nl: 'Diep in de fontein klikt iets weg. Achter de klimrozen aan de tuinmuur schuift met een zwaar gerommel een geheime deur open — daarachter gaapt een oude, donkere put.', en: 'Something clicks deep in the fountain. Behind the climbing roses on the garden wall, a hidden door grinds open with a heavy rumble — revealing an old, dark well.' },
-            resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
-            doneText: { nl: 'Een stenen leeuwenkop spuwt helder water in een schelpvormig bekken. Ernaast staat de geheime deur open, met de oude put erachter.', en: 'A stone lion’s head spouts clear water into a shell-shaped basin. Beside it the secret door stands open, the old well behind it.' }
-          }
-        },
-        {
-          id: 'gardenWell',
-          name: { nl: 'De Oude Put', en: 'The Old Well' },
-          rect: { x: 110, y: 120, w: 66, h: 92 },
-          walkTo: { x: 140, y: 250 },
-          requiresFlag: 'secretDoorOpen',                  // pas klikbaar zodra de geheime deur open is
-          appearFlag: 'secretDoorOpen',                    // en pas zichtbaar voor het oogje
-          look: (state) => state.flags.gotWellKey
-            ? { nl: 'De put is leeg op wat zwart water na. De oude sleutel zit veilig in je tas.', en: 'The well is empty but for some black water. The old key is safe in your bag.' }
-            : { nl: 'Achter de geheime deur ligt een oude put, half vol donker water. Diep beneden glinstert iets metaalachtigs — maar je armen zijn veel te kort. Met een touw zou je het misschien omhoog kunnen vissen.', en: 'Behind the secret door lies an old well, half full of dark water. Deep below, something metallic glints — but your arms are far too short. With a rope you might fish it up.' },
-          use: {
-            rope: {
-              consume: 'rope',
-              give: 'wellKey',
-              setFlag: 'gotWellKey',
-              text: { nl: 'Je laat het touw in de put zakken en vist net zo lang tot het ergens achter haakt. Met een natte plons hijs je een zware, met mos overdekte oude sleutel omhoog! Waar zou hij op passen?', en: 'You lower the rope into the well and fish until it snags on something. With a wet splash you haul up a heavy, moss-covered old key! What might it unlock?' }
-            }
+          look: {
+            nl: 'Een stenen leeuwenkop spuwt helder water in een schelpvormig bekken. Het tikt vrolijk tegen de bemoste randen.',
+            en: 'A stone lion’s head spouts clear water into a shell-shaped basin. It patters merrily against the mossy rim.'
           }
         },
         {
@@ -429,9 +408,33 @@ const GAME = {
           name: { nl: 'Het Ridderbeeld', en: 'The Knight Statue' },
           rect: { x: 232, y: 90, w: 96, h: 150 },
           walkTo: { x: 286, y: 296 },
-          look: {
-            nl: 'Hetzelfde wapen, dezelfde ridder als op de binnenplaats — maar hier staat hij rechtop, het zwaard fier voor zich. Wie was deze held toch?',
-            en: 'The same crest, the same knight as in the courtyard — but here he stands upright, sword proud before him. Who was this hero?'
+          look: (state) => state.flags.statueOpened
+            ? { nl: 'Het opengebroken vakje onder in de sokkel is leeg — het gouden medaillon zit nu veilig in je tas.', en: 'The broken-open niche at the base of the plinth is empty now — the golden medallion is safe in your bag.' }
+            : { nl: 'Een stenen ridder met het zwaard fier voor zich. In de sokkel zijn vier wapenschilden gebeiteld, en eronder een fijne barst die hól klinkt — alsof er iets achter verstopt zit.', en: 'A stone knight, his sword proud before him. Four crests are carved into the plinth, and below them a fine crack that sounds hollow — as if something is hidden behind it.' },
+          symbolPuzzle: {
+            img: 'assets/art/puzzle-crest.jpg',
+            title: { nl: 'Het Wapen van de Ridder', en: 'The Knight’s Crest' },
+            hint: { nl: 'In de sokkel staan vier wapenschilden gebeiteld (zie de steen). Druk ze in dezelfde volgorde van links naar rechts.', en: 'Four crests are carved into the plinth (see the stone). Press them in the same order, left to right.' },
+            symbols: [
+              { key: 'leeuw',  emoji: '🦁', label: { nl: 'Leeuw',  en: 'Lion'  } },
+              { key: 'zwaard', emoji: '⚔️', label: { nl: 'Zwaard', en: 'Sword' } },
+              { key: 'kroon',  emoji: '👑', label: { nl: 'Kroon',  en: 'Crown' } },
+              { key: 'lelie',  emoji: '⚜️', label: { nl: 'Lelie',  en: 'Lily'  } }
+            ],
+            sequence: ['lelie', 'kroon', 'leeuw', 'zwaard'],
+            setFlag: 'statuePuzzleSolved',
+            give: 'hammer',
+            solvedText: { nl: 'De vier wapenschilden klikken één voor één op hun plek. Met een steenachtig gerommel schuift een vakje in de sokkel open — daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Vlak eronder zit nog die barst die hól klinkt...', en: 'One by one the four crests click into place. With a stony rumble a niche slides open in the plinth — inside lies the old hero’s heavy blacksmith’s hammer! You take it. Just below it runs that crack that sounds hollow...' },
+            resetText: { nl: 'De schilden draaien terug. Begin opnieuw.', en: 'The crests turn back. Start over.' },
+            doneText: { nl: 'Het vakje is open en leeg. Maar er loopt nóg een barst door de sokkel die hól klinkt — met de hamer kun je die misschien openbreken.', en: 'The niche is open and empty. But another crack runs through the plinth, sounding hollow — with the hammer you might break it open.' }
+          },
+          use: {
+            hammer: {
+              consume: 'hammer',
+              give: 'medallion',
+              setFlag: 'statueOpened',
+              text: { nl: 'Je zet de smidshamer tegen de barst en geeft een paar flinke klappen. Met een doffe knál breekt de steen open en onthult een klein, met fluweel bekleed vakje. Daarin glinstert een gouden medaillon — met hetzelfde ridderwapen, een blauwe lelie. Je neemt het mee.', en: 'You set the hammer to the crack and strike hard a few times. With a dull crack the stone breaks open, revealing a small velvet-lined niche. Inside glints a golden medallion — bearing the same knight’s crest, a blue fleur-de-lis. You take it.' }
+            }
           }
         },
         {

@@ -3613,7 +3613,10 @@
     const pz = hs.symbolPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
     symHs = hs; symProg = 0;
-    if (elRuneImgWrap) elRuneImgWrap.hidden = true;
+    if (pz.img && elRuneImg) {                         // visuele aanwijzing: toon de afbeelding met de symbool-volgorde
+      elRuneImg.src = pz.img + AV;
+      if (elRuneImgWrap) elRuneImgWrap.hidden = false;
+    } else if (elRuneImgWrap) elRuneImgWrap.hidden = true;
     if (elRuneBtns) elRuneBtns.hidden = false;
     elRuneTitle.textContent = L(pz.title);
     if (elRuneHint) elRuneHint.textContent = L(pz.hint);
