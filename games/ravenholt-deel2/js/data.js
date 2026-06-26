@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '39',
+  assetVer: '40',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -339,7 +339,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'princess', sprite: 'princess', sway: true, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.14 }   // prinses; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
+        { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.14 }   // prinses; zelfde soort wieg als de poortwacht maar met kleinere amplitude (minder wankelen)
       ],
       fx: {},
       hotspots: [
