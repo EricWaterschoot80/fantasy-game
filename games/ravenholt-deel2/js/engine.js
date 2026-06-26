@@ -2401,8 +2401,10 @@
           const bob    = -0.7 * Math.max(0, breath);             // heel licht omhoog bij inademen
           drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: bob, squashY: sq });
         } else if (crossImg && crossT > 0.01) {
-          /* Vloeiende idle-lus: kruis-vervaag tussen twee opeenvolgende frames. */
-          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths, alpha: 1 - crossT });
+          /* Vloeiende idle-lus: huidige frame VOL tekenen en het volgende erover laten
+             invloeien. (Allebei half-doorzichtig tekenen zou de achtergrond laten
+             doorschemeren -> geknipper; daarom blijft het basisframe vol.) */
+          drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
           drawArtSprite(crossImg, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths, alpha: crossT, noShadow: true });
         } else {
           drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
