@@ -2395,17 +2395,18 @@
           const fret = Math.round(Math.sin(now / 110) * 0.8);   // gebaar (bv. wacht verzet hellebaard)
           drawArtSprite(ges, rt.x + fret, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         } else if (npc.idleBreathe) {
-          /* Alleen een heel lichte horizontale waggel (zacht heen en weer wiegen).
-             GEEN enkele verticale beweging (geen bob, geen squash) — anders lijkt
-             de figuur langzaam op te stijgen. */
+          /* Heel zachte, vloeiende wieg. De beweging zit vooral in een lichte
+             ROTATIE om de voeten (sub-pixel = glad), niet in horizontale translatie
+             (die wordt op hele pixels afgerond -> houterig bij kleine waarden).
+             GEEN verticale beweging, zodat de figuur niet lijkt op te stijgen. */
           const ph = (npc.x || 0) * 0.07;
-          const w1     = Math.sin(now / 1100 + ph);              // trage waggel (~7s)
-          let rock     = w1 * 0.010;                             // wiegt heel licht mee (~0,6°)
-          let drift    = w1 * 1.0;                               // ~±1px zijwaarts
+          const w1     = Math.sin(now / 1300 + ph);              // trage wieg (~8s)
+          let rock     = w1 * 0.016;                             // vloeiende pivot-sway (kop beweegt zacht mee)
+          let drift    = w1 * 0.35;                              // minimale horizontale translatie
           if (npc.sway) {                                        // tweede, iets ander tempo zodat het niet mechanisch herhaalt
-            const s = Math.sin(now / 1900 + ph * 1.7);
-            rock  += s * 0.006;
-            drift += s * 0.6;
+            const s = Math.sin(now / 2100 + ph * 1.7);
+            rock  += s * 0.009;
+            drift += s * 0.2;
           }
           drawArtSprite(img, rt.x + drift, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: 1 });
         } else if (crossImg && crossT > 0.01) {
