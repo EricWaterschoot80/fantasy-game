@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '16',
+  assetVer: '17',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -339,7 +339,7 @@ const GAME = {
       overlays: [],
       worldItems: [],
       npcs: [
-        { id: 'princess', sprite: 'princess', idleFrames: 'princess-idle', idleStepMs: 52, idlePeriod: 4600, flip: true, x: 424, y: 250, scale: 1.0 }   // prinses iets groter, kijkt andere kant op; staat vooral stil met af en toe een snelle wapper-vlaag
+        { id: 'princess', sprite: 'princess', idleFrames: 'princess-idle', idleStepMs: 120, idlePeriod: 7000, flip: true, x: 424, y: 250, scale: 1.0 }   // prinses iets groter, kijkt andere kant op; staat vooral stil met af en toe een rustige, natuurlijke wapper-vlaag
       ],
       fx: {},
       hotspots: [
