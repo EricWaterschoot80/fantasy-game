@@ -14,13 +14,11 @@
     var css = document.createElement('style');
     css.textContent = [
       '#ra-acc-btn{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 54px);z-index:2147483000;',
-      'font:600 13px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;',
+      'width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;',
       'background:rgba(28,24,18,.86);color:#f3e2a8;border:1px solid #c9a24b;',
-      'border-radius:999px;padding:9px 13px;cursor:pointer;backdrop-filter:blur(4px);',
-      'box-shadow:0 4px 14px rgba(0,0,0,.4);max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+      'border-radius:10px;padding:0;cursor:pointer;backdrop-filter:blur(4px);font-size:20px;line-height:1;',
+      'box-shadow:0 4px 14px rgba(0,0,0,.4)}',
       '#ra-acc-btn:hover{background:rgba(48,40,26,.95)}',
-      '#ra-acc-btn.icon{width:42px;height:42px;max-width:none;padding:0;border-radius:50%;',
-      'display:inline-flex;align-items:center;justify-content:center;font-size:19px}',
       '#ra-acc-ov{position:fixed;inset:0;z-index:2147483001;display:none;align-items:center;justify-content:center;',
       'background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}',
       '#ra-acc-ov.open{display:flex}',
@@ -65,7 +63,9 @@
     var btn = document.createElement('button');
     btn.id = 'ra-acc-btn';
     btn.type = 'button';
-    btn.textContent = '👤 Account';
+    btn.textContent = '👤';                 // altijd alleen het persoon-icoon (vierkant knopje)
+    btn.title = 'Account / inloggen';
+    btn.setAttribute('aria-label', 'Account');
     document.body.appendChild(btn);
 
     var ov = document.createElement('div');
@@ -161,16 +161,8 @@
     }
 
     RA.onChange(function (u) {
-      if (u) {
-        // Ingelogd: compact profiel-icoontje (zoals de andere knoppen)
-        btn.textContent = '👤';
-        btn.classList.add('icon');
-        btn.title = u.email || 'Account';
-      } else {
-        btn.textContent = '👤 Account';
-        btn.classList.remove('icon');
-        btn.title = 'Account / inloggen';
-      }
+      // Knop blijft altijd hetzelfde vierkante persoon-icoon; alleen de tooltip verandert.
+      btn.title = u ? (u.email || 'Account') : 'Account / inloggen';
     });
   });
 })();

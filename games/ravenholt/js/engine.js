@@ -497,12 +497,13 @@
   }
 
   const view = { scale: 1, ox: 0, oy: 0 };
+  let curDpr = Math.min(window.devicePixelRatio || 1, 2);
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width  = Math.round(window.innerWidth * dpr);
-    canvas.height = Math.round(window.innerHeight * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    curDpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width  = Math.round(window.innerWidth * curDpr);
+    canvas.height = Math.round(window.innerHeight * curDpr);
+    ctx.setTransform(curDpr, 0, 0, curDpr, 0, 0);
   }
   window.addEventListener('resize', () => { resize(); initLeaves(); });
 
@@ -728,10 +729,18 @@
     const now = performance.now();
     const dt = Math.min((now - lastT) / 1000, 0.12);
     lastT = now;
-    update(dt, now);
-    draw(now);
-    if (elMaze && !elMaze.hidden) drawMaze(now);
-    if (elGear && !elGear.hidden) drawGears(now);
+    try {
+      update(dt, now);
+      draw(now);
+      if (elMaze && !elMaze.hidden) drawMaze(now);
+      if (elGear && !elGear.hidden) drawGears(now);
+    } catch (err) {
+      /* Eén kapotte frame mag het spel niet laten vastlopen of in-/uitzoomen:
+         transform resetten en doorgaan. */
+      try { ctx.setTransform(curDpr, 0, 0, curDpr, 0, 0); } catch (e) {}
+      try { fctx.setTransform(1, 0, 0, 1, 0, 0); } catch (e) {}
+      if (window.console) console.warn('[loop] frame overgeslagen na fout:', err);
+    }
   }
 
   /* ---------- Toetsenbord (WASD / pijltjes, fysieke key-codes) ---------- */
@@ -1324,6 +1333,7 @@
     }
 
     const w = window.innerWidth, h = window.innerHeight;
+    ctx.setTransform(curDpr, 0, 0, curDpr, 0, 0);   // elke frame de transform hard resetten -> nooit een opgehoopte (in)zoom
     ctx.fillStyle = '#1a1410';
     ctx.fillRect(0, 0, w, h);
     const scale = Math.min(w / SCENE_W, h / SCENE_H);
