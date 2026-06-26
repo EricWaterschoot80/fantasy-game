@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '173',
+  assetVer: '174',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -263,7 +263,7 @@ const GAME = {
           { x: 480, y: 46, rise: 38, spread: 8, drift: 5, speed: 3600, puffs: 7 }
         ],
         /* glinster-hint op het muntje op de bodem van de fontein (tot het opgeraapt is) */
-        glints: [{ x: 208, y: 250, notFlag: 'taken_square_coin', col: '255,228,150' }]
+        glints: [{ x: 208, y: 250, notFlag: 'taken_square_coin', col: '255,236,170', dim: 1.5, glow: true }]
       },
 
       hotspots: [
@@ -442,10 +442,13 @@ const GAME = {
         { id: 'ravenMill', sprite: 'ravenPerch', x: 50, y: 196, scale: 0.82, flip: false, appearFlag: 'recipeRevealed', hideFlag: 'recipeTaken', peck: true, peckAmt: 0.4 }
       ],
       fx: {
-        /* glinster-hints: de zwarte bessen (tot geplukt) en de losse steen met het recept (zodra de raaf 'm aanwees) */
+        /* de losse steen met het recept glinstert (zodra de raaf 'm aanwees) */
         glints: [
-          { x: 490, y: 288, notFlag: 'taken_mill_berries', col: '170,120,210' },
           { x: 76,  y: 266, flag: 'recipeRevealed', notFlag: 'recipeTaken', col: '255,228,150' }
+        ],
+        /* de zwarte bessen vallen op door af en toe te ritselen (tot geplukt) i.p.v. te glinsteren */
+        rustle: [
+          { x: 489, y: 284, notFlag: 'taken_mill_berries', col: '40,24,52' }
         ]
       },
       hotspots: [

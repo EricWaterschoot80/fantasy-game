@@ -1347,6 +1347,28 @@
     if (a > 0.6) { fctx.fillRect(x, y - 2, 1, 1); fctx.fillRect(x, y + 2, 1, 1); }
   }
 
+  /* Klein tros zwarte bessen die meestal stil hangt en af en toe even ritselt/schudt,
+     zodat je 'm opmerkt zonder glinstering. */
+  const BERRY_CLUSTER = [[0, 0], [3, 1], [-3, 1], [1, 4], [-2, 4], [4, 5], [-4, 5], [0, 7], [2, 8], [-1, 9]];
+  function drawBerryRustle(r, now) {
+    const col = r.col || '46,28,58';
+    const PERIOD = 3800;                                 // elke ~3,8s een korte schud
+    const ph = now % PERIOD;
+    let shake = 0;
+    if (ph < 620) { const k = ph / 620; shake = Math.sin(k * Math.PI * 6) * 2.4 * (1 - k); }  // gedempte snelle wiebel
+    const sway = Math.sin(now / 950) * 0.7;              // rustige bries ertussendoor
+    const ox = shake + sway;
+    for (let i = 0; i < BERRY_CLUSTER.length; i++) {
+      const bx = BERRY_CLUSTER[i][0], by = BERRY_CLUSTER[i][1];
+      const x = Math.round(r.x + bx + ox * (1 - by / 13));   // bovenkant zwaait meer (takje)
+      const y = Math.round(r.y + by);
+      fctx.fillStyle = `rgba(${col},0.96)`;
+      fctx.fillRect(x - 1, y - 1, 3, 3);                 // besje
+      fctx.fillStyle = 'rgba(196,166,214,0.55)';
+      fctx.fillRect(x, y - 1, 1, 1);                     // klein glanspuntje
+    }
+  }
+
   function paintFx(scene, now) {
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
@@ -1543,12 +1565,29 @@
       for (const gl of fx.glints) {
         if (gl.flag && !state.flags[gl.flag]) continue;
         if (gl.notFlag && state.flags[gl.notFlag]) continue;
-        const dim = (typeof gl.dim === 'number') ? gl.dim : 1;   // < 1 = subtieler
-        const n = dim < 0.7 ? 2 : 3;                              // gedimde glints: minder twinkels
+        const dim = (typeof gl.dim === 'number') ? gl.dim : 1;   // < 1 = subtieler, > 1 = opvallender
+        const n = dim < 0.7 ? 2 : (dim > 1.2 ? 4 : 3);           // opvallende glints: meer twinkels
+        if (gl.glow) {                                            // zachte pulserende gloed eronder (bv. de munt die blinkt)
+          const pulse = 0.55 + 0.45 * Math.sin(now / 260);
+          const g = fctx.createRadialGradient(gl.x, gl.y, 0, gl.x, gl.y, 8);
+          g.addColorStop(0, `rgba(${gl.col || '255,228,150'},${0.3 * pulse})`);
+          g.addColorStop(1, `rgba(${gl.col || '255,228,150'},0)`);
+          fctx.fillStyle = g;
+          fctx.fillRect(gl.x - 8, gl.y - 8, 16, 16);
+        }
         for (let i = 0; i < n; i++) {
           const ang = now / 360 + i * 2.1;
           twinkle(gl.x + Math.cos(ang) * 11, gl.y + Math.sin(ang * 1.2) * 7, (0.5 + 0.45 * Math.sin(now / 200 + i * 2)) * dim, gl.col || '255,228,150');
         }
+      }
+    }
+    /* Rustelende besjes-tros: een klein donker bessenkluitje dat af en toe even
+       schudt (i.p.v. glinsteren) zodat je het opmerkt. */
+    if (fx.rustle) {
+      for (const r of fx.rustle) {
+        if (r.flag && !state.flags[r.flag]) continue;
+        if (r.notFlag && state.flags[r.notFlag]) continue;
+        drawBerryRustle(r, now);
       }
     }
     if (fx.flowerFlies && state.flags[fx.flowerFlies.flag] && !(fx.flowerFlies.stopFlag && state.flags[fx.flowerFlies.stopFlag])) {
