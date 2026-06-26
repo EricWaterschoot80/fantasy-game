@@ -3631,7 +3631,8 @@
       if (elRuneBtns) { elRuneBtns.innerHTML = ''; elRuneBtns.hidden = true; }
       elRuneHotspots.innerHTML = '';
       pz.zones.forEach((z) => {
-        const done = pz.sequence.indexOf(z.key) < symProg;   // al correct ingedrukt deze ronde
+        const inSeq = pz.sequence.indexOf(z.key);
+        const done = inSeq >= 0 && inSeq < symProg;           // alleen reeds-correct-ingedrukte tekens lichten op (decoys niet)
         const btn = document.createElement('button');
         btn.className = 'book-hot' + (done ? ' pulled' : '');
         btn.style.left = z.left + '%'; btn.style.top = z.top + '%';

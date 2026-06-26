@@ -746,7 +746,7 @@ html, body {
 /* ---------- Schuifpuzzel-popup ---------- */
 .puzzle-card {
   position: relative;
-  max-width: 384px;
+  max-width: min(94vw, 560px);
   padding: 20px 24px 24px;
 }
 
@@ -1072,7 +1072,7 @@ html, body {
 .rune-imgwrap {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: 520px;
   margin: 4px auto 10px;
   border: 2px solid #1f1410;
   border-radius: 8px;

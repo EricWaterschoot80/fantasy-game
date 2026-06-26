@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '50',
+  assetVer: '52',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -278,20 +278,24 @@ const GAME = {
           symbolPuzzle: {
             img: 'assets/art/puzzle-well.jpg',
             title: { nl: 'De Oude Put', en: 'The Old Well' },
-            hint: { nl: 'In de putrand zijn vier tekens uitgehouwen. De oude spreuk luidt: “water, maan, schelp, ster.” Druk de tekens op de stenen in die volgorde.', en: 'Four signs are cut into the well-rim. The old verse reads: “water, moon, shell, star.” Press the carved signs on the stones in that order.' },
+            hint: { nl: 'In de putrand zijn zes tekens uitgehouwen. De oude spreuk luidt: “de zon, het water, de maan, de schelp, de ster.” Druk die vijf tekens op de stenen in die volgorde — let op: niet álle tekens horen erbij.', en: 'Six signs are cut into the well-rim. The old verse reads: “the sun, the water, the moon, the shell, the star.” Press those five carved signs in that order — beware: not all the signs belong.' },
             zones: [
-              { key: 'maan',   left: 29, top: 65, width: 13, height: 26 },
-              { key: 'ster',   left: 41, top: 62, width: 12, height: 28 },
-              { key: 'water',  left: 52, top: 65, width: 12, height: 26 },
-              { key: 'schelp', left: 62, top: 63, width: 14, height: 28 }
+              { key: 'maan',   left: 5,  top: 49, width: 13, height: 36 },
+              { key: 'zon',    left: 18, top: 51, width: 13, height: 34 },
+              { key: 'ster',   left: 31, top: 53, width: 13, height: 34 },
+              { key: 'water',  left: 45, top: 51, width: 12, height: 36 },
+              { key: 'schelp', left: 58, top: 51, width: 13, height: 36 },
+              { key: 'golf',   left: 71, top: 52, width: 16, height: 34 }
             ],
             symbols: [
+              { key: 'zon',    emoji: '☀️', label: { nl: 'Zon',    en: 'Sun'   } },
               { key: 'water',  emoji: '💧', label: { nl: 'Water',  en: 'Water' } },
-              { key: 'schelp', emoji: '🐚', label: { nl: 'Schelp', en: 'Shell' } },
               { key: 'maan',   emoji: '🌙', label: { nl: 'Maan',   en: 'Moon'  } },
-              { key: 'ster',   emoji: '⭐', label: { nl: 'Ster',   en: 'Star'  } }
+              { key: 'schelp', emoji: '🐚', label: { nl: 'Schelp', en: 'Shell' } },
+              { key: 'ster',   emoji: '⭐', label: { nl: 'Ster',   en: 'Star'  } },
+              { key: 'golf',   emoji: '🌊', label: { nl: 'Golf',   en: 'Wave'  } }
             ],
-            sequence: ['water', 'maan', 'schelp', 'ster'],
+            sequence: ['zon', 'water', 'maan', 'schelp', 'ster'],
             setFlag: 'wellUnlocked',
             solvedText: { nl: 'De vier tekens lichten op en diep in de put klikt het oude windwerk los. Nu zou je met een touw iets uit de diepte omhoog kunnen vissen.', en: 'The four signs light up and deep in the well the old winding gear clicks free. Now, with a rope, you could fish something up from below.' },
             resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
@@ -376,7 +380,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
-        { id: 'gardenParrot', sprite: 'parrot', x: 506, y: 202, scale: 0.82, flip: true, peck: true, peckAmt: 0.35, filter: 'brightness(0.9) saturate(0.92)' }   // een groene papagaai in de slottuin; donkerder/groener zodat hij in het tuingroen opgaat
+        { id: 'gardenParrot', sprite: 'parrot', x: 508, y: 200, scale: 0.58, flip: true, peck: true, peckAmt: 0.35, filter: 'brightness(0.95) saturate(0.95)' }   // een kleine, realistische groene papagaai op het bankje; gaat op in het tuingroen
       ],
       fx: {},
       hotspots: [
