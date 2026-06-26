@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '54',
+  assetVer: '55',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -138,6 +138,10 @@ const GAME = {
              look: { nl: 'Een zware, oude sleutel vol roest en mos — je viste hem met het touw uit de put. Waar zou hij op passen?', en: 'A heavy old key, thick with rust and moss — you fished it from the well with the rope. What might it unlock?' } },
     medallion: { name: { nl: 'Gouden Medaillon', en: 'Golden Medallion' }, icon: '🎖️', img: 'assets/art/item-medallion.png', sparkle: true, border: 'gold',
              look: { nl: 'Een glanzend gouden medaillon met hetzelfde ridderwapen als op het standbeeld — een blauwe lelie. Het lag verborgen in de sokkel. Wie zou het daar bewaard hebben?', en: 'A gleaming gold medallion bearing the same knight’s crest as the statue — a blue fleur-de-lis. It lay hidden in the plinth. Who could have kept it there?' } },
+    coal: { name: { nl: 'Steenkool', en: 'Coal' }, icon: '⚫', img: 'assets/art/item-coal.png',
+             look: { nl: 'Een handvol zwarte steenkool uit de ton naast het aambeeld. Hiermee stook je het smidsvuur bij het ijzer weer hoog op.', en: 'A handful of black coal from the barrel beside the anvil. With this you can stoke the forge fire by the iron high again.' } },
+    sword: { name: { nl: 'Gesmeed Zwaard', en: 'Forged Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
+             look: { nl: 'Het oude zwaard, weer heel gesmeed bij het smidsvuur. Het lemmet glanst als nieuw — een waardig wapen voor een held.', en: 'The old sword, forged whole again at the smithy fire. The blade gleams like new — a weapon worthy of a hero.' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
             look: { nl: 'Een oude zilveren munt die je uit de drooggevallen fontein opraapte. Hij blinkt nog mooi — precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old silver coin you picked from the dried-up fountain. It still gleams nicely — just the kind of bright thing a magpie or raven can’t resist.' } },
     coinGold: { name: { nl: 'Gouden Munt', en: 'Gold Coin' }, icon: '🪙', img: 'assets/art/item-coin-gold.png',
@@ -331,14 +335,43 @@ const GAME = {
         {
           id: 'forge',
           name: { nl: 'De Smidse', en: 'The Forge' },
-          rect: { x: 2, y: 118, w: 72, h: 112 },
-          walkTo: { x: 72, y: 252 },
-          hideFlag: 'tookRope',                            // verdwijnt als interactie zodra het touw weg is (blijft als sfeer)
+          rect: { x: 2, y: 118, w: 78, h: 112 },
+          walkTo: { x: 76, y: 252 },
           gives: {
             item: 'rope',
             setFlag: 'tookRope',
-            giveText: { nl: 'Onder het afdakje gloeit het smidsvuur na. De smid is nergens te bekennen, maar aan een haak naast het aambeeld hangt een stevig opgerold touw. Je neemt het mee.', en: 'Under the lean-to the forge fire still glows. The smith is nowhere to be seen, but a sturdy coil of rope hangs on a hook beside the anvil. You take it.' },
-            emptyText: { nl: 'Verder ligt er bij de smidse niets bruikbaars.', en: 'There’s nothing else useful at the forge.' }
+            giveText: { nl: 'Onder het afdakje gloeit het smidsvuur na, met een staaf ijzer in de oven. De smid is nergens te bekennen, maar aan een haak naast het aambeeld hangt een stevig opgerold touw. Je neemt het mee.', en: 'Under the lean-to the forge fire still glows, a bar of iron resting in the oven. The smith is nowhere to be seen, but a sturdy coil of rope hangs on a hook beside the anvil. You take it.' },
+            emptyText: { nl: 'In de oven gloeit nog een staaf ijzer na. Met genoeg steenkool erbij en een goede hamer zou je hier iets kunnen smeden.', en: 'A bar of iron still glows in the oven. With enough coal and a good hammer you could forge something here.' }
+          },
+          use: {
+            coal: {
+              consume: 'coal',
+              setFlag: 'ovenStoked',
+              text: { nl: 'Je schept de steenkool bij het ijzer in de oven. Het smidsvuur laait hoog en wit-heet op — klaar om te smeden.', en: 'You heap the coal in beside the iron in the oven. The forge fire roars up white-hot — ready to forge.' }
+            },
+            swordBroken: {
+              needItem: 'hammer',
+              needText: { nl: 'Je hebt een zware hamer nodig om dit zwaard te smeden. De smidshamer van de oude held zou perfect zijn.', en: 'You need a heavy hammer to forge this sword. The old hero’s blacksmith hammer would be perfect.' },
+              requiresFlag: 'ovenStoked',
+              requiresText: { nl: 'De oven is niet heet genoeg. Stook hem eerst op met steenkool bij het ijzer.', en: 'The oven isn’t hot enough. Stoke it first with coal beside the iron.' },
+              consume: 'swordBroken',
+              give: 'sword',
+              setFlag: 'swordForged',
+              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur tot het lemmet rood gloeit en smeedt het met de smidshamer op het aambeeld weer heel. Vonken spatten alle kanten op. Met een sissende plons in de waterton koel je het af — en je houdt een prachtig, heel gesmeed zwaard in handen!', en: 'You lay the broken sword in the white-hot fire until the blade glows red, then forge it whole again with the blacksmith hammer on the anvil. Sparks fly everywhere. With a hissing plunge into the water trough you quench it — and you hold a beautiful, fully forged sword!' }
+            }
+          }
+        },
+        {
+          id: 'coalbarrel',
+          name: { nl: 'De Kolenton', en: 'The Coal Barrel' },
+          rect: { x: 82, y: 198, w: 58, h: 80 },
+          walkTo: { x: 110, y: 256 },
+          hideFlag: 'tookCoal',
+          gives: {
+            item: 'coal',
+            setFlag: 'tookCoal',
+            giveText: { nl: 'Naast het aambeeld staat een houten ton vol zwarte steenkool. Je schept er een flinke handvol van mee — precies genoeg om het smidsvuur mee op te stoken.', en: 'Beside the anvil stands a wooden barrel full of black coal. You scoop up a good handful — just enough to stoke the forge fire.' },
+            emptyText: { nl: 'De kolenton is nu zo goed als leeg.', en: 'The coal barrel is all but empty now.' }
           }
         },
         {
@@ -380,7 +413,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
-        { id: 'gardenParrot', sprite: 'parrot', x: 508, y: 218, scale: 0.5, flip: true, peck: true, peckAmt: 0.35, filter: 'brightness(0.95) saturate(0.95)' }   // gedetailleerde groene pixel-art papagaai, staat op eigen pootjes (geen tak) iets lager op het bankje
+        { id: 'gardenParrot', sprite: 'parrot', x: 508, y: 204, scale: 0.42, flip: true, peck: true, peckAmt: 0.35, filter: 'brightness(0.95) saturate(0.95)' }   // gedetailleerde groene pixel-art papagaai op het bankje — kleiner en iets hoger
       ],
       fx: {},
       hotspots: [
@@ -399,6 +432,11 @@ const GAME = {
               keep: true,                                  // het medaillon blijft van Finn
               setFlag: 'showedMedallion',
               text: { nl: 'Je laat de prinses het gouden medaillon zien. Haar ogen worden groot. “Dat wapen... dat is van de oude held van Eldoria — mijn grootvader. Dit was al jaren zoek!” Ze vouwt jouw hand voorzichtig om het medaillon. “Jij hebt het gevonden. Bewaar het — als een belofte.” Finn krijgt een kleur tot achter zijn oren.', en: 'You show the princess the golden medallion. Her eyes go wide. “That crest... it belonged to the old hero of Eldoria — my grandfather. It’s been lost for years!” She gently folds your hand around the medallion. “You found it. Keep it — as a promise.” Finn blushes to the tips of his ears.' }
+            },
+            sword: {
+              keep: true,                                  // het gesmede zwaard blijft van Finn
+              setFlag: 'showedSword',
+              text: { nl: 'Je toont de prinses het opnieuw gesmede zwaard. “Het zwaard van de oude held — weer heel!” fluistert ze, en haar ogen glanzen. “Met jou als ridder zou Eldoria niets te vrezen hebben, Finn.” Je staat te blozen en weet even niets te zeggen.', en: 'You show the princess the reforged sword. “The old hero’s blade — whole again!” she whispers, her eyes shining. “With you as its knight, Eldoria would have nothing to fear, Finn.” You blush and, for a moment, find nothing to say.' }
             }
           },
           setFlag: 'metPrincess'
@@ -409,8 +447,25 @@ const GAME = {
           rect: { x: 22, y: 118, w: 84, h: 100 },
           walkTo: { x: 96, y: 252 },
           look: {
-            nl: 'Een stenen leeuwenkop spuwt helder water in een schelpvormig bekken. Het tikt vrolijk tegen de bemoste randen.',
-            en: 'A stone lion’s head spouts clear water into a shell-shaped basin. It patters merrily against the mossy rim.'
+            nl: 'Een stenen leeuwenkop spuwt helder water in een schelpvormig bekken. In de bemoste rand zijn vier tekens gehouwen — alsof ze iets bewaken.',
+            en: 'A stone lion’s head spouts clear water into a shell-shaped basin. Four signs are carved into the mossy rim — as if guarding something.'
+          },
+          symbolPuzzle: {
+            title: { nl: 'De Leeuwenfontein', en: 'The Lion Fountain' },
+            hint: { nl: 'Rond het schelpvormige bekken zijn vier tekens in de steen gehouwen. Onder de leeuwenkop staat een verweerd vers: “de zon, de druppel, de maan, de ster.” Druk die vier tekens in die volgorde — let op: de leeuw zelf hoort er niet bij.', en: 'Four signs are carved around the shell-shaped basin. Beneath the lion’s head a weathered verse reads: “the sun, the drop, the moon, the star.” Press those four signs in that order — beware: the lion itself does not belong.' },
+            symbols: [
+              { key: 'zon',     emoji: '☀️', label: { nl: 'Zon',     en: 'Sun'   } },
+              { key: 'druppel', emoji: '💧', label: { nl: 'Druppel', en: 'Drop'  } },
+              { key: 'leeuw',   emoji: '🦁', label: { nl: 'Leeuw',   en: 'Lion'  } },
+              { key: 'maan',    emoji: '🌙', label: { nl: 'Maan',    en: 'Moon'  } },
+              { key: 'ster',    emoji: '⭐', label: { nl: 'Ster',    en: 'Star'  } }
+            ],
+            sequence: ['zon', 'druppel', 'maan', 'ster'],
+            setFlag: 'fountainSolved',
+            give: 'swordBroken',
+            solvedText: { nl: 'De vier tekens lichten blauw op en met een diep gerommel kantelt de bodem van het bekken weg. Tussen het mos en het water ligt een oud, doormidden gebroken zwaard — het wapen van een gevallen ridder. Je vist het eruit.', en: 'The four signs glow blue and with a deep rumble the basin floor tilts away. Among the moss and water lies an old sword, snapped in two — the weapon of a fallen knight. You fish it out.' },
+            resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
+            doneText: { nl: 'De bodem van de fontein ligt open en leeg; het gebroken zwaard zit veilig in je tas. Bij een smidse zou je het weer heel kunnen smeden.', en: 'The fountain floor lies open and empty; the broken sword is safe in your bag. At a forge you could make it whole again.' }
           }
         },
         {
@@ -426,10 +481,10 @@ const GAME = {
             title: { nl: 'Het Wapen van de Ridder', en: 'The Knight’s Crest' },
             hint: { nl: 'In de sokkel zijn vier wapenschilden gebeiteld. De spreuk van de orde luidt: “de leeuw, de lelie, het zwaard, de kroon.” Druk de schilden op de steen in die volgorde.', en: 'Four crests are carved into the plinth. The order’s motto reads: “the lion, the lily, the sword, the crown.” Press the carved crests in that order.' },
             zones: [
-              { key: 'lelie',  left: 6,  top: 26, width: 19, height: 50 },
-              { key: 'kroon',  left: 28, top: 22, width: 19, height: 56 },
-              { key: 'leeuw',  left: 51, top: 26, width: 19, height: 52 },
-              { key: 'zwaard', left: 74, top: 24, width: 18, height: 54 }
+              { key: 'lelie',  left: 17, top: 31, width: 13, height: 36 },
+              { key: 'kroon',  left: 34, top: 31, width: 13, height: 36 },
+              { key: 'leeuw',  left: 55, top: 31, width: 14, height: 36 },
+              { key: 'zwaard', left: 72, top: 31, width: 13, height: 36 }
             ],
             symbols: [
               { key: 'leeuw',  emoji: '🦁', label: { nl: 'Leeuw',  en: 'Lion'  } },
@@ -446,10 +501,10 @@ const GAME = {
           },
           use: {
             hammer: {
-              consume: 'hammer',
+              keep: true,                                  // de hamer blijft je gereedschap (later nodig bij de smidse om het zwaard te smeden)
               give: 'medallion',
               setFlag: 'statueOpened',
-              text: { nl: 'Je zet de smidshamer tegen de barst en geeft een paar flinke klappen. Met een doffe knál breekt de steen open en onthult een klein, met fluweel bekleed vakje. Daarin glinstert een gouden medaillon — met hetzelfde ridderwapen, een blauwe lelie. Je neemt het mee.', en: 'You set the hammer to the crack and strike hard a few times. With a dull crack the stone breaks open, revealing a small velvet-lined niche. Inside glints a golden medallion — bearing the same knight’s crest, a blue fleur-de-lis. You take it.' }
+              text: { nl: 'Je zet de smidshamer tegen de barst en geeft een paar flinke klappen. Met een doffe knál breekt de steen open en onthult een klein, met fluweel bekleed vakje. Daarin glinstert een gouden medaillon — met hetzelfde ridderwapen, een blauwe lelie. Je neemt het mee, en steekt de hamer terug in je tas.', en: 'You set the hammer to the crack and strike hard a few times. With a dull crack the stone breaks open, revealing a small velvet-lined niche. Inside glints a golden medallion — bearing the same knight’s crest, a blue fleur-de-lis. You take it, and tuck the hammer back into your bag.' }
             }
           }
         },
