@@ -2332,9 +2332,12 @@
           const s = (((now + (npc.x || 0) * 13) / stepMs) | 0) % period;
           fi = s < n ? s : (2 * (n - 1) - s);
         } else {
-          /* Rust-gebaar: meestal stil op frame 1; om de ~5 sec één snelle beweging (heen en terug). */
-          const phase = (now + (npc.x || 0) * 11) % 5000;       // periode van 5 sec (per npc iets verschoven)
-          const stepMs = 70, gestureMs = (n - 1) * 2 * stepMs;  // snelle ping-pong door alle frames
+          /* Rust-gebaar: meestal stil op frame 1; af en toe één snelle vlaag (heen en terug).
+             idlePeriod = hoe vaak (ms), idleStepMs = hoe snel de vlaag is. */
+          const period = npc.idlePeriod || 5000;                // hoe vaak een vlaag
+          const stepMs = npc.idleStepMs || 70;                  // snelheid van de vlaag
+          const phase = (now + (npc.x || 0) * 11) % period;     // (per npc iets verschoven)
+          const gestureMs = (n - 1) * 2 * stepMs;               // ping-pong door alle frames
           if (phase < gestureMs) {
             const s = (phase / stepMs) | 0;                     // 0..2(n-1)
             fi = s < n ? s : (2 * (n - 1) - s);                 // heen (0..n-1) en terug (n-1..0)
