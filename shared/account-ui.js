@@ -19,6 +19,8 @@
       'border-radius:999px;padding:9px 13px;cursor:pointer;backdrop-filter:blur(4px);',
       'box-shadow:0 4px 14px rgba(0,0,0,.4);max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '#ra-acc-btn:hover{background:rgba(48,40,26,.95)}',
+      '#ra-acc-btn.icon{width:42px;height:42px;max-width:none;padding:0;border-radius:50%;',
+      'display:inline-flex;align-items:center;justify-content:center;font-size:19px}',
       '#ra-acc-ov{position:fixed;inset:0;z-index:2147483001;display:none;align-items:center;justify-content:center;',
       'background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}',
       '#ra-acc-ov.open{display:flex}',
@@ -125,7 +127,16 @@
     }
 
     RA.onChange(function (u) {
-      btn.textContent = u ? ('👤 ' + (u.email ? u.email.split('@')[0] : 'Account')) : '👤 Account';
+      if (u) {
+        // Ingelogd: compact profiel-icoontje (zoals de andere knoppen)
+        btn.textContent = '👤';
+        btn.classList.add('icon');
+        btn.title = u.email || 'Account';
+      } else {
+        btn.textContent = '👤 Account';
+        btn.classList.remove('icon');
+        btn.title = 'Account / inloggen';
+      }
     });
   });
 })();

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '170',
+  assetVer: '171',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -568,8 +568,8 @@ const GAME = {
       fx: {
         glints: [
           { x: 374, y: 256, flag: 'millFixed', col: '255,228,150' },             // de graanzak glinstert zodra de molen weer maalt
-          { x: 60, y: 84,  notFlag: 'gotVials',     col: '190,225,255' },          // de glazen flesjes in de kast glinsteren (glas) tot je ze pakt
-          { x: 62, y: 140, notFlag: 'gotSpellbook', col: '235,210,150' }           // de vastzittende boeken glinsteren tot de boeken-puzzel opgelost is
+          { x: 60, y: 84,  notFlag: 'gotVials',     col: '190,225,255', dim: 0.5 },   // de glazen flesjes glinsteren subtiel tot je ze pakt
+          { x: 62, y: 140, notFlag: 'gotSpellbook', col: '235,210,150', dim: 0.5 }    // de vastzittende boeken glinsteren subtiel tot de puzzel opgelost is
         ]
       },
       hotspots: [

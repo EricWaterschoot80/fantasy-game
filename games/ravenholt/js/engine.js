@@ -1543,9 +1543,11 @@
       for (const gl of fx.glints) {
         if (gl.flag && !state.flags[gl.flag]) continue;
         if (gl.notFlag && state.flags[gl.notFlag]) continue;
-        for (let i = 0; i < 3; i++) {
+        const dim = (typeof gl.dim === 'number') ? gl.dim : 1;   // < 1 = subtieler
+        const n = dim < 0.7 ? 2 : 3;                              // gedimde glints: minder twinkels
+        for (let i = 0; i < n; i++) {
           const ang = now / 360 + i * 2.1;
-          twinkle(gl.x + Math.cos(ang) * 11, gl.y + Math.sin(ang * 1.2) * 7, 0.5 + 0.45 * Math.sin(now / 200 + i * 2), gl.col || '255,228,150');
+          twinkle(gl.x + Math.cos(ang) * 11, gl.y + Math.sin(ang * 1.2) * 7, (0.5 + 0.45 * Math.sin(now / 200 + i * 2)) * dim, gl.col || '255,228,150');
         }
       }
     }
