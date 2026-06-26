@@ -2608,7 +2608,11 @@
     if (!started) return [];
     const sc = GAME.scenes[state.currentScene];
     const lines = [];
-    if (sc && sc.hints) sc.hints.forEach((h) => lines.push(L(h)));
+    if (sc && sc.hints) sc.hints.forEach((h) => {
+      if (h.flag && !state.flags[h.flag]) return;        // hint pas tonen vanaf een vlag
+      if (h.notFlag && state.flags[h.notFlag]) return;   // hint verbergen zodra een vlag gezet is
+      lines.push(L(h));
+    });
     if (!lines.length) { const k = questKey(); if (k) lines.push(L(GAME.ui[k])); }
     return lines;
   }

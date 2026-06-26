@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '171',
+  assetVer: '172',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -735,7 +735,8 @@ const GAME = {
     castle: {
       name: { nl: 'De Kasteelpoort', en: 'The Castle Gate' },
       hints: [
-        { nl: 'De poortwacht laat niemand door — een angstaanjagende spreuk uit je toverboek doet wonderen.', en: 'The gate guard lets no one pass — a terrifying spell from your spellbook works wonders.' }
+        { notFlag: 'taken_castle_cart', nl: 'De handelsman bewaakt zijn kar scherp. Leid hem eerst af — laat met de dans-spreuk een bloem dansen — en grijp dan het molenrad uit de kar.', en: 'The merchant watches his cart closely. Distract him first — make a flower dance with the dance spell — then grab the mill wheel from the cart.' },
+        { flag: 'dragonSpellLearned', notFlag: 'guardFled', nl: 'Je hebt de drakenspreuk! Spreek hem uit op de poortwacht; een enorme drakenschaduw jaagt hem op de vlucht.', en: 'You have the dragon spell! Speak it at the gate guard; a huge dragon shadow will send him fleeing.' }
       ],
       bg: 'assets/art/scene-castle.png',
       charFilter: 'sepia(0.3) saturate(1.2) brightness(1.05)',   // zelfde warme ochtendzon
