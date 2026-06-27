@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '65',
+  assetVer: '66',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -106,8 +106,10 @@ const GAME = {
 
     q_explore:  { nl: 'Verken de binnenplaats van het kasteel — en zoek de weg naar de slottuin', en: 'Explore the castle courtyard — and find the way to the garden' },
     q_garden:   { nl: 'Loop de slottuin in en ontdek wie daar tussen de rozen wandelt', en: 'Enter the castle garden and discover who walks among the roses' },
-    q_getsword: { nl: 'De schildknaap gaf je het gebroken zwaard van Sir Aldric. Smeed het weer heel bij de smidse: je hebt de zware hamer (uit de sokkel van het ridderbeeld in de tuin) en houtskool (tussen de bloemen) nodig', en: 'The squire gave you Sir Aldric’s broken sword. Forge it whole at the smithy: you need the heavy hammer (from the plinth of the knight statue in the garden) and charcoal (from among the flowers)' },
-    q_gethammer:{ nl: 'Los de wapenschild-puzzel bij het ridderbeeld in de tuin op om de smidshamer te krijgen', en: 'Solve the crest puzzle at the knight statue in the garden to get the blacksmith’s hammer' },
+    q_getsword: { nl: 'De schildknaap gaf je het gebroken zwaard van Sir Aldric. Smeed het weer heel bij de smidse: je hebt de hamer en houtskool nodig. De hamer zit in het smidsbeeld in de tuin — dat vraagt de geheime woorden van de smid. Geef de papagaai een noot (ligt op het plein) en hij verklapt ze.', en: 'The squire gave you Sir Aldric’s broken sword. Forge it whole at the smithy: you need the hammer and charcoal. The hammer is in the smith statue in the garden — it asks for the smith’s secret words. Give the parrot a nut (it lies in the courtyard) and he’ll reveal them.' },
+    q_gethammer:{ nl: 'Voor de hamer: het smidsbeeld in de tuin vraagt de geheime woorden van de smid. Geef de papagaai een noot van het plein — hij verklapt de woorden — en typ ze daarna bij het beeld in', en: 'For the hammer: the smith statue in the garden asks for the smith’s secret words. Give the parrot a nut from the courtyard — he reveals the words — then type them at the statue' },
+    q_giveparrot:{ nl: 'Je hebt een noot — geef hem aan de papagaai in de slottuin; hij kent de geheime woorden van de smid', en: 'You have a nut — give it to the parrot in the garden; he knows the smith’s secret words' },
+    q_typephrase:{ nl: 'De papagaai verklapte de geheime woorden — typ ze in bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the secret words — type them at the smith statue in the garden to get the hammer' },
     q_getcoal:  { nl: 'Zoek de houtskool tussen de bloemen in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Find the charcoal among the flowers in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
     q_userope:  { nl: 'Je hebt een touw — daal er bij de oude put mee af (leid het touw door de schacht omlaag) om de ketting van de prinses op te vissen', en: 'You have a rope — lower it into the old well (guide the rope down the shaft) to fish up the princess’s necklace' },
@@ -145,6 +147,10 @@ const GAME = {
              look: { nl: 'Een zware, oude sleutel die je van de prinses kreeg. Hij past op het slot onder de leeuwenkop van de fontein — de geheime poort.', en: 'A heavy old key the princess gave you. It fits the lock beneath the fountain’s lion head — the secret gate.' } },
     charcoal: { name: { nl: 'Houtskool', en: 'Charcoal' }, icon: '⬛', img: 'assets/art/item-coal.png',
              look: { nl: 'Een handvol zwarte houtskool die je tussen de bloemen in de slottuin vond. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal you found among the flowers in the castle garden. Just what a smith needs to fire up his forge again.' } },
+    nut: { name: { nl: 'Noot', en: 'Nut' }, icon: '🌰', img: 'assets/art/item-nut.png',
+             look: { nl: 'Een glanzende bruine noot die je op de binnenplaats opraapte. Vogels — papagaaien zeker — zijn er dol op.', en: 'A glossy brown nut you picked up in the courtyard. Birds — parrots especially — love them.' } },
+    mushroom: { name: { nl: 'Magische Paddenstoel', en: 'Magic Mushroom' }, icon: '🍄', img: 'assets/art/item-mushroom.png', sparkle: true,
+             look: { nl: 'Een trosje zacht gloeiende paddenstoelen met blauwpaarse hoedjes, geplukt naast de put. Ze tintelen van de magie — vast ergens goed voor.', en: 'A cluster of softly glowing mushrooms with blue-purple caps, picked beside the well. They tingle with magic — surely useful for something.' } },
     sword: { name: { nl: 'Zwaard van Sir Aldric', en: 'Sir Aldric’s Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
              look: { nl: 'Het zwaard van Sir Aldric, dat je zelf bij de smidse weer heel hebt gesmeed. Het lemmet glanst als nieuw — een waardig wapen voor een held.', en: 'Sir Aldric’s sword, which you forged whole again yourself at the smithy. The blade gleams like new — a weapon worthy of a hero.' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
@@ -232,7 +238,9 @@ const GAME = {
     { when: { flag: 'swordInForge', notFlag: 'gotSword' },               quest: 'q_forge' },         // zwaard ligt in de oven -> sla het met de hamer
     { when: { has: ['swordBroken', 'hammer', 'charcoal'], notFlag: 'gotSword' }, quest: 'q_forge' }, // alles aanwezig -> smeed (kool, zwaard, hamer)
     { when: { has: ['swordBroken', 'hammer'], notFlag: 'gotSword' },     quest: 'q_getcoal' },       // mist houtskool
-    { when: { has: ['swordBroken', 'charcoal'], notFlag: 'gotSword' },   quest: 'q_gethammer' },     // mist hamer
+    { when: { flag: 'gotSmithPhrase', notFlag: 'statuePuzzleSolved' },   quest: 'q_typephrase' },    // woorden bekend -> typ ze bij het smidsbeeld
+    { when: { has: 'nut', notFlag: 'gotSmithPhrase' },                   quest: 'q_giveparrot' },    // noot -> geef aan de papagaai
+    { when: { has: ['swordBroken', 'charcoal'], notFlag: 'gotSword' },   quest: 'q_gethammer' },     // mist hamer (noot->papagaai->woorden->beeld)
     { when: { has: 'swordBroken', notFlag: 'gotSword' },                 quest: 'q_getsword' },      // heeft gebroken zwaard -> haal hamer + kool
     { when: { flag: 'metSquire', notFlag: 'gotSword' },                  quest: 'q_getsword' },      // schildknaap gesproken
     { when: { has: 'rope' },                                             quest: 'q_userope' },       // terugval: touw -> put
@@ -267,7 +275,10 @@ const GAME = {
         { x: 224, y: 166, w: 122, h: 84 }                  // het ronde grasperk met het ridderbeeld
       ],
       overlays: [],
-      worldItems: [],
+      worldItems: [
+        { item: 'nut', hotspot: 'nut', x: 372, y: 300 },                                  // een noot op de keien van het plein
+        { item: 'mushroom', hotspot: 'mushroom', x: 198, y: 296, glowCol: '150,120,255' } // magische paddenstoelen naast de put (zachte paarse gloed)
+      ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
         { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4 }   // de raaf zit groter en hoger op het dakje van de put (naar links, boven de put) en pikt af en toe
@@ -360,6 +371,30 @@ const GAME = {
           }
         },
         {
+          id: 'nut',
+          name: { nl: 'Een Noot', en: 'A Nut' },
+          rect: { x: 352, y: 282, w: 44, h: 38 },
+          walkTo: { x: 372, y: 302 },
+          hideFlag: 'taken_courtyard_nut',
+          gives: {
+            item: 'nut',
+            giveText: { nl: 'Tussen de keien van het plein ligt een glanzende bruine noot. Je raapt hem op — vast lekker voor een vogel.', en: 'A glossy brown nut lies among the cobbles of the courtyard. You pick it up — surely a treat for a bird.' },
+            emptyText: { nl: 'De noot zit al in je tas.', en: 'The nut is already in your bag.' }
+          }
+        },
+        {
+          id: 'mushroom',
+          name: { nl: 'Magische Paddenstoelen', en: 'Magic Mushrooms' },
+          rect: { x: 180, y: 278, w: 44, h: 40 },
+          walkTo: { x: 200, y: 300 },
+          hideFlag: 'taken_courtyard_mushroom',
+          gives: {
+            item: 'mushroom',
+            giveText: { nl: 'Naast de put, in de schaduw van de stenen, groeit een trosje zacht gloeiende paddenstoelen met blauwpaarse hoedjes. Je plukt ze voorzichtig — ze tintelen van de magie.', en: 'Beside the well, in the shadow of the stones, grows a cluster of softly glowing mushrooms with blue-purple caps. You pick them carefully — they tingle with magic.' },
+            emptyText: { nl: 'De paddenstoelen naast de put heb je al geplukt.', en: 'You’ve already picked the mushrooms beside the well.' }
+          }
+        },
+        {
           id: 'toGarden',
           name: { nl: 'De Slottuin', en: 'The Castle Garden' },
           rect: { x: 112, y: 66, w: 96, h: 98 },
@@ -397,7 +432,9 @@ const GAME = {
       obstacles: [
         { x: 216, y: 178, w: 132, h: 74 }                  // de ronde sokkel met het ridderbeeld
       ],
-      overlays: [],
+      overlays: [
+        { img: 'assets/art/keyhole.png', x: 48, y: 166, base: 240, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat verschijnt onder de leeuwenkop zodra de fontein-puzzel is opgelost; weg zodra de poort open is
+      ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 132, y: 238, scale: 0.78, glowCol: '255,170,80' }   // houtskool tussen de bloemen (links van Finns startplek, niet eronder) — stilstaand, iets kleiner, zachte warme gloed
       ],
@@ -439,7 +476,7 @@ const GAME = {
           walkTo: { x: 96, y: 252 },
           hideFlag: 'secretGateOpen',                         // zodra de poort open is, neemt de geheime-poort-hotspot het over
           look: (state) => state.flags.fountainSolved
-            ? { nl: 'De leeuwenkop spuwt nog water, maar onder zijn muil is nu een zwaar ijzeren slot in de muur zichtbaar geworden. Het heeft een sleutel nodig.', en: 'The lion’s head still spouts water, but beneath its jaws a heavy iron lock has slid into view in the wall. It needs a key.' }
+            ? { nl: 'De leeuwenkop spuwt nog water, maar onder zijn muil is nu een ijzeren sleutelgat in de muur zichtbaar geworden. Het wacht op de juiste sleutel.', en: 'The lion’s head still spouts water, but beneath its jaws an iron keyhole has appeared in the wall. It waits for the right key.' }
             : { nl: 'Een stenen leeuwenkop spuwt water in een schelpvormig bekken. Op de bodem ligt, vertroebeld door het water, een stenen wapen-mozaïek dat in losse stukken is geschoven. Schuif de stukken weer op hun plaats om te zien wat het in beweging zet.', en: 'A stone lion spouts water into a shell-shaped basin. On the floor, blurred by the water, lies a stone crest-mosaic shuffled into loose pieces. Slide them back into place to see what it sets in motion.' },
           slidePuzzle: {
             size: 3,
@@ -447,7 +484,7 @@ const GAME = {
             title: { nl: 'Het Wapen in de Fontein', en: 'The Crest in the Fountain' },
             setFlag: 'fountainSolved',
             burst: { x: 60, y: 150 },
-            solvedText: { nl: 'Het mozaïek klikt compleet op zijn plaats — het wapen van Sir Aldric, de Leeuw van Eldoria. Onder de leeuwenkop schuift met een steenachtig gerommel een paneel opzij, en daar verschijnt een zwaar, eeuwenoud ijzeren slot, diep in de muur verzonken. Waar zou de sleutel ervan op liggen?', en: 'The mosaic clicks complete — the arms of Sir Aldric, the Lion of Eldoria. Beneath the lion’s head a panel grinds aside, revealing a heavy, ancient iron lock set deep into the wall. Where might its key be?' }
+            solvedText: { nl: 'Het mozaïek klikt compleet op zijn plaats — het wapen van Sir Aldric, de Leeuw van Eldoria. Onder de leeuwenkop schuift met een steenachtig gerommel een paneel opzij, en daar verschijnt een ijzeren sleutelgat, diep in de muur verzonken. Waar zou de sleutel ervan op liggen?', en: 'The mosaic clicks complete — the arms of Sir Aldric, the Lion of Eldoria. Beneath the lion’s head a panel grinds aside, revealing an iron keyhole set deep into the wall. Where might its key be?' }
           },
           use: {
             key: {
@@ -473,34 +510,45 @@ const GAME = {
         },
         {
           id: 'gstatue',
-          name: { nl: 'Het Ridderbeeld', en: 'The Knight Statue' },
+          name: { nl: 'Het Beeld van de Smid', en: 'The Statue of the Smith' },
           rect: { x: 232, y: 90, w: 96, h: 150 },
           walkTo: { x: 286, y: 296 },
           look: (state) => state.flags.statuePuzzleSolved
             ? { nl: 'Het vakje onder in de sokkel staat open en leeg — de zware smidshamer van de oude held zit nu in je tas. Tijd om het zwaard te smeden bij de smidse.', en: 'The niche in the base of the plinth stands open and empty — the old hero’s heavy hammer is in your bag now. Time to forge the sword at the smithy.' }
-            : { nl: 'Een stenen ridder met het zwaard fier voor zich. In de sokkel zijn vier wapenschilden gebeiteld; ze lijken te kunnen draaien. Misschien openen ze de sokkel als je ze in de juiste volgorde indrukt.', en: 'A stone knight, his sword proud before him. Four crests are carved into the plinth; they look as if they can turn. Perhaps they open the plinth if you press them in the right order.' },
-          symbolPuzzle: {
-            img: 'assets/art/puzzle-crest.jpg',
-            title: { nl: 'Het Wapen van de Ridder', en: 'The Knight’s Crest' },
-            hint: { nl: 'In de sokkel zijn vier wapenschilden gebeiteld. De eed van de Orde van de Leeuw luidt: “Wie brult bewaakt de poort; de witte bloem van trouw volgt hem; dan spreekt het scherpe staal; en wat een koning draagt bekroont de eed.” Druk de schilden in díe volgorde.', en: 'Four crests are carved into the plinth. The oath of the Order of the Lion reads: “He who roars guards the gate; the white flower of faith follows him; then speaks the keen steel; and what a king wears crowns the oath.” Press the crests in that order.' },
-            zones: [
-              { key: 'lelie',  left: 17, top: 31, width: 13, height: 36 },
-              { key: 'kroon',  left: 34, top: 31, width: 13, height: 36 },
-              { key: 'leeuw',  left: 55, top: 31, width: 14, height: 36 },
-              { key: 'zwaard', left: 72, top: 31, width: 13, height: 36 }
+            : state.flags.gotSmithPhrase
+            ? { nl: 'Het bronzen beeld van de smid bij zijn aambeeld. In de sokkel staat gegrift: “Spreek de twee geheime woorden van de smid.” Je kent ze nu — typ ze in.', en: 'The bronze statue of the smith at his anvil. Carved in the plinth: “Speak the smith’s two secret words.” You know them now — type them in.' }
+            : { nl: 'Een bronzen beeld van een smid bij zijn aambeeld. In de sokkel staat een verweerde inscriptie: “Spreek de twee geheime woorden van de smid.” Maar je kent ze niet... wie zou die woorden kennen?', en: 'A bronze statue of a smith at his anvil. The plinth bears a worn inscription: “Speak the smith’s two secret words.” But you don’t know them... who might know those words?' },
+          riddle: {
+            requiresFlag: 'gotSmithPhrase',
+            title: { nl: 'De Woorden van de Smid', en: 'The Smith’s Words' },
+            questions: [
+              {
+                q: { nl: 'In de sokkel van het smidsbeeld staat gegrift: “Spreek de twee geheime woorden van de smid.” Typ ze in.', en: 'Carved in the plinth of the smith statue: “Speak the smith’s two secret words.” Type them in.' },
+                accept: ['vuur en staal', 'vuur staal', 'fire and steel', 'fire steel'],
+                placeholder: { nl: 'Typ de twee woorden…', en: 'Type the two words…' },
+                submit: { nl: 'Spreek uit', en: 'Speak' }
+              }
             ],
-            symbols: [
-              { key: 'leeuw',  emoji: '🦁', label: { nl: 'Leeuw',  en: 'Lion'  } },
-              { key: 'zwaard', emoji: '⚔️', label: { nl: 'Zwaard', en: 'Sword' } },
-              { key: 'kroon',  emoji: '👑', label: { nl: 'Kroon',  en: 'Crown' } },
-              { key: 'lelie',  emoji: '⚜️', label: { nl: 'Lelie',  en: 'Lily'  } }
-            ],
-            sequence: ['leeuw', 'lelie', 'zwaard', 'kroon'],
             setFlag: 'statuePuzzleSolved',
-            give: 'hammer',
-            solvedText: { nl: 'De vier wapenschilden klikken één voor één op hun plek. Met een steenachtig gerommel schuift een vakje in de sokkel open — daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Hiermee kun je bij de smidse zijn zwaard weer smeden.', en: 'One by one the four crests click into place. With a stony rumble a niche slides open in the plinth — inside lies the old hero’s heavy blacksmith’s hammer! You take it. With this you can forge his sword again at the smithy.' },
-            resetText: { nl: 'De schilden draaien terug. Begin opnieuw.', en: 'The crests turn back. Start over.' },
-            doneText: { nl: 'Het vakje is open en leeg; de hamer zit in je tas. Smeed er bij de smidse het zwaard van de held mee.', en: 'The niche is open and empty; the hammer is in your bag. Use it at the smithy to forge the hero’s sword.' }
+            reward: 'hammer',
+            wrongText: { nl: 'Niets gebeurt. Dat zijn niet de juiste woorden... vraag het de papagaai nog eens.', en: 'Nothing happens. Those aren’t the right words... ask the parrot again.' },
+            solvedText: { nl: 'Je spreekt de woorden hardop: “Vuur en staal!” Met een steenachtig gerommel schuift een vakje in de sokkel open — daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Hiermee kun je bij de smidse zijn zwaard weer smeden.', en: 'You speak the words aloud: “Fire and steel!” With a stony rumble a niche slides open in the plinth — inside lies the old hero’s heavy blacksmith’s hammer! You take it. With this you can forge his sword again at the smithy.' }
+          }
+        },
+        {
+          id: 'parrot',
+          name: { nl: 'De Papagaai', en: 'The Parrot' },
+          rect: { x: 482, y: 172, w: 66, h: 66 },
+          walkTo: { x: 486, y: 252 },
+          look: (state) => state.flags.gotSmithPhrase
+            ? { nl: 'De groene papagaai wipt op en neer en kraakt vrolijk: “Vuur en staal! Vuur en staal!”', en: 'The green parrot bobs up and down and squawks merrily: “Fire and steel! Fire and steel!”' }
+            : { nl: 'Een kleurrijke groene papagaai zit op het bankje en bekijkt je nieuwsgierig met scheef kopje. Hij lijkt dol op een lekkernij... had je maar iets om hem te voeren.', en: 'A colourful green parrot perches on the bench, eyeing you with a curious tilt of the head. He seems to love a treat... if only you had something to feed him.' },
+          use: {
+            nut: {
+              consume: 'nut',
+              setFlag: 'gotSmithPhrase',
+              text: { nl: 'Je geeft de papagaai de noot. Hij kraakt hem behendig open, smult ervan, en kwettert dan een oud rijmpje: “De smid bewaart zijn geheim in twee woorden... VUUR EN STAAL! Vuur en staal!” Je prent de woorden goed in je geheugen — die moet je bij het smidsbeeld intypen.', en: 'You give the parrot the nut. He cracks it open deftly, gobbles it up, and then chatters an old rhyme: “The smith keeps his secret in two words... FIRE AND STEEL! Fire and steel!” You commit the words to memory — you must type them at the smith statue.' }
+            }
           }
         },
         {

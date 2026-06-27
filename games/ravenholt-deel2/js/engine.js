@@ -1081,6 +1081,7 @@
     if (follower.active) ents.push({ y: follower.y, draw: () => drawFollower(now) });
     if (scene.overlays) {
       for (const o of scene.overlays) {
+        if (!flagVisible(o)) continue;             // overlay kan met appearFlag/hideFlag verschijnen (bv. sleutelgat na de puzzel)
         ents.push({ y: o.base, draw: () => {
           const img = o.img && overlayImg(o.img);
           if (img && ready(img)) fctx.drawImage(img, o.x, o.y);
@@ -3367,6 +3368,37 @@
     const item = r.questions[idx];
     elRiddleQ.textContent = L(item.q);
     elRiddleAns.innerHTML = '';
+    const solveStep = () => {
+      if (idx + 1 < r.questions.length) { sfx('pickup'); showRiddleQuestion(hs, idx + 1); }
+      else {
+        state.flags[r.setFlag] = true;
+        elRiddle.hidden = true;
+        if (r.reward) { addItem(r.reward); sfx('pickup'); }
+        say(r.solvedText, hsSpeaker(hs), hsFace(hs));
+        updateQuest();
+      }
+    };
+    /* Typvraag: speler typt de geheime woorden i.p.v. een keuze aan te klikken. */
+    if (item.accept) {
+      const norm = (s) => (s || '').toLowerCase().trim().replace(/[^a-z0-9 ]/gi, '').replace(/\s+/g, ' ');
+      const accept = item.accept.map((a) => norm(typeof a === 'string' ? a : L(a)));
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.className = 'riddle-input';
+      inp.placeholder = L(item.placeholder || { nl: 'Typ de spreuk…', en: 'Type the words…' });
+      inp.autocomplete = 'off'; inp.autocapitalize = 'off'; inp.spellcheck = false;
+      const sub = document.createElement('button');
+      sub.className = 'gold-btn riddle-ans';
+      sub.textContent = L(item.submit || { nl: 'Spreek uit', en: 'Speak' });
+      const submit = () => {
+        if (accept.includes(norm(inp.value))) { solveStep(); }
+        else { sfx('error'); elRiddleQ.textContent = L(r.wrongText); setTimeout(() => showRiddleQuestion(hs, 0), 1500); }
+      };
+      sub.addEventListener('click', submit);
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+      elRiddleAns.appendChild(inp); elRiddleAns.appendChild(sub);
+      setTimeout(() => inp.focus(), 60);
+      return;
+    }
     const shuffled = item.answers.slice().sort(() => Math.random() - 0.5);
     for (const ans of shuffled) {
       const btn = document.createElement('button');
