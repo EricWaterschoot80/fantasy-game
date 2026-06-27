@@ -4454,7 +4454,7 @@
       }
       state.flags[g.setFlag] = true;
       if (g.consume) removeItem(g.consume);             // bv. het lege flesje wordt gevuld met de traan
-      if (g.item) addItem(g.item);
+      if (g.item) (Array.isArray(g.item) ? g.item : [g.item]).forEach(addItem);
       if (g.flyNpc) {                                   // de raaf vliegt weg (bv. nadat hij het recept aanwees)
         const rt = npcRt[g.flyNpc];
         if (rt) ravenFly = { x: rt.x, y: rt.y - 8, t: performance.now(), dir: g.flyDir || 'left' };
@@ -4536,7 +4536,7 @@
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
     if (a.give) (Array.isArray(a.give) ? a.give : [a.give]).forEach(addItem);
     if (a.also) (Array.isArray(a.also) ? a.also : [a.also]).forEach(addItem);   // bv. de wijn geeft tegelijk de munt én de kaart
-    if (a.burst) burstAt(a.burst.x, a.burst.y, { n: 18, col: '120,180,255', up: 16, life: 1.1 });   // blauwe lichtjes (bv. iets in de ketel gooien)
+    if (a.burst) burstAt(a.burst.x, a.burst.y, { n: a.burst.n || 18, col: a.burst.col || '120,180,255', up: a.burst.up != null ? a.burst.up : 16, life: a.burst.life || 1.1, spread: a.burst.spread });   // standaard blauwe lichtjes; col overschrijft (bv. warme vonken bij het smidsvuur)
     if (a.setFlag) {
       (Array.isArray(a.setFlag) ? a.setFlag : [a.setFlag]).forEach((fl) => { state.flags[fl] = true; });
       updateQuest();
