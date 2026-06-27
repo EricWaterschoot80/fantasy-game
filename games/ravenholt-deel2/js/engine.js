@@ -1368,6 +1368,30 @@
     if (a > 0.6) { fctx.fillRect(x, y - 2, 1, 1); fctx.fillRect(x, y + 2, 1, 1); }
   }
 
+  /* Sierlijke vier-punt ster-fonkeling met zachte gloed — voor glimmende edelstenen. */
+  function starSparkle(x, y, size, a, col) {
+    if (a <= 0.04) return;
+    a = Math.min(1, a);
+    x = Math.round(x); y = Math.round(y);
+    col = col || '255,255,255';
+    const g = fctx.createRadialGradient(x, y, 0, x, y, size * 2.2);
+    g.addColorStop(0, `rgba(${col},${0.45 * a})`);
+    g.addColorStop(1, `rgba(${col},0)`);
+    fctx.fillStyle = g;
+    fctx.fillRect(x - Math.ceil(size * 2.2), y - Math.ceil(size * 2.2), Math.ceil(size * 4.4), Math.ceil(size * 4.4));
+    fctx.fillStyle = `rgba(${col},${a})`;
+    fctx.fillRect(x, y - size, 1, size * 2 + 1);            // verticale straal
+    fctx.fillRect(x - size, y, size * 2 + 1, 1);            // horizontale straal
+    if (a > 0.5) {                                          // korte diagonalen bij felle flits
+      fctx.fillStyle = `rgba(${col},${(a - 0.5) * 1.3})`;
+      const d = Math.max(1, (size / 2) | 0);
+      fctx.fillRect(x - d, y - d, 1, 1); fctx.fillRect(x + d, y - d, 1, 1);
+      fctx.fillRect(x - d, y + d, 1, 1); fctx.fillRect(x + d, y + d, 1, 1);
+    }
+    fctx.fillStyle = `rgba(255,255,255,${a})`;              // witte kern
+    fctx.fillRect(x, y, 1, 1);
+  }
+
   function paintFx(scene, now) {
     const fx = scene.fx || {};
     const dark = !!(fx.darkness && !state.flags[fx.darkness.until]);
@@ -1876,8 +1900,19 @@
       g.addColorStop(1, `rgba(${col},0)`);
       fctx.fillStyle = g;
       fctx.fillRect(wi.x - r, wi.y - r, r * 2, r * 2);
+      if (wi.filter) fctx.filter = wi.filter;            // per-item filter (bv. de noot op de grond donkerder dan in de tas)
       fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
-      if (big) {                                        // dansende fonkelingen rond de bloem
+      if (wi.filter) fctx.filter = 'none';
+      if (wi.gem) {                                      // sierlijke glinstering rond een glimmend kristal
+        const cy = (wi.y - hgt / 2) + bob;
+        starSparkle(wi.x, cy + 3, 4, 0.55 + 0.4 * Math.sin(now / 300), '235,248,255');   // hoofdflits midden op de steen
+        for (let k = 0; k < 3; k++) {
+          const ang = now / 820 + k * 2.094;
+          const rad = 8 + k * 4;
+          const tw = 0.5 + 0.5 * Math.sin(now / 240 + k * 2.3);
+          starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang * 1.25) * (6 + k), 2 + (k === 0 ? 1 : 0), 0.2 + 0.7 * tw, k % 2 ? '195,230,255' : '255,255,255');
+        }
+      } else if (big) {                                  // dansende fonkelingen rond de bloem
         for (let k = 0; k < 2; k++) {
           const ang = now / 640 + k * 3.1;
           twinkle(wi.x + Math.cos(ang) * 15, (wi.y - hgt / 2) + bob + Math.sin(ang * 1.3) * 11, 0.4 + 0.4 * Math.sin(now / 220 + k * 2));

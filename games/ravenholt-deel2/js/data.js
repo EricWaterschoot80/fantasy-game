@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '75',
+  assetVer: '76',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -278,8 +278,8 @@ const GAME = {
       ],
       overlays: [],
       worldItems: [
-        { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66 },                       // kleine donkere noot bij het aambeeld/ijzer — iets lager en meer naar rechts
-        { item: 'mushroom', hotspot: 'mushroom', x: 218, y: 236, scale: 0.82, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put — hoger, iets naar rechts, iets kleiner
+        { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.72)' },        // noot bij het aambeeld/ijzer — op de grond extra donker (het icoon in de tas blijft licht)
+        { item: 'mushroom', hotspot: 'mushroom', x: 230, y: 222, scale: 0.82, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put — nog iets hoger + iets meer naar rechts
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
@@ -403,8 +403,8 @@ const GAME = {
         {
           id: 'mushroom',
           name: { nl: 'Magische Paddenstoelen', en: 'Magic Mushrooms' },
-          rect: { x: 198, y: 218, w: 46, h: 40 },
-          walkTo: { x: 220, y: 290 },
+          rect: { x: 210, y: 204, w: 46, h: 40 },
+          walkTo: { x: 232, y: 288 },
           hideFlag: 'taken_courtyard_mushroom',
           gives: {
             item: 'mushroom',
@@ -456,7 +456,7 @@ const GAME = {
       ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 242, scale: 1.05, glowCol: '255,150,60' },   // houtskool met gloeiende sintels tussen de bloemen — groter + warme gloed zodat hij goed zichtbaar is
-        { item: 'trinket', hotspot: 'trinket', x: 150, y: 250, highlight: true, glowCol: '210,235,255' }   // glimmend kristal tussen de bloemen links — fonkelt opvallend; voor de raaf
+        { item: 'trinket', hotspot: 'trinket', x: 150, y: 250, highlight: true, gem: true, glowCol: '210,235,255' }   // glimmend kristal tussen de bloemen links — sierlijke ster-fonkeling; voor de raaf
       ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
@@ -464,7 +464,7 @@ const GAME = {
       ],
       fx: {
         // lopend water: de leeuwenkop spuwt een straaltje in het schelpbekken (stopt zodra de geheime poort open is)
-        fountain: { hideFlag: 'secretGateOpen', jets: [{ sx: 58, sy: 154 }, { sx: 60, sy: 154 }, { sx: 62, sy: 155 }], len: 29, wx: 60, wy: 183 }
+        fountain: { hideFlag: 'secretGateOpen', jets: [{ sx: 65, sy: 155 }, { sx: 67, sy: 156 }], len: 25, wx: 66, wy: 182 }
       },
       hotspots: [
         {
@@ -477,8 +477,8 @@ const GAME = {
             options: [
               { label: { nl: 'Wie ben je?', en: 'Who are you?' },
                 text: { nl: '“Ik ben de kleindochter van Sir Aldric, de Leeuw van Eldoria. Sinds grootvader viel hangt er een stilte over het kasteel — en mijn vader, de koning, ontvangt niemand meer.”', en: '“I am the granddaughter of Sir Aldric, the Lion of Eldoria. Since grandfather fell a hush has lain over the castle — and my father the king sees no one anymore.”' } },
-              { label: { nl: 'Je ketting', en: 'Your necklace' },
-                text: { nl: '“Die ketting was van mijn moeder. Hij gleed van mijn hals, diep de oude put op de binnenplaats in. Ik zou er alles voor geven om hem terug te zien.”', en: '“That necklace was my mother’s. It slipped from my neck, deep down the old well in the courtyard. I’d give anything to see it again.”' } },
+              { label: { nl: 'Gaat het wel met je?', en: 'Are you alright?' },
+                text: { nl: 'Haar glimlach verflauwt. “Eerlijk gezegd... niet helemaal. Ik ben iets dierbaars kwijt — de gouden ketting van mijn moeder. Hij gleed van mijn hals, diep de oude put op de binnenplaats in. Ik zou er álles voor geven om hem terug te zien.”', en: 'Her smile fades. “Honestly... not quite. I’ve lost something dear — my mother’s gold necklace. It slipped from my neck, deep down the old well in the courtyard. I’d give anything to see it again.”' } },
               { label: { nl: 'Mijn vader', en: 'My father' },
                 text: { nl: 'Je vertelt zacht dat je vader ergens diep in het kasteel gevangen wordt gehouden. Ze knijpt even in je hand. “Wees voorzichtig, Finn. Ik wou dat ik je kon helpen, maar de burcht zit potdicht — er is geen weg naar binnen die ik ken.”', en: 'You tell her softly that your father is held captive somewhere deep in the castle. She squeezes your hand. “Be careful, Finn. I wish I could help you, but the keep is sealed tight — there’s no way in that I know of.”' } },
               { label: { nl: 'Tot ziens', en: 'Goodbye' },
@@ -601,9 +601,9 @@ const GAME = {
             options: [
               { label: { nl: 'Wie ben jij?', en: 'Who are you?' },
                 text: { nl: '“Krrak! Ik ben de oudste papagaai van Eldoria. Ik zit hier al langer dan de koning regeert — en ik vergeet níets!”', en: '“Squawk! I’m the oldest parrot in Eldoria. I’ve perched here longer than the king has reigned — and I forget nothing!”' } },
-              { label: { nl: 'Een geheime ingang?', en: 'A secret entrance?' },
+              { label: { nl: 'Heb je nieuws voor me?', en: 'Any news for me?' },
                 setFlag: 'parrotToldEntrance',
-                text: { nl: '“Krrak! Een gehéime ingang? Jazeker... áchter de leeuwenfontein zit een verborgen doorgang, diep het kasteel in. Niemand weet ervan — behalve ik! Maar er zal wel een goed slot op zitten, krrak.”', en: '“Squawk! A secret entrance? Oh yes... behind the lion fountain there’s a hidden passage, deep into the castle. No one knows of it — except me! But it’ll surely have a good lock, squawk.”' } },
+                text: { nl: '“Krrak! Nieuws? Hihí... Ik klap uit de school: áchter de leeuwenfontein in de tuin zit een geheime ingang, diep het kasteel in! Niemand weet ervan — behalve ik. Maar er zit vast een goed slot op, krrak.”', en: '“Squawk! News? Hehe... Let me spill a secret: behind the lion fountain in the garden there’s a hidden entrance, deep into the castle! No one knows of it — except me. But it surely has a good lock on it, squawk.”' } },
               { label: { nl: 'Het geheim van de smid?', en: 'The smith’s secret?' },
                 text: (state) => state.flags.gotSmithPhrase
                   ? { nl: '“Krrak! De spreuk van de smid: ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!”', en: '“Squawk! The smith’s saying: ONLY... FIRE... FORGES... TRUE... STEEL! In that order!”' }
