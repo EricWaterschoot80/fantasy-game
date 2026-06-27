@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '62',
+  assetVer: '63',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -106,12 +106,11 @@ const GAME = {
 
     q_explore:  { nl: 'Verken de binnenplaats van het kasteel — en zoek de weg naar de slottuin', en: 'Explore the castle courtyard — and find the way to the garden' },
     q_garden:   { nl: 'Loop de slottuin in en ontdek wie daar tussen de rozen wandelt', en: 'Enter the castle garden and discover who walks among the roses' },
-    q_getsword: { nl: 'Smeed het zwaard van Sir Aldric weer heel: haal de zware hamer uit de sokkel van het ridderbeeld in de tuin (los de wapenschild-puzzel op) en houtskool tussen de bloemen, en breng beide naar de smidse', en: 'Forge Sir Aldric’s sword whole again: get the heavy hammer from the plinth of the knight statue in the garden (solve the crest puzzle) and charcoal from among the flowers, and bring both to the smithy' },
+    q_getsword: { nl: 'Het zwaard van Sir Aldric krijg je bij de schildknaap. Breng hem de zware hamer (uit de sokkel van het ridderbeeld in de tuin) én houtskool (tussen de bloemen) — dan smeedt hij het zwaard', en: 'The squire will give you Sir Aldric’s sword. Bring him the heavy hammer (from the plinth of the knight statue in the garden) and charcoal (from among the flowers) — and he’ll forge the sword' },
     q_gethammer:{ nl: 'Los de wapenschild-puzzel bij het ridderbeeld in de tuin op om de smidshamer te krijgen', en: 'Solve the crest puzzle at the knight statue in the garden to get the blacksmith’s hammer' },
-    q_getcoal:  { nl: 'Je hebt de hamer — zoek nu de houtskool tussen de bloemen in de slottuin om de oven mee te stoken', en: 'You have the hammer — now find the charcoal among the flowers in the garden to stoke the oven' },
-    q_forge:    { nl: 'Gooi bij de smidse de houtskool in de oven en smeed dan met de hamer het zwaard van de held weer heel', en: 'At the smithy, throw the charcoal into the oven, then forge the hero’s sword whole again with the hammer' },
-    q_tosquire: { nl: 'Het zwaard van Sir Aldric is gesmeed! Ga terug naar de schildknaap op de binnenplaats — hij beloofde je een touw', en: 'Sir Aldric’s sword is forged! Return to the squire in the courtyard — he promised you a rope' },
-    q_userope:  { nl: 'Je hebt een touw — los de put-puzzel op en laat het touw dan in de put zakken om de ketting van de prinses op te vissen', en: 'You have a rope — solve the well puzzle, then lower the rope into the well to fish up the princess’s necklace' },
+    q_getcoal:  { nl: 'Je hebt de hamer — zoek nu de houtskool tussen de bloemen in de slottuin', en: 'You have the hammer — now find the charcoal among the flowers in the garden' },
+    q_tosquire: { nl: 'Je hebt de hamer en de houtskool — breng ze naar de schildknaap; hij smeedt het zwaard van de held en geeft je een touw toe', en: 'You have the hammer and the charcoal — bring them to the squire; he’ll forge the hero’s sword and throw in a rope' },
+    q_userope:  { nl: 'Je hebt een touw — daal er bij de oude put mee af (leid het touw door de schacht omlaag) om de ketting van de prinses op te vissen', en: 'You have a rope — lower it into the old well (guide the rope down the shaft) to fish up the princess’s necklace' },
     q_givenecklace:{ nl: 'Je viste de ketting van de prinses op — breng hem naar de prinses in de slottuin', en: 'You fished up the princess’s necklace — bring it to the princess in the garden' },
     q_fountainpuzzle:{ nl: 'Je kreeg een sleutel van de prinses — los de schuifpuzzel bij de leeuwenfontein op om het slot te onthullen', en: 'The princess gave you a key — solve the sliding puzzle at the lion fountain to reveal the lock' },
     q_usekey:   { nl: 'Gebruik de sleutel op het slot onder de leeuwenkop van de fontein om de geheime poort te openen', en: 'Use the key on the lock beneath the fountain’s lion head to open the secret gate' },
@@ -227,13 +226,11 @@ const GAME = {
     { when: { has: 'key', flag: 'fountainSolved' },                quest: 'q_usekey' },        // sleutel + slot zichtbaar -> open de poort
     { when: { has: 'key' },                                        quest: 'q_fountainpuzzle' },// sleutel maar slot nog verborgen -> los de fontein op
     { when: { has: 'necklace' },                                   quest: 'q_givenecklace' },  // ketting -> naar de prinses
-    { when: { has: 'rope' },                                       quest: 'q_userope' },       // touw -> put-puzzel + ketting opvissen
-    { when: { flag: 'gotSword', notFlag: 'squireGaveRope' },       quest: 'q_tosquire' },      // zwaard gesmeed -> terug naar de schildknaap voor het touw
-    { when: { flag: 'ovenStoked', has: 'hammer', notFlag: 'gotSword' }, quest: 'q_forge' },    // oven heet + hamer -> smeed het zwaard
-    { when: { has: ['charcoal', 'hammer'], notFlag: 'gotSword' },  quest: 'q_forge' },         // kool + hamer -> gooi kool in oven en smeed
+    { when: { has: 'rope' },                                       quest: 'q_userope' },       // touw -> put-doolhof + ketting opvissen
+    { when: { has: ['hammer', 'charcoal'] },                       quest: 'q_tosquire' },      // hamer + kool -> breng ze naar de schildknaap
     { when: { has: 'hammer', notFlag: 'gotSword' },                quest: 'q_getcoal' },       // hamer, geen kool -> zoek houtskool
     { when: { has: 'charcoal', notFlag: 'gotSword' },              quest: 'q_gethammer' },     // kool, geen hamer -> los de beeld-puzzel op
-    { when: { flag: 'metSquire', notFlag: 'gotSword' },            quest: 'q_getsword' },      // schildknaap gesproken -> smeed het zwaard
+    { when: { flag: 'metSquire', notFlag: 'gotSword' },            quest: 'q_getsword' },      // schildknaap gesproken -> haal hamer + kool
     { when: { flag: 'visited_garden', notFlag: 'gotSword' },       quest: 'q_getsword' },      // tuin betreden
     { when: {},                                                    quest: 'q_explore' }
   ],
@@ -269,7 +266,7 @@ const GAME = {
       worldItems: [],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
-        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 360, y: 126, scale: 0.62, flip: true, peck: true, peckAmt: 0.4 }   // de raaf is naar de binnenplaats gekomen; zit op het dakje van de put en pikt af en toe
+        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4 }   // de raaf zit groter en hoger op het dakje van de put (naar links, boven de put) en pikt af en toe
       ],
       fx: {},
       hotspots: [
@@ -278,17 +275,21 @@ const GAME = {
           name: { nl: 'De Schildknaap', en: 'The Squire' },
           rect: { x: 456, y: 184, w: 70, h: 104 },
           walkTo: { x: 452, y: 300 },
-          look: (state) => state.flags.squireGaveRope
-            ? { nl: 'De schildknaap knikt naar het zwaard aan je zij. “Met dat touw bereik je wat in de oude put verloren ging. Veel succes, vriend — Sir Aldric zou trots zijn geweest.”', en: 'The squire nods at the sword at your side. “With that rope you can reach what was lost in the old well. Good luck, friend — Sir Aldric would have been proud.”' }
+          look: (state) => state.flags.gotSword
+            ? { nl: 'De schildknaap knikt naar het zwaard aan je zij. “Draag het met eer. En met dat touw bereik je wat in de oude put verloren ging — Sir Aldric zou trots zijn geweest.”', en: 'The squire nods at the sword at your side. “Bear it with honour. And with that rope you can reach what was lost in the old well — Sir Aldric would have been proud.”' }
             : {
-            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak, zijn medaillon ging verloren, en het hele kasteel verstomde van rouw. Smeed jij het zwaard van de held weer héél bij de smidse — de zware hamer ligt verborgen in de sokkel van zijn standbeeld in de tuin, en houtskool voor het vuur vind je tussen de bloemen — dan heb ik daarna een touw voor je. De slottuin links mag je gerust bekijken, hoor.”',
-            en: 'A young squire in a blue tabard keeps watch. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword shattered, his medallion was lost, and the whole castle fell silent with grief. Forge the hero’s sword whole again at the smithy — the heavy hammer is hidden in the plinth of his statue in the garden, and charcoal for the fire lies among the flowers — and afterwards I’ll have a rope for you. You’re welcome to look around the garden to the left.”'
+            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de koude smidse. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak en het hele kasteel verstomde van rouw. Breng mij de zware hamer uit de sokkel van zijn standbeeld in de tuin én wat houtskool tussen de bloemen, dan smeed ík het zwaard van de held weer héél — en geef ik je een touw toe. De slottuin links mag je gerust bekijken, hoor.”',
+            en: 'A young squire in a blue tabard keeps watch by the cold smithy. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword shattered and the whole castle fell silent with grief. Bring me the heavy hammer from the plinth of his statue in the garden and some charcoal from among the flowers, and I’ll forge the hero’s sword whole again — and throw in a rope. You’re welcome to look around the garden to the left.”'
           },
-          givesWhen: {
-            flag: 'gotSword',
-            setFlag: 'squireGaveRope',
-            item: 'rope',
-            giveText: { nl: 'De schildknaap kijkt vol ontzag naar het gesmede zwaard van Sir Aldric in je handen. “Je hebt het écht gedaan!” Hij haalt een stevig opgerold touw van een haak. “Zoals beloofd. Laat het in de oude put zakken — er schijnt iets kostbaars op de bodem te liggen.” Je neemt het touw mee.', en: 'The squire stares in awe at Sir Aldric’s forged sword in your hands. “You actually did it!” He lifts a sturdy coil of rope from a hook. “As promised. Lower it into the old well — they say something precious lies at the bottom.” You take the rope.' }
+          use: {
+            hammer: {
+              needItem: 'charcoal',
+              needText: { nl: 'De schildknaap weegt de zware hamer in zijn hand. “Hiermee kan ik het smeden! Maar de smidse is koud... breng me eerst wat houtskool — er ligt wat tussen de bloemen in de tuin.”', en: 'The squire weighs the heavy hammer in his hand. “With this I can forge it! But the smithy is cold... first bring me some charcoal — there’s some among the flowers in the garden.”' },
+              consume: ['hammer', 'charcoal'],
+              give: ['sword', 'rope'],
+              setFlag: 'gotSword',
+              text: { nl: 'Je geeft de schildknaap de hamer en de houtskool. Zijn ogen lichten op. Hij stookt de smidse op, legt het gebroken zwaard in het vuur en smeedt het op het aambeeld weer héél — het lemmet glanst. “Het zwaard van Sir Aldric, voor jou. Draag het met eer.” Hij drukt het zwaard in je handen, en een stevig opgerold touw erbij: “En dit heb je vast nodig — er schijnt iets kostbaars in de oude put te liggen.”', en: 'You give the squire the hammer and the charcoal. His eyes light up. He fires the smithy, lays the broken sword in the flames and forges it whole on the anvil — the blade gleams. “Sir Aldric’s sword, for you. Bear it with honour.” He presses the sword into your hands, and a sturdy coil of rope with it: “And you’ll want this — they say something precious lies in the old well.”' }
+            }
           },
           setFlag: 'metSquire'
         },
@@ -297,41 +298,21 @@ const GAME = {
           name: { nl: 'De Oude Put', en: 'The Old Well' },
           rect: { x: 224, y: 150, w: 120, h: 108 },
           walkTo: { x: 286, y: 300 },
-          symbolPuzzle: {
-            img: 'assets/art/puzzle-well.jpg',
-            title: { nl: 'De Oude Put', en: 'The Old Well' },
-            hint: { nl: 'In de putrand zijn zes tekens uitgehouwen. Het vers van de oude putwachter luidt: “Wat de dag opent gaat voorop; dan wat de zee doet golven; wat het strand bewaart; wat valt uit de wolk; wat heerst in de nacht; en wat de zeeman thuisbrengt.” Druk de zes tekens op de stenen in díe volgorde.', en: 'Six signs are cut into the well-rim. The old well-keeper’s verse reads: “What opens the day goes first; then what makes the sea swell; what the shore keeps; what falls from the cloud; what rules the night; and what brings the sailor home.” Press the six signs in that order.' },
-            zones: [
-              { key: 'maan',   left: 5,  top: 49, width: 13, height: 36 },
-              { key: 'zon',    left: 18, top: 51, width: 13, height: 34 },
-              { key: 'ster',   left: 31, top: 53, width: 13, height: 34 },
-              { key: 'water',  left: 45, top: 51, width: 12, height: 36 },
-              { key: 'schelp', left: 58, top: 51, width: 13, height: 36 },
-              { key: 'golf',   left: 71, top: 52, width: 16, height: 34 }
-            ],
-            symbols: [
-              { key: 'zon',    emoji: '☀️', label: { nl: 'Zon',    en: 'Sun'   } },
-              { key: 'water',  emoji: '💧', label: { nl: 'Water',  en: 'Water' } },
-              { key: 'maan',   emoji: '🌙', label: { nl: 'Maan',   en: 'Moon'  } },
-              { key: 'schelp', emoji: '🐚', label: { nl: 'Schelp', en: 'Shell' } },
-              { key: 'ster',   emoji: '⭐', label: { nl: 'Ster',   en: 'Star'  } },
-              { key: 'golf',   emoji: '🌊', label: { nl: 'Golf',   en: 'Wave'  } }
-            ],
-            sequence: ['zon', 'golf', 'schelp', 'water', 'maan', 'ster'],
-            setFlag: 'wellUnlocked',
-            solvedText: { nl: 'De zes tekens lichten één voor één op en diep in de put klikt het oude windwerk los. Nu zou je met een touw iets uit de diepte omhoog kunnen vissen.', en: 'The six signs light up one by one and deep in the well the old winding gear clicks free. Now, with a rope, you could fish something up from below.' },
-            resetText: { nl: 'De tekens doven. Begin opnieuw.', en: 'The signs go dark. Start over.' },
-            doneText: { nl: 'Het windwerk van de put is los. Laat er een touw in zakken om de glinstering op de bodem omhoog te vissen.', en: 'The well’s winding gear is free. Lower a rope to fish up the glint at the bottom.' }
-          },
-          use: {
-            rope: {
-              requiresFlag: 'wellUnlocked',
-              requiresText: { nl: 'Het windwerk van de put zit nog op slot — eerst de tekens in de juiste volgorde.', en: 'The well’s winding gear is still locked — solve the carved signs first.' },
-              consume: 'rope',
-              give: 'necklace',
-              setFlag: 'gotNecklace',
-              text: { nl: 'Je laat het touw over het losse windwerk in de put zakken en vist tot het ergens achter haakt. Met een natte plons hijs je een fijne gouden ketting omhoog, met een blauwe edelsteen die glinstert in het licht. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'You lower the rope over the freed gear into the well and fish until it snags. With a wet splash you haul up a fine gold necklace, a blue gem glinting in the light. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
-            }
+          look: (state) => state.flags.gotNecklace
+            ? { nl: 'De oude put. Diep beneden klatert het donkere water. De ketting van de prinses heb je veilig omhoog gevist.', en: 'The old well. Far below, dark water trickles. You’ve safely fished up the princess’s necklace.' }
+            : { nl: 'Een oude stenen put met een houten windwerk. Diep beneden, in het donkere water, ligt iets te glinsteren. Zonder een touw kom je er niet bij.', en: 'An old stone well with a wooden winch. Far below, in the dark water, something glints. Without a rope you can’t reach it.' },
+          maze: {
+            needItem: 'rope',
+            needText: { nl: 'Er glinstert iets diep in de put, maar je kunt er met je blote handen niet bij. Je hebt een touw nodig om af te dalen.', en: 'Something glints deep in the well, but you can’t reach it with bare hands. You need a rope to lower down.' },
+            cells: 7,                                       // 7×7 doolhof — flink moeilijk
+            water: true,                                    // het touw volgt het waterkanaal omlaag
+            img: 'assets/art/maze-well.jpg',
+            title: { nl: 'Laat het touw in de put zakken', en: 'Lower the Rope into the Well' },
+            hint: { nl: 'Leid het touw langs de natte schachten omlaag, om de muren heen, tot bij de glinstering op de bodem. Gebruik de pijltjes.', en: 'Guide the rope down through the wet shafts, around the walls, to the glint at the bottom. Use the arrows.' },
+            setFlag: 'gotNecklace',
+            consume: 'rope',
+            give: 'necklace',
+            solvedText: { nl: 'Het touw haakt achter de glinstering en je hijst op. Met een natte plons komt een fijne gouden ketting boven, met een blauwe edelsteen. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'The rope snags on the glint and you haul it up. With a wet splash a fine gold necklace surfaces, a blue gem set in it. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
           }
         },
         {
@@ -347,25 +328,8 @@ const GAME = {
           rect: { x: 2, y: 118, w: 78, h: 112 },
           walkTo: { x: 76, y: 252 },
           look: (state) => state.flags.gotSword
-            ? { nl: 'De oven gloeit warm na. Op het aambeeld liggen nog wat vonken — hier smeedde je het zwaard van Sir Aldric weer heel.', en: 'The oven still glows warm. A few sparks linger on the anvil — here you forged Sir Aldric’s sword whole again.' }
-            : state.flags.ovenStoked
-            ? { nl: 'De oven loeit wit-heet van de houtskool. Op het aambeeld ligt het gebroken zwaard van de held, klaar om gesmeed te worden — als je maar een zware hamer had.', en: 'The oven roars white-hot with charcoal. On the anvil lies the hero’s broken sword, ready to be forged — if only you had a heavy hammer.' }
-            : { nl: 'Een koude smidse onder een afdakje, met een dofzwart aambeeld waarop het gebroken zwaard van Sir Aldric ligt. De oven is uit. Met houtskool zou je het vuur weer kunnen aanmaken.', en: 'A cold smithy under a lean-to, a dull black anvil bearing Sir Aldric’s broken sword. The oven is dead. With charcoal you could light the fire again.' },
-          use: {
-            charcoal: {
-              consume: 'charcoal',
-              setFlag: 'ovenStoked',
-              text: { nl: 'Je gooit de houtskool in de oven en blaast de sintels aan. Met een diepe woesh laait het smidsvuur wit-heet op — heet genoeg om ijzer te smeden.', en: 'You throw the charcoal into the oven and fan the embers. With a deep whoosh the forge fire blazes up white-hot — hot enough to forge iron.' }
-            },
-            hammer: {
-              keep: true,                                  // de hamer blijft je gereedschap
-              requiresFlag: 'ovenStoked',
-              requiresText: { nl: 'De oven is koud. Gooi er eerst houtskool in om het vuur aan te maken.', en: 'The oven is cold. Throw in some charcoal first to light the fire.' },
-              give: 'sword',
-              setFlag: 'gotSword',
-              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur tot het lemmet rood gloeit, en smeedt het met de zware hamer op het aambeeld weer héél. Vonken spatten alle kanten op. Met een sissende plons in de waterton koel je het af — en je houdt het prachtige, weer hele zwaard van Sir Aldric in handen!', en: 'You lay the broken sword in the white-hot fire until the blade glows red, then forge it whole again with the heavy hammer on the anvil. Sparks fly everywhere. With a hissing plunge into the water trough you quench it — and you hold Sir Aldric’s beautiful, whole sword!' }
-            }
-          }
+            ? { nl: 'De smidse van het kasteel. De oven gloeit warm na — hier smeedde de schildknaap het zwaard van Sir Aldric weer heel.', en: 'The castle smithy. The oven still glows warm — here the squire forged Sir Aldric’s sword whole again.' }
+            : { nl: 'Een koude smidse onder een afdakje, met een dofzwart aambeeld waarop het gebroken zwaard van Sir Aldric ligt. De schildknaap kan het smeden — als je hem de hamer én houtskool brengt.', en: 'A cold smithy under a lean-to, a dull black anvil bearing Sir Aldric’s broken sword. The squire can forge it — if you bring him the hammer and some charcoal.' }
         },
         {
           id: 'toGarden',

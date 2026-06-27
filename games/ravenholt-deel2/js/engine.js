@@ -3949,6 +3949,8 @@
     if (nr === maze.exit[0] && nc === maze.exit[1]) {
       const cfg = maze.hs.maze;
       state.flags[cfg.setFlag] = true;
+      if (cfg.consume) (Array.isArray(cfg.consume) ? cfg.consume : [cfg.consume]).forEach(removeItem);
+      if (cfg.give) (Array.isArray(cfg.give) ? cfg.give : [cfg.give]).forEach(addItem);
       sfx('combine');
       setTimeout(() => { elMaze.hidden = true; maze = null; say(cfg.solvedText); updateQuest(); }, 600);
     }
@@ -4381,6 +4383,9 @@
     }
     if (hs.maze && !state.flags[hs.maze.setFlag] &&
         (!hs.maze.requiresFlag || state.flags[hs.maze.requiresFlag])) {
+      if (hs.maze.needItem && !state.inventory.includes(hs.maze.needItem)) {
+        sfx('error'); say(hs.maze.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return;
+      }
       openMaze(hs);
       return;
     }
@@ -4529,7 +4534,7 @@
 
   function runAction(a, anchor, face) {
     if (a.consume) (Array.isArray(a.consume) ? a.consume : [a.consume]).forEach(removeItem);
-    if (a.give) addItem(a.give);
+    if (a.give) (Array.isArray(a.give) ? a.give : [a.give]).forEach(addItem);
     if (a.also) (Array.isArray(a.also) ? a.also : [a.also]).forEach(addItem);   // bv. de wijn geeft tegelijk de munt én de kaart
     if (a.burst) burstAt(a.burst.x, a.burst.y, { n: 18, col: '120,180,255', up: 16, life: 1.1 });   // blauwe lichtjes (bv. iets in de ketel gooien)
     if (a.setFlag) {
