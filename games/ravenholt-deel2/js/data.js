@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '56',
+  assetVer: '57',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -75,8 +75,8 @@ const GAME = {
   startItems: ['staff'],
 
   winText: {
-    nl: 'Gefeliciteerd — je hebt DEEL 1 van Whispers of Ravenholt uitgespeeld! De drakenschaduw vervaagt, de wacht is gevlucht en Finn stapt door de open poort het kasteel van Eldoria binnen. Híer ergens zit zijn vader gevangen... maar dat verhaal, en wat er achter de poort schuilt, bewaren we voor DEEL 2. Knap gedaan, held — tot snel!',
-    en: 'Congratulations — you have completed PART 1 of Whispers of Ravenholt! The dragon-shadow fades, the guard has fled, and Finn steps through the open gate into the castle of Eldoria. His father is held captive somewhere inside... but that tale, and whatever lurks beyond the gate, we save for PART 2. Well done, hero — see you soon!'
+    nl: 'Gefeliciteerd — je hebt DEEL 2 van Whispers of Ravenholt uitgespeeld! Je hebt het wapen van Sir Aldric herenigd, het hart van de prinses gewonnen en de geheime deur achter de fontein geopend. Daarachter wacht de duistere gang naar Finns vader... maar dat verhaal bewaren we voor DEEL 3. Knap gedaan, held — tot snel!',
+    en: 'Congratulations — you have completed PART 2 of Whispers of Ravenholt! You reunited Sir Aldric’s arms, won the princess’s heart, and opened the secret door behind the fountain. Beyond it waits the dark passage to Finn’s father... but that tale we save for PART 3. Well done, hero — see you soon!'
   },
 
   strings: {
@@ -91,7 +91,7 @@ const GAME = {
                   en: 'Finn has slipped through the gate into the castle of Eldoria. A squire keeps watch in the courtyard, and beyond an ivy-clad arch lies a secret garden — where the princess he secretly loves walks among the roses. But Finn did not come for the roses: somewhere deep in the keep his father is held captive, and the only way in is the great castle door, sealed with an ancient lock.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
-    winTitle:   { nl: 'Deel 1 uitgespeeld!', en: 'Part 1 complete!' },
+    winTitle:   { nl: 'Deel 2 uitgespeeld!', en: 'Part 2 complete!' },
     replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
     playOther:  { nl: '▸ Speel een ander avontuur', en: '▸ Play another adventure' },
     deathTitle: { nl: 'Verloren in de mist...', en: 'Lost in the fog...' },
@@ -110,6 +110,11 @@ const GAME = {
     q_findtool: { nl: 'Het ridderbeeld klinkt hol bij de barst — zoek stevig gereedschap om hem open te breken (kijk bij de smidse)', en: 'The knight statue sounds hollow at the crack — find a sturdy tool to break it open (try the forge)' },
     q_usehammer:{ nl: 'Gebruik de smidshamer op de barst in het ridderbeeld op de binnenplaats', en: 'Use the blacksmith’s hammer on the crack in the knight statue in the courtyard' },
     q_medallion:{ nl: 'Je vond een gouden medaillon — laat het eens aan de prinses in de tuin zien', en: 'You found a golden medallion — show it to the princess in the garden' },
+    q_objectives:{ nl: 'Herstel het wapen van Sir Aldric: los de puzzels op bij de oude put, de leeuwenfontein in de tuin en het ridderbeeld', en: 'Restore Sir Aldric’s arms: solve the puzzles at the old well, the lion fountain in the garden and the knight statue' },
+    q_getrope:  { nl: 'De put is open — haal een touw (het hangt bij de smidse) om iets uit de diepte op te vissen', en: 'The well is open — fetch a rope (it hangs at the forge) to fish something up from below' },
+    q_userope:  { nl: 'Gebruik het touw op de open put om het wapen van de oude held omhoog te vissen', en: 'Use the rope on the open well to fish up the old hero’s weapon' },
+    q_givesquire:{ nl: 'Je viste het gebroken zwaard op — breng het naar de schildknaap op de binnenplaats', en: 'You fished up the broken sword — bring it to the squire in the courtyard' },
+    q_secretdoor:{ nl: 'Er ging een geheime deur open naast de fontein — stap erdoorheen, de donkere gang in', en: 'A secret door opened beside the fountain — step through it, into the dark passage' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
     q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
@@ -129,19 +134,15 @@ const GAME = {
     hammer: { name: { nl: 'Smidshamer', en: 'Blacksmith’s Hammer' }, icon: '🔨', img: 'assets/art/item-hammer.png',
              look: { nl: 'Een zware smidshamer van de smidse op de binnenplaats. Stevig genoeg om een gebarsten steen open te breken.', en: 'A heavy blacksmith’s hammer from the courtyard forge. Sturdy enough to crack open a split stone.' } },
     swordBroken: { name: { nl: 'Gebroken Zwaard', en: 'Broken Sword' }, icon: '🗡️', img: 'assets/art/item-sword-broken.png',
-             look: { nl: 'Een oud zwaard, doormidden gebroken. Het gevest zit nog stevig in elkaar; misschien kan een smid het opnieuw smeden.', en: 'An old sword, snapped clean in two. The hilt is still solid; perhaps a smith could reforge it.' } },
+             look: { nl: 'Het oude zwaard van Sir Aldric, doormidden gebroken — opgevist uit de put. Het gevest is nog gaaf. De schildknaap zei dat hij het door de smid kan laten herstellen.', en: 'Sir Aldric’s old sword, snapped in two — fished from the well. The hilt is still sound. The squire said he could have the smith restore it.' } },
     flower: { name: { nl: 'Bloem', en: 'Flower' }, icon: '🌸', img: 'assets/art/item-flower.png',
              look: { nl: 'Een mooie bloem uit de slottuin — een lief klein cadeautje voor iemand bijzonders.', en: 'A pretty flower from the castle garden — a sweet little gift for someone special.' } },
     rope: { name: { nl: 'Touw', en: 'Rope' }, icon: '🪢', img: 'assets/art/item-rope.png',
              look: { nl: 'Een stevig opgerold touw. Lang genoeg om iets uit een diepe put omhoog te vissen.', en: 'A sturdy coil of rope. Long enough to fish something up from a deep well.' } },
-    wellKey: { name: { nl: 'Oude Sleutel', en: 'Old Key' }, icon: '🗝️', img: 'assets/art/item-wellkey.png', sparkle: true,
-             look: { nl: 'Een zware, oude sleutel vol roest en mos — je viste hem met het touw uit de put. Waar zou hij op passen?', en: 'A heavy old key, thick with rust and moss — you fished it from the well with the rope. What might it unlock?' } },
     medallion: { name: { nl: 'Gouden Medaillon', en: 'Golden Medallion' }, icon: '🎖️', img: 'assets/art/item-medallion.png', sparkle: true, border: 'gold',
              look: { nl: 'Een glanzend gouden medaillon met hetzelfde ridderwapen als op het standbeeld — een blauwe lelie. Het lag verborgen in de sokkel. Wie zou het daar bewaard hebben?', en: 'A gleaming gold medallion bearing the same knight’s crest as the statue — a blue fleur-de-lis. It lay hidden in the plinth. Who could have kept it there?' } },
-    coal: { name: { nl: 'Steenkool', en: 'Coal' }, icon: '⚫', img: 'assets/art/item-coal.png',
-             look: { nl: 'Een handvol zwarte steenkool uit de ton naast het aambeeld. Hiermee stook je het smidsvuur bij het ijzer weer hoog op.', en: 'A handful of black coal from the barrel beside the anvil. With this you can stoke the forge fire by the iron high again.' } },
-    sword: { name: { nl: 'Gesmeed Zwaard', en: 'Forged Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
-             look: { nl: 'Het oude zwaard, weer heel gesmeed bij het smidsvuur. Het lemmet glanst als nieuw — een waardig wapen voor een held.', en: 'The old sword, forged whole again at the smithy fire. The blade gleams like new — a weapon worthy of a hero.' } },
+    sword: { name: { nl: 'Zwaard van Sir Aldric', en: 'Sir Aldric’s Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
+             look: { nl: 'Het zwaard van Sir Aldric, door de smid weer heel gesmeed en door de schildknaap aan jou gegeven. Het lemmet glanst als nieuw — een waardig wapen voor een held.', en: 'Sir Aldric’s sword, forged whole again by the smith and given to you by the squire. The blade gleams like new — a weapon worthy of a hero.' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
             look: { nl: 'Een oude zilveren munt die je uit de drooggevallen fontein opraapte. Hij blinkt nog mooi — precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old silver coin you picked from the dried-up fountain. It still gleams nicely — just the kind of bright thing a magpie or raven can’t resist.' } },
     coinGold: { name: { nl: 'Gouden Munt', en: 'Gold Coin' }, icon: '🪙', img: 'assets/art/item-coin-gold.png',
@@ -219,13 +220,15 @@ const GAME = {
   ],
 
   questRules: [
-    { when: { flag: 'showedMedallion' }, quest: 'q_done' },        // medaillon getoond -> wordt vervolgd
-    { when: { has: 'medallion' },        quest: 'q_medallion' },   // medaillon in handen -> laat het de prinses zien
-    { when: { has: 'hammer' },           quest: 'q_usehammer' },   // hamer in handen -> sla de barst in het beeld open
-    { when: { flag: 'statueCracked' },   quest: 'q_findtool' },    // barst ontdekt -> zoek gereedschap
-    { when: { flag: 'metPrincess' },     quest: 'q_garden_met' },  // de prinses ontmoet
-    { when: { flag: 'visited_garden' },  quest: 'q_garden' },      // tuin betreden
-    { when: {},                          quest: 'q_explore' }
+    { when: { flag: 'fountainSolved' },                                       quest: 'q_secretdoor' },  // geheime deur open -> stap erdoorheen (einde Deel 2)
+    { when: { has: 'swordBroken' },                                           quest: 'q_givesquire' },  // gebroken zwaard -> naar de schildknaap
+    { when: { flag: 'wellUnlocked', notFlag: 'gotBrokenSword', has: 'rope' }, quest: 'q_userope' },     // put open + touw -> vis het zwaard op
+    { when: { flag: 'wellUnlocked', notFlag: 'gotBrokenSword' },              quest: 'q_getrope' },     // put open, geen touw -> haal een touw
+    { when: { has: 'medallion', notFlag: 'showedMedallion' },                 quest: 'q_medallion' },   // medaillon -> laat het de prinses zien
+    { when: { has: 'hammer' },                                                quest: 'q_usehammer' },   // hamer -> sla de barst in het beeld open
+    { when: { flag: 'metSquire' },                                            quest: 'q_objectives' },  // schildknaap verteld over de 3 puzzels
+    { when: { flag: 'visited_garden' },                                       quest: 'q_garden_met' },  // tuin betreden
+    { when: {},                                                               quest: 'q_explore' }
   ],
 
   scenes: {
@@ -268,9 +271,19 @@ const GAME = {
           name: { nl: 'De Schildknaap', en: 'The Squire' },
           rect: { x: 456, y: 184, w: 70, h: 104 },
           walkTo: { x: 452, y: 300 },
-          look: {
-            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Toen hij sneuvelde brak zijn zwaard, raakte zijn medaillon zoek, en verstomde het hele kasteel van rouw. Men zegt dat zijn wapen overal in de burcht verborgen ligt: in de oude put, in de leeuwenfontein in de tuin, en in de sokkel van zijn standbeeld. De slottuin links mag je gerust bekijken, hoor — maar de grote deur blijft op slot.”',
-            en: 'A young squire in a blue tabard keeps watch. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. When he died his sword shattered, his medallion was lost, and the whole castle fell silent with grief. They say his arms lie hidden all over the keep: in the old well, in the lion fountain in the garden, and in the plinth of his statue. You’re welcome to look around the garden to the left — but the great door stays locked.”'
+          look: (state) => state.flags.gotSword
+            ? { nl: 'De schildknaap kijkt vol ontzag naar het gesmede zwaard in je handen. “Draag het met eer, vriend. Sir Aldric zou trots zijn geweest.”', en: 'The squire looks in awe at the forged sword in your hands. “Bear it with honour, friend. Sir Aldric would have been proud.”' }
+            : {
+            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij een wapenrek met het zwaard van de oude held. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Toen hij sneuvelde brak zijn zwaard, raakte zijn medaillon zoek, en verstomde het hele kasteel van rouw. Men zegt dat zijn wapen overal in de burcht verborgen ligt: in de oude put, in de leeuwenfontein in de tuin, en in de sokkel van zijn standbeeld. Breng je mij het gebroken zwaard van de held, dan laat ik het door de smid herstellen — en mag jíj het dragen. De slottuin links mag je gerust bekijken, hoor.”',
+            en: 'A young squire in a blue tabard keeps watch by a weapon rack bearing the old hero’s sword. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. When he died his sword shattered, his medallion was lost, and the whole castle fell silent with grief. They say his arms lie hidden all over the keep: in the old well, in the lion fountain in the garden, and in the plinth of his statue. Bring me the hero’s broken sword and I’ll have the smith restore it — and you may carry it. You’re welcome to look around the garden to the left.”'
+          },
+          use: {
+            swordBroken: {
+              consume: 'swordBroken',
+              give: 'sword',
+              setFlag: 'gotSword',
+              text: { nl: 'Je geeft het gebroken zwaard aan de schildknaap. Zijn ogen worden groot. “Het zwaard van Sir Aldric — eindelijk terug!” Hij snelt ermee naar de smidse en komt even later terug met het wapen weer héél, het lemmet glanzend gesmeed. “Het is van jou. Draag het met eer.” Hij drukt het gesmede zwaard in je handen.', en: 'You hand the broken sword to the squire. His eyes go wide. “Sir Aldric’s sword — back at last!” He hurries it to the forge and returns a while later with the weapon whole again, the blade gleaming. “It’s yours. Bear it with honour.” He presses the forged sword into your hands.' }
+            }
           },
           setFlag: 'metSquire'
         },
@@ -310,9 +323,9 @@ const GAME = {
               requiresFlag: 'wellUnlocked',
               requiresText: { nl: 'Het windwerk van de put zit nog op slot — eerst de tekens in de juiste volgorde.', en: 'The well’s winding gear is still locked — solve the carved signs first.' },
               consume: 'rope',
-              give: 'wellKey',
-              setFlag: 'gotWellKey',
-              text: { nl: 'Je laat het touw over het losse windwerk in de put zakken en vist tot het ergens achter haakt. Met een natte plons hijs je een zware, met mos overdekte oude sleutel omhoog! Waar zou hij op passen?', en: 'You lower the rope over the freed gear into the well and fish until it snags. With a wet splash you haul up a heavy, moss-covered old key! What might it unlock?' }
+              give: 'swordBroken',
+              setFlag: 'gotBrokenSword',
+              text: { nl: 'Je laat het touw over het losse windwerk in de put zakken en vist tot het ergens achter haakt. Met een natte plons hijs je een oud, doormidden gebroken zwaard omhoog — het lemmet zit onder het mos, maar het gevest is nog gaaf. Dit is vast het wapen waar de schildknaap over sprak!', en: 'You lower the rope over the freed gear into the well and fish until it snags. With a wet splash you haul up an old sword, snapped in two — the blade thick with moss, but the hilt still sound. This must be the weapon the squire spoke of!' }
             }
           }
         },
@@ -321,57 +334,19 @@ const GAME = {
           name: { nl: 'De Kasteeldeur', en: 'The Castle Door' },
           rect: { x: 408, y: 40, w: 76, h: 110 },
           walkTo: { x: 436, y: 248 },
-          look: (state) => state.flags.castleDoorOpen
-            ? { nl: 'De zware kasteeldeur staat op een kier; een koele, donkere gang gaapt erachter. (wordt vervolgd in een volgend hoofdstuk)', en: 'The heavy castle door stands ajar; a cool, dark passage gapes beyond. (to be continued in a later chapter)' }
-            : { nl: 'De zware eikenhouten kasteeldeur zit op een fors, oud slot. Hierachter wordt Finns vader vastgehouden... Je hebt een sleutel nodig die op dit oude slot past.', en: 'The heavy oak castle door is held by a big, old lock. Finn’s father is held beyond... You’ll need a key that fits this ancient lock.' },
-          use: {
-            wellKey: {
-              consume: 'wellKey',
-              setFlag: 'castleDoorOpen',
-              text: { nl: 'De zware, met mos overdekte sleutel past! Met een knarsend gepiep draait het oude slot om en de kasteeldeur kiert open. Een koele, donkere gang gaapt erachter... (wordt vervolgd in een volgend hoofdstuk)', en: 'The heavy, moss-covered key fits! With a grinding squeal the old lock turns and the castle door creaks open. A cool, dark passage gapes beyond... (to be continued in a later chapter)' }
-            }
-          }
+          look: { nl: 'De zware eikenhouten kasteeldeur zit op een fors, eeuwenoud slot. Hierachter, ergens diep in de burcht, wordt Finns vader vastgehouden... maar de deur geeft geen krimp. De sleutel ervan is hier nergens te vinden. (wordt vervolgd in een volgend hoofdstuk)', en: 'The heavy oak castle door is held by a big, ancient lock. Beyond it, somewhere deep in the keep, Finn’s father is held captive... but the door will not budge. Its key is nowhere to be found here. (to be continued in a later chapter)' }
         },
         {
           id: 'forge',
           name: { nl: 'De Smidse', en: 'The Forge' },
           rect: { x: 2, y: 118, w: 78, h: 112 },
           walkTo: { x: 76, y: 252 },
+          hideFlag: 'tookRope',                            // verdwijnt als interactie zodra het touw weg is (blijft als sfeer)
           gives: {
             item: 'rope',
             setFlag: 'tookRope',
             giveText: { nl: 'Onder het afdakje gloeit het smidsvuur na, met een staaf ijzer in de oven. De smid is nergens te bekennen, maar aan een haak naast het aambeeld hangt een stevig opgerold touw. Je neemt het mee.', en: 'Under the lean-to the forge fire still glows, a bar of iron resting in the oven. The smith is nowhere to be seen, but a sturdy coil of rope hangs on a hook beside the anvil. You take it.' },
-            emptyText: { nl: 'In de oven gloeit nog een staaf ijzer na. Met genoeg steenkool erbij en een goede hamer zou je hier iets kunnen smeden.', en: 'A bar of iron still glows in the oven. With enough coal and a good hammer you could forge something here.' }
-          },
-          use: {
-            coal: {
-              consume: 'coal',
-              setFlag: 'ovenStoked',
-              text: { nl: 'Je schept de steenkool bij het ijzer in de oven. Het smidsvuur laait hoog en wit-heet op — klaar om te smeden.', en: 'You heap the coal in beside the iron in the oven. The forge fire roars up white-hot — ready to forge.' }
-            },
-            swordBroken: {
-              needItem: 'hammer',
-              needText: { nl: 'Je hebt een zware hamer nodig om dit zwaard te smeden. De smidshamer van de oude held zou perfect zijn.', en: 'You need a heavy hammer to forge this sword. The old hero’s blacksmith hammer would be perfect.' },
-              requiresFlag: 'ovenStoked',
-              requiresText: { nl: 'De oven is niet heet genoeg. Stook hem eerst op met steenkool bij het ijzer.', en: 'The oven isn’t hot enough. Stoke it first with coal beside the iron.' },
-              consume: 'swordBroken',
-              give: 'sword',
-              setFlag: 'swordForged',
-              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur tot het lemmet rood gloeit en smeedt het met de smidshamer op het aambeeld weer heel. Vonken spatten alle kanten op. Met een sissende plons in de waterton koel je het af — en je houdt een prachtig, heel gesmeed zwaard in handen!', en: 'You lay the broken sword in the white-hot fire until the blade glows red, then forge it whole again with the blacksmith hammer on the anvil. Sparks fly everywhere. With a hissing plunge into the water trough you quench it — and you hold a beautiful, fully forged sword!' }
-            }
-          }
-        },
-        {
-          id: 'coalbarrel',
-          name: { nl: 'De Kolenton', en: 'The Coal Barrel' },
-          rect: { x: 82, y: 198, w: 58, h: 80 },
-          walkTo: { x: 110, y: 256 },
-          hideFlag: 'tookCoal',
-          gives: {
-            item: 'coal',
-            setFlag: 'tookCoal',
-            giveText: { nl: 'Naast het aambeeld staat een houten ton vol zwarte steenkool. Je schept er een flinke handvol van mee — precies genoeg om het smidsvuur mee op te stoken.', en: 'Beside the anvil stands a wooden barrel full of black coal. You scoop up a good handful — just enough to stoke the forge fire.' },
-            emptyText: { nl: 'De kolenton is nu zo goed als leeg.', en: 'The coal barrel is all but empty now.' }
+            emptyText: { nl: 'Verder ligt er bij de smidse niets bruikbaars.', en: 'There’s nothing else useful at the forge.' }
           }
         },
         {
@@ -447,17 +422,26 @@ const GAME = {
           rect: { x: 22, y: 118, w: 84, h: 100 },
           walkTo: { x: 96, y: 252 },
           look: (state) => state.flags.fountainSolved
-            ? { nl: 'De bodem van het bekken ligt open en leeg; het gebroken zwaard van de gevallen ridder zit veilig in je tas.', en: 'The basin floor lies open and empty; the fallen knight’s broken sword is safe in your bag.' }
-            : { nl: 'Een stenen leeuwenkop spuwt water in een schelpvormig bekken. Op de bodem ligt, vertroebeld door het water, een stenen wapen-mozaïek dat in losse stukken is geschoven. Schuif de stukken weer op hun plaats om te zien wat het bewaakt.', en: 'A stone lion spouts water into a shell-shaped basin. On the floor, blurred by the water, lies a stone crest-mosaic shuffled into loose pieces. Slide them back into place to see what it guards.' },
+            ? { nl: 'De leeuwenfontein klatert rustig verder. In de muur ernaast staat nu een smalle geheime deur op een kier.', en: 'The lion fountain trickles on. In the wall beside it a narrow secret door now stands ajar.' }
+            : { nl: 'Een stenen leeuwenkop spuwt water in een schelpvormig bekken. Op de bodem ligt, vertroebeld door het water, een stenen wapen-mozaïek dat in losse stukken is geschoven. Schuif de stukken weer op hun plaats om te zien wat het in beweging zet.', en: 'A stone lion spouts water into a shell-shaped basin. On the floor, blurred by the water, lies a stone crest-mosaic shuffled into loose pieces. Slide them back into place to see what it sets in motion.' },
           slidePuzzle: {
             size: 3,
             img: 'assets/art/puzzle-fountain.jpg',
             title: { nl: 'Het Wapen in de Fontein', en: 'The Crest in the Fountain' },
             setFlag: 'fountainSolved',
-            give: 'swordBroken',
-            burst: { x: 96, y: 150 },
-            solvedText: { nl: 'Het mozaïek klikt compleet op zijn plaats — het wapen van Sir Aldric, de Leeuw van Eldoria. Met een diep gerommel kantelt de bodem van het bekken weg, en tussen het mos ligt een oud, doormidden gebroken zwaard. Je vist het uit het water. Bij de smidse op de binnenplaats zou je het weer heel kunnen smeden.', en: 'The mosaic clicks complete — the arms of Sir Aldric, the Lion of Eldoria. With a deep rumble the basin floor tilts away, and among the moss lies an old sword, snapped in two. You fish it from the water. At the forge in the courtyard you could make it whole again.' }
+            burst: { x: 60, y: 150 },
+            solvedText: { nl: 'Het mozaïek klikt compleet op zijn plaats — het wapen van Sir Aldric, de Leeuw van Eldoria. Diep in de muur naast de fontein knarst een eeuwenoud mechaniek, en met een wolk stof schuift een verborgen stenen deur open! Een donkere gang gaapt erachter.', en: 'The mosaic clicks complete — the arms of Sir Aldric, the Lion of Eldoria. Deep in the wall beside the fountain an ancient mechanism grinds, and with a cloud of dust a hidden stone door slides open! A dark passage gapes beyond.' }
           }
+        },
+        {
+          id: 'secretDoor',
+          name: { nl: 'De Geheime Deur', en: 'The Secret Door' },
+          rect: { x: 4, y: 96, w: 44, h: 120 },
+          walkTo: { x: 58, y: 250 },
+          appearFlag: 'fountainSolved',                      // verschijnt pas nadat de fontein-puzzel de deur opent
+          arrow: { x: 30, y: 150, dir: 'up' },
+          endGame: true,                                     // door de geheime deur stappen → eindkaart (Deel 2)
+          enterText: { nl: 'Je glipt door de smalle geheime deur achter de fontein. Een koele, donkere gang loopt diep het hart van het kasteel in — precies de weg die je zoekt naar Finns vader. Met je hart in je keel en het zwaard van Sir Aldric aan je zij zet je de eerste stap de duisternis in... (wordt vervolgd in Deel 3)', en: 'You slip through the narrow secret door behind the fountain. A cool, dark passage runs deep into the heart of the castle — exactly the way you seek to Finn’s father. Heart in your throat and Sir Aldric’s sword at your side, you take the first step into the dark... (to be continued in Part 3)' }
         },
         {
           id: 'gstatue',
