@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '64',
+  assetVer: '65',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -453,6 +453,7 @@ const GAME = {
             key: {
               requiresFlag: 'fountainSolved',
               requiresText: { nl: 'Er is hier nog geen slot te zien. Los eerst de schuifpuzzel in de fontein op.', en: 'There’s no lock to be seen here yet. Solve the fountain’s sliding puzzle first.' },
+              puzzleFallback: true,                          // sleutel vasthouden vóór het slot er is? -> open dan gewoon de schuifpuzzel
               keep: false,
               consume: 'key',
               setFlag: 'secretGateOpen',

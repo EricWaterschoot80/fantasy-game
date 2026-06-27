@@ -4272,8 +4272,15 @@
           sfx('error');
           say(action.needText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
         } else if (action.requiresFlag && !state.flags[action.requiresFlag]) {
-          sfx('error');
-          say(action.requiresText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
+          /* Voorwaarde niet gehaald. Heb je een voorwerp vast dat pas ná een puzzel
+             werkt (bv. de sleutel op de fontein), open dan tóch de puzzel i.p.v. te
+             blokkeren — zo kun je de puzzel altijd doen, ook met de sleutel in de hand. */
+          if (action.puzzleFallback && hs.slidePuzzle && !state.flags[hs.slidePuzzle.setFlag]) {
+            openSlidePuzzle(hs);
+          } else {
+            sfx('error');
+            say(action.requiresText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
+          }
         } else {
           runAction(action, hsSpeaker(hs), hsFace(hs));
           /* Meer-ingrediënten-combo (de ketel): zodra alle nodige vlaggen gezet zijn,
