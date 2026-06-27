@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '69',
+  assetVer: '70',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -109,7 +109,7 @@ const GAME = {
     q_getsword: { nl: 'De schildknaap gaf je het gebroken zwaard van Sir Aldric. Smeed het weer heel bij de smidse: je hebt de hamer en houtskool nodig. De hamer zit in het smidsbeeld in de tuin — dat vraagt de geheime woorden van de smid. Geef de papagaai een noot (ligt op het plein) en hij verklapt ze.', en: 'The squire gave you Sir Aldric’s broken sword. Forge it whole at the smithy: you need the hammer and charcoal. The hammer is in the smith statue in the garden — it asks for the smith’s secret words. Give the parrot a nut (it lies in the courtyard) and he’ll reveal them.' },
     q_gethammer:{ nl: 'Voor de hamer: bij het smidsbeeld in de tuin moet je de geheime woorden van de smid aanklikken. Geef de papagaai een noot (bij het aambeeld op het plein) — hij verklapt welke woorden, en in welke volgorde', en: 'For the hammer: at the smith statue in the garden you must click the smith’s secret words. Give the parrot a nut (by the anvil in the courtyard) — he reveals which words, and in what order' },
     q_giveparrot:{ nl: 'Je hebt een noot — geef hem aan de papagaai in de slottuin; hij verklapt de geheime woorden van de smid', en: 'You have a nut — give it to the parrot in the garden; he reveals the smith’s secret words' },
-    q_typephrase:{ nl: 'De papagaai verklapte de geheime woorden: FIRE, STEEL, HAMMER. Klik ze in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the secret words: FIRE, STEEL, HAMMER. Click them in that order at the smith statue in the garden to get the hammer' },
+    q_typephrase:{ nl: 'De papagaai verklapte de spreuk van de smid: ONLY · FIRE · FORGES · TRUE · STEEL. Klik die woorden in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s saying: ONLY · FIRE · FORGES · TRUE · STEEL. Click those words in that order at the smith statue in the garden to get the hammer' },
     q_getcoal:  { nl: 'Zoek de houtskool tussen de bloemen in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Find the charcoal among the flowers in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
     q_userope:  { nl: 'Je hebt een touw — daal er bij de oude put mee af (leid het touw door de schacht omlaag) om de ketting van de prinses op te vissen', en: 'You have a rope — lower it into the old well (guide the rope down the shaft) to fish up the princess’s necklace' },
@@ -421,8 +421,8 @@ const GAME = {
         nl: 'De ommuurde slottuin staat vol rozen en klimop. In het midden waakt een ridderbeeld; links klatert een leeuwenfontein, rechts staat een bankje onder een rozenboog. En daar — tussen de bloemen — wandelt de prinses.',
         en: 'The walled castle garden is full of roses and ivy. A knight statue watches at its centre; a lion fountain trickles to the left, a bench rests under a rose arbour to the right. And there — among the flowers — walks the princess.'
       },
-      playerStart: { x: 176, y: 256 },
-      spawnFrom: { courtyard: { x: 176, y: 256 } },
+      playerStart: { x: 284, y: 300 },                       // midden onderin de tuin
+      spawnFrom: { courtyard: { x: 284, y: 300 } },
       depth: { far: 206, near: 316, sFar: 0.72, sNear: 1.05 },
       walkable: [
         { x: 30,  y: 252, w: 508, h: 62 },                 // voorgrond-pad over de hele breedte
@@ -437,7 +437,7 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 48, y: 166, base: 240, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat verschijnt onder de leeuwenkop zodra de fontein-puzzel is opgelost; weg zodra de poort open is
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 132, y: 238, scale: 0.78, glowCol: '255,170,80' }   // houtskool tussen de bloemen (links van Finns startplek, niet eronder) — stilstaand, iets kleiner, zachte warme gloed
+        { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 240, scale: 0.78, glowCol: '255,170,80' }   // houtskool tussen de bloemen rechts in het perk — stilstaand, iets kleiner, zachte warme gloed
       ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
@@ -537,28 +537,37 @@ const GAME = {
             blockedText: { nl: 'In de sokkel staan veel woorden door elkaar. Je weet niet wélke je moet aanklikken — vraag het eerst aan de papagaai.', en: 'Many words are jumbled in the plinth. You don’t know which to click — ask the parrot first.' },
             img: 'assets/art/puzzle-words.jpg',
             title: { nl: 'De Geheime Woorden van de Smid', en: 'The Smith’s Secret Words' },
-            hint: { nl: 'Klik de geheime woorden van de smid aan in de juiste volgorde. Niet alle woorden horen erbij. (De papagaai verklapte: FIRE, STEEL, HAMMER.)', en: 'Click the smith’s secret words in the right order. Not all the words belong. (The parrot revealed: FIRE, STEEL, HAMMER.)' },
+            hint: { nl: 'Klik de geheime spreuk van de smid woord voor woord aan, in de juiste volgorde. Veel woorden zijn afleiders. (De papagaai verklapte: ONLY · FIRE · FORGES · TRUE · STEEL.)', en: 'Click the smith’s secret saying word by word, in the right order. Many words are decoys. (The parrot revealed: ONLY · FIRE · FORGES · TRUE · STEEL.)' },
             zones: [
-              { key: 'water',  left: 3,  top: 13, width: 27, height: 30 },
-              { key: 'steel',  left: 36, top: 13, width: 27, height: 30 },
-              { key: 'gold',   left: 70, top: 13, width: 27, height: 30 },
-              { key: 'hammer', left: 3,  top: 55, width: 27, height: 30 },
-              { key: 'ice',    left: 36, top: 55, width: 27, height: 30 },
-              { key: 'fire',   left: 70, top: 55, width: 27, height: 30 }
+              { key: 'rust',   left: 1,  top: 3,  width: 23, height: 22 },
+              { key: 'fire',   left: 26, top: 3,  width: 23, height: 22 },
+              { key: 'gold',   left: 51, top: 3,  width: 23, height: 22 },
+              { key: 'true',   left: 76, top: 3,  width: 23, height: 22 },
+              { key: 'steel',  left: 1,  top: 28, width: 23, height: 22 },
+              { key: 'water',  left: 26, top: 28, width: 23, height: 22 },
+              { key: 'forges', left: 51, top: 28, width: 23, height: 22 },
+              { key: 'moon',   left: 76, top: 28, width: 23, height: 22 },
+              { key: 'ice',    left: 1,  top: 53, width: 23, height: 22 },
+              { key: 'king',   left: 26, top: 53, width: 23, height: 22 },
+              { key: 'only',   left: 51, top: 53, width: 23, height: 22 },
+              { key: 'stone',  left: 76, top: 53, width: 23, height: 22 },
+              { key: 'wood',   left: 1,  top: 78, width: 23, height: 22 },
+              { key: 'silver', left: 26, top: 78, width: 23, height: 22 },
+              { key: 'smoke',  left: 51, top: 78, width: 23, height: 22 },
+              { key: 'glass',  left: 76, top: 78, width: 23, height: 22 }
             ],
             symbols: [
+              { key: 'only',   label: { nl: 'Only',   en: 'Only'   } },
               { key: 'fire',   label: { nl: 'Fire',   en: 'Fire'   } },
-              { key: 'steel',  label: { nl: 'Steel',  en: 'Steel'  } },
-              { key: 'hammer', label: { nl: 'Hammer', en: 'Hammer' } },
-              { key: 'water',  label: { nl: 'Water',  en: 'Water'  } },
-              { key: 'gold',   label: { nl: 'Gold',   en: 'Gold'   } },
-              { key: 'ice',    label: { nl: 'Ice',    en: 'Ice'    } }
+              { key: 'forges', label: { nl: 'Forges', en: 'Forges' } },
+              { key: 'true',   label: { nl: 'True',   en: 'True'   } },
+              { key: 'steel',  label: { nl: 'Steel',  en: 'Steel'  } }
             ],
-            sequence: ['fire', 'steel', 'hammer'],
+            sequence: ['only', 'fire', 'forges', 'true', 'steel'],
             setFlag: 'statuePuzzleSolved',
             give: 'hammer',
-            solvedText: { nl: 'De drie woorden lichten één voor één op — FIRE... STEEL... HAMMER! Met een steenachtig gerommel schuift een vakje in de sokkel open. Daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Hiermee kun je bij de smidse zijn zwaard weer smeden.', en: 'The three words light up one by one — FIRE... STEEL... HAMMER! With a stony rumble a niche slides open in the plinth. Inside lies the old hero’s heavy blacksmith’s hammer! You take it. With this you can forge his sword again at the smithy.' },
-            resetText: { nl: 'De woorden doven. Verkeerde volgorde — begin opnieuw. (Vraag de papagaai naar de woorden.)', en: 'The words go dark. Wrong order — start over. (Ask the parrot for the words.)' },
+            solvedText: { nl: 'De woorden lichten één voor één op — ONLY... FIRE... FORGES... TRUE... STEEL! Met een steenachtig gerommel schuift een vakje in de sokkel open. Daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Hiermee kun je bij de smidse zijn zwaard weer smeden.', en: 'The words light up one by one — ONLY... FIRE... FORGES... TRUE... STEEL! With a stony rumble a niche slides open in the plinth. Inside lies the old hero’s heavy blacksmith’s hammer! You take it. With this you can forge his sword again at the smithy.' },
+            resetText: { nl: 'De woorden doven. Verkeerde volgorde — begin opnieuw. (Vraag de papagaai naar de spreuk.)', en: 'The words go dark. Wrong order — start over. (Ask the parrot for the saying.)' },
             doneText: { nl: 'Het vakje is open en leeg; de hamer zit in je tas.', en: 'The niche is open and empty; the hammer is in your bag.' }
           }
         },
@@ -580,21 +589,21 @@ const GAME = {
             ]
           },
           look: (state) => state.flags.gotSmithPhrase
-            ? { nl: 'De groene papagaai wipt op en neer en herhaalt de geheime woorden van de smid: “Krrak! FIRE... STEEL... HAMMER! In díe volgorde!”', en: 'The green parrot bobs up and down and repeats the smith’s secret words: “Squawk! FIRE... STEEL... HAMMER! In that order!”' }
+            ? { nl: 'De groene papagaai wipt op en neer en herhaalt de spreuk van de smid: “Krrak! ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!”', en: 'The green parrot bobs up and down and repeats the smith’s saying: “Squawk! ONLY... FIRE... FORGES... TRUE... STEEL! In that order!”' }
             : { nl: 'Een kleurrijke groene papagaai zit op het bankje en bekijkt je nieuwsgierig met scheef kopje. Hij lijkt dol op een lekkernij... had je maar iets om hem te voeren.', en: 'A colourful green parrot perches on the bench, eyeing you with a curious tilt of the head. He seems to love a treat... if only you had something to feed him.' },
           use: {
             nut: {
               consume: 'nut',
               setFlag: 'gotSmithPhrase',
-              text: { nl: 'Je geeft de papagaai de noot. Hij kraakt hem behendig open, smult ervan, en kwettert dan de geheime woorden van de smid: “Krrak! FIRE... STEEL... HAMMER! In díe volgorde!” Je prent ze in je geheugen — klik ze in díe volgorde aan bij het smidsbeeld. (Klik op de papagaai om ze nog eens te horen.)', en: 'You give the parrot the nut. He cracks it open deftly, gobbles it up, and then chatters the smith’s secret words: “Squawk! FIRE... STEEL... HAMMER! In that order!” You commit them to memory — click them in that order at the smith statue. (Click the parrot to hear them again.)' }
+              text: { nl: 'Je geeft de papagaai de noot. Hij kraakt hem behendig open, smult ervan, en kwettert dan de geheime spreuk van de smid: “Krrak! ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!” Je prent de vijf woorden in je geheugen — klik ze in díe volgorde aan bij het smidsbeeld. (Klik op de papagaai om de spreuk nog eens te horen.)', en: 'You give the parrot the nut. He cracks it open deftly, gobbles it up, and then chatters the smith’s secret saying: “Squawk! ONLY... FIRE... FORGES... TRUE... STEEL! In that order!” You commit the five words to memory — click them in that order at the smith statue. (Click the parrot to hear the saying again.)' }
             }
           }
         },
         {
           id: 'charcoal',
           name: { nl: 'Houtskool', en: 'Charcoal' },
-          rect: { x: 110, y: 220, w: 48, h: 42 },
-          walkTo: { x: 138, y: 266 },
+          rect: { x: 310, y: 222, w: 46, h: 42 },
+          walkTo: { x: 338, y: 296 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',

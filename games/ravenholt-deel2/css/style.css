@@ -307,7 +307,7 @@ html, body {
   /* tekstwolk BOVENIN (weg van de scène + inventory onderaan), horizontaal gecentreerd
      via auto-marges i.p.v. transform (transform botst met de msgIn-animatie) */
   position: fixed;
-  top: calc(var(--safe-top, 0px) + 10px);
+  top: calc(var(--safe-top, 0px) + 56px);   /* ONDER de knoppenbalk, niet erachter/overheen */
   left: 0;
   right: 0;
   margin: 0 auto;
