@@ -745,7 +745,16 @@
 
   /* ---------- Toetsenbord (WASD / pijltjes, fysieke key-codes) ---------- */
   const keys = new Set();
+  /* Niet de bewegingstoetsen kapen terwijl je in een tekstveld typt
+     (bv. e-mail/wachtwoord bij inloggen) — anders verdwijnen w/a/s/d. */
+  function typingInField() {
+    const el = document.activeElement;
+    if (!el) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+  }
   window.addEventListener('keydown', (e) => {
+    if (typingInField()) return;
     if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'].includes(e.code)) {
       keys.add(e.code);
       e.preventDefault();
