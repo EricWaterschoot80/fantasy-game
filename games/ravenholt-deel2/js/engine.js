@@ -1510,7 +1510,7 @@
     }
     /* Fontein klatert alléén als de molen weer draait (requiresFlag, bv. millFixed);
        daarvoor staat de bron droog. Meerdere straaltjes mogelijk (links + rechts). */
-    if (fx.fountain && (!fx.fountain.requiresFlag || state.flags[fx.fountain.requiresFlag])) {
+    if (fx.fountain && (!fx.fountain.requiresFlag || state.flags[fx.fountain.requiresFlag]) && !(fx.fountain.hideFlag && state.flags[fx.fountain.hideFlag])) {
       const f = fx.fountain;
       const jets = f.jets || [{ sx: f.sx, sy: f.sy }];
       const LEN = f.len || 22;                         // korte straal: blijft binnen het bekken
