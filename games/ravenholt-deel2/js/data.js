@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '71',
+  assetVer: '72',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -277,7 +277,7 @@ const GAME = {
       overlays: [],
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66 },                       // kleine donkere noot bij het aambeeld/ijzer — iets lager en meer naar rechts
-        { item: 'mushroom', hotspot: 'mushroom', x: 206, y: 268, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put (warme gloed), hoger
+        { item: 'mushroom', hotspot: 'mushroom', x: 206, y: 248, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put (warme gloed), hoger
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
@@ -385,8 +385,8 @@ const GAME = {
         {
           id: 'mushroom',
           name: { nl: 'Magische Paddenstoelen', en: 'Magic Mushrooms' },
-          rect: { x: 186, y: 250, w: 48, h: 40 },
-          walkTo: { x: 208, y: 296 },
+          rect: { x: 186, y: 230, w: 48, h: 42 },
+          walkTo: { x: 208, y: 292 },
           hideFlag: 'taken_courtyard_mushroom',
           gives: {
             item: 'mushroom',
@@ -458,7 +458,7 @@ const GAME = {
               { label: { nl: 'Je ketting', en: 'Your necklace' },
                 text: { nl: '“Die ketting was van mijn moeder. Hij gleed van mijn hals, diep de oude put op de binnenplaats in. Ik zou er alles voor geven om hem terug te zien.”', en: '“That necklace was my mother’s. It slipped from my neck, deep down the old well in the courtyard. I’d give anything to see it again.”' } },
               { label: { nl: 'Mijn vader', en: 'My father' },
-                text: { nl: 'Je vertelt zacht dat je vader ergens diep in het kasteel gevangen wordt gehouden. Ze knijpt even in je hand. “Wees voorzichtig, Finn. Achter de leeuwenfontein moet een vergeten poort zijn... maar die is goed verborgen.”', en: 'You tell her softly that your father is held captive somewhere deep in the castle. She squeezes your hand. “Be careful, Finn. Behind the lion fountain there must be a forgotten gate... but it is well hidden.”' } },
+                text: { nl: 'Je vertelt zacht dat je vader ergens diep in het kasteel gevangen wordt gehouden. Ze knijpt even in je hand. “Wees voorzichtig, Finn. Ik wou dat ik je kon helpen, maar de burcht zit potdicht — er is geen weg naar binnen die ik ken.”', en: 'You tell her softly that your father is held captive somewhere deep in the castle. She squeezes your hand. “Be careful, Finn. I wish I could help you, but the keep is sealed tight — there’s no way in that I know of.”' } },
               { label: { nl: 'Tot ziens', en: 'Goodbye' },
                 text: { nl: '“Blijf niet te lang weg, Finn,” zegt ze zacht, en ze glimlacht.', en: '“Don’t stay away too long, Finn,” she says softly, and smiles.' } }
             ]
@@ -533,11 +533,9 @@ const GAME = {
             ? { nl: 'Het bronzen beeld van de smid bij zijn aambeeld. In de sokkel zijn woorden gebeiteld — klik de geheime woorden van de smid aan in de juiste volgorde.', en: 'The bronze statue of the smith at his anvil. Words are carved into the plinth — click the smith’s secret words in the right order.' }
             : { nl: 'Een bronzen beeld van een smid bij zijn aambeeld. In de sokkel zijn allerlei woorden gebeiteld. Je moet de juiste geheime woorden aanklikken — maar welke, en in welke volgorde? Wie zou dat weten?', en: 'A bronze statue of a smith at his anvil. All sorts of words are carved into the plinth. You must click the right secret words — but which ones, and in what order? Who might know?' },
           symbolPuzzle: {
-            requiresFlag: 'gotSmithPhrase',
-            blockedText: { nl: 'In de sokkel staan veel woorden door elkaar. Je weet niet wélke je moet aanklikken — vraag het eerst aan de papagaai.', en: 'Many words are jumbled in the plinth. You don’t know which to click — ask the parrot first.' },
             img: 'assets/art/puzzle-words.jpg',
             title: { nl: 'De Geheime Woorden van de Smid', en: 'The Smith’s Secret Words' },
-            hint: { nl: 'Klik de geheime spreuk van de smid woord voor woord aan, in de juiste volgorde. Veel woorden zijn afleiders. (De papagaai verklapte: ONLY · FIRE · FORGES · TRUE · STEEL.)', en: 'Click the smith’s secret saying word by word, in the right order. Many words are decoys. (The parrot revealed: ONLY · FIRE · FORGES · TRUE · STEEL.)' },
+            hint: { nl: 'Klik de geheime spreuk van de smid woord voor woord aan, in de juiste volgorde. Veel woorden zijn afleiders. Weet je de spreuk niet? Vraag het de papagaai in de tuin.', en: 'Click the smith’s secret saying word by word, in the right order. Many words are decoys. Don’t know the saying? Ask the parrot in the garden.' },
             zones: [
               { key: 'rust',   left: 1,  top: 3,  width: 23, height: 22 },
               { key: 'fire',   left: 26, top: 3,  width: 23, height: 22 },
@@ -577,20 +575,22 @@ const GAME = {
           rect: { x: 482, y: 172, w: 66, h: 66 },
           walkTo: { x: 486, y: 252 },
           choice: {
-            skipFlag: 'gotSmithPhrase',                     // zodra je de woorden kent, herhaalt klikken gewoon de zin (look) i.p.v. het menu
             prompt: { nl: 'De papagaai legt zijn kopje scheef. “Krrak! Wil je iets weten?”', en: 'The parrot tilts his head. “Squawk! Want to know something?”' },
             options: [
               { label: { nl: 'Wie ben jij?', en: 'Who are you?' },
                 text: { nl: '“Krrak! Ik ben de oudste papagaai van Eldoria. Ik zit hier al langer dan de koning regeert — en ik vergeet níets!”', en: '“Squawk! I’m the oldest parrot in Eldoria. I’ve perched here longer than the king has reigned — and I forget nothing!”' } },
-              { label: { nl: 'Ken je een geheim?', en: 'Know a secret?' },
-                text: { nl: '“Misschien wel, misschien niet... Krrak! Maar een hongerige vogel praat niet. Heb je een lekkere noot voor me? Die liggen weleens op het plein.”', en: '“Maybe I do, maybe I don’t... Squawk! But a hungry bird won’t talk. Got a tasty nut for me? You sometimes find them in the courtyard.”' } },
+              { label: { nl: 'Een geheime ingang?', en: 'A secret entrance?' },
+                setFlag: 'parrotToldEntrance',
+                text: { nl: '“Krrak! Een gehéime ingang? Jazeker... áchter de leeuwenfontein zit een verborgen doorgang, diep het kasteel in. Niemand weet ervan — behalve ik! Maar er zal wel een goed slot op zitten, krrak.”', en: '“Squawk! A secret entrance? Oh yes... behind the lion fountain there’s a hidden passage, deep into the castle. No one knows of it — except me! But it’ll surely have a good lock, squawk.”' } },
+              { label: { nl: 'Het geheim van de smid?', en: 'The smith’s secret?' },
+                text: (state) => state.flags.gotSmithPhrase
+                  ? { nl: '“Krrak! De spreuk van de smid: ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!”', en: '“Squawk! The smith’s saying: ONLY... FIRE... FORGES... TRUE... STEEL! In that order!”' }
+                  : { nl: '“Krrak! Een hongerige vogel praat niet. Geef me een noot — er ligt er een bij het aambeeld op het plein — en ik fluister de geheime spreuk van de smid.”', en: '“Squawk! A hungry bird won’t talk. Give me a nut — there’s one by the anvil in the courtyard — and I’ll whisper the smith’s secret saying.”' } },
               { label: { nl: 'Dag papagaai', en: 'Bye, parrot' },
                 text: { nl: '“Krrak! Tot kijk!” Hij schudt vrolijk zijn veren.', en: '“Squawk! See you!” He ruffles his feathers happily.' } }
             ]
           },
-          look: (state) => state.flags.gotSmithPhrase
-            ? { nl: 'De groene papagaai wipt op en neer en herhaalt de spreuk van de smid: “Krrak! ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!”', en: 'The green parrot bobs up and down and repeats the smith’s saying: “Squawk! ONLY... FIRE... FORGES... TRUE... STEEL! In that order!”' }
-            : { nl: 'Een kleurrijke groene papagaai zit op het bankje en bekijkt je nieuwsgierig met scheef kopje. Hij lijkt dol op een lekkernij... had je maar iets om hem te voeren.', en: 'A colourful green parrot perches on the bench, eyeing you with a curious tilt of the head. He seems to love a treat... if only you had something to feed him.' },
+          look: { nl: 'Een kleurrijke groene papagaai zit op het bankje en bekijkt je nieuwsgierig met scheef kopje. Hij lijkt graag te kletsen.', en: 'A colourful green parrot perches on the bench, eyeing you with a curious tilt of the head. He seems to love a chat.' },
           use: {
             nut: {
               consume: 'nut',

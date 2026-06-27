@@ -2782,7 +2782,7 @@
         elMsg.hidden = true;
         if (opt.setFlag) (Array.isArray(opt.setFlag) ? opt.setFlag : [opt.setFlag]).forEach((f) => { state.flags[f] = true; });
         if (sfx) sfx('tap');
-        if (opt.text) say(opt.text, anchor, face);
+        if (opt.text) say(typeof opt.text === 'function' ? opt.text(state) : opt.text, anchor, face);   // antwoord mag van de spelstaat afhangen
         updateQuest();
       });
       elChoiceOpts.appendChild(b);
