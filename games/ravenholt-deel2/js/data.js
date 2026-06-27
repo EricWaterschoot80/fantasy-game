@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '70',
+  assetVer: '71',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -277,7 +277,7 @@ const GAME = {
       overlays: [],
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66 },                       // kleine donkere noot bij het aambeeld/ijzer — iets lager en meer naar rechts
-        { item: 'mushroom', hotspot: 'mushroom', x: 206, y: 286, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put (warme gloed), iets hoger
+        { item: 'mushroom', hotspot: 'mushroom', x: 206, y: 268, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put (warme gloed), hoger
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
@@ -385,8 +385,8 @@ const GAME = {
         {
           id: 'mushroom',
           name: { nl: 'Magische Paddenstoelen', en: 'Magic Mushrooms' },
-          rect: { x: 186, y: 268, w: 48, h: 40 },
-          walkTo: { x: 208, y: 298 },
+          rect: { x: 186, y: 250, w: 48, h: 40 },
+          walkTo: { x: 208, y: 296 },
           hideFlag: 'taken_courtyard_mushroom',
           gives: {
             item: 'mushroom',
