@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '66',
+  assetVer: '67',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -109,7 +109,7 @@ const GAME = {
     q_getsword: { nl: 'De schildknaap gaf je het gebroken zwaard van Sir Aldric. Smeed het weer heel bij de smidse: je hebt de hamer en houtskool nodig. De hamer zit in het smidsbeeld in de tuin — dat vraagt de geheime woorden van de smid. Geef de papagaai een noot (ligt op het plein) en hij verklapt ze.', en: 'The squire gave you Sir Aldric’s broken sword. Forge it whole at the smithy: you need the hammer and charcoal. The hammer is in the smith statue in the garden — it asks for the smith’s secret words. Give the parrot a nut (it lies in the courtyard) and he’ll reveal them.' },
     q_gethammer:{ nl: 'Voor de hamer: het smidsbeeld in de tuin vraagt de geheime woorden van de smid. Geef de papagaai een noot van het plein — hij verklapt de woorden — en typ ze daarna bij het beeld in', en: 'For the hammer: the smith statue in the garden asks for the smith’s secret words. Give the parrot a nut from the courtyard — he reveals the words — then type them at the statue' },
     q_giveparrot:{ nl: 'Je hebt een noot — geef hem aan de papagaai in de slottuin; hij kent de geheime woorden van de smid', en: 'You have a nut — give it to the parrot in the garden; he knows the smith’s secret words' },
-    q_typephrase:{ nl: 'De papagaai verklapte de geheime woorden — typ ze in bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the secret words — type them at the smith statue in the garden to get the hammer' },
+    q_typephrase:{ nl: 'De papagaai verklapte de geheime woorden van de smid — “vuur en staal”. Typ ze in bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s secret words — “fire and steel”. Type them at the smith statue in the garden to get the hammer' },
     q_getcoal:  { nl: 'Zoek de houtskool tussen de bloemen in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Find the charcoal among the flowers in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
     q_userope:  { nl: 'Je hebt een touw — daal er bij de oude put mee af (leid het touw door de schacht omlaag) om de ketting van de prinses op te vissen', en: 'You have a rope — lower it into the old well (guide the rope down the shaft) to fish up the princess’s necklace' },
@@ -430,7 +430,8 @@ const GAME = {
         { x: 360, y: 214, w: 178, h: 44 }                  // pad rechts (richting bankje)
       ],
       obstacles: [
-        { x: 216, y: 178, w: 132, h: 74 }                  // de ronde sokkel met het ridderbeeld
+        { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
+        { x: 474, y: 262, w: 64, h: 52 }                   // de stenen bloembak (urn) in de rechterhoek
       ],
       overlays: [
         { img: 'assets/art/keyhole.png', x: 48, y: 166, base: 240, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat verschijnt onder de leeuwenkop zodra de fontein-puzzel is opgelost; weg zodra de poort open is
@@ -449,6 +450,19 @@ const GAME = {
           name: { nl: 'De Prinses', en: 'The Princess' },
           rect: { x: 400, y: 170, w: 60, h: 90 },
           walkTo: { x: 398, y: 296 },
+          choice: {
+            prompt: { nl: 'De prinses kijkt je met een glimlach aan. “Waarover wil je praten, Finn?”', en: 'The princess looks at you with a smile. “What shall we talk about, Finn?”' },
+            options: [
+              { label: { nl: 'Wie ben je?', en: 'Who are you?' },
+                text: { nl: '“Ik ben de kleindochter van Sir Aldric, de Leeuw van Eldoria. Sinds grootvader viel hangt er een stilte over het kasteel — en mijn vader, de koning, ontvangt niemand meer.”', en: '“I am the granddaughter of Sir Aldric, the Lion of Eldoria. Since grandfather fell a hush has lain over the castle — and my father the king sees no one anymore.”' } },
+              { label: { nl: 'Je ketting', en: 'Your necklace' },
+                text: { nl: '“Die ketting was van mijn moeder. Hij gleed van mijn hals, diep de oude put op de binnenplaats in. Ik zou er alles voor geven om hem terug te zien.”', en: '“That necklace was my mother’s. It slipped from my neck, deep down the old well in the courtyard. I’d give anything to see it again.”' } },
+              { label: { nl: 'Mijn vader', en: 'My father' },
+                text: { nl: 'Je vertelt zacht dat je vader ergens diep in het kasteel gevangen wordt gehouden. Ze knijpt even in je hand. “Wees voorzichtig, Finn. Achter de leeuwenfontein moet een vergeten poort zijn... maar die is goed verborgen.”', en: 'You tell her softly that your father is held captive somewhere deep in the castle. She squeezes your hand. “Be careful, Finn. Behind the lion fountain there must be a forgotten gate... but it is well hidden.”' } },
+              { label: { nl: 'Tot ziens', en: 'Goodbye' },
+                text: { nl: '“Blijf niet te lang weg, Finn,” zegt ze zacht, en ze glimlacht.', en: '“Don’t stay away too long, Finn,” she says softly, and smiles.' } }
+            ]
+          },
           look: (state) => state.flags.gaveNecklace
             ? { nl: 'De prinses draagt de ketting van haar moeder weer en straalt. “Dankzij jou, Finn. Wees voorzichtig achter die deur — en kom alsjeblieft weer terug.” Haar glimlach maakt je sprakeloos.', en: 'The princess wears her mother’s necklace again and beams. “Thanks to you, Finn. Be careful beyond that door — and please, come back to me.” Her smile leaves you speechless.' }
             : state.flags.metPrincess
@@ -540,6 +554,17 @@ const GAME = {
           name: { nl: 'De Papagaai', en: 'The Parrot' },
           rect: { x: 482, y: 172, w: 66, h: 66 },
           walkTo: { x: 486, y: 252 },
+          choice: {
+            prompt: { nl: 'De papagaai legt zijn kopje scheef. “Krrak! Wil je iets weten?”', en: 'The parrot tilts his head. “Squawk! Want to know something?”' },
+            options: [
+              { label: { nl: 'Wie ben jij?', en: 'Who are you?' },
+                text: { nl: '“Krrak! Ik ben de oudste papagaai van Eldoria. Ik zit hier al langer dan de koning regeert — en ik vergeet níets!”', en: '“Squawk! I’m the oldest parrot in Eldoria. I’ve perched here longer than the king has reigned — and I forget nothing!”' } },
+              { label: { nl: 'Ken je een geheim?', en: 'Know a secret?' },
+                text: { nl: '“Misschien wel, misschien niet... Krrak! Maar een hongerige vogel praat niet. Heb je een lekkere noot voor me? Die liggen weleens op het plein.”', en: '“Maybe I do, maybe I don’t... Squawk! But a hungry bird won’t talk. Got a tasty nut for me? You sometimes find them in the courtyard.”' } },
+              { label: { nl: 'Dag papagaai', en: 'Bye, parrot' },
+                text: { nl: '“Krrak! Tot kijk!” Hij schudt vrolijk zijn veren.', en: '“Squawk! See you!” He ruffles his feathers happily.' } }
+            ]
+          },
           look: (state) => state.flags.gotSmithPhrase
             ? { nl: 'De groene papagaai wipt op en neer en kraakt vrolijk: “Vuur en staal! Vuur en staal!”', en: 'The green parrot bobs up and down and squawks merrily: “Fire and steel! Fire and steel!”' }
             : { nl: 'Een kleurrijke groene papagaai zit op het bankje en bekijkt je nieuwsgierig met scheef kopje. Hij lijkt dol op een lekkernij... had je maar iets om hem te voeren.', en: 'A colourful green parrot perches on the bench, eyeing you with a curious tilt of the head. He seems to love a treat... if only you had something to feed him.' },
