@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '74',
+  assetVer: '75',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -149,6 +149,8 @@ const GAME = {
              look: { nl: 'Een handvol zwarte houtskool die je tussen de bloemen in de slottuin vond. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal you found among the flowers in the castle garden. Just what a smith needs to fire up his forge again.' } },
     nut: { name: { nl: 'Noot', en: 'Nut' }, icon: '🌰', img: 'assets/art/item-nut.png',
              look: { nl: 'Een klein, donkerbruin nootje dat bij het aambeeld van de smidse lag. Vogels — papagaaien zeker — zijn er dol op.', en: 'A small, dark-brown nut that lay by the smithy anvil. Birds — parrots especially — love them.' } },
+    trinket: { name: { nl: 'Glimmend Kristal', en: 'Shiny Crystal' }, icon: '💎', img: 'assets/art/item-trinket.png', sparkle: true,
+             look: { nl: 'Een fonkelend blauw kristal dat je tussen de bloemen in de slottuin vond. Het glinstert betoverend in het licht — precies het soort glimmend ding waar een raaf geen weerstand aan kan bieden.', en: 'A sparkling blue crystal you found among the flowers in the castle garden. It glitters bewitchingly in the light — exactly the kind of shiny thing a raven cannot resist.' } },
     mushroom: { name: { nl: 'Magische Paddenstoel', en: 'Magic Mushroom' }, icon: '🍄', img: 'assets/art/item-mushroom.png', sparkle: true,
              look: { nl: 'Een trosje warm gloeiende paddenstoelen met bruin-oranje hoedjes, geplukt bij de put. Ze tintelen van de magie — vast ergens goed voor.', en: 'A cluster of warmly glowing mushrooms with brown-orange caps, picked by the well. They tingle with magic — surely useful for something.' } },
     sword: { name: { nl: 'Zwaard van Sir Aldric', en: 'Sir Aldric’s Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
@@ -277,7 +279,7 @@ const GAME = {
       overlays: [],
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66 },                       // kleine donkere noot bij het aambeeld/ijzer — iets lager en meer naar rechts
-        { item: 'mushroom', hotspot: 'mushroom', x: 206, y: 248, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put (warme gloed), hoger
+        { item: 'mushroom', hotspot: 'mushroom', x: 218, y: 236, scale: 0.82, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put — hoger, iets naar rechts, iets kleiner
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
@@ -323,6 +325,22 @@ const GAME = {
             consume: 'rope',
             give: 'necklace',
             solvedText: { nl: 'Het touw haakt achter de glinstering en je hijst op. Met een natte plons komt een fijne gouden ketting boven, met een blauwe edelsteen. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'The rope snags on the glint and you haul it up. With a wet splash a fine gold necklace surfaces, a blue gem set in it. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
+          }
+        },
+        {
+          id: 'crow',
+          name: { nl: 'De Raaf', en: 'The Raven' },
+          rect: { x: 258, y: 56, w: 70, h: 64 },              // de glanzende raaf op het dakje van de put
+          walkTo: { x: 286, y: 300 },
+          look: (state) => state.flags.gotCrowHint
+            ? { nl: 'De glanzende zwarte raaf draait het glimmende kristal trots rond in zijn snavel. “Kraa! Goeie ruil.” Hij lijkt je nu welgezind.', en: 'The glossy black raven turns the shiny crystal proudly in his beak. “Caw! Good trade.” He seems to favour you now.' }
+            : { nl: 'Een grote, glanzende zwarte raaf zit op het dakje van de put en bekijkt je met glinsterende oogjes. Hij gluurt steeds naar je tas — alsof hij iets glimmends ruikt. Raven zijn dol op glanzende dingen... en zien álles wat er op het kasteel gebeurt. Misschien ruilt hij een geheim voor iets moois?', en: 'A big, glossy black raven sits on the well roof, eyeing you with glittering eyes. He keeps peeking at your bag — as if he smells something shiny. Ravens love bright things... and see everything that happens at the castle. Perhaps he’d trade a secret for something pretty?' },
+          use: {
+            trinket: {
+              consume: 'trinket',
+              setFlag: 'gotCrowHint',
+              text: { nl: 'Je houdt het glimmende kristal omhoog. De raaf spreidt zijn vleugels, grist het behendig uit je hand en kraait tevreden: “Kraa! Een ruil — een geheim voor jou!” Hij wipt dichterbij. “Ik zie álles vanaf de put. De smid: eerst góói je houtskool in de dode oven tot het vuur wit-heet loeit. Dán leg je het gebroken zwaard op het ijzer in het vuur. En pás dán sla je het met de hamer weer heel — in díe volgorde, kraa!”', en: 'You hold up the shiny crystal. The raven spreads his wings, snatches it deftly from your hand and caws contentedly: “Caw! A trade — a secret for you!” He hops closer. “I see everything from the well. The smith: first throw charcoal into the dead oven until the fire roars white-hot. Then lay the broken sword on the iron in the fire. And only then strike it whole with the hammer — in that order, caw!”' }
+            }
           }
         },
         {
@@ -385,8 +403,8 @@ const GAME = {
         {
           id: 'mushroom',
           name: { nl: 'Magische Paddenstoelen', en: 'Magic Mushrooms' },
-          rect: { x: 186, y: 230, w: 48, h: 42 },
-          walkTo: { x: 208, y: 292 },
+          rect: { x: 198, y: 218, w: 46, h: 40 },
+          walkTo: { x: 220, y: 290 },
           hideFlag: 'taken_courtyard_mushroom',
           gives: {
             item: 'mushroom',
@@ -437,7 +455,8 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 48, y: 166, base: 240, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat verschijnt onder de leeuwenkop zodra de fontein-puzzel is opgelost; weg zodra de poort open is
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 240, scale: 0.78, glowCol: '255,170,80' }   // houtskool tussen de bloemen rechts in het perk — stilstaand, iets kleiner, zachte warme gloed
+        { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 242, scale: 1.05, glowCol: '255,150,60' },   // houtskool met gloeiende sintels tussen de bloemen — groter + warme gloed zodat hij goed zichtbaar is
+        { item: 'trinket', hotspot: 'trinket', x: 150, y: 250, highlight: true, glowCol: '210,235,255' }   // glimmend kristal tussen de bloemen links — fonkelt opvallend; voor de raaf
       ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
@@ -610,8 +629,20 @@ const GAME = {
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',
-            giveText: { nl: 'Tussen de kleurige bloemen ligt, vreemd genoeg, een hoopje zwarte houtskool te glinsteren — alsof hier ooit een vuur heeft gebrand. Je raapt het op. Hier kan een smid vast iets mee.', en: 'Among the colourful flowers, oddly enough, a little heap of black charcoal glints — as if a fire once burned here. You pick it up. A smith could surely use this.' },
+            giveText: { nl: 'Tussen de kleurige bloemen ligt, vreemd genoeg, een hoopje zwarte houtskool met nog gloeiende sintels te glinsteren — alsof hier ooit een vuur heeft gebrand. Je raapt het op. Hier kan een smid vast iets mee.', en: 'Among the colourful flowers, oddly enough, a little heap of black charcoal with still-glowing embers glints — as if a fire once burned here. You pick it up. A smith could surely use this.' },
             emptyText: { nl: 'De houtskool zit al in je tas.', en: 'The charcoal is already in your bag.' }
+          }
+        },
+        {
+          id: 'trinket',
+          name: { nl: 'Iets glimmends', en: 'Something shiny' },
+          rect: { x: 128, y: 230, w: 46, h: 42 },
+          walkTo: { x: 150, y: 296 },
+          hideFlag: 'taken_garden_trinket',
+          gives: {
+            item: 'trinket',
+            giveText: { nl: 'Iets fonkelt tussen de blauwe bloemen — een glimmend blauw kristal vangt het zonlicht. Je raapt het op; het glinstert betoverend in je hand. Zoiets glimmends... daar is vast iemand dol op. Een raaf misschien?', en: 'Something sparkles among the blue flowers — a shiny blue crystal catches the sunlight. You pick it up; it glitters bewitchingly in your hand. Something this shiny... surely someone would love it. A raven, perhaps?' },
+            emptyText: { nl: 'Het glimmende kristal zit al in je tas.', en: 'The shiny crystal is already in your bag.' }
           }
         },
         {
