@@ -1860,7 +1860,7 @@
       const bob = big ? Math.round(Math.sin(now / 600) * 1.5) : 0;   // zachte deining trekt de aandacht
       const r = big ? 22 : 13;
       const glow = big ? (0.30 + 0.16 * Math.sin(now / 380 + wi.x)) : (0.14 + 0.08 * Math.sin(now / 500 + wi.x));
-      const col = big ? '176,214,255' : '231,207,134';  // koel blauw-wit voor de bloem, valt op in de herfst
+      const col = wi.glowCol || (big ? '176,214,255' : '231,207,134');  // koel blauw-wit voor de bloem; wi.glowCol overschrijft (bv. warme gloed voor houtskool)
       const g = fctx.createRadialGradient(wi.x, wi.y, 1, wi.x, wi.y, r);
       g.addColorStop(0, `rgba(${col},${glow})`);
       g.addColorStop(1, `rgba(${col},0)`);

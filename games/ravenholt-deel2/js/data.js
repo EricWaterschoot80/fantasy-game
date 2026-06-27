@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '57',
+  assetVer: '58',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -113,7 +113,7 @@ const GAME = {
     q_objectives:{ nl: 'Herstel het wapen van Sir Aldric: los de puzzels op bij de oude put, de leeuwenfontein in de tuin en het ridderbeeld', en: 'Restore Sir Aldric’s arms: solve the puzzles at the old well, the lion fountain in the garden and the knight statue' },
     q_getrope:  { nl: 'De put is open — haal een touw (het hangt bij de smidse) om iets uit de diepte op te vissen', en: 'The well is open — fetch a rope (it hangs at the forge) to fish something up from below' },
     q_userope:  { nl: 'Gebruik het touw op de open put om het wapen van de oude held omhoog te vissen', en: 'Use the rope on the open well to fish up the old hero’s weapon' },
-    q_givesquire:{ nl: 'Je viste het gebroken zwaard op — breng het naar de schildknaap op de binnenplaats', en: 'You fished up the broken sword — bring it to the squire in the courtyard' },
+    q_givesquire:{ nl: 'Je viste het gebroken zwaard op — zoek wat houtskool tussen de bloemen in de tuin en breng beide naar de schildknaap op de binnenplaats', en: 'You fished up the broken sword — find some charcoal among the flowers in the garden and bring both to the squire in the courtyard' },
     q_secretdoor:{ nl: 'Er ging een geheime deur open naast de fontein — stap erdoorheen, de donkere gang in', en: 'A secret door opened beside the fountain — step through it, into the dark passage' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
@@ -141,6 +141,8 @@ const GAME = {
              look: { nl: 'Een stevig opgerold touw. Lang genoeg om iets uit een diepe put omhoog te vissen.', en: 'A sturdy coil of rope. Long enough to fish something up from a deep well.' } },
     medallion: { name: { nl: 'Gouden Medaillon', en: 'Golden Medallion' }, icon: '🎖️', img: 'assets/art/item-medallion.png', sparkle: true, border: 'gold',
              look: { nl: 'Een glanzend gouden medaillon met hetzelfde ridderwapen als op het standbeeld — een blauwe lelie. Het lag verborgen in de sokkel. Wie zou het daar bewaard hebben?', en: 'A gleaming gold medallion bearing the same knight’s crest as the statue — a blue fleur-de-lis. It lay hidden in the plinth. Who could have kept it there?' } },
+    charcoal: { name: { nl: 'Houtskool', en: 'Charcoal' }, icon: '⬛', img: 'assets/art/item-coal.png',
+             look: { nl: 'Een handvol zwarte houtskool die je tussen de bloemen in de slottuin vond. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal you found among the flowers in the castle garden. Just what a smith needs to fire up his forge again.' } },
     sword: { name: { nl: 'Zwaard van Sir Aldric', en: 'Sir Aldric’s Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
              look: { nl: 'Het zwaard van Sir Aldric, door de smid weer heel gesmeed en door de schildknaap aan jou gegeven. Het lemmet glanst als nieuw — een waardig wapen voor een held.', en: 'Sir Aldric’s sword, forged whole again by the smith and given to you by the squire. The blade gleams like new — a weapon worthy of a hero.' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
@@ -274,15 +276,17 @@ const GAME = {
           look: (state) => state.flags.gotSword
             ? { nl: 'De schildknaap kijkt vol ontzag naar het gesmede zwaard in je handen. “Draag het met eer, vriend. Sir Aldric zou trots zijn geweest.”', en: 'The squire looks in awe at the forged sword in your hands. “Bear it with honour, friend. Sir Aldric would have been proud.”' }
             : {
-            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij een wapenrek met het zwaard van de oude held. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Toen hij sneuvelde brak zijn zwaard, raakte zijn medaillon zoek, en verstomde het hele kasteel van rouw. Men zegt dat zijn wapen overal in de burcht verborgen ligt: in de oude put, in de leeuwenfontein in de tuin, en in de sokkel van zijn standbeeld. Breng je mij het gebroken zwaard van de held, dan laat ik het door de smid herstellen — en mag jíj het dragen. De slottuin links mag je gerust bekijken, hoor.”',
-            en: 'A young squire in a blue tabard keeps watch by a weapon rack bearing the old hero’s sword. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. When he died his sword shattered, his medallion was lost, and the whole castle fell silent with grief. They say his arms lie hidden all over the keep: in the old well, in the lion fountain in the garden, and in the plinth of his statue. Bring me the hero’s broken sword and I’ll have the smith restore it — and you may carry it. You’re welcome to look around the garden to the left.”'
+            nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij een wapenrek met het zwaard van de oude held. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Toen hij sneuvelde brak zijn zwaard, raakte zijn medaillon zoek, en verstomde het hele kasteel van rouw. Men zegt dat zijn wapen overal in de burcht verborgen ligt: in de oude put, in de leeuwenfontein in de tuin, en in de sokkel van zijn standbeeld. Breng je mij het gebroken zwaard van de held én wat houtskool voor het koude smidsvuur, dan smeed ik het voor je — en mag jíj het dragen. De slottuin links mag je gerust bekijken, hoor.”',
+            en: 'A young squire in a blue tabard keeps watch by a weapon rack bearing the old hero’s sword. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. When he died his sword shattered, his medallion was lost, and the whole castle fell silent with grief. They say his arms lie hidden all over the keep: in the old well, in the lion fountain in the garden, and in the plinth of his statue. Bring me the hero’s broken sword and some charcoal for the cold forge, and I’ll forge it for you — and you may carry it. You’re welcome to look around the garden to the left.”'
           },
           use: {
             swordBroken: {
-              consume: 'swordBroken',
+              needItem: 'charcoal',
+              needText: { nl: 'De schildknaap weegt het gebroken zwaard in zijn handen. “Het zwaard van Sir Aldric — geweldig! Maar de smidse is koud geworden... breng me eerst wat houtskool om het vuur weer aan te wakkeren. Er schijnt wat tussen de bloemen in de tuin te liggen.”', en: 'The squire weighs the broken sword in his hands. “Sir Aldric’s sword — wonderful! But the forge has gone cold... first bring me some charcoal to rekindle the fire. They say some lies among the flowers in the garden.”' },
+              consume: ['swordBroken', 'charcoal'],
               give: 'sword',
               setFlag: 'gotSword',
-              text: { nl: 'Je geeft het gebroken zwaard aan de schildknaap. Zijn ogen worden groot. “Het zwaard van Sir Aldric — eindelijk terug!” Hij snelt ermee naar de smidse en komt even later terug met het wapen weer héél, het lemmet glanzend gesmeed. “Het is van jou. Draag het met eer.” Hij drukt het gesmede zwaard in je handen.', en: 'You hand the broken sword to the squire. His eyes go wide. “Sir Aldric’s sword — back at last!” He hurries it to the forge and returns a while later with the weapon whole again, the blade gleaming. “It’s yours. Bear it with honour.” He presses the forged sword into your hands.' }
+              text: { nl: 'Je geeft de schildknaap het gebroken zwaard én de houtskool. Zijn ogen worden groot. “Het zwaard van Sir Aldric — eindelijk terug!” Hij stookt het smidsvuur op met de houtskool en smeedt het wapen weer héél, het lemmet glanzend. “Het is van jou. Draag het met eer.” Hij drukt het gesmede zwaard in je handen.', en: 'You give the squire the broken sword and the charcoal. His eyes go wide. “Sir Aldric’s sword — back at last!” He stokes the forge fire with the charcoal and forges the weapon whole again, the blade gleaming. “It’s yours. Bear it with honour.” He presses the forged sword into your hands.' }
             }
           },
           setFlag: 'metSquire'
@@ -385,7 +389,9 @@ const GAME = {
         { x: 216, y: 178, w: 132, h: 74 }                  // de ronde sokkel met het ridderbeeld
       ],
       overlays: [],
-      worldItems: [],
+      worldItems: [
+        { item: 'charcoal', hotspot: 'charcoal', x: 178, y: 240, highlight: true, glowCol: '255,170,80' }   // houtskool tussen de bloemen — warme ember-gloed + fonkeling zodat het opvalt
+      ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
         { id: 'gardenParrot', sprite: 'parrot', x: 508, y: 204, scale: 0.42, flip: true, peck: true, peckAmt: 0.35, filter: 'brightness(0.95) saturate(0.95)' }   // gedetailleerde groene pixel-art papagaai op het bankje — kleiner en iets hoger
@@ -481,6 +487,18 @@ const GAME = {
               setFlag: 'statueOpened',
               text: { nl: 'Je zet de smidshamer tegen de barst en geeft een paar flinke klappen. Met een doffe knál breekt de steen open en onthult een klein, met fluweel bekleed vakje. Daarin glinstert een gouden medaillon — met hetzelfde ridderwapen, een blauwe lelie. Je neemt het mee, en steekt de hamer terug in je tas.', en: 'You set the hammer to the crack and strike hard a few times. With a dull crack the stone breaks open, revealing a small velvet-lined niche. Inside glints a golden medallion — bearing the same knight’s crest, a blue fleur-de-lis. You take it, and tuck the hammer back into your bag.' }
             }
+          }
+        },
+        {
+          id: 'charcoal',
+          name: { nl: 'Houtskool', en: 'Charcoal' },
+          rect: { x: 156, y: 222, w: 46, h: 40 },
+          walkTo: { x: 172, y: 266 },
+          hideFlag: 'taken_garden_charcoal',
+          gives: {
+            item: 'charcoal',
+            giveText: { nl: 'Tussen de kleurige bloemen ligt, vreemd genoeg, een hoopje zwarte houtskool te glinsteren — alsof hier ooit een vuur heeft gebrand. Je raapt het op. Hier kan een smid vast iets mee.', en: 'Among the colourful flowers, oddly enough, a little heap of black charcoal glints — as if a fire once burned here. You pick it up. A smith could surely use this.' },
+            emptyText: { nl: 'De houtskool zit al in je tas.', en: 'The charcoal is already in your bag.' }
           }
         },
         {
