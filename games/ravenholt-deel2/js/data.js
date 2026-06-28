@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '102',
+  assetVer: '103',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -490,7 +490,8 @@ const GAME = {
       name: { nl: 'De Slottuin', en: 'The Castle Garden' },
       bg: 'assets/art/scene-garden.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-garden-open.jpg', flag: 'secretGateOpen' }   // zodra de geheime poort opengaat: tuin met de open donkere doorgang in de linkermuur
+        { img: 'assets/art/scene-garden-open.jpg',   flag: 'secretGateOpen' },      // tuin3: geheime poort open (donkere doorgang in de linkermuur)
+        { img: 'assets/art/scene-garden-hammer.jpg', flag: 'statuePuzzleSolved' }    // tuin2: hamer uit het ridderbeeld gehaald
       ],
       charFilter: 'saturate(1.06) brightness(1.05) sepia(0.06) contrast(1.03)',   // helder zonnig tuinlicht; lichte warmte zodat de figuren in de omgeving opgaan
       heroShade: 0.98,
@@ -508,7 +509,8 @@ const GAME = {
       ],
       obstacles: [
         { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
-        { x: 474, y: 262, w: 64, h: 52 }                   // de stenen bloembak (urn) in de rechterhoek
+        { x: 70,  y: 286, w: 78, h: 34 },                  // de stenen bloembak (urn) in de linkerhoek — niet doorheen lopen
+        { x: 426, y: 286, w: 86, h: 34 }                   // de stenen bloembak (urn) in de rechterhoek — niet doorheen lopen
       ],
       overlays: [
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
