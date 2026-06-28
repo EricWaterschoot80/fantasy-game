@@ -1965,6 +1965,17 @@
           twinkle(wi.x + Math.cos(a2) * 9, wi.y - 4 + Math.sin(a2 * 1.3) * 6, 0.3 + 0.45 * Math.sin(now / 200 + k * 2));
         }
       }
+      if (wi.embers) {                                  // gloeiende rood/oranje sintels die oplichten (bv. houtskool)
+        const EP = [[-5, 1], [1, 4], [5, 0], [-2, 6], [3, 5], [-6, 4]];
+        for (let e = 0; e < EP.length; e++) {
+          const fl = Math.pow(0.5 + 0.5 * Math.sin(now / 170 + e * 1.9), 2);   // onafhankelijk flikkeren
+          const ex = Math.round(wi.x + EP[e][0]), ey = Math.round(wi.y + bob + EP[e][1]);
+          const a = 0.18 + 0.7 * fl;
+          if (fl > 0.45) { fctx.fillStyle = `rgba(255,150,60,${0.35 * fl})`; fctx.fillRect(ex - 1, ey - 1, 4, 4); }   // zachte gloed
+          fctx.fillStyle = `rgba(255,${90 + Math.round(90 * fl)},35,${a})`;   // rood->oranje sintel
+          fctx.fillRect(ex, ey, 2, 2);
+        }
+      }
     }
   }
 

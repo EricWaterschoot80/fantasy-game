@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '90',
+  assetVer: '91',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -523,7 +523,7 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 352, y: 226, scale: 1.55, glowCol: '255,140,55' },   // houtskool aan de rechterkant van het standbeeld; subtiele warme gloed
+        { item: 'charcoal', hotspot: 'charcoal', x: 352, y: 216, scale: 1.3, glowCol: '255,140,55', embers: true },   // houtskool rechts van het standbeeld; iets hoger + kleiner, met oplichtende rood/oranje sintels
         { item: 'trinket', hotspot: 'trinket', x: 72, y: 184, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, kleiner + 2px hoger + 2px naar rechts
       ],
       npcs: [
@@ -691,7 +691,7 @@ const GAME = {
         {
           id: 'charcoal',
           name: { nl: 'Houtskool', en: 'Charcoal' },
-          rect: { x: 328, y: 204, w: 50, h: 48 },
+          rect: { x: 330, y: 196, w: 46, h: 44 },
           walkTo: { x: 352, y: 288 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
