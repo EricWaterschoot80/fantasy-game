@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '81',
+  assetVer: '82',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -115,6 +115,7 @@ const GAME = {
     q_typephrase:{ nl: 'De papagaai verklapte de spreuk van de smid: ONLY · FIRE · FORGES · TRUE · STEEL. Klik die woorden in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s saying: ONLY · FIRE · FORGES · TRUE · STEEL. Click those words in that order at the smith statue in the garden to get the hammer' },
     q_getcoal:  { nl: 'Zoek de houtskool tussen de bloemen in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Find the charcoal among the flowers in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
+    q_takesword:{ nl: 'Het zwaard is weer heel! Het ligt te glanzen bij de markttent rechts — pak het op', en: 'The sword is whole again! It gleams by the market tent on the right — go and take it' },
     q_getcoin:  { nl: 'Voor de put heb je hulp van de raaf nodig. Vis eerst de glinsterende bronzen munt uit de leeuwenfontein in de tuin (klik op het bekken, niet op de leeuwenkop)', en: 'For the well you need the raven’s help. First fish the gleaming bronze coin from the lion fountain in the garden (click the basin, not the lion’s head)' },
     q_giveraven:{ nl: 'Geef de bronzen munt aan de glanzende raaf op de put — hij springt er dan mee de emmer in, de diepte in', en: 'Give the bronze coin to the glossy raven on the well — he’ll hop into the bucket with it and dive down' },
     q_haulwell: { nl: 'De raaf zit met de ketting in de emmer onderin de put. Gebruik het touw (van de schildknaap) op het windwerk om de emmer omhoog te hijsen', en: 'The raven sits with the necklace in the bucket deep in the well. Use the rope (from the squire) on the winch to haul the bucket up' },
@@ -249,7 +250,8 @@ const GAME = {
     { when: { has: 'rope', flag: 'ravenInBucket', notFlag: 'gotNecklace' }, quest: 'q_haulwell' },   // raaf in de emmer + touw -> hijs de ketting op
     { when: { flag: 'ravenInBucket', notFlag: 'gotNecklace' },           quest: 'q_haulwell' },      // raaf in de emmer, maar nog geen touw
     { when: { has: 'trinket' },                                          quest: 'q_giveraven' },     // bronzen munt -> geef aan de raaf op de put
-    { when: { flag: 'gotSword', notFlag: 'gotNecklace' },                quest: 'q_getcoin' },       // zwaard gesmeed -> vis de munt uit de fontein
+    { when: { flag: 'gotSword', notFlag: 'gotNecklace' },                quest: 'q_getcoin' },       // zwaard gepakt -> vis de munt uit de fontein
+    { when: { flag: 'swordForged', notFlag: 'gotSword' },                quest: 'q_takesword' },     // gesmeed -> pak het zwaard bij de markttent
     { when: { flag: 'swordInForge', notFlag: 'gotSword' },               quest: 'q_forge' },         // zwaard ligt in de oven -> sla het met de hamer
     { when: { has: ['swordBroken', 'hammer', 'charcoal'], notFlag: 'gotSword' }, quest: 'q_forge' }, // alles aanwezig -> smeed (kool, zwaard, hamer)
     { when: { has: ['swordBroken', 'hammer'], notFlag: 'gotSword' },     quest: 'q_getcoal' },       // mist houtskool
@@ -273,7 +275,11 @@ const GAME = {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
       bg: 'assets/art/scene-courtyard.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-courtyard-sword.jpg', flag: 'gotSword' }   // zodra het zwaard gesmeed is, prijkt het herstelde zwaard bij de markttent
+        // 4 staten: zwaard wel/niet gepakt × raaf wel/niet in de emmer (eerste passende wint)
+        { img: 'assets/art/scene-courtyard-raven-sword.jpg', flags: ['ravenInBucket', 'swordForged'], notFlags: ['gotSword', 'gotNecklace'] },  // raaf in emmer + gesmeed zwaard ligt klaar
+        { img: 'assets/art/scene-courtyard-raven.jpg',       flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },               // raaf in emmer (zwaard gepakt of nog niet gesmeed)
+        { img: 'assets/art/scene-courtyard-sword.jpg',       flags: ['swordForged'], notFlags: ['gotSword'] },                    // gesmeed zwaard ligt klaar bij de markttent
+        { img: 'assets/art/scene-courtyard-swordgone.jpg',   flags: ['gotSword'] }                                               // je hebt het zwaard gepakt
       ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
@@ -313,6 +319,8 @@ const GAME = {
           walkTo: { x: 452, y: 300 },
           look: (state) => state.flags.gotSword
             ? { nl: 'De schildknaap knikt naar het zwaard aan je zij. “Je hebt het zwaard van Sir Aldric weer heel gesmeed — knap werk. Met dat touw bereik je wat in de oude put verloren ging.”', en: 'The squire nods at the sword at your side. “You forged Sir Aldric’s sword whole again — fine work. With that rope you can reach what was lost in the old well.”' }
+            : state.flags.swordForged
+            ? { nl: 'De schildknaap wijst trots naar de markttent. “Het zwaard van Sir Aldric — weer heel! Pak het gerust, het is van jou. En met dat touw bereik je wat in de oude put verloren ging.”', en: 'The squire points proudly at the market tent. “Sir Aldric’s sword — whole again! Take it, it’s yours. And with that rope you can reach what was lost in the old well.”' }
             : state.flags.squireGaveSword
             ? { nl: 'De schildknaap wijst naar de smidse. “Smeed het zwaard van de held: gooi eerst houtskool in de oven zodat het vuur hoog oplaait, leg dán het gebroken zwaard op het ijzer, en sla het met de hamer weer heel. De hamer ligt verborgen in de sokkel van zijn standbeeld, houtskool tussen de bloemen.”', en: 'The squire points at the smithy. “Forge the hero’s sword: first throw charcoal in the oven so the fire roars up, then lay the broken sword on the iron, and strike it whole with the hammer. The hammer lies hidden in the plinth of his statue, charcoal among the flowers.”' }
             : { nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de koude smidse. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij overhandigt je de twee stukken van het gebroken zwaard én een stevig touw. “Smeed het bij de smidse weer heel — jij bent er klaar voor. En het touw heb je vast nodig bij de oude put.”', en: 'A young squire in a blue tabard keeps watch by the cold smithy. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword broke in two and the whole castle fell silent with grief.” He hands you the two pieces of the broken sword and a sturdy rope. “Forge it whole at the smithy — you’re ready for it. And you’ll want the rope at the old well.”' },
@@ -323,6 +331,21 @@ const GAME = {
             giveText: { nl: 'De schildknaap legt het gebroken zwaard van Sir Aldric — beide stukken — in je handen, en een stevig opgerold touw erbij. “Smeed het weer heel bij de smidse: houtskool in de oven, het zwaard op het ijzer, en dan de hamer. Veel succes, vriend.”', en: 'The squire places Sir Aldric’s broken sword — both pieces — into your hands, with a sturdy coil of rope. “Forge it whole at the smithy: charcoal in the oven, the sword on the iron, then the hammer. Good luck, friend.”' }
           },
           setFlag: 'metSquire'
+        },
+        {
+          id: 'takesword',
+          name: { nl: 'Het Gesmede Zwaard', en: 'The Forged Sword' },
+          rect: { x: 440, y: 184, w: 50, h: 64 },
+          walkTo: { x: 436, y: 300 },
+          appearFlag: 'swordForged',
+          hideFlag: 'gotSword',
+          look: { nl: 'Het weer hele zwaard van Sir Aldric staat te glanzen tegen de markttent. Pak het op!', en: 'Sir Aldric’s reforged sword gleams against the market tent. Take it!' },
+          givesWhen: {
+            flag: 'swordForged',
+            setFlag: 'gotSword',
+            item: 'sword',
+            giveText: { nl: 'Je pakt het weer hele zwaard van Sir Aldric op. Het lemmet glanst als nieuw en ligt perfect in je hand — een waardig wapen voor een held.', en: 'You take up Sir Aldric’s reforged sword. The blade gleams like new and sits perfectly in your hand — a weapon worthy of a hero.' }
+          }
         },
         {
           id: 'well',
@@ -400,10 +423,9 @@ const GAME = {
               requiresFlag: 'swordInForge',
               requiresText: { nl: 'Er ligt nog geen gloeiend zwaard op het aambeeld. Stook eerst de oven op en leg het gebroken zwaard erin.', en: 'There’s no glowing sword on the anvil yet. First stoke the oven and lay the broken sword in it.' },
               consume: 'swordBroken',
-              give: 'sword',
-              setFlag: 'gotSword',
+              setFlag: 'swordForged',
               burst: { x: 44, y: 170, col: '255,210,120', n: 26, up: 20, life: 1.2 },
-              text: { nl: 'Je grijpt de zware smidshamer en slaat — KLANG! KLANG! — de twee gloeiende stukken op het aambeeld weer aan elkaar. Vonken spatten alle kanten op. Met een sissende plons in de waterton koel je het af, en je houdt het prachtige, weer hele zwaard van Sir Aldric in handen!', en: 'You grab the heavy blacksmith’s hammer and strike — CLANG! CLANG! — the two glowing pieces back together on the anvil. Sparks fly everywhere. With a hissing plunge into the water trough you quench it, and you hold Sir Aldric’s beautiful, whole sword!' }
+              text: { nl: 'Je grijpt de zware smidshamer en slaat — KLANG! KLANG! — de twee gloeiende stukken op het aambeeld weer aan elkaar. Vonken spatten alle kanten op. Met een sissende plons in de waterton koel je het af. Het prachtige, weer hele zwaard van Sir Aldric ligt nu te glanzen bij de markttent — ga het pakken!', en: 'You grab the heavy blacksmith’s hammer and strike — CLANG! CLANG! — the two glowing pieces back together on the anvil. Sparks fly everywhere. With a hissing plunge into the water trough you quench it. Sir Aldric’s beautiful, whole sword now gleams by the market tent — go and take it!' }
             }
           }
         },

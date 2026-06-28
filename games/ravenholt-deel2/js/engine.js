@@ -483,8 +483,8 @@
     const sc = GAME.scenes[state.currentScene];
     if (sc && sc.bgVariants) {
       for (const v of sc.bgVariants) {
-        const okFlag = !v.flag || state.flags[v.flag];
-        const okNot  = !v.notFlag || !state.flags[v.notFlag];
+        const okFlag = (!v.flag || state.flags[v.flag]) && (!v.flags || v.flags.every((f) => state.flags[f]));
+        const okNot  = (!v.notFlag || !state.flags[v.notFlag]) && (!v.notFlags || v.notFlags.every((f) => !state.flags[f]));
         if (okFlag && okNot && ready(art.variants[v.img])) { img = art.variants[v.img]; break; }
       }
     }
@@ -2702,7 +2702,7 @@
       sfx('combine'); triggerCastFx(); updateQuest();
       say(c.text, hsSpeaker(hs), hsFace(hs));
       if (c.win) { pendingWin = true; sfx('win'); }
-      if (scene.bgVariants && scene.bgVariants.some((v) => fls.includes(v.flag) || fls.includes(v.notFlag))) paintBackground();
+      if (scene.bgVariants) paintBackground();
       return;
     }
     if (isDragon) { say({ nl: 'De drakenspreuk gonst diep in je staf... maar hier is niemand om de stuipen op het lijf te jagen.', en: 'The dragon spell hums deep in your staff... but there’s no one here to strike with terror.' }); return; }
@@ -4610,7 +4610,7 @@
         const fls = Array.isArray(hs.gives.setFlag) ? hs.gives.setFlag : [hs.gives.setFlag];   // mag een lijst zijn (bv. ring → gotRing + dragonSpellLearned + ringWorn)
         fls.forEach((f) => { state.flags[f] = true; });   // bv. flesjes pakken zet 'gotVials', brief pakken zet 'poemRead'
         const sc = GAME.scenes[state.currentScene];     // wissel evt. de achtergrond (bv. brievenbus-vlag weer omlaag)
-        if (sc && sc.bgVariants && sc.bgVariants.some((v) => fls.includes(v.flag) || fls.includes(v.notFlag))) paintBackground();
+        if (sc && sc.bgVariants) paintBackground();
       }
       if (hs.gives.item) addItem(hs.gives.item);   // mag ook leeg zijn (bv. het recept gaat rechtstreeks in je boek, niet in je tas)
       if (hs.gives.also) (Array.isArray(hs.gives.also) ? hs.gives.also : [hs.gives.also]).forEach(addItem);   // extra voorwerpen (bv. 3 flesjes tegelijk)
@@ -4643,7 +4643,7 @@
       /* wissel de achtergrond als deze vlag een bg-variant aanstuurt (bv. brief uit de
          brievenbus pakken → vlag omlaag → terug naar de gewone molen-achtergrond). */
       const sc = GAME.scenes[state.currentScene];
-      if (sc && sc.bgVariants && sc.bgVariants.some((v) => v.flag === hs.setFlag || v.notFlag === hs.setFlag)) paintBackground();
+      if (sc && sc.bgVariants) paintBackground();
     }
     say(lt, hsSpeaker(hs), hsFace(hs));
     if (hs.win) { pendingWin = true; sfx('win'); }
@@ -4658,10 +4658,7 @@
       (Array.isArray(a.setFlag) ? a.setFlag : [a.setFlag]).forEach((fl) => { state.flags[fl] = true; });
       updateQuest();
       const sc = GAME.scenes[state.currentScene];
-      const setList = Array.isArray(a.setFlag) ? a.setFlag : [a.setFlag];
-      if (sc && sc.bgVariants && sc.bgVariants.some((v) => setList.includes(v.flag) || setList.includes(v.notFlag))) {
-        paintBackground();
-      }
+      if (sc && sc.bgVariants) paintBackground();
     }
     if (a.win) { pendingWin = true; sfx('win'); }
     if (a.setFlag === 'runesRevealed') { paintBackground(); burstAt(170, 100, { n: 10, col: '255,232,150', up: 14 }); }
