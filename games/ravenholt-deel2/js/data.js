@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '104',
+  assetVer: '105',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -297,7 +297,9 @@ const GAME = {
         { x: 356, y: 208, w: 188, h: 50 }                  // keien rechts van het beeld (richting deur/tent)
       ],
       obstacles: [
-        { x: 224, y: 166, w: 122, h: 84 }                  // het ronde grasperk met het ridderbeeld
+        { x: 224, y: 166, w: 122, h: 84 },                 // de ronde put in het midden
+        { x: 0,   y: 206, w: 140, h: 42 },                 // links: de smidse — oven + aambeeld/ijzer (niet doorheen lopen; je smeedt van vóór af)
+        { x: 455, y: 208, w: 113, h: 106 }                 // rechts: de markttent + wapenrek + pakken (niet doorheen lopen)
       ],
       overlays: [],
       fx: {
@@ -509,8 +511,8 @@ const GAME = {
       ],
       obstacles: [
         { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
-        { x: 70,  y: 286, w: 78, h: 34 },                  // de stenen bloembak (urn) in de linkerhoek — niet doorheen lopen
-        { x: 426, y: 286, w: 86, h: 34 }                   // de stenen bloembak (urn) in de rechterhoek — niet doorheen lopen
+        { x: 0,   y: 262, w: 150, h: 58 },                 // de stenen bloembak (urn) linkerhoek — tot de linkerrand, hoger en groter
+        { x: 418, y: 262, w: 150, h: 58 }                  // de stenen bloembak (urn) rechterhoek — tot de rechterrand, hoger en groter
       ],
       overlays: [
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
@@ -718,9 +720,9 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Terug naar de Binnenplaats', en: 'Back to the Courtyard' },
-          rect: { x: 12, y: 256, w: 130, h: 60 },
-          walkTo: { x: 96, y: 300 },
-          arrow: { x: 120, y: 268, dir: 'down' },
+          rect: { x: 148, y: 260, w: 150, h: 56 },
+          walkTo: { x: 200, y: 306 },
+          arrow: { x: 200, y: 282, dir: 'down' },
           exit: { to: 'courtyard', travelText: { nl: 'Je loopt de tuin weer uit, terug naar de binnenplaats.', en: 'You leave the garden, back to the courtyard.' } }
         }
       ]
