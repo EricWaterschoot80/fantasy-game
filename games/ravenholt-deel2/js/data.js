@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '105',
+  assetVer: '106',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -298,7 +298,8 @@ const GAME = {
       ],
       obstacles: [
         { x: 224, y: 166, w: 122, h: 84 },                 // de ronde put in het midden
-        { x: 0,   y: 206, w: 140, h: 42 },                 // links: de smidse — oven + aambeeld/ijzer (niet doorheen lopen; je smeedt van vóór af)
+        { x: 0,   y: 200, w: 140, h: 50 },                 // links: de smidse — oven + aambeeld/ijzer (niet doorheen lopen; je smeedt van vóór af)
+        { x: 0,   y: 250, w: 62,  h: 64 },                 // links-onder: de houten kisten/vaten bij de smidse (niet doorheen lopen)
         { x: 455, y: 208, w: 113, h: 106 }                 // rechts: de markttent + wapenrek + pakken (niet doorheen lopen)
       ],
       overlays: [],
@@ -511,8 +512,8 @@ const GAME = {
       ],
       obstacles: [
         { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
-        { x: 0,   y: 262, w: 150, h: 58 },                 // de stenen bloembak (urn) linkerhoek — tot de linkerrand, hoger en groter
-        { x: 418, y: 262, w: 150, h: 58 }                  // de stenen bloembak (urn) rechterhoek — tot de rechterrand, hoger en groter
+        { x: 0,   y: 248, w: 150, h: 72 },                 // de stenen bloembak (urn) linkerhoek — tot de linkerrand, nog meer ruimte erboven geblokkeerd
+        { x: 418, y: 248, w: 150, h: 72 }                  // de stenen bloembak (urn) rechterhoek — tot de rechterrand, nog meer ruimte erboven geblokkeerd
       ],
       overlays: [
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
@@ -572,7 +573,7 @@ const GAME = {
           id: 'fountain',
           name: { nl: 'De Leeuwenkop', en: 'The Lion’s Head' },
           rect: { x: 26, y: 102, w: 66, h: 64 },              // alleen de leeuwen-/drakenkop (+ sleutelgat): hierop klikken opent de puzzel; het bekken eronder is voor de munt — klikveld iets hoger
-          walkTo: { x: 96, y: 252 },
+          walkTo: { x: 96, y: 244 },
           hideFlag: 'secretGateOpen',                         // zodra de poort open is, neemt de geheime-poort-hotspot het over
           look: (state) => state.flags.fountainSolved
             ? { nl: 'De leeuwenkop spuwt nog water, maar onder zijn muil is nu een ijzeren sleutelgat in de muur zichtbaar geworden. Het wacht op de juiste sleutel.', en: 'The lion’s head still spouts water, but beneath its jaws an iron keyhole has appeared in the wall. It waits for the right key.' }
@@ -601,7 +602,7 @@ const GAME = {
           id: 'secretGate',
           name: { nl: 'De Geheime Poort', en: 'The Secret Gate' },
           rect: { x: 8, y: 96, w: 52, h: 122 },
-          walkTo: { x: 60, y: 250 },
+          walkTo: { x: 60, y: 244 },
           appearFlag: 'secretGateOpen',                      // verschijnt pas nadat de sleutel het slot opent
           arrow: { x: 62, y: 168, dir: 'up' },
           exit: { to: 'library', travelText: { nl: 'Je stapt door de open geheime poort naast de leeuwenfontein. Een koele, donkere gang loopt diep het kasteel in en komt uit in een stille, stoffige bibliotheek vol oude boeken...', en: 'You step through the open secret gate beside the lion fountain. A cool, dark passage runs deep into the castle and opens into a quiet, dusty library full of ancient books...' } }
@@ -657,7 +658,7 @@ const GAME = {
           id: 'parrot',
           name: { nl: 'De Papagaai', en: 'The Parrot' },
           rect: { x: 482, y: 172, w: 66, h: 66 },
-          walkTo: { x: 486, y: 252 },
+          walkTo: { x: 486, y: 244 },
           choice: {
             prompt: { nl: 'De papagaai legt zijn kopje scheef. “Krrak! Wil je iets weten?”', en: 'The parrot tilts his head. “Squawk! Want to know something?”' },
             options: [
@@ -699,7 +700,7 @@ const GAME = {
           id: 'trinket',
           name: { nl: 'Iets glimmends in de fontein', en: 'Something shiny in the fountain' },
           rect: { x: 50, y: 180, w: 44, h: 28 },
-          walkTo: { x: 96, y: 252 },
+          walkTo: { x: 96, y: 244 },
           hideFlag: 'taken_garden_trinket',
           gives: {
             item: 'trinket',
@@ -711,7 +712,7 @@ const GAME = {
           id: 'bench',
           name: { nl: 'Het Bankje', en: 'The Bench' },
           rect: { x: 470, y: 148, w: 92, h: 82 },
-          walkTo: { x: 486, y: 252 },
+          walkTo: { x: 486, y: 244 },
           look: {
             nl: 'Een verweerd houten bankje onder een boog van klimrozen. Een fijne plek om samen te zitten... als je dapper genoeg bent om het te vragen.',
             en: 'A weathered wooden bench under an arch of climbing roses. A fine place to sit together... if you’re brave enough to ask.'
