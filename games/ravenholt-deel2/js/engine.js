@@ -4601,6 +4601,8 @@
         sfx('error'); say(g.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return;
       }
       state.flags[g.setFlag] = true;
+      const gwSc = GAME.scenes[state.currentScene];      // achtergrond meteen verversen als deze vlag een bg-variant aanstuurt (bv. schildknaap geeft gebroken zwaard -> leeg rek)
+      if (gwSc && gwSc.bgVariants) paintBackground();
       if (g.consume) removeItem(g.consume);             // bv. het lege flesje wordt gevuld met de traan
       if (g.item) (Array.isArray(g.item) ? g.item : [g.item]).forEach(addItem);
       if (g.flyNpc) {                                   // de raaf vliegt weg (bv. nadat hij het recept aanwees)
