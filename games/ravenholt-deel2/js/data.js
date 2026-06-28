@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '100',
+  assetVer: '101',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -367,7 +367,7 @@ const GAME = {
             needText: { nl: 'De raaf zit met de ketting in de emmer, maar je hebt een touw nodig om door de ringen te rijgen. Haal eerst het touw bij de schildknaap.', en: 'The raven sits with the necklace in the bucket, but you need a rope to thread through the rings. Get the rope from the squire first.' },
             img: 'assets/art/puzzle-well-combo.jpg',
             title: { nl: 'Het Touw-Slot van de Put', en: 'The Well’s Rope-Lock' },
-            hint: { nl: 'Rijg het touw door alle negen ijzeren ringen in de juiste combinatie. Volg de oude, vervaagde touwlijn héél nauwkeurig — hij kronkelt en kruist zichzelf. Eén misklik en het hele touw glipt los; dan begin je weer van voren af aan.', en: 'Thread the rope through all nine iron rings in the right combination. Follow the old, faded rope-line very carefully — it winds and crosses itself. One wrong click and the whole rope slips loose; then you start all over.' },
+            hint: { nl: 'Negen ijzeren ringen, maar slechts zeven dragen een vervaagd Romeins cijfer (I t/m VII) — twee ringen zijn blind en vals. Rijg het touw door de genummerde ringen in cijfervolgorde: I → II → III → IV → V → VI → VII. Kijk goed, de cijfers zijn versleten. Eén misklik (ook op een blinde ring) en het hele touw glipt los; dan begin je opnieuw.', en: 'Nine iron rings, but only seven bear a faded Roman numeral (I to VII) — two rings are blind decoys. Thread the rope through the numbered rings in numeral order: I → II → III → IV → V → VI → VII. Look closely, the numerals are worn. One wrong click (a blind ring counts) and the whole rope slips loose; then you start over.' },
             zones: [
               { key: 'r1', left: 9,  top: 12, width: 16, height: 22 },
               { key: 'r2', left: 42, top: 12, width: 16, height: 22 },
@@ -384,7 +384,7 @@ const GAME = {
               { key: 'r4', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r5', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r6', label: { nl: 'Ring', en: 'Ring' } },
               { key: 'r7', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r8', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r9', label: { nl: 'Ring', en: 'Ring' } }
             ],
-            sequence: ['r1', 'r6', 'r4', 'r9', 'r2', 'r7', 'r8'],   // veel moeilijker: 7-staps kronkelende combinatie door 9 ringen
+            sequence: ['r3', 'r6', 'r1', 'r9', 'r4', 'r7', 'r2'],   // cijfervolgorde I->VII (geen hulplijn meer); r3=I r6=II r1=III r9=IV r4=V r7=VI r2=VII ; r5 & r8 zijn blinde lokringen
             setFlag: 'gotNecklace',
             consume: 'rope',
             give: 'necklace',
@@ -435,28 +435,26 @@ const GAME = {
             },
             // Smeden in één klik: hamer óf gebroken zwaard op het ijzer/vuur (oven moet heet zijn én je hebt allebei nodig)
             hammer: {
-              keep: true,
               needItem: 'swordBroken',
               needText: { nl: 'Je hebt eerst het gebroken zwaard van Sir Aldric nodig — vraag het de schildknaap bij de smidse.', en: 'You first need Sir Aldric’s broken sword — ask the squire by the smithy.' },
               requiresFlag: 'ovenStoked',
               requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur wit-heet op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar white-hot.' },
-              consume: 'swordBroken',
+              consume: ['swordBroken', 'hammer'],
               give: 'sword',
               setFlag: 'gotSword',
               burst: { x: 44, y: 184, col: '255,210,120', n: 26, up: 20, life: 1.2 },
-              text: { nl: 'Je loopt naar het ijzer, legt het gebroken zwaard in het wit-hete vuur en slaat met de smidshamer — KLANG! KLANG! De twee gloeiende stukken smelten weer samen. Met een sissende plons in de waterton koel je het af. Je houdt het prachtige, weer hele zwaard van Sir Aldric in handen — breng het naar de schildknaap.', en: 'You step to the iron, lay the broken sword in the white-hot fire and strike with the blacksmith’s hammer — CLANG! CLANG! The two glowing pieces fuse back together. With a hissing plunge into the water trough you quench it. You hold Sir Aldric’s beautiful, whole sword in your hands — bring it to the squire.' }
+              text: { nl: 'Je loopt naar het ijzer, legt het gebroken zwaard in het wit-hete vuur en slaat met de smidshamer — KLANG! KLANG! De twee gloeiende stukken smelten weer samen. Met een sissende plons in de waterton koel je het af. Je legt de hamer terug bij de smidse en houdt het prachtige, weer hele zwaard van Sir Aldric in handen — breng het naar de schildknaap.', en: 'You step to the iron, lay the broken sword in the white-hot fire and strike with the blacksmith’s hammer — CLANG! CLANG! The two glowing pieces fuse back together. With a hissing plunge into the water trough you quench it. You set the hammer back down at the smithy and hold Sir Aldric’s beautiful, whole sword in your hands — bring it to the squire.' }
             },
             swordBroken: {
-              keep: false,
               needItem: 'hammer',
               needText: { nl: 'Je hebt de smidshamer nodig om te smeden. Die zit verborgen in het smidsbeeld in de tuin.', en: 'You need the blacksmith’s hammer to forge. It’s hidden in the smith statue in the garden.' },
               requiresFlag: 'ovenStoked',
               requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur wit-heet op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar white-hot.' },
-              consume: 'swordBroken',
+              consume: ['swordBroken', 'hammer'],
               give: 'sword',
               setFlag: 'gotSword',
               burst: { x: 44, y: 184, col: '255,210,120', n: 26, up: 20, life: 1.2 },
-              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur en slaat het met de smidshamer — KLANG! KLANG! — weer heel. Met een sissende plons in de waterton koel je het af. Je houdt het prachtige zwaard van Sir Aldric in handen — breng het naar de schildknaap.', en: 'You lay the broken sword in the white-hot fire and strike it whole with the hammer — CLANG! CLANG! With a hissing plunge into the water trough you quench it. You hold Sir Aldric’s beautiful sword in your hands — bring it to the squire.' }
+              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur en slaat het met de smidshamer — KLANG! KLANG! — weer heel. Met een sissende plons in de waterton koel je het af. Je legt de hamer terug bij de smidse en houdt het prachtige zwaard van Sir Aldric in handen — breng het naar de schildknaap.', en: 'You lay the broken sword in the white-hot fire and strike it whole with the hammer — CLANG! CLANG! With a hissing plunge into the water trough you quench it. You set the hammer back down at the smithy and hold Sir Aldric’s beautiful sword in your hands — bring it to the squire.' }
             }
           }
         },
