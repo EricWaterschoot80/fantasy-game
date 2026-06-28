@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '95',
+  assetVer: '96',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -277,12 +277,10 @@ const GAME = {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
       bg: 'assets/art/scene-courtyard.jpg',
       bgVariants: [
-        // eerste passende wint — raaf-staten eerst (zolang de raaf in de put zit en de ketting nog niet binnen is)
-        { img: 'assets/art/scene-courtyard-raven-sword.jpg',     flags: ['ravenInBucket', 'squireGaveRope'], notFlags: ['gotNecklace'] },  // raaf in put + zwaard ingeleverd (tentoongesteld)
-        { img: 'assets/art/scene-courtyard-raven-swordgone.jpg', flags: ['ravenInBucket', 'gotSword'], notFlags: ['gotNecklace'] },        // raaf in put + zwaard gepakt (in je tas, tent leeg)
-        { img: 'assets/art/scene-courtyard-raven.jpg',           flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },                    // raaf in put, zwaard nog niet gemaakt/gepakt
-        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['squireGaveRope'] },                                              // zwaard aan de schildknaap gegeven -> tentoongesteld bij de tent
-        { img: 'assets/art/scene-courtyard-swordgone.jpg',       flags: ['gotSword'] }                                                     // je hebt het zwaard gekregen (in je tas) -> geen-zwaard bij de tent
+        // eerste passende wint
+        { img: 'assets/art/scene-courtyard-raven-swordgone.jpg', flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },  // raaf in de put -> lege rek
+        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['squireGaveRope'] },                            // zwaard ingeleverd bij de schildknaap -> tentoongesteld
+        { img: 'assets/art/scene-courtyard-swordgone.jpg',       flags: ['gotSword'] }                                   // je hebt het zwaard gepakt -> geen zwaard in het rek
       ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
