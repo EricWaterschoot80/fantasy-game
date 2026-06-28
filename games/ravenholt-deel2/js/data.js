@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '88',
+  assetVer: '89',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -331,8 +331,8 @@ const GAME = {
           givesWhen: [
             { flag: 'metSquire', setFlag: 'squireGaveSword', item: 'swordBroken',
               giveText: { nl: 'De schildknaap legt het gebroken zwaard van Sir Aldric — beide stukken — in je handen. “Smeed het weer heel bij de smidse: houtskool in de oven, het zwaard op het ijzer, en dan de hamer. Als het klaar is, krijg je van mij een touw. Veel succes, vriend.”', en: 'The squire places Sir Aldric’s broken sword — both pieces — into your hands. “Forge it whole at the smithy: charcoal in the oven, the sword on the iron, then the hammer. Once it’s done, I’ll give you a rope. Good luck, friend.”' } },
-            { flag: 'gotSword', setFlag: 'squireGaveRope', item: 'rope',
-              giveText: { nl: 'De schildknaap bekijkt het herstelde zwaard met ontzag. “Sir Aldric zou trots zijn. Zoals beloofd — hier is het touw. Daarmee bereik je wat in de oude put verloren ging.”', en: 'The squire examines the reforged sword in awe. “Sir Aldric would be proud. As promised — here is the rope. With it you can reach what was lost in the old well.”' } }
+            { flag: 'gotSword', setFlag: 'squireGaveRope', item: 'rope', consume: 'sword',
+              giveText: { nl: 'De schildknaap neemt het herstelde zwaard van Sir Aldric eerbiedig van je aan. “Sir Aldric zou trots zijn — ik bewaar het veilig. Zoals beloofd: hier is het touw. Daarmee bereik je wat in de oude put verloren ging.”', en: 'The squire reverently takes Sir Aldric’s reforged sword from you. “Sir Aldric would be proud — I’ll keep it safe. As promised: here is the rope. With it you can reach what was lost in the old well.”' } }
           ],
           setFlag: 'metSquire'
         },
@@ -510,7 +510,7 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 264, y: 224, scale: 1.55, glowCol: '255,140,55' },   // houtskool naast de sokkel van het standbeeld; iets hoger + naar rechts; subtiele warme gloed
+        { item: 'charcoal', hotspot: 'charcoal', x: 352, y: 226, scale: 1.55, glowCol: '255,140,55' },   // houtskool aan de rechterkant van het standbeeld; subtiele warme gloed
         { item: 'trinket', hotspot: 'trinket', x: 72, y: 184, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, kleiner + 2px hoger + 2px naar rechts
       ],
       npcs: [
@@ -678,8 +678,8 @@ const GAME = {
         {
           id: 'charcoal',
           name: { nl: 'Houtskool', en: 'Charcoal' },
-          rect: { x: 240, y: 202, w: 50, h: 48 },
-          walkTo: { x: 264, y: 288 },
+          rect: { x: 328, y: 204, w: 50, h: 48 },
+          walkTo: { x: 352, y: 288 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',
