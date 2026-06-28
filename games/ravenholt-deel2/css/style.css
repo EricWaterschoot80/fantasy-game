@@ -1041,6 +1041,24 @@ html, body {
   pointer-events: none;
 }
 .rune-stone-btn:active { transform: scale(.92); }
+
+/* ---- Draai-/windas-puzzel ---- */
+.dial-canvas { display: block; margin: 6px auto 2px; width: 320px; max-width: 76vw; height: auto; }
+.dial-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.dial-btn {
+  background: linear-gradient(180deg, #241a12, #140f0a);
+  border: 2px solid var(--gold);
+  color: var(--gold-light);
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  padding: 12px 16px;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.15);
+  transition: background .12s, transform .08s;
+}
+.dial-btn.dial-lock { border-color: var(--gold-light); background: linear-gradient(180deg, #2e2113, #1a120a); }
+.dial-btn:active { transform: scale(.93); background: rgba(231,207,134,.16); }
+@media (max-width: 560px) { .dial-btn { font-size: 12px; padding: 10px 12px; } }
 .rune-btn-row.tile-grid {
   display: grid;
   grid-template-columns: repeat(2, auto);   /* altijd 2 rijen × 2 kolommen */

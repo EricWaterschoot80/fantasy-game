@@ -3816,6 +3816,127 @@
     }
   }
 
+  /* ---------- Draai-/windas-puzzel (de put) ----------
+     Een echte windas met een hendel: draai het wiel linksom/rechtsom naar het juiste
+     getal en zet vast — als een brandkastslot. De combinatie verlangt zowel het getal
+     als de draairichting; één fout en de pal schiet terug. */
+  const elDial       = document.getElementById('dial-screen');
+  const elDialCanvas = document.getElementById('dial-canvas');
+  const elDialTitle  = document.getElementById('dial-title');
+  const elDialHint   = document.getElementById('dial-hint');
+  const elDialStatus = document.getElementById('dial-status');
+  const dctx = elDialCanvas ? elDialCanvas.getContext('2d') : null;
+  let dialHs = null, dialPos = 0, dialDisp = 0, dialLastDir = null, dialStep = 0, dialSolved = false, dialAnim = null;
+
+  function openDialPuzzle(hs) {
+    const pz = hs.dialPuzzle;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    dialHs = hs; dialPos = 0; dialDisp = 0; dialLastDir = null; dialStep = 0; dialSolved = false;
+    if (elDialTitle)  elDialTitle.textContent  = L(pz.title);
+    if (elDialHint)   elDialHint.textContent   = L(pz.hint);
+    if (elDialStatus) elDialStatus.textContent = '';
+    if (elDial) elDial.hidden = false;
+    drawDial();
+    sfx('tap');
+  }
+  function dialClose() { if (elDial) elDial.hidden = true; dialHs = null; if (dialAnim) { cancelAnimationFrame(dialAnim); dialAnim = null; } }
+  function dialTurn(dir) {
+    if (!dialHs || dialSolved) return;
+    const N = dialHs.dialPuzzle.positions || 12;
+    dialPos = dir === 'R' ? (dialPos + 1) % N : (dialPos + N - 1) % N;
+    dialLastDir = dir;
+    sfx('tap');
+    const start = dialDisp, delta = dir === 'R' ? 1 : -1, target = start + delta, t0 = performance.now(), dur = 150;
+    if (dialAnim) cancelAnimationFrame(dialAnim);
+    (function frame(now) {
+      let k = Math.min(1, (now - t0) / dur); k = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      dialDisp = start + delta * k; drawDial();
+      if (k < 1) { dialAnim = requestAnimationFrame(frame); }
+      else { dialDisp = ((target % N) + N) % N; dialAnim = null; drawDial(); }
+    })(performance.now());
+    if (elDialStatus) elDialStatus.textContent = (lang === 'nl' ? 'Stand: ' : 'Dial: ') + (dialPos + 1);
+  }
+  function dialLock() {
+    if (!dialHs || dialSolved) return;
+    const pz = dialHs.dialPuzzle, N = pz.positions || 12, step = pz.combo[dialStep];
+    if ((dialPos % N) + 1 === step.num && dialLastDir === step.dir) {
+      dialStep++; sfx('pickup');
+      if (dialStep >= pz.combo.length) {
+        dialSolved = true;
+        state.flags[pz.setFlag] = true;
+        if (pz.consume) (Array.isArray(pz.consume) ? pz.consume : [pz.consume]).forEach(removeItem);
+        if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
+        sfx('combine');
+        const h = dialHs;
+        if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'KLIK! Het slot springt open — de emmer zakt...' : 'CLICK! The lock springs open — the bucket drops...';
+        drawDial();
+        setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 750);
+      } else {
+        const rem = pz.combo.length - dialStep;
+        if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? ('Klik! Nog ' + rem + ' draai' + (rem > 1 ? 'en' : '') + '...') : ('Click! ' + rem + ' more turn' + (rem > 1 ? 's' : '') + '...');
+        drawDial();
+      }
+    } else {
+      dialStep = 0; dialLastDir = null; sfx('error');
+      if (elDialStatus) elDialStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'De pal schiet terug — begin opnieuw!' : 'The pawl slips back — start over!');
+      drawDial();
+    }
+  }
+  function drawDial() {
+    if (!dctx || !dialHs) return;
+    const cv = elDialCanvas, x = dctx, W = cv.width, H = cv.height, cx = W / 2, cy = H / 2 + 8, R = Math.min(W, H) * 0.38;
+    const N = dialHs.dialPuzzle.positions || 12, TAU = Math.PI * 2;
+    x.clearRect(0, 0, W, H);
+    // houten schijf + metalen rand
+    let g = x.createRadialGradient(cx, cy, R * 0.2, cx, cy, R * 1.1);
+    g.addColorStop(0, '#6b4a2b'); g.addColorStop(0.82, '#4a3018'); g.addColorStop(1, '#27190c');
+    x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R * 1.1, 0, TAU); x.fill();
+    x.lineWidth = R * 0.1; x.strokeStyle = '#b9852f'; x.beginPath(); x.arc(cx, cy, R * 0.99, 0, TAU); x.stroke();
+    x.lineWidth = 2; x.strokeStyle = '#e7c885'; x.beginPath(); x.arc(cx, cy, R * 0.93, 0, TAU); x.stroke();
+    let g2 = x.createRadialGradient(cx - R * 0.2, cy - R * 0.2, R * 0.1, cx, cy, R * 0.9);
+    g2.addColorStop(0, '#7a5530'); g2.addColorStop(1, '#3a2512');
+    x.fillStyle = g2; x.beginPath(); x.arc(cx, cy, R * 0.86, 0, TAU); x.fill();
+    // getallen + streepjes (draaien mee met dialDisp)
+    x.font = 'bold ' + Math.round(R * 0.17) + 'px Georgia, serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (let i = 0; i < N; i++) {
+      const ang = (i - dialDisp) * (TAU / N), s = Math.sin(ang), c = Math.cos(ang);
+      x.strokeStyle = '#d8b878'; x.lineWidth = 2;
+      x.beginPath(); x.moveTo(cx + s * R * 0.84, cy - c * R * 0.84); x.lineTo(cx + s * R * 0.92, cy - c * R * 0.92); x.stroke();
+      x.fillStyle = '#f0dcab'; x.fillText(String(i + 1), cx + s * R * 0.72, cy - c * R * 0.72);
+    }
+    // hendel/kruk (draait mee)
+    const ca = dialDisp * (TAU / N) + Math.PI * 0.28, hs2 = Math.sin(ca), hc = Math.cos(ca);
+    x.strokeStyle = '#5a3c20'; x.lineWidth = R * 0.085; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + hs2 * R * 0.6, cy - hc * R * 0.6); x.stroke();
+    x.strokeStyle = '#caa15a'; x.lineWidth = R * 0.045;
+    x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + hs2 * R * 0.6, cy - hc * R * 0.6); x.stroke();
+    x.fillStyle = '#7a5530'; x.beginPath(); x.arc(cx + hs2 * R * 0.6, cy - hc * R * 0.6, R * 0.085, 0, TAU); x.fill();
+    x.strokeStyle = '#e7c885'; x.lineWidth = 2; x.stroke();
+    // naaf
+    x.fillStyle = '#4a3119'; x.beginPath(); x.arc(cx, cy, R * 0.17, 0, TAU); x.fill();
+    x.strokeStyle = '#caa15a'; x.lineWidth = 3; x.stroke();
+    // vaste wijzer bovenaan
+    x.fillStyle = '#ffd36b'; x.beginPath(); x.moveTo(cx, cy - R * 1.0); x.lineTo(cx - R * 0.1, cy - R * 1.2); x.lineTo(cx + R * 0.1, cy - R * 1.2); x.closePath(); x.fill();
+    x.strokeStyle = '#7a4a12'; x.lineWidth = 2; x.stroke();
+    // voortgangs-pips (hoeveel draaien vastgezet)
+    const total = dialHs.dialPuzzle.combo.length;
+    for (let i = 0; i < total; i++) {
+      const px = cx - (total - 1) * 9 + i * 18, py = cy + R * 1.28;
+      x.beginPath(); x.arc(px, py, 5, 0, TAU);
+      x.fillStyle = i < dialStep ? '#ffd36b' : '#3a2512'; x.fill();
+      x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
+    }
+  }
+  if (elDial) {
+    const dl = document.getElementById('dial-left'), dr = document.getElementById('dial-right'), dk = document.getElementById('dial-lock'), dx = document.getElementById('dial-close');
+    if (dl) dl.addEventListener('click', () => dialTurn('L'));
+    if (dr) dr.addEventListener('click', () => dialTurn('R'));
+    if (dk) dk.addEventListener('click', dialLock);
+    if (dx) dx.addEventListener('click', dialClose);
+    elDial.addEventListener('click', (e) => { if (e.target === elDial) dialClose(); });
+  }
+
   /* ---------- Boeken-volgorde-puzzel (hergebruikt het runen-scherm) ----------
      Trek de vastzittende boeken in de juiste volgorde; dan komt het toverboek vrij. */
   function openBookPuzzle(hs) {
@@ -4555,6 +4676,20 @@
         return;
       }
       openSymbolPuzzle(hs);
+      return;
+    }
+    if (hs.dialPuzzle) {
+      if (hs.dialPuzzle.requiresFlag && !state.flags[hs.dialPuzzle.requiresFlag]) {
+        sfx('error');
+        say(hs.dialPuzzle.blockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      if (hs.dialPuzzle.needItem && !state.inventory.includes(hs.dialPuzzle.needItem)) {
+        sfx('error');
+        say(hs.dialPuzzle.needText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      openDialPuzzle(hs);
       return;
     }
     /* Spreuk uitspreken: heb je het juiste voorwerp in je tas, dan werkt het meteen
