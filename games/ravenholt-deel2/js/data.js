@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '99',
+  assetVer: '100',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -580,7 +580,7 @@ const GAME = {
         {
           id: 'fountain',
           name: { nl: 'De Leeuwenkop', en: 'The Lion’s Head' },
-          rect: { x: 26, y: 116, w: 66, h: 64 },              // alleen de leeuwenkop (+ sleutelgat): hierop klikken opent de puzzel; het bekken eronder is voor de munt
+          rect: { x: 26, y: 102, w: 66, h: 64 },              // alleen de leeuwen-/drakenkop (+ sleutelgat): hierop klikken opent de puzzel; het bekken eronder is voor de munt — klikveld iets hoger
           walkTo: { x: 96, y: 252 },
           hideFlag: 'secretGateOpen',                         // zodra de poort open is, neemt de geheime-poort-hotspot het over
           look: (state) => state.flags.fountainSolved
