@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '85',
+  assetVer: '86',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -303,7 +303,7 @@ const GAME = {
       overlays: [],
       fx: {
         // smidsvuur laait hoog op zodra de houtskool erin gegooid is (oven wordt zichtbaar hoger)
-        forgeFlame: { flag: 'ovenStoked', x: 40, y: 199, h: 9, fade: 0.6 }
+        forgeFlame: { flag: 'ovenStoked', x: 37, y: 199, h: 9, fade: 0.6 }
       },
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.72)' },        // noot bij het aambeeld/ijzer — op de grond extra donker (het icoon in de tas blijft licht)
@@ -510,8 +510,8 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 250, y: 232, scale: 1.55, glowCol: '255,135,45', gem: true, glintScale: 0.5, glintCol: '255,170,70' },   // houtskool naast de sokkel van het standbeeld; gloeiende sintels + heel kleine vuur-glinstering
-        { item: 'trinket', hotspot: 'trinket', x: 70, y: 186, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.7, glowCol: '255,210,130' }   // bronzen munt onder water in het fontein-bekken: alleen de glinstering, kleiner + 2px hoger
+        { item: 'charcoal', hotspot: 'charcoal', x: 250, y: 232, scale: 1.55, glowCol: '255,140,55' },   // houtskool naast de sokkel van het standbeeld; alleen een subtiele warme gloed (geen draaiende sterren)
+        { item: 'trinket', hotspot: 'trinket', x: 72, y: 184, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, kleiner + 2px hoger + 2px naar rechts
       ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
