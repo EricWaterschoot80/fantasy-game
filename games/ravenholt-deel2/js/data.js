@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '84',
+  assetVer: '85',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -303,7 +303,7 @@ const GAME = {
       overlays: [],
       fx: {
         // smidsvuur laait hoog op zodra de houtskool erin gegooid is (oven wordt zichtbaar hoger)
-        forgeFlame: { flag: 'ovenStoked', x: 40, y: 197, h: 12 }
+        forgeFlame: { flag: 'ovenStoked', x: 40, y: 199, h: 9, fade: 0.6 }
       },
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.72)' },        // noot bij het aambeeld/ijzer — op de grond extra donker (het icoon in de tas blijft licht)
@@ -510,7 +510,7 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 254, scale: 1.55, glowCol: '255,135,45' },   // houtskool met gloeiende sintels — nog groter + sterkere gloed zodat hij echt opvalt, iets lager
+        { item: 'charcoal', hotspot: 'charcoal', x: 250, y: 232, scale: 1.55, glowCol: '255,135,45', gem: true, glintScale: 0.5, glintCol: '255,170,70' },   // houtskool naast de sokkel van het standbeeld; gloeiende sintels + heel kleine vuur-glinstering
         { item: 'trinket', hotspot: 'trinket', x: 70, y: 186, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.7, glowCol: '255,210,130' }   // bronzen munt onder water in het fontein-bekken: alleen de glinstering, kleiner + 2px hoger
       ],
       npcs: [
@@ -595,7 +595,7 @@ const GAME = {
           rect: { x: 8, y: 96, w: 52, h: 122 },
           walkTo: { x: 60, y: 250 },
           appearFlag: 'secretGateOpen',                      // verschijnt pas nadat de sleutel het slot opent
-          arrow: { x: 62, y: 150, dir: 'up' },
+          arrow: { x: 62, y: 168, dir: 'up' },
           exit: { to: 'library', travelText: { nl: 'Je stapt door de open geheime poort naast de leeuwenfontein. Een koele, donkere gang loopt diep het kasteel in en komt uit in een stille, stoffige bibliotheek vol oude boeken...', en: 'You step through the open secret gate beside the lion fountain. A cool, dark passage runs deep into the castle and opens into a quiet, dusty library full of ancient books...' } }
         },
         {
@@ -678,8 +678,8 @@ const GAME = {
         {
           id: 'charcoal',
           name: { nl: 'Houtskool', en: 'Charcoal' },
-          rect: { x: 308, y: 232, w: 50, h: 44 },
-          walkTo: { x: 338, y: 298 },
+          rect: { x: 226, y: 210, w: 50, h: 48 },
+          walkTo: { x: 250, y: 290 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',

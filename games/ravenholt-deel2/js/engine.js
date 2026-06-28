@@ -1566,27 +1566,28 @@
     /* Smidsvuur: zodra de houtskool erin gegooid is, laait het vuur hoog op (hoge dansende vlammen + opstijgende sintels). */
     if (fx.forgeFlame && state.flags[fx.forgeFlame.flag]) {
       const ff = fx.forgeFlame, fxw = ff.x, fyb = ff.y;     // basis (onderkant) van het vuur
-      const H = ff.h || 26;                                  // de oven wordt nu zichtbaar HOGER
+      const H = ff.h || 26;
+      const fade = ff.fade != null ? ff.fade : 1;            // doorzichtigheid (lager = vager vuur)
       const flick = 0.7 + 0.3 * Math.sin(now / 90) + 0.2 * Math.sin(now / 47);
       for (let i = 0; i < 7; i++) {                          // gestapelde vlamtongen, breed onderaan, smal bovenaan
         const t = i / 6;
         const hh = H * flick * (1 - t * 0.15);
         const yy = fyb - t * hh;
         const sway = Math.sin(now / 130 + i * 0.9) * (2 + t * 4);
-        const w = Math.max(1, Math.round((7 - i) * (1 - t * 0.3)));
-        const a = (0.5 - t * 0.32) * flick;
+        const w = Math.max(1, Math.round((6 - i) * (1 - t * 0.3)));
+        const a = (0.5 - t * 0.32) * flick * fade;
         const col = t < 0.4 ? '255,150,40' : t < 0.75 ? '255,200,70' : '255,240,170';
         fctx.fillStyle = `rgba(${col},${Math.max(0, a)})`;
         fctx.fillRect(Math.round(fxw + sway - w / 2), Math.round(yy - hh), w, Math.round(hh));
       }
-      const gh = fctx.createRadialGradient(fxw, fyb - 6, 1, fxw, fyb - 6, 20); // warme gloed eromheen
-      gh.addColorStop(0, `rgba(255,170,60,${0.22 * flick})`); gh.addColorStop(1, 'rgba(255,150,40,0)');
-      fctx.fillStyle = gh; fctx.fillRect(fxw - 20, fyb - 28, 40, 40);
-      for (let k = 0; k < 4; k++) {                          // opstijgende sintels
+      const gh = fctx.createRadialGradient(fxw, fyb - 5, 1, fxw, fyb - 5, 16); // warme gloed eromheen
+      gh.addColorStop(0, `rgba(255,170,60,${0.20 * flick * fade})`); gh.addColorStop(1, 'rgba(255,150,40,0)');
+      fctx.fillStyle = gh; fctx.fillRect(fxw - 16, fyb - 22, 32, 32);
+      for (let k = 0; k < 3; k++) {                          // opstijgende sintels
         const sp = ((now / 7 + k * 80) % 100) / 100;
-        const ex = fxw + Math.sin(now / 200 + k * 2) * 6;
-        const ey = fyb - sp * (H + 8);
-        twinkle(ex, ey, (1 - sp) * 0.8, '255,180,70');
+        const ex = fxw + Math.sin(now / 200 + k * 2) * 5;
+        const ey = fyb - sp * (H + 6);
+        twinkle(ex, ey, (1 - sp) * 0.7 * fade, '255,180,70');
       }
     }
     /* Huilend meisje bij de kraam: twee traanstraaltjes die van haar ogen over de wangen vallen. */
@@ -1933,21 +1934,24 @@
         fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
         if (wi.filter) fctx.filter = 'none';
       }
-      if (wi.gem) {                                      // sierlijke glinstering rond een glimmend kristal
+      if (wi.gem) {                                      // sierlijke glinstering rond een glimmend kristal (of warme vuur-glinstering)
         const gs = wi.glintScale || 1;                   // schaal de glinstering (bv. kleiner in de fontein)
+        const gcHalo = wi.glintCol || '210,238,255';     // glintCol overschrijft de kleur (bv. warm oranje voor houtskool)
+        const gcMain = wi.glintCol || '240,250,255';
+        const gcA = wi.glintCol || '190,225,255', gcB = wi.glintCol ? '255,235,190' : '255,255,255';
         const cy = wi.glintOnly ? wi.y : (wi.y - hgt / 2) + bob + 2;
         const halo = 0.10 + 0.07 * Math.sin(now / 360);  // zacht ademende aura
         const hr = Math.round(18 * gs);
         const hg = fctx.createRadialGradient(wi.x, cy, 1, wi.x, cy, hr);
-        hg.addColorStop(0, `rgba(210,238,255,${halo})`); hg.addColorStop(1, 'rgba(210,238,255,0)');
+        hg.addColorStop(0, `rgba(${gcHalo},${halo})`); hg.addColorStop(1, `rgba(${gcHalo},0)`);
         fctx.fillStyle = hg; fctx.fillRect(wi.x - hr, cy - hr, hr * 2, hr * 2);
         const bloom = Math.pow(0.5 + 0.5 * Math.sin(now / 900), 6);   // af en toe een grote flonker
-        starSparkle(wi.x, cy, (3.5 + bloom * 4) * gs, 0.55 + 0.4 * bloom, '240,250,255');   // hoofdflits
+        starSparkle(wi.x, cy, (3.5 + bloom * 4) * gs, 0.55 + 0.4 * bloom, gcMain);   // hoofdflits
         for (let k = 0; k < 4; k++) {                    // vier sierlijk cirkelende sterretjes
           const ang = now / 1100 + k * (Math.PI / 2);
           const rad = (7 + (k % 2) * 5) * gs;
           const tw = 0.5 + 0.5 * Math.sin(now / 230 + k * 1.9);
-          starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang) * (rad * 0.7) - 1, (1.6 + (k % 2 ? 0 : 1)) * gs, 0.18 + 0.72 * tw * tw, k % 2 ? '190,225,255' : '255,255,255');
+          starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang) * (rad * 0.7) - 1, (1.6 + (k % 2 ? 0 : 1)) * gs, 0.18 + 0.72 * tw * tw, k % 2 ? gcA : gcB);
         }
       } else if (big) {                                  // dansende fonkelingen rond de bloem
         for (let k = 0; k < 2; k++) {
