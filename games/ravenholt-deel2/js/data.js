@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '89',
+  assetVer: '90',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -277,11 +277,11 @@ const GAME = {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
       bg: 'assets/art/scene-courtyard.jpg',
       bgVariants: [
-        // 4 staten: zwaard wel/niet gepakt × raaf wel/niet in de emmer (eerste passende wint)
-        { img: 'assets/art/scene-courtyard-raven-sword.jpg', flags: ['ravenInBucket', 'swordForged'], notFlags: ['gotSword', 'gotNecklace'] },  // raaf in emmer + gesmeed zwaard ligt klaar
-        { img: 'assets/art/scene-courtyard-raven.jpg',       flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },               // raaf in emmer (zwaard gepakt of nog niet gesmeed)
-        { img: 'assets/art/scene-courtyard-sword.jpg',       flags: ['swordForged'], notFlags: ['gotSword'] },                    // gesmeed zwaard ligt klaar bij de markttent
-        { img: 'assets/art/scene-courtyard-swordgone.jpg',   flags: ['gotSword'] }                                               // je hebt het zwaard gepakt
+        // eerste passende wint
+        { img: 'assets/art/scene-courtyard-raven-sword.jpg', flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },              // raaf zit in de put
+        { img: 'assets/art/scene-courtyard-sword.jpg',       flags: ['squireGaveRope'] },                                        // zwaard aan de schildknaap gegeven -> hij stelt het tentoon bij de tent
+        { img: 'assets/art/scene-courtyard-sword.jpg',       flags: ['swordForged'], notFlags: ['gotSword'] },                   // gesmeed zwaard ligt klaar om te pakken
+        { img: 'assets/art/scene-courtyard-swordgone.jpg',   flags: ['gotSword'] }                                               // je hebt het zwaard (gepakt, nog niet gegeven)
       ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
@@ -361,20 +361,33 @@ const GAME = {
             : state.flags.ravenInBucket
             ? { nl: 'Diep in de schacht zit de raaf in de emmer te wachten, met iets glinsterends in zijn snavel. Hijs de emmer omhoog — maar het windwerk heeft een touw nodig.', en: 'Deep in the shaft the raven waits in the bucket, something glinting in his beak. Haul the bucket up — but the winch needs a rope.' }
             : { nl: 'Een oude stenen put met een houten windwerk, maar zonder touw. Diep beneden, in het donkere water, ligt iets te glinsteren — te diep om er zelf bij te komen. Misschien kan iets (of iemand) kleins het halen?', en: 'An old stone well with a wooden winch, but no rope. Far below, in the dark water, something glints — too deep to reach yourself. Maybe something (or someone) small could fetch it?' },
-          maze: {
+          symbolPuzzle: {
             requiresFlag: 'ravenInBucket',
             blockedText: { nl: 'De put is veel te diep om er zelf bij te komen. Lok eerst de raaf de emmer in met iets glimmends.', en: 'The well is far too deep to reach yourself. First lure the raven into the bucket with something shiny.' },
             needItem: 'rope',
-            needText: { nl: 'De raaf zit met de ketting in de emmer, maar het windwerk heeft een touw nodig om hem op te hijsen. Haal eerst het touw bij de schildknaap.', en: 'The raven sits with the necklace in the bucket, but the winch needs a rope to haul it up. Get the rope from the squire first.' },
-            cells: 7,                                       // 7×7 doolhof: leid het touw langs de natte schachten omlaag
-            water: true,
-            img: 'assets/art/maze-well.jpg',
-            title: { nl: 'Laat het touw naar de raaf zakken', en: 'Lower the Rope to the Raven' },
-            hint: { nl: 'Leid het touw langs de natte schachten omlaag, om de muren heen, tot bij de raaf met de ketting op de bodem. Gebruik de pijltjes.', en: 'Guide the rope down through the wet shafts, around the walls, to the raven with the necklace at the bottom. Use the arrows.' },
+            needText: { nl: 'De raaf zit met de ketting in de emmer, maar je hebt een touw nodig om door de ringen te rijgen. Haal eerst het touw bij de schildknaap.', en: 'The raven sits with the necklace in the bucket, but you need a rope to thread through the rings. Get the rope from the squire first.' },
+            img: 'assets/art/puzzle-well-combo.jpg',
+            title: { nl: 'Het Touw-Slot van de Put', en: 'The Well’s Rope-Lock' },
+            hint: { nl: 'Rijg het touw door de ijzeren ringen in de juiste combinatie — volg de oude, vervaagde touwlijn van boven naar beneden. Klik mis? Dan glipt het touw los en begin je opnieuw.', en: 'Thread the rope through the iron rings in the right combination — follow the old, faded rope-line from top to bottom. Click wrong and the rope slips loose; start over.' },
+            zones: [
+              { key: 'r1', left: 11, top: 13, width: 19, height: 26 },
+              { key: 'r2', left: 70, top: 13, width: 19, height: 26 },
+              { key: 'r3', left: 11, top: 37, width: 19, height: 26 },
+              { key: 'r4', left: 70, top: 37, width: 19, height: 26 },
+              { key: 'r5', left: 11, top: 61, width: 19, height: 26 },
+              { key: 'r6', left: 70, top: 61, width: 19, height: 26 }
+            ],
+            symbols: [
+              { key: 'r1', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r2', label: { nl: 'Ring', en: 'Ring' } },
+              { key: 'r3', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r4', label: { nl: 'Ring', en: 'Ring' } },
+              { key: 'r5', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r6', label: { nl: 'Ring', en: 'Ring' } }
+            ],
+            sequence: ['r1', 'r4', 'r5', 'r6'],            // combinatie: volg de vervaagde touwlijn (linksboven -> rechtsmidden -> linksonder -> rechtsonder)
             setFlag: 'gotNecklace',
             consume: 'rope',
             give: 'necklace',
-            solvedText: { nl: 'Het touw bereikt de emmer en je hijst op. Krakend komt de raaf boven, trots, met een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'The rope reaches the bucket and you haul it up. Creaking, the raven rises, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
+            solvedText: { nl: 'Met een laatste lus klikt het touw door alle ringen — de juiste combinatie! Je draait de slinger en krakend komt de emmer omhoog, met de raaf erin, trots, een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'With a final loop the rope clicks through every ring — the right combination! You turn the crank and, creaking, the bucket rises, the raven inside, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' },
+            resetText: { nl: 'Het touw glipt uit de verkeerde ring en valt terug. Begin opnieuw — volg de vervaagde touwlijn.', en: 'The rope slips from the wrong ring and falls back. Start over — follow the faded rope-line.' }
           }
         },
         {

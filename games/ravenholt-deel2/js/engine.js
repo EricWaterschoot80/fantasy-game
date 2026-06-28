@@ -4537,6 +4537,11 @@
         say(hs.symbolPuzzle.blockedText || lookText(hs), hsSpeaker(hs));
         return;
       }
+      if (hs.symbolPuzzle.needItem && !state.inventory.includes(hs.symbolPuzzle.needItem)) {
+        sfx('error');
+        say(hs.symbolPuzzle.needText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
       openSymbolPuzzle(hs);
       return;
     }
