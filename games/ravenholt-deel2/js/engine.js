@@ -1540,20 +1540,22 @@
       const f = fx.fountain;
       const jets = f.jets || [{ sx: f.sx, sy: f.sy }];
       const LEN = f.len || 22;                         // korte straal: blijft binnen het bekken
-      /* vallende waterstraaltjes uit de tappen */
+      /* vallende waterstraaltjes uit de tappen — duidelijker zichtbaar: meer druppels, helderder, af en toe wat langer */
       for (const j of jets) {
-        for (let i = 0; i < 5; i++) {
-          const t = ((now / 42) + i * (LEN / 5)) % LEN;
-          const al = 0.45 - t / (LEN * 2.4);
-          fctx.fillStyle = `rgba(186,228,242,${al})`;
-          fctx.fillRect(Math.round(j.sx + Math.sin(t / 3) * 0.4), Math.round(j.sy + t), 1, 1);
+        for (let i = 0; i < 9; i++) {
+          const t = ((now / 36) + i * (LEN / 9)) % LEN;
+          const al = 0.78 - t / (LEN * 2.0);
+          const dx = Math.round(j.sx + Math.sin(t / 3) * 0.5);
+          fctx.fillStyle = `rgba(205,240,252,${al})`;
+          fctx.fillRect(dx, Math.round(j.sy + t), 1, (i % 3 === 0) ? 2 : 1);   // elke 3e druppel iets langer
         }
       }
-      /* opspattend / knipperend bij het wateroppervlak */
-      if (((now / 120) | 0) % 2 === 0) {
-        fctx.fillStyle = 'rgba(220,242,250,0.6)';
-        fctx.fillRect(f.wx - 1, f.wy, 1, 1);
+      /* opspattend / knipperend bij het wateroppervlak — sterker */
+      if (((now / 90) | 0) % 2 === 0) {
+        fctx.fillStyle = 'rgba(232,248,255,0.85)';
+        fctx.fillRect(f.wx - 1, f.wy, 2, 1);
         fctx.fillRect(f.wx + 2, f.wy + 1, 1, 1);
+        fctx.fillRect(f.wx, f.wy - 1, 1, 1);
       }
       /* drijvende rimpels op het oppervlak (klein, binnen de rand) */
       for (let i = 0; i < 2; i++) {
@@ -1940,6 +1942,8 @@
         const gcMain = wi.glintCol || '240,250,255';
         const gcA = wi.glintCol || '190,225,255', gcB = wi.glintCol ? '255,235,190' : '255,255,255';
         const cy = wi.glintOnly ? wi.y : (wi.y - hgt / 2) + bob + 2;
+        const wide = wi.glintWide || 1;                   // horizontaal uitrekken (bv. plattere, bredere glinstering op het water)
+        if (wide !== 1) { fctx.save(); fctx.translate(wi.x, 0); fctx.scale(wide, 1); fctx.translate(-wi.x, 0); }
         const halo = 0.10 + 0.07 * Math.sin(now / 360);  // zacht ademende aura
         const hr = Math.round(18 * gs);
         const hg = fctx.createRadialGradient(wi.x, cy, 1, wi.x, cy, hr);
@@ -1953,6 +1957,7 @@
           const tw = 0.5 + 0.5 * Math.sin(now / 230 + k * 1.9);
           starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang) * (rad * 0.7) - 1, (1.6 + (k % 2 ? 0 : 1)) * gs, 0.18 + 0.72 * tw * tw, k % 2 ? gcA : gcB);
         }
+        if (wide !== 1) fctx.restore();
       } else if (big) {                                  // dansende fonkelingen rond de bloem
         for (let k = 0; k < 2; k++) {
           const ang = now / 640 + k * 3.1;
@@ -3800,6 +3805,8 @@
         state.flags[pz.setFlag] = true;
         if (pz.consume) removeItem(pz.consume);
         if (pz.give) addItem(pz.give);
+        const spSc = GAME.scenes[state.currentScene];          // achtergrond meteen verversen (bv. hamer uit het beeld -> tuin2)
+        if (spSc && spSc.bgVariants) paintBackground();
         sfx('combine');
         const h = symHs; symHs = null;
         setTimeout(() => { elRune.hidden = true; if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 450);

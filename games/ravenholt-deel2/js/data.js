@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '103',
+  assetVer: '104',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -504,8 +504,8 @@ const GAME = {
       depth: { far: 206, near: 316, sFar: 0.72, sNear: 1.05 },
       walkable: [
         { x: 30,  y: 252, w: 508, h: 62 },                 // voorgrond-pad over de hele breedte
-        { x: 30,  y: 214, w: 180, h: 44 },                 // pad links (richting fontein)
-        { x: 360, y: 214, w: 178, h: 44 }                  // pad rechts (richting bankje)
+        { x: 18,  y: 200, w: 198, h: 58 },                 // pad links (richting fontein) — hoger en meer naar links
+        { x: 360, y: 200, w: 178, h: 58 }                  // pad rechts (richting bankje) — hoger
       ],
       obstacles: [
         { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
@@ -517,7 +517,7 @@ const GAME = {
       ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 352, y: 216, scale: 1.12, glowCol: '255,140,55', embers: 0.6 },   // houtskool rechts van het standbeeld; kleiner, met zachtere oplichtende sintels
-        { item: 'trinket', hotspot: 'trinket', x: 72, y: 184, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, kleiner + 2px hoger + 2px naar rechts
+        { item: 'trinket', hotspot: 'trinket', x: 72, y: 182, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.48, glintWide: 1.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, 2px hoger, iets kleiner maar breder (platter over het water)
       ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
