@@ -1928,11 +1928,13 @@
       g.addColorStop(1, `rgba(${col},0)`);
       fctx.fillStyle = g;
       fctx.fillRect(wi.x - r, wi.y - r, r * 2, r * 2);
-      if (wi.filter) fctx.filter = wi.filter;            // per-item filter (bv. de noot op de grond donkerder dan in de tas)
-      fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
-      if (wi.filter) fctx.filter = 'none';
+      if (!wi.glintOnly) {                               // glintOnly: toon enkel de glinstering (bv. de munt ligt onder water in de fontein)
+        if (wi.filter) fctx.filter = wi.filter;          // per-item filter (bv. de noot op de grond donkerder dan in de tas)
+        fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
+        if (wi.filter) fctx.filter = 'none';
+      }
       if (wi.gem) {                                      // sierlijke glinstering rond een glimmend kristal
-        const cy = (wi.y - hgt / 2) + bob + 2;
+        const cy = wi.glintOnly ? wi.y : (wi.y - hgt / 2) + bob + 2;
         const halo = 0.10 + 0.07 * Math.sin(now / 360);  // zacht ademende aura
         const hg = fctx.createRadialGradient(wi.x, cy, 1, wi.x, cy, 18);
         hg.addColorStop(0, `rgba(210,238,255,${halo})`); hg.addColorStop(1, 'rgba(210,238,255,0)');
@@ -4561,8 +4563,12 @@
 
     /* Voorwerp dat een NPC pas geeft zodra een vlag gezet is (bv. de burgemeester
        overhandigt de geheime kaart zodra de molen weer draait). Eenmalig. */
-    if (hs.givesWhen && state.flags[hs.givesWhen.flag] && !state.flags[hs.givesWhen.setFlag]) {
-      const g = hs.givesWhen;
+    /* givesWhen mag een array zijn: de eerste config waarvan de flag staat én die nog niet
+       is uitgevoerd, wordt gegeven (bv. schildknaap: eerst gebroken zwaard, later het touw). */
+    const gwAll = hs.givesWhen ? (Array.isArray(hs.givesWhen) ? hs.givesWhen : [hs.givesWhen]) : [];
+    const gwReady = gwAll.find((x) => state.flags[x.flag] && !state.flags[x.setFlag]);
+    if (gwReady) {
+      const g = gwReady;
       if (g.needFlag && !state.flags[g.needFlag]) {     // tweede voorwaarde (bv. eerst een vlag)
         sfx('error'); say(g.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return;
       }
@@ -5156,7 +5162,7 @@
     if (!elZoom || !elZoomImg) return;
     const pages = [];
     if (state.flags.mapFiled) pages.push({ img: 'assets/art/map-valley.png', label: { nl: 'De Kaart', en: 'The Map' } });          // altijd de eerste bladzijde
-    if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Spreuk van Dansende Bloemen', en: 'Dancing Flowers Spell' } });
+    if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
     if (state.flags.gotRecipe) pages.push({ img: 'assets/art/recipe.jpg', label: { nl: 'Het Recept', en: 'The Recipe' } });
     if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.jpg', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
     if (state.flags.gotInvisSpell) pages.push({ img: 'assets/art/spell-invis.jpg', label: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' } });
