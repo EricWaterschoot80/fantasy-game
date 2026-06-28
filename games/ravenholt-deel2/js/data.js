@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '94',
+  assetVer: '95',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -277,10 +277,12 @@ const GAME = {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
       bg: 'assets/art/scene-courtyard.jpg',
       bgVariants: [
-        // eerste passende wint
-        { img: 'assets/art/scene-courtyard-raven-sword.jpg', flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },              // raaf zit in de put
-        { img: 'assets/art/scene-courtyard-sword.jpg',       flags: ['squireGaveRope'] },                                        // zwaard aan de schildknaap gegeven -> hij stelt het tentoon bij de tent
-        { img: 'assets/art/scene-courtyard-swordgone.jpg',   flags: ['gotSword'] }                                               // je hebt het zwaard gekregen (in je tas) -> geen-zwaard bij de tent
+        // eerste passende wint — raaf-staten eerst (zolang de raaf in de put zit en de ketting nog niet binnen is)
+        { img: 'assets/art/scene-courtyard-raven-sword.jpg',     flags: ['ravenInBucket', 'squireGaveRope'], notFlags: ['gotNecklace'] },  // raaf in put + zwaard ingeleverd (tentoongesteld)
+        { img: 'assets/art/scene-courtyard-raven-swordgone.jpg', flags: ['ravenInBucket', 'gotSword'], notFlags: ['gotNecklace'] },        // raaf in put + zwaard gepakt (in je tas, tent leeg)
+        { img: 'assets/art/scene-courtyard-raven.jpg',           flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },                    // raaf in put, zwaard nog niet gemaakt/gepakt
+        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['squireGaveRope'] },                                              // zwaard aan de schildknaap gegeven -> tentoongesteld bij de tent
+        { img: 'assets/art/scene-courtyard-swordgone.jpg',       flags: ['gotSword'] }                                                     // je hebt het zwaard gekregen (in je tas) -> geen-zwaard bij de tent
       ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
@@ -367,21 +369,24 @@ const GAME = {
             needText: { nl: 'De raaf zit met de ketting in de emmer, maar je hebt een touw nodig om door de ringen te rijgen. Haal eerst het touw bij de schildknaap.', en: 'The raven sits with the necklace in the bucket, but you need a rope to thread through the rings. Get the rope from the squire first.' },
             img: 'assets/art/puzzle-well-combo.jpg',
             title: { nl: 'Het Touw-Slot van de Put', en: 'The Well’s Rope-Lock' },
-            hint: { nl: 'Rijg het touw door de ijzeren ringen in de juiste combinatie — volg de oude, vervaagde touwlijn van boven naar beneden. Klik mis? Dan glipt het touw los en begin je opnieuw.', en: 'Thread the rope through the iron rings in the right combination — follow the old, faded rope-line from top to bottom. Click wrong and the rope slips loose; start over.' },
+            hint: { nl: 'Rijg het touw door alle negen ijzeren ringen in de juiste combinatie. Volg de oude, vervaagde touwlijn héél nauwkeurig — hij kronkelt en kruist zichzelf. Eén misklik en het hele touw glipt los; dan begin je weer van voren af aan.', en: 'Thread the rope through all nine iron rings in the right combination. Follow the old, faded rope-line very carefully — it winds and crosses itself. One wrong click and the whole rope slips loose; then you start all over.' },
             zones: [
-              { key: 'r1', left: 11, top: 13, width: 19, height: 26 },
-              { key: 'r2', left: 70, top: 13, width: 19, height: 26 },
-              { key: 'r3', left: 11, top: 37, width: 19, height: 26 },
-              { key: 'r4', left: 70, top: 37, width: 19, height: 26 },
-              { key: 'r5', left: 11, top: 61, width: 19, height: 26 },
-              { key: 'r6', left: 70, top: 61, width: 19, height: 26 }
+              { key: 'r1', left: 9,  top: 12, width: 16, height: 22 },
+              { key: 'r2', left: 42, top: 12, width: 16, height: 22 },
+              { key: 'r3', left: 75, top: 12, width: 16, height: 22 },
+              { key: 'r4', left: 9,  top: 39, width: 16, height: 22 },
+              { key: 'r5', left: 42, top: 39, width: 16, height: 22 },
+              { key: 'r6', left: 75, top: 39, width: 16, height: 22 },
+              { key: 'r7', left: 9,  top: 66, width: 16, height: 22 },
+              { key: 'r8', left: 42, top: 66, width: 16, height: 22 },
+              { key: 'r9', left: 75, top: 66, width: 16, height: 22 }
             ],
             symbols: [
-              { key: 'r1', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r2', label: { nl: 'Ring', en: 'Ring' } },
-              { key: 'r3', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r4', label: { nl: 'Ring', en: 'Ring' } },
-              { key: 'r5', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r6', label: { nl: 'Ring', en: 'Ring' } }
+              { key: 'r1', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r2', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r3', label: { nl: 'Ring', en: 'Ring' } },
+              { key: 'r4', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r5', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r6', label: { nl: 'Ring', en: 'Ring' } },
+              { key: 'r7', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r8', label: { nl: 'Ring', en: 'Ring' } }, { key: 'r9', label: { nl: 'Ring', en: 'Ring' } }
             ],
-            sequence: ['r1', 'r4', 'r5', 'r6'],            // combinatie: volg de vervaagde touwlijn (linksboven -> rechtsmidden -> linksonder -> rechtsonder)
+            sequence: ['r1', 'r6', 'r4', 'r9', 'r2', 'r7', 'r8'],   // veel moeilijker: 7-staps kronkelende combinatie door 9 ringen
             setFlag: 'gotNecklace',
             consume: 'rope',
             give: 'necklace',
