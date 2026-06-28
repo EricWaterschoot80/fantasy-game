@@ -173,7 +173,9 @@
 
   /* ---------- State ---------- */
   function newState() {
-    return { currentScene: GAME.startScene, inventory: (GAME.startItems || []).slice(), flags: {}, selectedItem: null };
+    const flags = {};
+    (GAME.startFlags || []).forEach((f) => { flags[f] = true; });   // bv. de bladzijdes uit Deel 1 die al in het boek staan
+    return { currentScene: GAME.startScene, inventory: (GAME.startItems || []).slice(), flags, selectedItem: null };
   }
   let state = newState();
 
@@ -5157,9 +5159,10 @@
     if (!elZoom || !elZoomImg) return;
     const pages = [];
     if (state.flags.mapFiled) pages.push({ img: 'assets/art/map-valley.png', label: { nl: 'De Kaart', en: 'The Map' } });          // altijd de eerste bladzijde
-    if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
+    if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Spreuk van Dansende Bloemen', en: 'Dancing Flowers Spell' } });
     if (state.flags.gotRecipe) pages.push({ img: 'assets/art/recipe.jpg', label: { nl: 'Het Recept', en: 'The Recipe' } });
     if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.jpg', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
+    if (state.flags.gotInvisSpell) pages.push({ img: 'assets/art/spell-invis.jpg', label: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' } });
     if (!pages.length) return;
     bookPages = pages; bookIdx = pages.length - 1;   // open op de nieuwste spreuk
     showBookPage();

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '80',
+  assetVer: '81',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -72,8 +72,10 @@ const GAME = {
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
-  /* Finn begint met de staf van zijn vader én — uit Deel 1 — zijn toverboek met de twee spreuken (dans + draak). */
+  /* Finn begint met de staf van zijn vader én — uit Deel 1 — zijn toverboek met de twee spreuken (dansende bloemen + draak). */
   startItems: ['staff', 'spellbook', 'spell', 'dragonspell'],
+  /* Alle bladzijdes uit Deel 1 staan al in het boek: de kaart, de spreuk van dansende bloemen, het recept en de drakenspreuk. */
+  startFlags: ['mapFiled', 'spellWritten', 'gotRecipe', 'dragonSpellLearned'],
 
   winText: {
     nl: 'Gefeliciteerd — je hebt DEEL 2 van Whispers of Ravenholt uitgespeeld! Je hebt het wapen van Sir Aldric herenigd, het hart van de prinses gewonnen en de geheime deur achter de fontein geopend. Daarachter wacht de duistere gang naar Finns vader... maar dat verhaal bewaren we voor DEEL 3. Knap gedaan, held — tot snel!',
@@ -138,14 +140,6 @@ const GAME = {
   items: {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Hij voelt vertrouwd in je hand — met de juiste spreuk in je boek kun je hem laten werken.', en: 'My father’s wooden staff. It feels familiar in your hand — with the right spell in your book you can make it work.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-spellbook.png',
-             look: (state) => state.flags.gotInvisSpell
-               ? { nl: 'Je toverboek uit Deel 1. Naast de dans-spreuk en de drakenspreuk staat nu ook de onzichtbaarheidsspreuk uit de kasteelbibliotheek.', en: 'Your spellbook from Part 1. Beside the dance spell and the dragon spell, the invisibility spell from the castle library now stands written too.' }
-               : { nl: 'Je trouwe toverboek uit Deel 1. Erin staan twee spreuken die je zelf schreef: de dans-spreuk en de drakenspreuk.', en: 'Your trusty spellbook from Part 1. In it stand two spells you wrote yourself: the dance spell and the dragon spell.' } },
-    spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', img: 'assets/art/item-spell.png', border: 'blue',
-             look: { nl: 'De dans-spreuk die je in Deel 1 in je toverboek schreef — “Laat wat stil staat vrolijk dansen.” Hij gloeit nog zacht blauw na.', en: 'The dance spell you wrote in your spellbook in Part 1 — “Make what stands still dance.” It still glows softly blue.' } },
-    dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', img: 'assets/art/item-dragonspell.png', border: 'blue',
-             look: { nl: 'De drakenspreuk “Draconis Umbra” uit Deel 1. Spreek hem uit en er rijst een enorme drakenschaduw op.', en: 'The dragon spell “Draconis Umbra” from Part 1. Speak it and a huge dragon shadow rises.' } },
     invisspell: { name: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' }, icon: '👻', img: 'assets/art/item-invisspell.png', sparkle: true, border: 'blue',
              look: { nl: 'De onzichtbaarheidsspreuk uit het gloeiende boek in de kasteelbibliotheek. De letters lijken weg te vagen terwijl je kijkt — wie weet welke deuren dit in Deel 3 opent...', en: 'The invisibility spell from the glowing book in the castle library. Its letters seem to fade away as you watch — who knows what doors this opens in Part 3...' } },
     hammer: { name: { nl: 'Smidshamer', en: 'Blacksmith’s Hammer' }, icon: '🔨', img: 'assets/art/item-hammer.png',
@@ -203,8 +197,8 @@ const GAME = {
              look: { nl: 'Het glazen flesje, nu gevuld met diepzwarte bessen-inkt. Perfect om een veer in te dopen.', en: 'The glass vial, now filled with deep-black berry ink. Perfect for dipping a feather.' } },
     inkFeather: { name: { nl: 'Inktveer', en: 'Ink-dipped Feather' }, icon: '🪄', img: 'assets/art/item-inkfeather.png',
              look: { nl: 'De magische ravenveer, gedoopt in de bessen-inkt — nog steeds een veer, maar met een glanzende zwarte inktpunt. Klaar om een spreuk in het lege toverboek te schrijven.', en: 'The magic raven feather, dipped in berry ink — still a feather, but with a glossy black ink tip. Ready to write a spell in the empty spellbook.' } },
-    spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', img: 'assets/art/item-spell.png', border: 'blue',
-             look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
+    spell: { name: { nl: 'Spreuk van Dansende Bloemen', en: 'Dancing Flowers Spell' }, icon: '✦', img: 'assets/art/item-spell.png', border: 'blue',
+             look: { nl: 'De spreuk van dansende bloemen die je zelf in Deel 1 in je toverboek schreef — “Laat wat stil staat vrolijk dansen.” Hij gloeit nog zacht blauw na.', en: 'The dancing-flowers spell you wrote yourself in your spellbook in Part 1 — “Make what stands still dance.” It still glows softly blue.' } },
     dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', img: 'assets/art/item-dragonspell.png', border: 'blue',
              look: { nl: 'De drakenspreuk “Draconis Umbra” die zich in je toverboek schreef. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” that wrote itself into your spellbook. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
     ring: { name: { nl: 'Drakenring', en: 'Dragon Ring' }, icon: '💍', img: 'assets/art/item-ring.png', border: 'blue', sparkle: true,
@@ -278,6 +272,9 @@ const GAME = {
     courtyard: {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
       bg: 'assets/art/scene-courtyard.jpg',
+      bgVariants: [
+        { img: 'assets/art/scene-courtyard-sword.jpg', flag: 'gotSword' }   // zodra het zwaard gesmeed is, prijkt het herstelde zwaard bij de markttent
+      ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
       entryText: {
@@ -306,7 +303,7 @@ const GAME = {
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
-        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4, hideFlag: 'ravenInBucket' }   // de raaf op het dakje van de put; springt de emmer in (verdwijnt) zodra je de munt geeft
+        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 95, scale: 0.95, flip: false, peck: true, peckAmt: 0.4, hideFlag: 'ravenInBucket' }   // de raaf op het dakje van de put — gespiegeld (kijkt naar rechts) + 3px lager; springt de emmer in zodra je de munt geeft
       ],
       hotspots: [
         {
