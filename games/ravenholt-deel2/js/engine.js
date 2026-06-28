@@ -1561,6 +1561,32 @@
         fctx.fillRect(Math.round(f.wx + off), yy, 7, 1);
       }
     }
+    /* Smidsvuur: zodra de houtskool erin gegooid is, laait het vuur hoog op (hoge dansende vlammen + opstijgende sintels). */
+    if (fx.forgeFlame && state.flags[fx.forgeFlame.flag]) {
+      const ff = fx.forgeFlame, fxw = ff.x, fyb = ff.y;     // basis (onderkant) van het vuur
+      const H = ff.h || 26;                                  // de oven wordt nu zichtbaar HOGER
+      const flick = 0.7 + 0.3 * Math.sin(now / 90) + 0.2 * Math.sin(now / 47);
+      for (let i = 0; i < 7; i++) {                          // gestapelde vlamtongen, breed onderaan, smal bovenaan
+        const t = i / 6;
+        const hh = H * flick * (1 - t * 0.15);
+        const yy = fyb - t * hh;
+        const sway = Math.sin(now / 130 + i * 0.9) * (2 + t * 4);
+        const w = Math.max(1, Math.round((7 - i) * (1 - t * 0.3)));
+        const a = (0.5 - t * 0.32) * flick;
+        const col = t < 0.4 ? '255,150,40' : t < 0.75 ? '255,200,70' : '255,240,170';
+        fctx.fillStyle = `rgba(${col},${Math.max(0, a)})`;
+        fctx.fillRect(Math.round(fxw + sway - w / 2), Math.round(yy - hh), w, Math.round(hh));
+      }
+      const gh = fctx.createRadialGradient(fxw, fyb - 6, 1, fxw, fyb - 6, 20); // warme gloed eromheen
+      gh.addColorStop(0, `rgba(255,170,60,${0.22 * flick})`); gh.addColorStop(1, 'rgba(255,150,40,0)');
+      fctx.fillStyle = gh; fctx.fillRect(fxw - 20, fyb - 28, 40, 40);
+      for (let k = 0; k < 4; k++) {                          // opstijgende sintels
+        const sp = ((now / 7 + k * 80) % 100) / 100;
+        const ex = fxw + Math.sin(now / 200 + k * 2) * 6;
+        const ey = fyb - sp * (H + 8);
+        twinkle(ex, ey, (1 - sp) * 0.8, '255,180,70');
+      }
+    }
     /* Huilend meisje bij de kraam: twee traanstraaltjes die van haar ogen over de wangen vallen. */
     if (fx.cry && state.flags[fx.cry.flag] && !state.flags[fx.cry.stopFlag]) {
       const c = fx.cry;
@@ -1904,13 +1930,18 @@
       fctx.drawImage(img, Math.round(wi.x - wd / 2), Math.round(wi.y - hgt / 2) + bob, wd, hgt);
       if (wi.filter) fctx.filter = 'none';
       if (wi.gem) {                                      // sierlijke glinstering rond een glimmend kristal
-        const cy = (wi.y - hgt / 2) + bob;
-        starSparkle(wi.x, cy + 3, 4, 0.55 + 0.4 * Math.sin(now / 300), '235,248,255');   // hoofdflits midden op de steen
-        for (let k = 0; k < 3; k++) {
-          const ang = now / 820 + k * 2.094;
-          const rad = 8 + k * 4;
-          const tw = 0.5 + 0.5 * Math.sin(now / 240 + k * 2.3);
-          starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang * 1.25) * (6 + k), 2 + (k === 0 ? 1 : 0), 0.2 + 0.7 * tw, k % 2 ? '195,230,255' : '255,255,255');
+        const cy = (wi.y - hgt / 2) + bob + 2;
+        const halo = 0.10 + 0.07 * Math.sin(now / 360);  // zacht ademende aura
+        const hg = fctx.createRadialGradient(wi.x, cy, 1, wi.x, cy, 18);
+        hg.addColorStop(0, `rgba(210,238,255,${halo})`); hg.addColorStop(1, 'rgba(210,238,255,0)');
+        fctx.fillStyle = hg; fctx.fillRect(wi.x - 18, cy - 18, 36, 36);
+        const bloom = Math.pow(0.5 + 0.5 * Math.sin(now / 900), 6);   // af en toe een grote flonker
+        starSparkle(wi.x, cy, 3.5 + bloom * 4, 0.55 + 0.4 * bloom, '240,250,255');   // hoofdflits op de steen
+        for (let k = 0; k < 4; k++) {                    // vier sierlijk cirkelende sterretjes
+          const ang = now / 1100 + k * (Math.PI / 2);
+          const rad = 7 + (k % 2) * 5;
+          const tw = 0.5 + 0.5 * Math.sin(now / 230 + k * 1.9);
+          starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang) * (rad * 0.7) - 1, 1.6 + (k % 2 ? 0 : 1), 0.18 + 0.72 * tw * tw, k % 2 ? '190,225,255' : '255,255,255');
         }
       } else if (big) {                                  // dansende fonkelingen rond de bloem
         for (let k = 0; k < 2; k++) {
@@ -2855,8 +2886,8 @@
   function renderInventory() {
     elInvbar.innerHTML = '';
     /* De spreuken (dans + draak) staan altijd in de meest rechtse vakjes; de rest links. */
-    const spells = ['spell', 'dragonspell'].filter((id) => state.inventory.includes(id));
-    const others = state.inventory.filter((id) => id !== 'spell' && id !== 'dragonspell');
+    const spells = ['spell', 'dragonspell', 'invisspell'].filter((id) => state.inventory.includes(id));
+    const others = state.inventory.filter((id) => id !== 'spell' && id !== 'dragonspell' && id !== 'invisspell');
     const slots = Math.max(MIN_SLOTS, others.length + spells.length);
     const firstSpell = slots - spells.length;   // index van het eerste spreuk-vakje (rechts)
     for (let i = 0; i < slots; i++) {
@@ -4424,6 +4455,16 @@
       return;
     }
     if (hs.endGame) {                                   // door de open poort stappen → eindkaart (Deel 2)
+      const eNeed = hs.requiresFlag;
+      const eUnmet = eNeed && (Array.isArray(eNeed) ? eNeed.some((f) => !state.flags[f]) : !state.flags[eNeed]);
+      if (eUnmet) {                                     // nog niet toegestaan (bv. de bibliothecaris is nog wakker)
+        sfx('error');
+        const bt = typeof hs.blockedText === 'function' ? hs.blockedText(state) : hs.blockedText;
+        say(bt || GAME.strings.noEffect, hsSpeaker(hs));
+        return;
+      }
+      if (hs.give) (Array.isArray(hs.give) ? hs.give : [hs.give]).forEach(addItem);   // climax-item (bv. de onzichtbaarheidsspreuk)
+      if (hs.setFlag) (Array.isArray(hs.setFlag) ? hs.setFlag : [hs.setFlag]).forEach((f) => { state.flags[f] = true; });
       sfx('win');
       say(hs.enterText || GAME.winText);
       pendingWin = true;                                // bij wegtikken van de tekst → fade naar de eindkaart

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '76',
+  assetVer: '77',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -66,13 +66,14 @@ const GAME = {
     runeDragon:    'assets/art/runeDragon.png',
     squire:        'assets/art/squire.png',     // jonge schildknaap op de binnenplaats (Deel 2)
     princess:      'assets/art/princess.png',     // de prinses in de slottuin (Deel 2)
-    parrot:        'assets/art/parrot.png'        // kleurrijke papagaai in de slottuin (Deel 2)
+    parrot:        'assets/art/parrot.png',        // kleurrijke papagaai in de slottuin (Deel 2)
+    librarian:     'assets/art/librarian.png'     // de oude bibliothecaris in de kasteelbibliotheek (Deel 2)
   },
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
-  /* Finn begint met de staf van zijn vader in zijn tas. */
-  startItems: ['staff'],
+  /* Finn begint met de staf van zijn vader én — uit Deel 1 — zijn toverboek met de twee spreuken (dans + draak). */
+  startItems: ['staff', 'spellbook', 'spell', 'dragonspell'],
 
   winText: {
     nl: 'Gefeliciteerd — je hebt DEEL 2 van Whispers of Ravenholt uitgespeeld! Je hebt het wapen van Sir Aldric herenigd, het hart van de prinses gewonnen en de geheime deur achter de fontein geopend. Daarachter wacht de duistere gang naar Finns vader... maar dat verhaal bewaren we voor DEEL 3. Knap gedaan, held — tot snel!',
@@ -117,6 +118,8 @@ const GAME = {
     q_fountainpuzzle:{ nl: 'Je kreeg een sleutel van de prinses — los de schuifpuzzel bij de leeuwenfontein op om het slot te onthullen', en: 'The princess gave you a key — solve the sliding puzzle at the lion fountain to reveal the lock' },
     q_usekey:   { nl: 'Gebruik de sleutel op het slot onder de leeuwenkop van de fontein om de geheime poort te openen', en: 'Use the key on the lock beneath the fountain’s lion head to open the secret gate' },
     q_through:  { nl: 'De geheime poort staat open naast de leeuwenfontein — stap erdoorheen, de donkere gang in', en: 'The secret gate stands open beside the lion fountain — step through it, into the dark passage' },
+    q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een bibliothecaris bewaakt het gloeiende boek — verdoof hem met de magische paddenstoelen (geplukt bij de put op de binnenplaats)', en: 'Through the secret gate you reach the castle library. A librarian guards the glowing book — put him to sleep with the magic mushrooms (picked by the well in the courtyard)' },
+    q_takespell:{ nl: 'De bibliothecaris slaapt — pak nu de Spreuk van Onzichtbaarheid uit het gloeiende boek op de lessenaar', en: 'The librarian is asleep — now take the Spell of Invisibility from the glowing book on the lectern' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
     q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
@@ -133,6 +136,16 @@ const GAME = {
   items: {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Hij voelt vertrouwd in je hand — met de juiste spreuk in je boek kun je hem laten werken.', en: 'My father’s wooden staff. It feels familiar in your hand — with the right spell in your book you can make it work.' } },
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', img: 'assets/art/item-spellbook.png',
+             look: (state) => state.flags.gotInvisSpell
+               ? { nl: 'Je toverboek uit Deel 1. Naast de dans-spreuk en de drakenspreuk staat nu ook de onzichtbaarheidsspreuk uit de kasteelbibliotheek.', en: 'Your spellbook from Part 1. Beside the dance spell and the dragon spell, the invisibility spell from the castle library now stands written too.' }
+               : { nl: 'Je trouwe toverboek uit Deel 1. Erin staan twee spreuken die je zelf schreef: de dans-spreuk en de drakenspreuk.', en: 'Your trusty spellbook from Part 1. In it stand two spells you wrote yourself: the dance spell and the dragon spell.' } },
+    spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', img: 'assets/art/item-spell.png', border: 'blue',
+             look: { nl: 'De dans-spreuk die je in Deel 1 in je toverboek schreef — “Laat wat stil staat vrolijk dansen.” Hij gloeit nog zacht blauw na.', en: 'The dance spell you wrote in your spellbook in Part 1 — “Make what stands still dance.” It still glows softly blue.' } },
+    dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', img: 'assets/art/item-dragonspell.png', border: 'blue',
+             look: { nl: 'De drakenspreuk “Draconis Umbra” uit Deel 1. Spreek hem uit en er rijst een enorme drakenschaduw op.', en: 'The dragon spell “Draconis Umbra” from Part 1. Speak it and a huge dragon shadow rises.' } },
+    invisspell: { name: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' }, icon: '👻', img: 'assets/art/item-invisspell.png', sparkle: true, border: 'blue',
+             look: { nl: 'De onzichtbaarheidsspreuk uit het gloeiende boek in de kasteelbibliotheek. De letters lijken weg te vagen terwijl je kijkt — wie weet welke deuren dit in Deel 3 opent...', en: 'The invisibility spell from the glowing book in the castle library. Its letters seem to fade away as you watch — who knows what doors this opens in Part 3...' } },
     hammer: { name: { nl: 'Smidshamer', en: 'Blacksmith’s Hammer' }, icon: '🔨', img: 'assets/art/item-hammer.png',
              look: { nl: 'Een zware smidshamer uit de sokkel van het ridderbeeld. Hiermee kun je bij de smidse het zwaard van de held smeden.', en: 'A heavy blacksmith’s hammer from the plinth of the knight statue. With it you can forge the hero’s sword at the smithy.' } },
     swordBroken: { name: { nl: 'Gebroken Zwaard', en: 'Broken Sword' }, icon: '🗡️', img: 'assets/art/item-sword-broken.png',
@@ -232,7 +245,8 @@ const GAME = {
   ],
 
   questRules: [
-    { when: { flag: 'secretGateOpen' },                                  quest: 'q_through' },       // poort open -> stap erdoorheen (einde Deel 2)
+    { when: { flag: 'librarianAsleep', notFlag: 'gotInvisSpell' },       quest: 'q_takespell' },     // bibliothecaris slaapt -> pak de onzichtbaarheidsspreuk
+    { when: { flag: 'secretGateOpen', notFlag: 'gotInvisSpell' },        quest: 'q_library' },       // poort open -> de bibliotheek in, verdoof de bibliothecaris met de paddenstoelen
     { when: { has: 'key', flag: 'fountainSolved' },                      quest: 'q_usekey' },        // sleutel + slot zichtbaar -> open de poort
     { when: { has: 'key' },                                              quest: 'q_fountainpuzzle' },// sleutel maar slot nog verborgen -> los de fontein op
     { when: { has: 'necklace' },                                         quest: 'q_givenecklace' },  // ketting -> naar de prinses
@@ -277,6 +291,10 @@ const GAME = {
         { x: 224, y: 166, w: 122, h: 84 }                  // het ronde grasperk met het ridderbeeld
       ],
       overlays: [],
+      fx: {
+        // smidsvuur laait hoog op zodra de houtskool erin gegooid is (oven wordt zichtbaar hoger)
+        forgeFlame: { flag: 'ovenStoked', x: 40, y: 180, h: 30 }
+      },
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.72)' },        // noot bij het aambeeld/ijzer — op de grond extra donker (het icoon in de tas blijft licht)
         { item: 'mushroom', hotspot: 'mushroom', x: 230, y: 222, scale: 0.82, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put — nog iets hoger + iets meer naar rechts
@@ -285,7 +303,6 @@ const GAME = {
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
         { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4 }   // de raaf zit groter en hoger op het dakje van de put (naar links, boven de put) en pikt af en toe
       ],
-      fx: {},
       hotspots: [
         {
           id: 'squire',
@@ -455,7 +472,7 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 48, y: 166, base: 240, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat verschijnt onder de leeuwenkop zodra de fontein-puzzel is opgelost; weg zodra de poort open is
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 242, scale: 1.05, glowCol: '255,150,60' },   // houtskool met gloeiende sintels tussen de bloemen — groter + warme gloed zodat hij goed zichtbaar is
+        { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 244, scale: 1.35, glowCol: '255,140,50' },   // houtskool met gloeiende sintels tussen de bloemen — extra groot + sterke warme gloed zodat hij goed opvalt
         { item: 'trinket', hotspot: 'trinket', x: 150, y: 250, highlight: true, gem: true, glowCol: '210,235,255' }   // glimmend kristal tussen de bloemen links — sierlijke ster-fonkeling; voor de raaf
       ],
       npcs: [
@@ -541,8 +558,7 @@ const GAME = {
           walkTo: { x: 60, y: 250 },
           appearFlag: 'secretGateOpen',                      // verschijnt pas nadat de sleutel het slot opent
           arrow: { x: 32, y: 150, dir: 'up' },
-          endGame: true,                                     // door de geheime poort stappen → eindkaart (Deel 2)
-          enterText: { nl: 'Je stapt door de open geheime poort naast de leeuwenfontein. Een koele, donkere gang loopt diep het hart van het kasteel in — precies de weg die je zoekt naar Finns vader. Met je hart in je keel en het zwaard van Sir Aldric aan je zij zet je de eerste stap de duisternis in... (wordt vervolgd in Deel 3)', en: 'You step through the open secret gate beside the lion fountain. A cool, dark passage runs deep into the heart of the castle — exactly the way you seek to Finn’s father. Heart in your throat and Sir Aldric’s sword at your side, you take the first step into the dark... (to be continued in Part 3)' }
+          exit: { to: 'library', travelText: { nl: 'Je stapt door de open geheime poort naast de leeuwenfontein. Een koele, donkere gang loopt diep het kasteel in en komt uit in een stille, stoffige bibliotheek vol oude boeken...', en: 'You step through the open secret gate beside the lion fountain. A cool, dark passage runs deep into the castle and opens into a quiet, dusty library full of ancient books...' } }
         },
         {
           id: 'gstatue',
@@ -662,6 +678,83 @@ const GAME = {
           walkTo: { x: 70, y: 300 },
           arrow: { x: 86, y: 268, dir: 'down' },
           exit: { to: 'courtyard', travelText: { nl: 'Je loopt de tuin weer uit, terug naar de binnenplaats.', en: 'You leave the garden, back to the courtyard.' } }
+        }
+      ]
+    },
+
+    library: {
+      name: { nl: 'De Kasteelbibliotheek', en: 'The Castle Library' },
+      bg: 'assets/art/scene-library.jpg',
+      charFilter: 'saturate(1.04) brightness(0.98) sepia(0.14) contrast(1.03)',   // warm kaarslicht zodat de figuren in de bibliotheek opgaan
+      heroShade: 0.92,
+      entryText: {
+        nl: 'De geheime gang komt uit in een stille, stoffige kasteelbibliotheek. Hoge boekenkasten vol oude folianten reiken tot het plafond, gouden zonlicht valt door een groot glas-in-loodraam, en midden in de zaal gloeit een boek op een sierlijke lessenaar. Maar... een strenge oude bibliothecaris waakt erover.',
+        en: 'The secret passage opens into a quiet, dusty castle library. Tall bookcases of ancient tomes rise to the ceiling, golden sunlight streams through a great stained-glass window, and in the middle of the hall a book glows on an ornate lectern. But... a stern old librarian keeps watch over it.'
+      },
+      playerStart: { x: 300, y: 298 },
+      spawnFrom: { garden: { x: 300, y: 298 } },
+      depth: { far: 210, near: 316, sFar: 0.72, sNear: 1.04 },
+      walkable: [
+        { x: 64, y: 250, w: 440, h: 58 },                  // open vloer/tapijt voor de lessenaar
+        { x: 150, y: 224, w: 280, h: 30 }                  // smalle strook richting de lessenaar
+      ],
+      obstacles: [
+        { x: 308, y: 206, w: 48, h: 50 }                   // de lessenaar zelf
+      ],
+      overlays: [],
+      fx: {},
+      npcs: [
+        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' }   // de oude bibliothecaris bij de lessenaar
+      ],
+      worldItems: [],
+      hotspots: [
+        {
+          id: 'toGardenLib',
+          name: { nl: 'Terug naar de Tuin', en: 'Back to the Garden' },
+          rect: { x: 6, y: 250, w: 92, h: 62 },
+          walkTo: { x: 70, y: 300 },
+          arrow: { x: 80, y: 268, dir: 'down' },
+          exit: { to: 'garden', travelText: { nl: 'Je sluipt de gang weer door, terug naar de slottuin.', en: 'You slip back through the passage, into the castle garden.' } }
+        },
+        {
+          id: 'shelves',
+          name: { nl: 'De Boekenkasten', en: 'The Bookcases' },
+          rect: { x: 332, y: 40, w: 150, h: 170 },
+          walkTo: { x: 430, y: 252 },
+          look: { nl: 'Rijen op rijen eeuwenoude boeken: kronieken van Eldoria, verboden spreukenboeken, vergeelde kaarten. Eén boek, midden op de lessenaar, gloeit zacht na — dáár moet je zijn.', en: 'Rows upon rows of ancient books: chronicles of Eldoria, forbidden spell-tomes, yellowed maps. One book, on the lectern in the middle, glows softly — that’s the one you want.' }
+        },
+        {
+          id: 'librarian',
+          name: { nl: 'De Bibliothecaris', en: 'The Librarian' },
+          rect: { x: 180, y: 150, w: 74, h: 112 },
+          walkTo: { x: 168, y: 256 },
+          look: (state) => state.flags.librarianAsleep
+            ? { nl: 'De oude bibliothecaris ligt onderuitgezakt tegen de lessenaar te snurken, diep in slaap door de paddenstoel-sporen. Nu kun je ongestoord bij het gloeiende boek.', en: 'The old librarian slumps against the lectern, snoring, deep asleep from the mushroom spores. Now you can reach the glowing book undisturbed.' }
+            : { nl: 'Een strenge oude bibliothecaris met een lange grijze baard en een halvemaanbrilletje waakt over het gloeiende boek. “Niemand raakt de verboden spreuken aan!” bromt hij. Zolang hij wakker is, kom je er niet bij... Hoe krijg je hem in slaap? Misschien met iets magisch — die paddenstoelen bij de put?', en: 'A stern old librarian with a long grey beard and half-moon spectacles guards the glowing book. “No one touches the forbidden spells!” he grumbles. While he’s awake you can’t get to it... How could you put him to sleep? Perhaps with something magical — those mushrooms by the well?' },
+          use: {
+            mushroom: {
+              consume: 'mushroom',
+              setFlag: 'librarianAsleep',
+              text: { nl: 'Je houdt de magische paddenstoelen vlak onder zijn neus en knijpt ze fijn. Een wolkje glinsterende slaapsporen dwarrelt op. De bibliothecaris snuift, zijn oogleden worden loodzwaar, hij geeuwt diep... en zakt zachtjes snurkend in slaap tegen de lessenaar. De weg naar het gloeiende boek is vrij!', en: 'You hold the magic mushrooms right under his nose and crush them. A puff of glittering sleep-spores drifts up. The librarian sniffs, his eyelids grow heavy, he yawns deeply... and slumps softly snoring against the lectern. The way to the glowing book is clear!' }
+            }
+          }
+        },
+        {
+          id: 'spelltome',
+          name: { nl: 'Het Gloeiende Boek', en: 'The Glowing Book' },
+          rect: { x: 298, y: 118, w: 84, h: 96 },
+          walkTo: { x: 332, y: 256 },
+          look: (state) => state.flags.gotInvisSpell
+            ? { nl: 'De lessenaar is leeg — de onzichtbaarheidsspreuk staat nu veilig in je eigen toverboek.', en: 'The lectern is empty — the invisibility spell is now safely in your own spellbook.' }
+            : state.flags.librarianAsleep
+            ? { nl: 'Het grote boek op de lessenaar gloeit zacht en slaat open bij de Spreuk van Onzichtbaarheid. De bibliothecaris snurkt — pak de spreuk nu!', en: 'The great book on the lectern glows softly and falls open at the Spell of Invisibility. The librarian snores — take the spell now!' }
+            : { nl: 'Een groot boek op de lessenaar gloeit zacht. De strenge bibliothecaris houdt het scherp in de gaten — zolang hij wakker is, durf je het niet aan te raken.', en: 'A great book on the lectern glows softly. The stern librarian watches it sharply — while he’s awake you dare not touch it.' },
+          requiresFlag: 'librarianAsleep',
+          blockedText: { nl: 'De bibliothecaris houdt het gloeiende boek scherp in de gaten. Zolang hij wakker is, kun je het niet pakken — je moet hem eerst in slaap krijgen (met de magische paddenstoelen).', en: 'The librarian watches the glowing book sharply. While he’s awake you can’t take it — you must put him to sleep first (with the magic mushrooms).' },
+          endGame: true,
+          give: 'invisspell',
+          setFlag: 'gotInvisSpell',
+          enterText: { nl: 'Op je tenen sluip je langs de snurkende bibliothecaris naar de lessenaar. Het gloeiende boek slaat vanzelf open bij de Spreuk van Onzichtbaarheid. Je legt je eigen toverboek ernaast en de zilveren letters glijden over — woord voor woord schrijft de onzichtbaarheidsspreuk zich in jouw boek! Met de staf van je vader, het herstelde zwaard van Sir Aldric én nu drie spreuken in je toverboek ben je klaar voor wat er dieper in het kasteel op je wacht... (wordt vervolgd in Deel 3)', en: 'On tiptoe you slip past the snoring librarian to the lectern. The glowing book falls open of itself at the Spell of Invisibility. You lay your own spellbook beside it and the silver letters glide across — word by word the invisibility spell writes itself into your book! With your father’s staff, Sir Aldric’s reforged sword, and now three spells in your spellbook, you are ready for whatever waits deeper in the castle... (to be continued in Part 3)' }
         }
       ]
     }
