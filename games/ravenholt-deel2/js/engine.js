@@ -50,7 +50,7 @@
   const elCutsceneVid = document.getElementById('cutscene-video');
   const elCutsceneSkip = document.getElementById('cutscene-skip');
 
-  const MIN_SLOTS = 6;
+  const MIN_SLOTS = 8;
   const WALK_SPEED = 80;
   const ARRIVE_DIST = 4;
 

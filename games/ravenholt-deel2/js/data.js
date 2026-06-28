@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '87',
+  assetVer: '88',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -510,7 +510,7 @@ const GAME = {
         { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 250, y: 232, scale: 1.55, glowCol: '255,140,55' },   // houtskool naast de sokkel van het standbeeld; alleen een subtiele warme gloed (geen draaiende sterren)
+        { item: 'charcoal', hotspot: 'charcoal', x: 264, y: 224, scale: 1.55, glowCol: '255,140,55' },   // houtskool naast de sokkel van het standbeeld; iets hoger + naar rechts; subtiele warme gloed
         { item: 'trinket', hotspot: 'trinket', x: 72, y: 184, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, kleiner + 2px hoger + 2px naar rechts
       ],
       npcs: [
@@ -678,8 +678,8 @@ const GAME = {
         {
           id: 'charcoal',
           name: { nl: 'Houtskool', en: 'Charcoal' },
-          rect: { x: 226, y: 210, w: 50, h: 48 },
-          walkTo: { x: 250, y: 290 },
+          rect: { x: 240, y: 202, w: 50, h: 48 },
+          walkTo: { x: 264, y: 288 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',
@@ -712,9 +712,9 @@ const GAME = {
         {
           id: 'toCourtyard',
           name: { nl: 'Terug naar de Binnenplaats', en: 'Back to the Courtyard' },
-          rect: { x: 12, y: 256, w: 100, h: 60 },
-          walkTo: { x: 70, y: 300 },
-          arrow: { x: 86, y: 268, dir: 'down' },
+          rect: { x: 12, y: 256, w: 130, h: 60 },
+          walkTo: { x: 96, y: 300 },
+          arrow: { x: 120, y: 268, dir: 'down' },
           exit: { to: 'courtyard', travelText: { nl: 'Je loopt de tuin weer uit, terug naar de binnenplaats.', en: 'You leave the garden, back to the courtyard.' } }
         }
       ]
