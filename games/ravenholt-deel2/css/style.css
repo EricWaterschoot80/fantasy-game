@@ -747,6 +747,9 @@ html, body {
 .puzzle-card {
   position: relative;
   max-width: min(94vw, 560px);
+  max-height: calc(100dvh - 14px);   /* nooit hoger dan het scherm — zo valt er niets buiten beeld op mobiel */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 20px 24px 24px;
 }
 
@@ -1231,8 +1234,11 @@ html, body {
   .overlay-card h1 { font-size: clamp(18px, 5vw, 26px); margin: 4px 0 4px; }
   .overlay-card .subtitle { margin-bottom: 6px; }
   .overlay-card .intro { font-size: 13px; line-height: 1.4; margin-bottom: 10px; }
-  .puzzle-card { padding: 12px 16px 14px; }
+  .puzzle-card { padding: 10px 16px 12px; }
   .puzzle-card h2, #riddle-title, #rune-title, #maze-title { font-size: 14px; margin-bottom: 6px; }
+  /* Woordpuzzel: beeld inkorten op lage schermen zodat de titel én de hint blijven passen */
+  .rune-imgwrap { max-width: min(94vw, 108vh); margin: 2px auto 6px; }
+  #rune-status, .rune-status { font-size: 11px; line-height: 1.25; min-height: 0; margin: 0; }
   .riddle-q { font-size: 13px; min-height: 0; margin-bottom: 10px; }
   #riddle-answers { gap: 7px; }
   .gold-btn.riddle-ans { font-size: 13px; padding: 7px 14px; }

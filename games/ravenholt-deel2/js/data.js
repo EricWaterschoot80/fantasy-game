@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '77',
+  assetVer: '79',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -301,7 +301,7 @@ const GAME = {
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
-        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4 }   // de raaf zit groter en hoger op het dakje van de put (naar links, boven de put) en pikt af en toe
+        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4, hideFlag: 'gotCrowHint' }   // de raaf op het dakje van de put; vliegt weg (verdwijnt) zodra je het kristal geeft
       ],
       hotspots: [
         {
@@ -349,14 +349,15 @@ const GAME = {
           name: { nl: 'De Raaf', en: 'The Raven' },
           rect: { x: 258, y: 56, w: 70, h: 64 },              // de glanzende raaf op het dakje van de put
           walkTo: { x: 286, y: 300 },
-          look: (state) => state.flags.gotCrowHint
-            ? { nl: 'De glanzende zwarte raaf draait het glimmende kristal trots rond in zijn snavel. “Kraa! Goeie ruil.” Hij lijkt je nu welgezind.', en: 'The glossy black raven turns the shiny crystal proudly in his beak. “Caw! Good trade.” He seems to favour you now.' }
-            : { nl: 'Een grote, glanzende zwarte raaf zit op het dakje van de put en bekijkt je met glinsterende oogjes. Hij gluurt steeds naar je tas — alsof hij iets glimmends ruikt. Raven zijn dol op glanzende dingen... en zien álles wat er op het kasteel gebeurt. Misschien ruilt hij een geheim voor iets moois?', en: 'A big, glossy black raven sits on the well roof, eyeing you with glittering eyes. He keeps peeking at your bag — as if he smells something shiny. Ravens love bright things... and see everything that happens at the castle. Perhaps he’d trade a secret for something pretty?' },
+          hideFlag: 'gotCrowHint',                            // na de ruil vliegt de raaf weg naar de bibliotheek
+          look: { nl: 'Een grote, glanzende zwarte raaf zit op het dakje van de put en bekijkt je met glinsterende oogjes. Hij gluurt steeds naar je tas — alsof hij iets glimmends ruikt. Raven zijn dol op glanzende dingen... en zien álles wat er op het kasteel gebeurt. Misschien ruilt hij een geheim voor iets moois?', en: 'A big, glossy black raven sits on the well roof, eyeing you with glittering eyes. He keeps peeking at your bag — as if he smells something shiny. Ravens love bright things... and see everything that happens at the castle. Perhaps he’d trade a secret for something pretty?' },
           use: {
             trinket: {
               consume: 'trinket',
               setFlag: 'gotCrowHint',
-              text: { nl: 'Je houdt het glimmende kristal omhoog. De raaf spreidt zijn vleugels, grist het behendig uit je hand en kraait tevreden: “Kraa! Een ruil — een geheim voor jou!” Hij wipt dichterbij. “Ik zie álles vanaf de put. De smid: eerst góói je houtskool in de dode oven tot het vuur wit-heet loeit. Dán leg je het gebroken zwaard op het ijzer in het vuur. En pás dán sla je het met de hamer weer heel — in díe volgorde, kraa!”', en: 'You hold up the shiny crystal. The raven spreads his wings, snatches it deftly from your hand and caws contentedly: “Caw! A trade — a secret for you!” He hops closer. “I see everything from the well. The smith: first throw charcoal into the dead oven until the fire roars white-hot. Then lay the broken sword on the iron in the fire. And only then strike it whole with the hammer — in that order, caw!”' }
+              flyNpc: 'courtyardRaven',                        // de raaf vliegt weg (naar rechts, richting het kasteel)
+              flyDir: 'right',
+              text: { nl: 'Je houdt het glimmende kristal omhoog. De raaf spreidt zijn vleugels, grist het behendig uit je hand en kraait: “Kraa! Een ruil — een geheim voor jou!” Hij wipt dichterbij en fluistert: “Ik zie álles vanaf de put. Diep achter het kasteel, voorbij een geheime poort, ligt een verboden bibliotheek — met een boek vol zeldzame magie. Daar moet je zijn, kraa!” Dan klappert hij met zijn vleugels en vliegt weg, het kasteel in. Misschien zie je hem daar terug?', en: 'You hold up the shiny crystal. The raven spreads his wings, snatches it from your hand and caws: “Caw! A trade — a secret for you!” He hops closer and whispers: “I see everything from the well. Deep behind the castle, past a secret gate, lies a forbidden library — with a book of rare magic. That’s where you must go, caw!” Then he beats his wings and flies off, into the castle. Perhaps you’ll see him there again?' }
             }
           }
         },
@@ -704,10 +705,21 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' }   // de oude bibliothecaris bij de lessenaar
+        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' },   // de oude bibliothecaris bij de lessenaar
+        { id: 'libraryRaven', sprite: 'ravenPerch', x: 470, y: 150, scale: 0.6, flip: true, peck: true, peckAmt: 0.3, appearFlag: 'gotCrowHint' }   // dezelfde raaf: hij is vooruitgevlogen en zit nu op de vensterbank van het open raam
       ],
       worldItems: [],
       hotspots: [
+        {
+          id: 'libraryRaven',
+          name: { nl: 'De Raaf bij het Raam', en: 'The Raven at the Window' },
+          rect: { x: 444, y: 122, w: 60, h: 58 },
+          walkTo: { x: 446, y: 254 },
+          appearFlag: 'gotCrowHint',
+          look: (state) => state.flags.librarianAsleep
+            ? { nl: 'Op de vensterbank van het open raam zit de raaf tevreden te kraaien. “Kraa! Goed gedaan — hij slaapt als een roos. Gáuw, pak de spreuk uit het gloeiende boek!”', en: 'On the sill of the open window the raven caws contentedly. “Caw! Well done — he sleeps like a log. Quick, take the spell from the glowing book!”' }
+            : { nl: 'Op de vensterbank van het open raam zit de raaf van de put — hij is vooruitgevlogen! Hij knikt naar de strenge bibliothecaris en kraait zacht: “Kraa! Die ouwe laat niemand bij het gloeiende boek. Maar zélfs een bibliothecaris valt in slaap van de juiste magie... die glimmende paddenstoelen bij de put, herinner je je? Verkruimel ze onder zijn neus!”', en: 'On the sill of the open window sits the raven from the well — he flew on ahead! He nods toward the stern librarian and caws softly: “Caw! That old man lets no one near the glowing book. But even a librarian dozes off with the right magic... those glowing mushrooms by the well, remember? Crush them under his nose!”' }
+        },
         {
           id: 'toGardenLib',
           name: { nl: 'Terug naar de Tuin', en: 'Back to the Garden' },

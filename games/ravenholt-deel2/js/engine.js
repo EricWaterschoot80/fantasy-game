@@ -4690,6 +4690,15 @@
     }
     else if (a.give) sfx('pickup');
     else if (a.consume) sfx('use');
+    if (a.flyNpc) {                                    // een NPC (de raaf) vliegt weg na deze actie
+      const sc = GAME.scenes[state.currentScene];
+      const r = (sc.npcs || []).find((n) => n.id === a.flyNpc);
+      const rt = npcRt[a.flyNpc] || r;
+      if (rt) {
+        ravenFly = { x: rt.x, y: rt.y - 8, t: performance.now(), dir: a.flyDir || 'right' };
+        burstAt(rt.x, rt.y - 8, { n: 8, col: '231,207,134', up: 10, life: 0.8 });
+      }
+    }
     if (a.text) say(a.text, anchor, face);
   }
 
