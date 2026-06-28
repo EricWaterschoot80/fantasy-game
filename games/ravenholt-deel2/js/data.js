@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '83',
+  assetVer: '84',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -303,7 +303,7 @@ const GAME = {
       overlays: [],
       fx: {
         // smidsvuur laait hoog op zodra de houtskool erin gegooid is (oven wordt zichtbaar hoger)
-        forgeFlame: { flag: 'ovenStoked', x: 40, y: 190, h: 19 }
+        forgeFlame: { flag: 'ovenStoked', x: 40, y: 197, h: 12 }
       },
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.72)' },        // noot bij het aambeeld/ijzer — op de grond extra donker (het icoon in de tas blijft licht)
@@ -361,15 +361,20 @@ const GAME = {
             : state.flags.ravenInBucket
             ? { nl: 'Diep in de schacht zit de raaf in de emmer te wachten, met iets glinsterends in zijn snavel. Hijs de emmer omhoog — maar het windwerk heeft een touw nodig.', en: 'Deep in the shaft the raven waits in the bucket, something glinting in his beak. Haul the bucket up — but the winch needs a rope.' }
             : { nl: 'Een oude stenen put met een houten windwerk, maar zonder touw. Diep beneden, in het donkere water, ligt iets te glinsteren — te diep om er zelf bij te komen. Misschien kan iets (of iemand) kleins het halen?', en: 'An old stone well with a wooden winch, but no rope. Far below, in the dark water, something glints — too deep to reach yourself. Maybe something (or someone) small could fetch it?' },
-          use: {
-            rope: {
-              requiresFlag: 'ravenInBucket',
-              requiresText: { nl: 'Je knoopt het touw aan het windwerk, maar de emmer is leeg — er valt zo niets op te halen. Lok eerst de raaf de put in met iets glimmends.', en: 'You tie the rope to the winch, but the bucket is empty — nothing to haul up. First lure the raven into the well with something shiny.' },
-              consume: 'rope',
-              give: 'necklace',
-              setFlag: 'gotNecklace',
-              text: { nl: 'Je knoopt het touw aan het windwerk en draait de slinger. Krakend komt de emmer omhoog — en daar zit de raaf, trots, met een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'You tie the rope to the winch and turn the crank. Creaking, the bucket rises — and there sits the raven, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
-            }
+          maze: {
+            requiresFlag: 'ravenInBucket',
+            blockedText: { nl: 'De put is veel te diep om er zelf bij te komen. Lok eerst de raaf de emmer in met iets glimmends.', en: 'The well is far too deep to reach yourself. First lure the raven into the bucket with something shiny.' },
+            needItem: 'rope',
+            needText: { nl: 'De raaf zit met de ketting in de emmer, maar het windwerk heeft een touw nodig om hem op te hijsen. Haal eerst het touw bij de schildknaap.', en: 'The raven sits with the necklace in the bucket, but the winch needs a rope to haul it up. Get the rope from the squire first.' },
+            cells: 7,                                       // 7×7 doolhof: leid het touw langs de natte schachten omlaag
+            water: true,
+            img: 'assets/art/maze-well.jpg',
+            title: { nl: 'Laat het touw naar de raaf zakken', en: 'Lower the Rope to the Raven' },
+            hint: { nl: 'Leid het touw langs de natte schachten omlaag, om de muren heen, tot bij de raaf met de ketting op de bodem. Gebruik de pijltjes.', en: 'Guide the rope down through the wet shafts, around the walls, to the raven with the necklace at the bottom. Use the arrows.' },
+            setFlag: 'gotNecklace',
+            consume: 'rope',
+            give: 'necklace',
+            solvedText: { nl: 'Het touw bereikt de emmer en je hijst op. Krakend komt de raaf boven, trots, met een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'The rope reaches the bucket and you haul it up. Creaking, the raven rises, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
           }
         },
         {
@@ -401,35 +406,40 @@ const GAME = {
           name: { nl: 'De Smidse', en: 'The Forge' },
           rect: { x: 2, y: 118, w: 78, h: 112 },
           walkTo: { x: 76, y: 252 },
-          look: (state) => state.flags.gotSword
+          look: (state) => (state.flags.swordForged || state.flags.gotSword)
             ? { nl: 'De smidse van het kasteel. De oven gloeit warm na — hier smeedde je het zwaard van Sir Aldric weer heel.', en: 'The castle smithy. The oven still glows warm — here you forged Sir Aldric’s sword whole again.' }
-            : state.flags.swordInForge
-            ? { nl: 'Het gebroken zwaard van Sir Aldric ligt roodgloeiend op het ijzer in de wit-hete oven. Sla het met de smidshamer weer heel!', en: 'Sir Aldric’s broken sword lies glowing red on the iron in the white-hot oven. Strike it whole with the blacksmith’s hammer!' }
             : state.flags.ovenStoked
-            ? { nl: 'De oven loeit wit-heet van de houtskool. Leg er het gebroken zwaard op het ijzer in om het te kunnen smeden.', en: 'The oven roars white-hot with charcoal. Lay the broken sword on the iron in it so you can forge it.' }
+            ? { nl: 'De oven loeit wit-heet van de houtskool, met het aambeeld en het ijzer ervoor. Klik met de hamer (of met het gebroken zwaard) op het vuur om het zwaard te smeden.', en: 'The oven roars white-hot with charcoal, the anvil and iron before it. Click the fire with the hammer (or the broken sword) to forge the sword.' }
             : { nl: 'Een koude smidse onder een afdakje, met een aambeeld en een dode oven. Gooi er houtskool in om het smidsvuur aan te wakkeren.', en: 'A cold smithy under a lean-to, with an anvil and a dead oven. Throw in charcoal to kindle the forge fire.' },
           use: {
             charcoal: {
               consume: 'charcoal',
               setFlag: 'ovenStoked',
-              burst: { x: 40, y: 176, col: '255,150,40', n: 34, up: 26, life: 1.4 },   // het smidsvuur laait fel op: warme vonkenregen
-              text: { nl: 'Je gooit de houtskool op de sintels en blaast aan. WHOESH! Het smidsvuur laait fel op, wit-heet, en een regen van oranje vonken spat omhoog. Nu kun je ijzer smeden.', en: 'You throw the charcoal onto the embers and fan it. WHOOSH! The forge fire flares up fierce and white-hot, and a shower of orange sparks bursts upward. Now you can forge iron.' }
+              burst: { x: 40, y: 188, col: '255,150,40', n: 34, up: 26, life: 1.4 },   // het smidsvuur laait fel op: warme vonkenregen
+              text: { nl: 'Je gooit de houtskool op de sintels en blaast aan. WHOESH! Het smidsvuur laait fel op, wit-heet, en een regen van oranje vonken spat omhoog. Nu kun je het zwaard smeden — klik met de hamer op het vuur.', en: 'You throw the charcoal onto the embers and fan it. WHOOSH! The forge fire flares up fierce and white-hot, and a shower of orange sparks bursts upward. Now you can forge the sword — click the fire with the hammer.' }
             },
-            swordBroken: {
-              requiresFlag: 'ovenStoked',
-              requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur hoog op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar up high.' },
-              setFlag: 'swordInForge',
-              burst: { x: 40, y: 176, col: '255,180,70', n: 16, up: 18, life: 1.1 },
-              text: { nl: 'Je legt het gebroken zwaard van Sir Aldric — beide stukken — op het ijzer, midden in het wit-hete vuur. Het staal begint algauw rood te gloeien. Nu de hamer!', en: 'You lay Sir Aldric’s broken sword — both pieces — on the iron, deep in the white-hot fire. The steel soon begins to glow red. Now the hammer!' }
-            },
+            // Smeden in één klik: hamer óf gebroken zwaard op het ijzer/vuur (oven moet heet zijn én je hebt allebei nodig)
             hammer: {
               keep: true,
-              requiresFlag: 'swordInForge',
-              requiresText: { nl: 'Er ligt nog geen gloeiend zwaard op het aambeeld. Stook eerst de oven op en leg het gebroken zwaard erin.', en: 'There’s no glowing sword on the anvil yet. First stoke the oven and lay the broken sword in it.' },
+              needItem: 'swordBroken',
+              needText: { nl: 'Je hebt eerst het gebroken zwaard van Sir Aldric nodig — vraag het de schildknaap bij de smidse.', en: 'You first need Sir Aldric’s broken sword — ask the squire by the smithy.' },
+              requiresFlag: 'ovenStoked',
+              requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur wit-heet op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar white-hot.' },
               consume: 'swordBroken',
               setFlag: 'swordForged',
-              burst: { x: 44, y: 170, col: '255,210,120', n: 26, up: 20, life: 1.2 },
-              text: { nl: 'Je grijpt de zware smidshamer en slaat — KLANG! KLANG! — de twee gloeiende stukken op het aambeeld weer aan elkaar. Vonken spatten alle kanten op. Met een sissende plons in de waterton koel je het af. Het prachtige, weer hele zwaard van Sir Aldric ligt nu te glanzen bij de markttent — ga het pakken!', en: 'You grab the heavy blacksmith’s hammer and strike — CLANG! CLANG! — the two glowing pieces back together on the anvil. Sparks fly everywhere. With a hissing plunge into the water trough you quench it. Sir Aldric’s beautiful, whole sword now gleams by the market tent — go and take it!' }
+              burst: { x: 44, y: 184, col: '255,210,120', n: 26, up: 20, life: 1.2 },
+              text: { nl: 'Je loopt naar het ijzer, legt het gebroken zwaard in het wit-hete vuur en slaat met de smidshamer — KLANG! KLANG! De twee gloeiende stukken smelten weer samen. Met een sissende plons in de waterton koel je het af. Het prachtige, weer hele zwaard van Sir Aldric ligt nu te glanzen bij de markttent — ga het pakken!', en: 'You step to the iron, lay the broken sword in the white-hot fire and strike with the blacksmith’s hammer — CLANG! CLANG! The two glowing pieces fuse back together. With a hissing plunge into the water trough you quench it. Sir Aldric’s beautiful, whole sword now gleams by the market tent — go and take it!' }
+            },
+            swordBroken: {
+              keep: false,
+              needItem: 'hammer',
+              needText: { nl: 'Je hebt de smidshamer nodig om te smeden. Die zit verborgen in het smidsbeeld in de tuin.', en: 'You need the blacksmith’s hammer to forge. It’s hidden in the smith statue in the garden.' },
+              requiresFlag: 'ovenStoked',
+              requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur wit-heet op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar white-hot.' },
+              consume: 'swordBroken',
+              setFlag: 'swordForged',
+              burst: { x: 44, y: 184, col: '255,210,120', n: 26, up: 20, life: 1.2 },
+              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur en slaat het met de smidshamer — KLANG! KLANG! — weer heel. Met een sissende plons in de waterton koel je het af. Het prachtige zwaard van Sir Aldric ligt nu te glanzen bij de markttent — ga het pakken!', en: 'You lay the broken sword in the white-hot fire and strike it whole with the hammer — CLANG! CLANG! With a hissing plunge into the water trough you quench it. Sir Aldric’s beautiful sword now gleams by the market tent — go and take it!' }
             }
           }
         },
@@ -462,7 +472,7 @@ const GAME = {
           name: { nl: 'De Slottuin', en: 'The Castle Garden' },
           rect: { x: 112, y: 66, w: 96, h: 98 },
           walkTo: { x: 168, y: 250 },
-          arrow: { x: 158, y: 126, dir: 'up' },
+          arrow: { x: 158, y: 142, dir: 'up' },
           exit: { to: 'garden', travelText: { nl: 'Je loopt onder de begroeide boog door, de bloeiende slottuin in...', en: 'You pass under the ivy-clad arch, into the blooming castle garden...' } }
         }
       ]
@@ -497,11 +507,11 @@ const GAME = {
         { x: 474, y: 262, w: 64, h: 52 }                   // de stenen bloembak (urn) in de rechterhoek
       ],
       overlays: [
-        { img: 'assets/art/keyhole.png', x: 48, y: 166, base: 240, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat verschijnt onder de leeuwenkop zodra de fontein-puzzel is opgelost; weg zodra de poort open is
+        { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
       ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 254, scale: 1.55, glowCol: '255,135,45' },   // houtskool met gloeiende sintels — nog groter + sterkere gloed zodat hij echt opvalt, iets lager
-        { item: 'trinket', hotspot: 'trinket', x: 70, y: 188, scale: 0.74, gem: true, glintOnly: true, glowCol: '255,210,130' }   // bronzen munt ligt onder water in het fontein-bekken: toon alleen de glinstering (iets hoger + naar rechts)
+        { item: 'trinket', hotspot: 'trinket', x: 70, y: 186, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.7, glowCol: '255,210,130' }   // bronzen munt onder water in het fontein-bekken: alleen de glinstering, kleiner + 2px hoger
       ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
@@ -509,7 +519,7 @@ const GAME = {
       ],
       fx: {
         // lopend water: de leeuwenkop spuwt een straaltje in het schelpbekken (stopt zodra de geheime poort open is)
-        fountain: { hideFlag: 'secretGateOpen', jets: [{ sx: 65, sy: 155 }, { sx: 67, sy: 156 }], len: 25, wx: 66, wy: 182 }
+        fountain: { jets: [{ sx: 65, sy: 155 }, { sx: 67, sy: 156 }], len: 25, wx: 66, wy: 182 }   // water blijft altijd stromen (geen hideFlag meer)
       },
       hotspots: [
         {
@@ -585,7 +595,7 @@ const GAME = {
           rect: { x: 8, y: 96, w: 52, h: 122 },
           walkTo: { x: 60, y: 250 },
           appearFlag: 'secretGateOpen',                      // verschijnt pas nadat de sleutel het slot opent
-          arrow: { x: 32, y: 150, dir: 'up' },
+          arrow: { x: 62, y: 150, dir: 'up' },
           exit: { to: 'library', travelText: { nl: 'Je stapt door de open geheime poort naast de leeuwenfontein. Een koele, donkere gang loopt diep het kasteel in en komt uit in een stille, stoffige bibliotheek vol oude boeken...', en: 'You step through the open secret gate beside the lion fountain. A cool, dark passage runs deep into the castle and opens into a quiet, dusty library full of ancient books...' } }
         },
         {

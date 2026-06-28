@@ -438,13 +438,13 @@ html, body {
 .inv-slot {
   pointer-events: auto;
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 62px;
+  height: 62px;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 32px;
   border-radius: 0;
   background: linear-gradient(180deg, #241a12, #140f0a);
   border: 2px solid #5e4a22;
@@ -1187,8 +1187,9 @@ html, body {
   .round-btn.sound { left: 12px; right: auto; top: calc(var(--safe-top) + 8px); }
   .round-btn.lang  { left: 12px; right: auto; top: calc(var(--safe-top) + 56px); }
   .round-btn.info  { left: 12px; right: auto; top: calc(var(--safe-top) + 104px); }
+  .round-btn.eye   { left: 12px; right: auto; top: calc(var(--safe-top) + 152px); }   /* oogje ook aan de zijkant, onder de tip-knop */
   /* tip-popover onder de icoon-kolom, links */
-  #quest { left: 12px; right: auto; top: calc(var(--safe-top) + 156px); max-width: min(66vw, 280px); }
+  #quest { left: 12px; right: auto; top: calc(var(--safe-top) + 204px); max-width: min(66vw, 280px); }
 
   #invbar {
     position: fixed;
@@ -1203,7 +1204,7 @@ html, body {
     background: rgba(26, 20, 16, .55);
   }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
+  .inv-slot { width: 50px; height: 50px; font-size: 26px; }
 
   /* tekstwolkje BOVENIN op mobiel (weg van de inventory + scène onderaan); iets compacter,
      grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */

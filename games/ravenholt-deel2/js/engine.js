@@ -1934,18 +1934,20 @@
         if (wi.filter) fctx.filter = 'none';
       }
       if (wi.gem) {                                      // sierlijke glinstering rond een glimmend kristal
+        const gs = wi.glintScale || 1;                   // schaal de glinstering (bv. kleiner in de fontein)
         const cy = wi.glintOnly ? wi.y : (wi.y - hgt / 2) + bob + 2;
         const halo = 0.10 + 0.07 * Math.sin(now / 360);  // zacht ademende aura
-        const hg = fctx.createRadialGradient(wi.x, cy, 1, wi.x, cy, 18);
+        const hr = Math.round(18 * gs);
+        const hg = fctx.createRadialGradient(wi.x, cy, 1, wi.x, cy, hr);
         hg.addColorStop(0, `rgba(210,238,255,${halo})`); hg.addColorStop(1, 'rgba(210,238,255,0)');
-        fctx.fillStyle = hg; fctx.fillRect(wi.x - 18, cy - 18, 36, 36);
+        fctx.fillStyle = hg; fctx.fillRect(wi.x - hr, cy - hr, hr * 2, hr * 2);
         const bloom = Math.pow(0.5 + 0.5 * Math.sin(now / 900), 6);   // af en toe een grote flonker
-        starSparkle(wi.x, cy, 3.5 + bloom * 4, 0.55 + 0.4 * bloom, '240,250,255');   // hoofdflits op de steen
+        starSparkle(wi.x, cy, (3.5 + bloom * 4) * gs, 0.55 + 0.4 * bloom, '240,250,255');   // hoofdflits
         for (let k = 0; k < 4; k++) {                    // vier sierlijk cirkelende sterretjes
           const ang = now / 1100 + k * (Math.PI / 2);
-          const rad = 7 + (k % 2) * 5;
+          const rad = (7 + (k % 2) * 5) * gs;
           const tw = 0.5 + 0.5 * Math.sin(now / 230 + k * 1.9);
-          starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang) * (rad * 0.7) - 1, 1.6 + (k % 2 ? 0 : 1), 0.18 + 0.72 * tw * tw, k % 2 ? '190,225,255' : '255,255,255');
+          starSparkle(wi.x + Math.cos(ang) * rad, cy + Math.sin(ang) * (rad * 0.7) - 1, (1.6 + (k % 2 ? 0 : 1)) * gs, 0.18 + 0.72 * tw * tw, k % 2 ? '190,225,255' : '255,255,255');
         }
       } else if (big) {                                  // dansende fonkelingen rond de bloem
         for (let k = 0; k < 2; k++) {
@@ -2707,8 +2709,10 @@
       if (scene.bgVariants) paintBackground();
       return;
     }
-    if (isDragon) { say({ nl: 'De drakenspreuk gonst diep in je staf... maar hier is niemand om de stuipen op het lijf te jagen.', en: 'The dragon spell hums deep in your staff... but there’s no one here to strike with terror.' }); return; }
-    say({ nl: 'Je voelt de dans-spreuk tintelen op je vingertoppen... maar hier is niets levends om te laten dansen.', en: 'You feel the dance-spell tingle at your fingertips... but there’s nothing alive here to make dance.' });
+    /* Geen doelwit hier — toon tóch het spreukteken (net als in Deel 1) zodat je de spreuk ziet werken. */
+    sfx('combine'); triggerCastFx();
+    if (isDragon) { say({ nl: 'De drakenspreuk gonst diep in je staf en een schaduwteken flikkert op... maar hier is niemand om de stuipen op het lijf te jagen.', en: 'The dragon spell hums deep in your staff and a shadow-sign flickers up... but there’s no one here to strike with terror.' }); return; }
+    say({ nl: 'Het spreukteken van de dansende bloemen gloeit blauw op je vingertoppen... maar hier is niets levends om te laten dansen.', en: 'The dancing-flowers spell-sign glows blue at your fingertips... but there’s nothing alive here to make dance.' });
   }
   if (elSpellBtn) elSpellBtn.addEventListener('click', () => {
     elSpellBtn.classList.remove('cast'); void elSpellBtn.offsetWidth; elSpellBtn.classList.add('cast');
