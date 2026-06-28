@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '92',
+  assetVer: '93',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -280,8 +280,7 @@ const GAME = {
         // eerste passende wint
         { img: 'assets/art/scene-courtyard-raven-sword.jpg', flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },              // raaf zit in de put
         { img: 'assets/art/scene-courtyard-sword.jpg',       flags: ['squireGaveRope'] },                                        // zwaard aan de schildknaap gegeven -> hij stelt het tentoon bij de tent
-        { img: 'assets/art/scene-courtyard-sword.jpg',       flags: ['swordForged'], notFlags: ['gotSword'] },                   // gesmeed zwaard ligt klaar om te pakken
-        { img: 'assets/art/scene-courtyard-swordgone.jpg',   flags: ['gotSword'] }                                               // je hebt het zwaard (gepakt, nog niet gegeven)
+        { img: 'assets/art/scene-courtyard-swordgone.jpg',   flags: ['gotSword'] }                                               // je hebt het zwaard gekregen (in je tas) -> geen-zwaard bij de tent
       ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
@@ -439,9 +438,10 @@ const GAME = {
               requiresFlag: 'ovenStoked',
               requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur wit-heet op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar white-hot.' },
               consume: 'swordBroken',
-              setFlag: 'swordForged',
+              give: 'sword',
+              setFlag: 'gotSword',
               burst: { x: 44, y: 184, col: '255,210,120', n: 26, up: 20, life: 1.2 },
-              text: { nl: 'Je loopt naar het ijzer, legt het gebroken zwaard in het wit-hete vuur en slaat met de smidshamer — KLANG! KLANG! De twee gloeiende stukken smelten weer samen. Met een sissende plons in de waterton koel je het af. Het prachtige, weer hele zwaard van Sir Aldric ligt nu te glanzen bij de markttent — ga het pakken!', en: 'You step to the iron, lay the broken sword in the white-hot fire and strike with the blacksmith’s hammer — CLANG! CLANG! The two glowing pieces fuse back together. With a hissing plunge into the water trough you quench it. Sir Aldric’s beautiful, whole sword now gleams by the market tent — go and take it!' }
+              text: { nl: 'Je loopt naar het ijzer, legt het gebroken zwaard in het wit-hete vuur en slaat met de smidshamer — KLANG! KLANG! De twee gloeiende stukken smelten weer samen. Met een sissende plons in de waterton koel je het af. Je houdt het prachtige, weer hele zwaard van Sir Aldric in handen — breng het naar de schildknaap.', en: 'You step to the iron, lay the broken sword in the white-hot fire and strike with the blacksmith’s hammer — CLANG! CLANG! The two glowing pieces fuse back together. With a hissing plunge into the water trough you quench it. You hold Sir Aldric’s beautiful, whole sword in your hands — bring it to the squire.' }
             },
             swordBroken: {
               keep: false,
@@ -450,9 +450,10 @@ const GAME = {
               requiresFlag: 'ovenStoked',
               requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur wit-heet op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar white-hot.' },
               consume: 'swordBroken',
-              setFlag: 'swordForged',
+              give: 'sword',
+              setFlag: 'gotSword',
               burst: { x: 44, y: 184, col: '255,210,120', n: 26, up: 20, life: 1.2 },
-              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur en slaat het met de smidshamer — KLANG! KLANG! — weer heel. Met een sissende plons in de waterton koel je het af. Het prachtige zwaard van Sir Aldric ligt nu te glanzen bij de markttent — ga het pakken!', en: 'You lay the broken sword in the white-hot fire and strike it whole with the hammer — CLANG! CLANG! With a hissing plunge into the water trough you quench it. Sir Aldric’s beautiful sword now gleams by the market tent — go and take it!' }
+              text: { nl: 'Je legt het gebroken zwaard in het wit-hete vuur en slaat het met de smidshamer — KLANG! KLANG! — weer heel. Met een sissende plons in de waterton koel je het af. Je houdt het prachtige zwaard van Sir Aldric in handen — breng het naar de schildknaap.', en: 'You lay the broken sword in the white-hot fire and strike it whole with the hammer — CLANG! CLANG! With a hissing plunge into the water trough you quench it. You hold Sir Aldric’s beautiful sword in your hands — bring it to the squire.' }
             }
           }
         },
