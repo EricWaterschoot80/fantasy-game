@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '79',
+  assetVer: '80',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -113,7 +113,9 @@ const GAME = {
     q_typephrase:{ nl: 'De papagaai verklapte de spreuk van de smid: ONLY · FIRE · FORGES · TRUE · STEEL. Klik die woorden in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s saying: ONLY · FIRE · FORGES · TRUE · STEEL. Click those words in that order at the smith statue in the garden to get the hammer' },
     q_getcoal:  { nl: 'Zoek de houtskool tussen de bloemen in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Find the charcoal among the flowers in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
-    q_userope:  { nl: 'Je hebt een touw — daal er bij de oude put mee af (leid het touw door de schacht omlaag) om de ketting van de prinses op te vissen', en: 'You have a rope — lower it into the old well (guide the rope down the shaft) to fish up the princess’s necklace' },
+    q_getcoin:  { nl: 'Voor de put heb je hulp van de raaf nodig. Vis eerst de glinsterende bronzen munt uit de leeuwenfontein in de tuin (klik op het bekken, niet op de leeuwenkop)', en: 'For the well you need the raven’s help. First fish the gleaming bronze coin from the lion fountain in the garden (click the basin, not the lion’s head)' },
+    q_giveraven:{ nl: 'Geef de bronzen munt aan de glanzende raaf op de put — hij springt er dan mee de emmer in, de diepte in', en: 'Give the bronze coin to the glossy raven on the well — he’ll hop into the bucket with it and dive down' },
+    q_haulwell: { nl: 'De raaf zit met de ketting in de emmer onderin de put. Gebruik het touw (van de schildknaap) op het windwerk om de emmer omhoog te hijsen', en: 'The raven sits with the necklace in the bucket deep in the well. Use the rope (from the squire) on the winch to haul the bucket up' },
     q_givenecklace:{ nl: 'Je viste de ketting van de prinses op — breng hem naar de prinses in de slottuin', en: 'You fished up the princess’s necklace — bring it to the princess in the garden' },
     q_fountainpuzzle:{ nl: 'Je kreeg een sleutel van de prinses — los de schuifpuzzel bij de leeuwenfontein op om het slot te onthullen', en: 'The princess gave you a key — solve the sliding puzzle at the lion fountain to reveal the lock' },
     q_usekey:   { nl: 'Gebruik de sleutel op het slot onder de leeuwenkop van de fontein om de geheime poort te openen', en: 'Use the key on the lock beneath the fountain’s lion head to open the secret gate' },
@@ -162,8 +164,8 @@ const GAME = {
              look: { nl: 'Een handvol zwarte houtskool die je tussen de bloemen in de slottuin vond. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal you found among the flowers in the castle garden. Just what a smith needs to fire up his forge again.' } },
     nut: { name: { nl: 'Noot', en: 'Nut' }, icon: '🌰', img: 'assets/art/item-nut.png',
              look: { nl: 'Een klein, donkerbruin nootje dat bij het aambeeld van de smidse lag. Vogels — papagaaien zeker — zijn er dol op.', en: 'A small, dark-brown nut that lay by the smithy anvil. Birds — parrots especially — love them.' } },
-    trinket: { name: { nl: 'Glimmend Kristal', en: 'Shiny Crystal' }, icon: '💎', img: 'assets/art/item-trinket.png', sparkle: true,
-             look: { nl: 'Een fonkelend blauw kristal dat je tussen de bloemen in de slottuin vond. Het glinstert betoverend in het licht — precies het soort glimmend ding waar een raaf geen weerstand aan kan bieden.', en: 'A sparkling blue crystal you found among the flowers in the castle garden. It glitters bewitchingly in the light — exactly the kind of shiny thing a raven cannot resist.' } },
+    trinket: { name: { nl: 'Bronzen Munt', en: 'Bronze Coin' }, icon: '🪙', img: 'assets/art/item-trinket.png', sparkle: true,
+             look: { nl: 'Een glanzende bronzen munt die je uit de leeuwenfontein opviste. Hij blinkt schitterend in het licht — precies het soort glimmend ding waar een raaf geen weerstand aan kan bieden.', en: 'A gleaming bronze coin you fished from the lion fountain. It shines brilliantly in the light — exactly the kind of bright thing a raven cannot resist.' } },
     mushroom: { name: { nl: 'Magische Paddenstoel', en: 'Magic Mushroom' }, icon: '🍄', img: 'assets/art/item-mushroom.png', sparkle: true,
              look: { nl: 'Een trosje warm gloeiende paddenstoelen met bruin-oranje hoedjes, geplukt bij de put. Ze tintelen van de magie — vast ergens goed voor.', en: 'A cluster of warmly glowing mushrooms with brown-orange caps, picked by the well. They tingle with magic — surely useful for something.' } },
     sword: { name: { nl: 'Zwaard van Sir Aldric', en: 'Sir Aldric’s Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
@@ -250,7 +252,10 @@ const GAME = {
     { when: { has: 'key', flag: 'fountainSolved' },                      quest: 'q_usekey' },        // sleutel + slot zichtbaar -> open de poort
     { when: { has: 'key' },                                              quest: 'q_fountainpuzzle' },// sleutel maar slot nog verborgen -> los de fontein op
     { when: { has: 'necklace' },                                         quest: 'q_givenecklace' },  // ketting -> naar de prinses
-    { when: { flag: 'gotSword', has: 'rope' },                           quest: 'q_userope' },       // zwaard gesmeed -> nu de put-doolhof met het touw
+    { when: { has: 'rope', flag: 'ravenInBucket', notFlag: 'gotNecklace' }, quest: 'q_haulwell' },   // raaf in de emmer + touw -> hijs de ketting op
+    { when: { flag: 'ravenInBucket', notFlag: 'gotNecklace' },           quest: 'q_haulwell' },      // raaf in de emmer, maar nog geen touw
+    { when: { has: 'trinket' },                                          quest: 'q_giveraven' },     // bronzen munt -> geef aan de raaf op de put
+    { when: { flag: 'gotSword', notFlag: 'gotNecklace' },                quest: 'q_getcoin' },       // zwaard gesmeed -> vis de munt uit de fontein
     { when: { flag: 'swordInForge', notFlag: 'gotSword' },               quest: 'q_forge' },         // zwaard ligt in de oven -> sla het met de hamer
     { when: { has: ['swordBroken', 'hammer', 'charcoal'], notFlag: 'gotSword' }, quest: 'q_forge' }, // alles aanwezig -> smeed (kool, zwaard, hamer)
     { when: { has: ['swordBroken', 'hammer'], notFlag: 'gotSword' },     quest: 'q_getcoal' },       // mist houtskool
@@ -259,7 +264,7 @@ const GAME = {
     { when: { has: ['swordBroken', 'charcoal'], notFlag: 'gotSword' },   quest: 'q_gethammer' },     // mist hamer (noot->papagaai->woorden->beeld)
     { when: { has: 'swordBroken', notFlag: 'gotSword' },                 quest: 'q_getsword' },      // heeft gebroken zwaard -> haal hamer + kool
     { when: { flag: 'metSquire', notFlag: 'gotSword' },                  quest: 'q_getsword' },      // schildknaap gesproken
-    { when: { has: 'rope' },                                             quest: 'q_userope' },       // terugval: touw -> put
+    { when: { has: 'rope' },                                             quest: 'q_getcoin' },       // terugval: touw -> munt uit de fontein -> raaf -> ophijsen
     { when: {},                                                          quest: 'q_explore' }
   ],
 
@@ -301,7 +306,7 @@ const GAME = {
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
-        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4, hideFlag: 'gotCrowHint' }   // de raaf op het dakje van de put; vliegt weg (verdwijnt) zodra je het kristal geeft
+        { id: 'courtyardRaven', sprite: 'ravenPerch', x: 292, y: 92, scale: 0.95, flip: true, peck: true, peckAmt: 0.4, hideFlag: 'ravenInBucket' }   // de raaf op het dakje van de put; springt de emmer in (verdwijnt) zodra je de munt geeft
       ],
       hotspots: [
         {
@@ -328,20 +333,19 @@ const GAME = {
           rect: { x: 224, y: 150, w: 120, h: 108 },
           walkTo: { x: 286, y: 300 },
           look: (state) => state.flags.gotNecklace
-            ? { nl: 'De oude put. Diep beneden klatert het donkere water. De ketting van de prinses heb je veilig omhoog gevist.', en: 'The old well. Far below, dark water trickles. You’ve safely fished up the princess’s necklace.' }
-            : { nl: 'Een oude stenen put met een houten windwerk. Diep beneden, in het donkere water, ligt iets te glinsteren. Zonder een touw kom je er niet bij.', en: 'An old stone well with a wooden winch. Far below, in the dark water, something glints. Without a rope you can’t reach it.' },
-          maze: {
-            needItem: 'rope',
-            needText: { nl: 'Er glinstert iets diep in de put, maar je kunt er met je blote handen niet bij. Je hebt een touw nodig om af te dalen.', en: 'Something glints deep in the well, but you can’t reach it with bare hands. You need a rope to lower down.' },
-            cells: 7,                                       // 7×7 doolhof — flink moeilijk
-            water: true,                                    // het touw volgt het waterkanaal omlaag
-            img: 'assets/art/maze-well.jpg',
-            title: { nl: 'Laat het touw in de put zakken', en: 'Lower the Rope into the Well' },
-            hint: { nl: 'Leid het touw langs de natte schachten omlaag, om de muren heen, tot bij de glinstering op de bodem. Gebruik de pijltjes.', en: 'Guide the rope down through the wet shafts, around the walls, to the glint at the bottom. Use the arrows.' },
-            setFlag: 'gotNecklace',
-            consume: 'rope',
-            give: 'necklace',
-            solvedText: { nl: 'Het touw haakt achter de glinstering en je hijst op. Met een natte plons komt een fijne gouden ketting boven, met een blauwe edelsteen. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'The rope snags on the glint and you haul it up. With a wet splash a fine gold necklace surfaces, a blue gem set in it. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
+            ? { nl: 'De oude put. Diep beneden klatert het donkere water. De ketting van de prinses heb je veilig omhoog gehesen.', en: 'The old well. Far below, dark water trickles. You’ve safely hauled up the princess’s necklace.' }
+            : state.flags.ravenInBucket
+            ? { nl: 'Diep in de schacht zit de raaf in de emmer te wachten, met iets glinsterends in zijn snavel. Hijs de emmer omhoog — maar het windwerk heeft een touw nodig.', en: 'Deep in the shaft the raven waits in the bucket, something glinting in his beak. Haul the bucket up — but the winch needs a rope.' }
+            : { nl: 'Een oude stenen put met een houten windwerk, maar zonder touw. Diep beneden, in het donkere water, ligt iets te glinsteren — te diep om er zelf bij te komen. Misschien kan iets (of iemand) kleins het halen?', en: 'An old stone well with a wooden winch, but no rope. Far below, in the dark water, something glints — too deep to reach yourself. Maybe something (or someone) small could fetch it?' },
+          use: {
+            rope: {
+              requiresFlag: 'ravenInBucket',
+              requiresText: { nl: 'Je knoopt het touw aan het windwerk, maar de emmer is leeg — er valt zo niets op te halen. Lok eerst de raaf de put in met iets glimmends.', en: 'You tie the rope to the winch, but the bucket is empty — nothing to haul up. First lure the raven into the well with something shiny.' },
+              consume: 'rope',
+              give: 'necklace',
+              setFlag: 'gotNecklace',
+              text: { nl: 'Je knoopt het touw aan het windwerk en draait de slinger. Krakend komt de emmer omhoog — en daar zit de raaf, trots, met een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'You tie the rope to the winch and turn the crank. Creaking, the bucket rises — and there sits the raven, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' }
+            }
           }
         },
         {
@@ -349,15 +353,15 @@ const GAME = {
           name: { nl: 'De Raaf', en: 'The Raven' },
           rect: { x: 258, y: 56, w: 70, h: 64 },              // de glanzende raaf op het dakje van de put
           walkTo: { x: 286, y: 300 },
-          hideFlag: 'gotCrowHint',                            // na de ruil vliegt de raaf weg naar de bibliotheek
-          look: { nl: 'Een grote, glanzende zwarte raaf zit op het dakje van de put en bekijkt je met glinsterende oogjes. Hij gluurt steeds naar je tas — alsof hij iets glimmends ruikt. Raven zijn dol op glanzende dingen... en zien álles wat er op het kasteel gebeurt. Misschien ruilt hij een geheim voor iets moois?', en: 'A big, glossy black raven sits on the well roof, eyeing you with glittering eyes. He keeps peeking at your bag — as if he smells something shiny. Ravens love bright things... and see everything that happens at the castle. Perhaps he’d trade a secret for something pretty?' },
+          hideFlag: 'ravenInBucket',                          // zodra je de munt geeft, springt de raaf de emmer in (verdwijnt van het dakje)
+          look: (state) => state.inventory.includes('trinket')
+            ? { nl: 'De grote, glanzende raaf op het put-dakje gluurt hongerig naar de bronzen munt in je tas. Geef hem de munt — misschien helpt hij je dan iets uit de diepte op te halen.', en: 'The big glossy raven on the well roof eyes the bronze coin in your bag hungrily. Give him the coin — perhaps he’ll help fetch something from the deep.' }
+            : { nl: 'Een grote, glanzende zwarte raaf zit op het dakje van de put en bekijkt je met glinsterende oogjes. Hij gluurt steeds naar je tas — alsof hij iets glimmends ruikt. Raven zijn dol op glanzende dingen. Had je maar iets blinkends om hem te lokken...', en: 'A big, glossy black raven sits on the well roof, eyeing you with glittering eyes. He keeps peeking at your bag — as if he smells something shiny. Ravens love bright things. If only you had something gleaming to tempt him...' },
           use: {
             trinket: {
               consume: 'trinket',
-              setFlag: 'gotCrowHint',
-              flyNpc: 'courtyardRaven',                        // de raaf vliegt weg (naar rechts, richting het kasteel)
-              flyDir: 'right',
-              text: { nl: 'Je houdt het glimmende kristal omhoog. De raaf spreidt zijn vleugels, grist het behendig uit je hand en kraait: “Kraa! Een ruil — een geheim voor jou!” Hij wipt dichterbij en fluistert: “Ik zie álles vanaf de put. Diep achter het kasteel, voorbij een geheime poort, ligt een verboden bibliotheek — met een boek vol zeldzame magie. Daar moet je zijn, kraa!” Dan klappert hij met zijn vleugels en vliegt weg, het kasteel in. Misschien zie je hem daar terug?', en: 'You hold up the shiny crystal. The raven spreads his wings, snatches it from your hand and caws: “Caw! A trade — a secret for you!” He hops closer and whispers: “I see everything from the well. Deep behind the castle, past a secret gate, lies a forbidden library — with a book of rare magic. That’s where you must go, caw!” Then he beats his wings and flies off, into the castle. Perhaps you’ll see him there again?' }
+              setFlag: 'ravenInBucket',
+              text: { nl: 'Je houdt de bronzen munt omhoog. De raaf kan zich niet inhouden — hij grist hem uit je hand, kraait “Kraa!” van plezier en springt met munt en al boven op de put-emmer. Met een vrolijk gekras laat hij zich de donkere schacht in zakken... Nu hoef je de emmer alleen nog op te hijsen. Had je maar een touw!', en: 'You hold up the bronze coin. The raven can’t resist — he snatches it from your hand, caws “Caw!” with delight and hops onto the well bucket, coin and all. With a cheerful cackle he lowers himself down the dark shaft... Now you only need to haul the bucket up. If only you had a rope!' }
             }
           }
         },
@@ -474,7 +478,7 @@ const GAME = {
       ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 332, y: 244, scale: 1.35, glowCol: '255,140,50' },   // houtskool met gloeiende sintels tussen de bloemen — extra groot + sterke warme gloed zodat hij goed opvalt
-        { item: 'trinket', hotspot: 'trinket', x: 150, y: 250, highlight: true, gem: true, glowCol: '210,235,255' }   // glimmend kristal tussen de bloemen links — sierlijke ster-fonkeling; voor de raaf
+        { item: 'trinket', hotspot: 'trinket', x: 62, y: 196, scale: 0.74, gem: true, glowCol: '255,210,130' }   // bronzen munt die glinstert in het bekken van de leeuwenfontein
       ],
       npcs: [
         { id: 'princess', sprite: 'princess', sway: 0.020, filter: 'brightness(0.78) saturate(0.92)', flip: true, x: 424, y: 250, scale: 1.0 },   // prinses; zelfde afbeelding, iets compacter (kleinere schaal); zelfde wieg als de wachter maar subtieler
@@ -525,8 +529,8 @@ const GAME = {
         },
         {
           id: 'fountain',
-          name: { nl: 'De Leeuwenfontein', en: 'The Lion Fountain' },
-          rect: { x: 22, y: 118, w: 84, h: 100 },
+          name: { nl: 'De Leeuwenkop', en: 'The Lion’s Head' },
+          rect: { x: 26, y: 116, w: 66, h: 64 },              // alleen de leeuwenkop (+ sleutelgat): hierop klikken opent de puzzel; het bekken eronder is voor de munt
           walkTo: { x: 96, y: 252 },
           hideFlag: 'secretGateOpen',                         // zodra de poort open is, neemt de geheime-poort-hotspot het over
           look: (state) => state.flags.fountainSolved
@@ -652,14 +656,14 @@ const GAME = {
         },
         {
           id: 'trinket',
-          name: { nl: 'Iets glimmends', en: 'Something shiny' },
-          rect: { x: 128, y: 230, w: 46, h: 42 },
-          walkTo: { x: 150, y: 296 },
+          name: { nl: 'Iets glimmends in de fontein', en: 'Something shiny in the fountain' },
+          rect: { x: 40, y: 182, w: 46, h: 30 },
+          walkTo: { x: 96, y: 252 },
           hideFlag: 'taken_garden_trinket',
           gives: {
             item: 'trinket',
-            giveText: { nl: 'Iets fonkelt tussen de blauwe bloemen — een glimmend blauw kristal vangt het zonlicht. Je raapt het op; het glinstert betoverend in je hand. Zoiets glimmends... daar is vast iemand dol op. Een raaf misschien?', en: 'Something sparkles among the blue flowers — a shiny blue crystal catches the sunlight. You pick it up; it glitters bewitchingly in your hand. Something this shiny... surely someone would love it. A raven, perhaps?' },
-            emptyText: { nl: 'Het glimmende kristal zit al in je tas.', en: 'The shiny crystal is already in your bag.' }
+            giveText: { nl: 'Op de bodem van het schelpbekken ligt iets te glinsteren onder het kabbelende water — een glanzende bronzen munt! Je vist hem eruit. Zoiets glimmends... daar is een raaf vast dol op.', en: 'On the floor of the shell basin something glints beneath the rippling water — a gleaming bronze coin! You fish it out. Something this shiny... a raven would surely love it.' },
+            emptyText: { nl: 'De bronzen munt zit al in je tas.', en: 'The bronze coin is already in your bag.' }
           }
         },
         {
@@ -705,21 +709,10 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' },   // de oude bibliothecaris bij de lessenaar
-        { id: 'libraryRaven', sprite: 'ravenPerch', x: 470, y: 150, scale: 0.6, flip: true, peck: true, peckAmt: 0.3, appearFlag: 'gotCrowHint' }   // dezelfde raaf: hij is vooruitgevlogen en zit nu op de vensterbank van het open raam
+        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' }   // de oude bibliothecaris bij de lessenaar
       ],
       worldItems: [],
       hotspots: [
-        {
-          id: 'libraryRaven',
-          name: { nl: 'De Raaf bij het Raam', en: 'The Raven at the Window' },
-          rect: { x: 444, y: 122, w: 60, h: 58 },
-          walkTo: { x: 446, y: 254 },
-          appearFlag: 'gotCrowHint',
-          look: (state) => state.flags.librarianAsleep
-            ? { nl: 'Op de vensterbank van het open raam zit de raaf tevreden te kraaien. “Kraa! Goed gedaan — hij slaapt als een roos. Gáuw, pak de spreuk uit het gloeiende boek!”', en: 'On the sill of the open window the raven caws contentedly. “Caw! Well done — he sleeps like a log. Quick, take the spell from the glowing book!”' }
-            : { nl: 'Op de vensterbank van het open raam zit de raaf van de put — hij is vooruitgevlogen! Hij knikt naar de strenge bibliothecaris en kraait zacht: “Kraa! Die ouwe laat niemand bij het gloeiende boek. Maar zélfs een bibliothecaris valt in slaap van de juiste magie... die glimmende paddenstoelen bij de put, herinner je je? Verkruimel ze onder zijn neus!”', en: 'On the sill of the open window sits the raven from the well — he flew on ahead! He nods toward the stern librarian and caws softly: “Caw! That old man lets no one near the glowing book. But even a librarian dozes off with the right magic... those glowing mushrooms by the well, remember? Crush them under his nose!”' }
-        },
         {
           id: 'toGardenLib',
           name: { nl: 'Terug naar de Tuin', en: 'Back to the Garden' },
