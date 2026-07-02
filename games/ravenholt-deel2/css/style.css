@@ -143,6 +143,8 @@ html, body {
 }
 
 /* Opslaan-knop rechtsboven (los van de linker iconen-stapel) */
+/* Verberg de opslaan-knop zodra er een puzzel/overlay open is — anders valt hij precies over het sluit-kruisje */
+body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: none; }
 .round-btn.save {
   position: fixed;
   right: 12px;
@@ -1240,12 +1242,17 @@ html, body {
     flex-direction: column;
     width: auto;
     margin: 0;
-    gap: 5px;
-    padding: 6px;
+    gap: 4px;
+    padding: 5px;
     background: rgba(26, 20, 16, .55);
+    max-height: calc(100dvh - 16px);   /* hele inventory zichtbaar; bij veel items wikkelt hij naar een 2e kolom */
+    flex-wrap: wrap;
+    overflow-y: auto;
+    scrollbar-width: none;
   }
+  #invbar::-webkit-scrollbar { display: none; }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 50px; height: 50px; font-size: 26px; }
+  .inv-slot { width: 44px; height: 44px; font-size: 22px; flex: 0 0 auto; }
 
   /* tekstwolkje BOVENIN op mobiel (weg van de inventory + scène onderaan); iets compacter,
      grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */

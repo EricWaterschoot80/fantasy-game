@@ -2939,7 +2939,7 @@
     elInvbar.innerHTML = '';
     /* De spreuken (dans + draak) staan altijd in de meest rechtse vakjes; de rest links. */
     const spells = ['spell', 'dragonspell', 'eclipsspell', 'invisspell'].filter((id) => state.inventory.includes(id));
-    const others = state.inventory.filter((id) => id !== 'spell' && id !== 'dragonspell' && id !== 'invisspell');
+    const others = state.inventory.filter((id) => !spells.includes(id) && id !== 'spell' && id !== 'dragonspell' && id !== 'eclipsspell' && id !== 'invisspell');
     const slots = Math.max(MIN_SLOTS, others.length + spells.length);
     const firstSpell = slots - spells.length;   // index van het eerste spreuk-vakje (rechts)
     for (let i = 0; i < slots; i++) {

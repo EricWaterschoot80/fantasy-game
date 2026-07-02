@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '116',
+  assetVer: '119',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -768,7 +768,8 @@ const GAME = {
         { x: 150, y: 224, w: 280, h: 30 }                  // smalle strook richting de lessenaar
       ],
       obstacles: [
-        { x: 308, y: 206, w: 48, h: 50 }                   // de lessenaar zelf
+        { x: 308, y: 206, w: 48, h: 50 },                  // de lessenaar zelf
+        { x: 416, y: 244, w: 118, h: 60 }                  // de altaar-sokkel met het zonnestelsel — niet doorheen lopen
       ],
       overlays: [],
       fx: {},
@@ -807,7 +808,7 @@ const GAME = {
           id: 'shelves',
           name: { nl: 'De Boekenkasten', en: 'The Bookcases' },
           rect: { x: 446, y: 36, w: 84, h: 118 },
-          walkTo: { x: 460, y: 268 },
+          walkTo: { x: 404, y: 282 },
           look: { nl: 'Rijen op rijen eeuwenoude boeken: kronieken van Eldoria, sterrenkaarten, verboden spreukenboeken. Maar \u00E9\u00E9n boek, op de lessenaar, gloeit zachtjes \u2014 d\u00E1\u00E1r moet je zijn.', en: 'Rows upon rows of ancient tomes: chronicles of Eldoria, star charts, forbidden spellbooks. But one book, on the lectern, glows softly \u2014 that is the one you want.' }
         },
         {
@@ -860,7 +861,7 @@ const GAME = {
           id: 'altar',
           name: { nl: 'Het Sterren-Altaar', en: 'The Star Altar' },
           rect: { x: 418, y: 170, w: 114, h: 106 },
-          walkTo: { x: 458, y: 272 },
+          walkTo: { x: 404, y: 282 },
           look: (state) => state.flags.gotInvisSpell
             ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
             : { nl: 'Een stenen altaar met drie schuifrijen vol vreemde tekens, en rechts drie gouden vakjes onder elkaar. Welke drie tekens horen daar? De sterren weten het antwoord...', en: 'A stone altar with three sliding rows of strange signs, and three golden boxes on the right. Which three signs belong there? The stars know the answer...' },
