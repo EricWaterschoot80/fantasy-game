@@ -1239,20 +1239,23 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
     right: 6px;
     top: 50%;
     transform: translateY(-50%);
-    flex-direction: column;
+    /* vast 2-koloms grid: ook met 10+ items blijft ALLES in beeld
+       (flex column-wrap vergroot de containerbreedte niet — vandaar grid) */
+    display: grid;
+    grid-template-columns: repeat(2, 44px);
+    grid-auto-rows: 44px;
     width: auto;
     margin: 0;
     gap: 4px;
     padding: 5px;
     background: rgba(26, 20, 16, .55);
-    max-height: calc(100dvh - 16px);   /* hele inventory zichtbaar; bij veel items wikkelt hij naar een 2e kolom */
-    flex-wrap: wrap;
+    max-height: calc(100dvh - 12px);
     overflow-y: auto;
     scrollbar-width: none;
   }
   #invbar::-webkit-scrollbar { display: none; }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 44px; height: 44px; font-size: 22px; flex: 0 0 auto; }
+  .inv-slot { width: 44px; height: 44px; font-size: 22px; }
 
   /* tekstwolkje BOVENIN op mobiel (weg van de inventory + scène onderaan); iets compacter,
      grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */

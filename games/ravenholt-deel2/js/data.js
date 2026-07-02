@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '120',
+  assetVer: '121',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -163,8 +163,8 @@ const GAME = {
              look: { nl: 'Een zware, oude sleutel die je van de prinses kreeg. Hij past op het slot onder de leeuwenkop van de fontein — de geheime poort.', en: 'A heavy old key the princess gave you. It fits the lock beneath the fountain’s lion head — the secret gate.' } },
     charcoal: { name: { nl: 'Houtskool', en: 'Charcoal' }, icon: '⬛', img: 'assets/art/item-coal.png',
              look: { nl: 'Een handvol zwarte houtskool die je tussen de bloemen in de slottuin vond. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal you found among the flowers in the castle garden. Just what a smith needs to fire up his forge again.' } },
-    nut: { name: { nl: 'Noot', en: 'Nut' }, icon: '🌰', img: 'assets/art/item-nut.png',
-             look: { nl: 'Een klein, donkerbruin nootje dat bij het aambeeld van de smidse lag. Vogels — papagaaien zeker — zijn er dol op.', en: 'A small, dark-brown nut that lay by the smithy anvil. Birds — parrots especially — love them.' } },
+    nut: { name: { nl: 'Pindanoot', en: 'Peanut' }, icon: '🥜', img: 'assets/art/item-nut.png',
+             look: { nl: 'Een pindanoot, half uit zijn schil gebroken — hij lag bij het aambeeld van de smidse. Vogels — papagaaien zeker — zijn er dol op.', en: 'A peanut, half broken out of its shell — it lay by the smithy anvil. Birds — parrots especially — love these.' } },
     trinket: { name: { nl: 'Bronzen Munt', en: 'Bronze Coin' }, icon: '🪙', img: 'assets/art/item-trinket.png', sparkle: true,
              look: { nl: 'Een glanzende bronzen munt die je uit de leeuwenfontein opviste. Hij blinkt schitterend in het licht — precies het soort glimmend ding waar een raaf geen weerstand aan kan bieden.', en: 'A gleaming bronze coin you fished from the lion fountain. It shines brilliantly in the light — exactly the kind of bright thing a raven cannot resist.' } },
     mushroom: { name: { nl: 'Magische Paddenstoel', en: 'Magic Mushroom' }, icon: '🍄', img: 'assets/art/item-mushroom.png', sparkle: true,
@@ -454,13 +454,13 @@ const GAME = {
         },
         {
           id: 'nut',
-          name: { nl: 'Een Noot', en: 'A Nut' },
+          name: { nl: 'Een Pindanoot', en: 'A Peanut' },
           rect: { x: 96, y: 234, w: 44, h: 40 },
           walkTo: { x: 116, y: 256 },
           hideFlag: 'taken_courtyard_nut',
           gives: {
             item: 'nut',
-            giveText: { nl: 'Bij het aambeeld van de smidse, naast het koude ijzer, ligt een klein donkerbruin nootje. Je raapt het op — vast lekker voor een vogel.', en: 'By the smithy anvil, beside the cold iron, lies a small dark-brown nut. You pick it up — surely a treat for a bird.' },
+            giveText: { nl: 'Bij het aambeeld van de smidse ligt een pindanoot, half uit zijn schil. Je raapt hem op — vast lekker voor een vogel.', en: 'By the smithy anvil lies a peanut, half out of its shell. You pick it up — surely a treat for a bird.' },
             emptyText: { nl: 'De noot zit al in je tas.', en: 'The nut is already in your bag.' }
           }
         },
