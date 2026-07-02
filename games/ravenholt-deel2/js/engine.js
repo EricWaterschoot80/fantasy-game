@@ -3835,12 +3835,12 @@
   const elDialStatus = document.getElementById('dial-status');
   const dctx = elDialCanvas ? elDialCanvas.getContext('2d') : null;
   const W_DEPTH = 8;                                   // zoveel slagen vieren tot het water
-  let dialHs = null, wDepth = 0, wSpeed = 0, wSolved = false, wAnim = null, wSlipT = 0;
+  let dialHs = null, wDepth = 0, wSpeed = 0, wSolved = false, wAnim = null, wSlipT = 0, wBarV = 0;
 
   function openDialPuzzle(hs) {
     const pz = hs.dialPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
-    dialHs = hs; wDepth = 0; wSpeed = 0; wSolved = false; wSlipT = 0;
+    dialHs = hs; wDepth = 0; wSpeed = 0; wSolved = false; wSlipT = 0; wBarV = 0;
     if (elDialTitle)  elDialTitle.textContent  = L(pz.title);
     if (elDialHint)   elDialHint.textContent   = L(pz.hint);
     if (elDialStatus) elDialStatus.textContent = '';
@@ -3870,7 +3870,7 @@
     }
     if (wSpeed >= 3) {                                 // te snel gevierd: het touw slipt en de emmer schiet omhoog
       wSlipT = performance.now();
-      wDepth = 0; wSpeed = 0;
+      wDepth = 0; wSpeed = 0; wBarV = 1;               // balk schiet vol in het rood
       sfx('error');
       if (elDialStatus) elDialStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'Te snel! Het touw slipt en de emmer schiet weer helemaal omhoog.' : 'Too fast! The rope slips and the bucket shoots back up.');
       return;
@@ -3924,9 +3924,16 @@
       px === wallW ? x.moveTo(px, yy) : x.lineTo(px, yy);
     }
     x.stroke();
-    const gl = 0.5 + 0.5 * Math.sin(now / 320);
-    x.strokeStyle = 'rgba(255,225,140,' + (0.35 + 0.55 * gl) + ')'; x.lineWidth = 2;
-    x.beginPath(); x.moveTo(cx + 24 - 7, wy + 18); x.lineTo(cx + 24 + 7, wy + 18); x.moveTo(cx + 24, wy + 18 - 7); x.lineTo(cx + 24, wy + 18 + 7); x.stroke();
+    /* de gouden ketting met diamant, zichtbaar onder water */
+    const nx = cx + 24, ny = wy + 22, gl = 0.5 + 0.5 * Math.sin(now / 320);
+    x.strokeStyle = 'rgba(255,215,120,' + (0.55 + 0.4 * gl) + ')'; x.lineWidth = 2;
+    x.beginPath(); x.ellipse(nx, ny - 9, 9, 6, 0, Math.PI * 1.1, Math.PI * 2.35); x.stroke();   // ketting-schakel (open ovaal)
+    x.fillStyle = 'rgba(140,220,255,' + (0.75 + 0.25 * gl) + ')';                                // diamant-hanger
+    x.beginPath(); x.moveTo(nx, ny - 5); x.lineTo(nx + 6, ny); x.lineTo(nx, ny + 8); x.lineTo(nx - 6, ny); x.closePath(); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.85)'; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(nx - 6, ny); x.lineTo(nx + 6, ny); x.moveTo(nx, ny - 5); x.lineTo(nx, ny + 8); x.stroke();   // facetlijnen
+    x.strokeStyle = 'rgba(255,255,255,' + (0.4 + 0.6 * gl) + ')'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(nx - 12, ny - 12); x.lineTo(nx - 8, ny - 12); x.moveTo(nx - 10, ny - 14); x.lineTo(nx - 10, ny - 10); x.stroke();   // fonkel-ster
     /* dwarsbalk + windas-trommel bovenaan */
     x.fillStyle = '#4a3119'; x.fillRect(wallW - 10, 20, W - wallW * 2 + 20, 12);
     x.strokeStyle = '#2a1c0e'; x.lineWidth = 2; x.strokeRect(wallW - 10, 20, W - wallW * 2 + 20, 12);
@@ -3950,21 +3957,31 @@
     x.beginPath(); x.moveTo(bx2 - 17, by - 10); x.lineTo(bx2 + 17, by - 10); x.lineTo(bx2 + 13, by + 12); x.lineTo(bx2 - 13, by + 12); x.closePath(); x.fill();
     x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
     x.strokeStyle = '#8a6a3a'; x.beginPath(); x.moveTo(bx2 - 16, by - 4); x.lineTo(bx2 + 16, by - 4); x.stroke();
-    /* raaf in de emmer (kopje boven de rand, wipt zachtjes mee) */
+    /* raaf in de emmer — duidelijk herkenbaar: staart, vleugel, glanzende veren */
     const rb = Math.sin(now / 300) * 1.5;
-    x.fillStyle = '#16161c';
-    x.beginPath(); x.ellipse(bx2, by - 14 + rb, 10, 7, 0, 0, Math.PI * 2); x.fill();          // lijfje
-    x.beginPath(); x.arc(bx2 + 8, by - 21 + rb, 5, 0, Math.PI * 2); x.fill();                  // kopje
+    x.fillStyle = '#101017';
+    x.beginPath(); x.moveTo(bx2 - 14, by - 13 + rb); x.lineTo(bx2 - 25, by - 19 + rb); x.lineTo(bx2 - 13, by - 20 + rb); x.closePath(); x.fill();   // staartveren
+    x.beginPath(); x.ellipse(bx2 - 2, by - 17 + rb, 12, 8, -0.12, 0, Math.PI * 2); x.fill();   // lijfje
+    x.beginPath(); x.arc(bx2 + 9, by - 26 + rb, 6, 0, Math.PI * 2); x.fill();                  // kop
+    x.fillStyle = '#26262f';
+    x.beginPath(); x.ellipse(bx2 - 3, by - 16 + rb, 8, 5, -0.3, 0, Math.PI * 2); x.fill();     // vleugel
     x.fillStyle = '#e8a33d';
-    x.beginPath(); x.moveTo(bx2 + 12, by - 21 + rb); x.lineTo(bx2 + 19, by - 19 + rb); x.lineTo(bx2 + 12, by - 18 + rb); x.closePath(); x.fill();   // snavel
-    x.fillStyle = '#fff'; x.fillRect(bx2 + 8, by - 23 + rb, 2, 2);                             // oogje
-    /* vaart-lampjes rechtsboven: groen -> oranje -> rood */
-    const lampCols = ['#7fd66b', '#ffd36b', '#ff6b57'];
-    for (let i = 0; i < 3; i++) {
-      x.beginPath(); x.arc(W - 66 + i * 20, 14, 6, 0, Math.PI * 2);
-      x.fillStyle = i < wSpeed ? lampCols[Math.min(wSpeed, 3) - 1] : '#241c12'; x.fill();
-      x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
-    }
+    x.beginPath(); x.moveTo(bx2 + 14, by - 27 + rb); x.lineTo(bx2 + 23, by - 24 + rb); x.lineTo(bx2 + 14, by - 22 + rb); x.closePath(); x.fill();   // snavel
+    x.fillStyle = '#fff'; x.fillRect(bx2 + 9, by - 28 + rb, 2, 2);                             // oogje
+    x.strokeStyle = 'rgba(150,165,220,.4)'; x.lineWidth = 1.5;
+    x.beginPath(); x.arc(bx2 - 2, by - 20 + rb, 9, Math.PI * 1.15, Math.PI * 1.6); x.stroke(); // blauwige veerglans
+    /* touwspannings-balk bovenaan: GROEN = zakken mag, ROOD (voorbij het midden) = eerst vasthouden */
+    const barX = wallW, barW2 = W - wallW * 2, barY = 3, barH = 13;
+    x.fillStyle = '#1a140c'; x.fillRect(barX - 2, barY - 2, barW2 + 4, barH + 4);
+    x.fillStyle = 'rgba(110,205,100,.30)'; x.fillRect(barX, barY, barW2 * 0.55, barH);                    // groene zone (veilig)
+    x.fillStyle = 'rgba(255,200,90,.30)';  x.fillRect(barX + barW2 * 0.55, barY, barW2 * 0.20, barH);     // oranje zone
+    x.fillStyle = 'rgba(255,90,70,.30)';   x.fillRect(barX + barW2 * 0.75, barY, barW2 * 0.25, barH);     // rode zone (stop!)
+    wBarV += (Math.min(1, wSpeed / 2.5) - wBarV) * 0.16;                                                  // vulling glijdt soepel mee
+    x.fillStyle = wBarV > 0.6 ? '#ff5a46' : wBarV > 0.45 ? '#ffc25a' : '#6ecf62';
+    x.fillRect(barX, barY, barW2 * wBarV, barH);
+    x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.strokeRect(barX - 2, barY - 2, barW2 + 4, barH + 4);
+    x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 2;                                             // midden-streep: tot hier is het veilig
+    x.beginPath(); x.moveTo(barX + barW2 * 0.55, barY - 2); x.lineTo(barX + barW2 * 0.55, barY + barH + 2); x.stroke();
     /* diepte-streepjes op de rechterwand */
     for (let i = 0; i <= DEP; i++) {
       const ty = topY + (botY - topY) * (i / DEP);

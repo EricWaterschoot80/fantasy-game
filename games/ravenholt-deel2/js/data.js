@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '108',
+  assetVer: '109',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -370,7 +370,7 @@ const GAME = {
             needText: { nl: 'Het windwerk heeft eerst een touw nodig om de emmer te kunnen laten zakken. Haal het touw bij de schildknaap.', en: 'The winch first needs a rope before it can lower the bucket. Get the rope from the squire.' },
             depth: 8,
             title: { nl: 'Laat de Raaf Zakken', en: 'Lower the Raven' },
-            hint: { nl: 'De raaf zit in de emmer en beneden glinstert de ketting in het water. Draai de hendel (⟳ Laten zakken) om het touw te vieren — maar pas op: het oude touw gaat steeds sneller! Zie je de lampjes oranje worden, houd dan even vast (✋) om af te remmen. Viert je drie slagen achter elkaar, dan slipt het touw en schiet de emmer weer helemaal omhoog.', en: 'The raven sits in the bucket, and below the necklace glints in the water. Turn the crank (⟳ Lower) to pay out the rope — but careful: the old rope runs faster and faster! When the lamps turn orange, hold tight (✋) for a moment to brake. Lower three times in a row and the rope slips, shooting the bucket all the way back up.' },
+            hint: { nl: 'De raaf zit in de emmer en beneden glinstert de ketting met de diamant in het water. Draai de hendel (⟳ Laten zakken) om het touw te vieren — en kijk naar de spanningsbalk bovenin: staat de balk in het GROEN (vóór het midden-streepje), dan mag je zakken. Schiet hij voorbij het midden in het ROOD, houd dan eerst even vast (✋) om af te remmen — anders slipt het touw en schiet de emmer weer helemaal omhoog.', en: 'The raven sits in the bucket, and below the necklace with its diamond glints in the water. Turn the crank (⟳ Lower) to pay out the rope — and watch the tension bar at the top: while the bar is in the GREEN (before the middle mark) you may lower. If it shoots past the middle into the RED, hold tight (✋) first to brake — or the rope slips and the bucket shoots all the way back up.' },
             setFlag: 'gotNecklace',
             consume: 'rope',
             give: 'necklace',
