@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '106',
+  assetVer: '107',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -732,6 +732,9 @@ const GAME = {
     library: {
       name: { nl: 'De Kasteelbibliotheek', en: 'The Castle Library' },
       bg: 'assets/art/scene-library.jpg',
+      bgVariants: [
+        { img: 'assets/art/scene-library-night.jpg', flag: 'gotInvisSpell' }   // zodra je op het gloeiende boek klikt (spreuk gepakt) valt de nacht in de bibliotheek
+      ],
       charFilter: 'saturate(1.04) brightness(0.98) sepia(0.14) contrast(1.03)',   // warm kaarslicht zodat de figuren in de bibliotheek opgaan
       heroShade: 0.92,
       entryText: {

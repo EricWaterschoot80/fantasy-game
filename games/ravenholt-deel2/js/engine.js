@@ -4617,6 +4617,8 @@
       }
       if (hs.give) (Array.isArray(hs.give) ? hs.give : [hs.give]).forEach(addItem);   // climax-item (bv. de onzichtbaarheidsspreuk)
       if (hs.setFlag) (Array.isArray(hs.setFlag) ? hs.setFlag : [hs.setFlag]).forEach((f) => { state.flags[f] = true; });
+      const egSc = GAME.scenes[state.currentScene];      // achtergrond meteen verversen (bv. bibliotheek wordt nacht na het pakken van de spreuk)
+      if (egSc && egSc.bgVariants) paintBackground();
       sfx('win');
       say(hs.enterText || GAME.winText);
       pendingWin = true;                                // bij wegtikken van de tekst → fade naar de eindkaart
