@@ -2426,12 +2426,14 @@
          verbaasde blik zodra een vlag is gezet (aweSprite, bv. starend naar de dansende bloem). */
       const npcStopped = npc.stopFlag && state.flags[npc.stopFlag];   // bv. koopman weer normaal zodra het rad uit de kar is
       const scared = npc.scareFlag && state.flags[npc.scareFlag];     // verbaasd schrikken (bv. om de drakenschaduw) — overschrijft stopFlag
+      let npcInAwe = false;                                            // onder 'hypnose'/verbazing → duidelijker schommelen
       if (scared && npc.aweSprites && npc.aweSprites.length) {
         const a = npc.aweSprites, im = art.sprites[a[Math.floor(now / 280) % a.length]];
         if (ready(im)) img = im;                          // snel verbaasd heen en weer
       } else if (!npcStopped && npc.aweFlag && state.flags[npc.aweFlag] && npc.aweSprites && npc.aweSprites.length) {
-        const a = npc.aweSprites, im = art.sprites[a[Math.floor(now / 480) % a.length]];
-        if (ready(im)) img = im;                          // 2-frame verbaasde reactie
+        const a = npc.aweSprites, im = art.sprites[a[Math.floor(now / 620) % a.length]];
+        if (ready(im)) img = im;                          // 2-frame reactie (rustig getwinkel, trager)
+        npcInAwe = true;
       } else if (!npcStopped && npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
         img = art.sprites[npc.aweSprite];
       } else if (npc.scanSprites && npc.scanSprites.length) {
@@ -2492,8 +2494,11 @@
         let fl = !!npc.flip;
         if (npc.turnFlag && state.flags[npc.turnFlag] && !npcStopped) fl = !fl;
         /* Lichte, doorlopende wieg voor wat 'leven' (bv. de wacht). */
-        const swayAmp = (typeof npc.sway === 'number') ? npc.sway : (npc.sway ? 0.035 : 0);   // sway:true = 0.035, of een eigen amplitude
-        const swayRot = swayAmp ? Math.sin(now / 650 + (npc.x || 0)) * swayAmp : 0;
+        let swayAmp = (typeof npc.sway === 'number') ? npc.sway : (npc.sway ? 0.035 : 0);   // sway:true = 0.035, of een eigen amplitude
+        let swayMs = 650;
+        if (npcInAwe) { swayAmp = Math.max(swayAmp, 0.02) * (npc.aweSwayMul || 3.4); swayMs = npc.aweSwayMs || 1050; }   // hypnose: duidelijker + tragere, dromerige schommel
+        /* Vloeiende schommel als combinatie van twee trage sinussen (niet-repeterend, dromerig). */
+        const swayRot = swayAmp ? (Math.sin(now / swayMs + (npc.x || 0)) * 0.8 + Math.sin(now / (swayMs * 1.7) + 1.3) * 0.2) * swayAmp : 0;
         const ges = npc.gestureSprite && art.sprites[npc.gestureSprite];
         if (npc.danceFlag && state.flags[npc.danceFlag] && !(npc.danceStopFlag && state.flags[npc.danceStopFlag])) {
           /* Dansende bloemen: vrolijk heen-en-weer wiegen + verende squash + opwippen.
