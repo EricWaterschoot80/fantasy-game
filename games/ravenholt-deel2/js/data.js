@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '125',
+  assetVer: '127',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -191,7 +191,7 @@ const GAME = {
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
              look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
-    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { const pages = (state.flags.mapFiled ? 1 : 0) + (state.flags.spellWritten ? 1 : 0) + (state.flags.gotRecipe ? 1 : 0) + (state.flags.dragonSpellLearned ? 1 : 0); return pages > (state.flags.bookSeenCount || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
+    spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { const newSpells = (state.flags.gotEclipseSpell ? 1 : 0) + (state.flags.gotInvisSpell ? 1 : 0); return newSpells > (state.flags.bookNewSpellsSeen || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
              zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.jpg' : 'assets/art/spell-dance.jpg', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
                ? { nl: 'Het toverboek. Op de eerste bladzijde staat de dans-spreuk die je schreef. (tik aan om te bekijken)', en: 'The spellbook. On the first page stands the dance-spell you wrote. (tap to view)' }
@@ -339,8 +339,8 @@ const GAME = {
             ? { nl: 'De schildknaap wijst naar de smidse. “Smeed het zwaard van de held: gooi eerst houtskool in de oven zodat het vuur hoog oplaait, leg dán het gebroken zwaard op het ijzer, en sla het met de hamer weer heel. De hamer ligt verborgen in de sokkel van zijn standbeeld, houtskool vind je in de vuurkorf ernaast.”', en: 'The squire points at the smithy. “Forge the hero’s sword: first throw charcoal in the oven so the fire roars up, then lay the broken sword on the iron, and strike it whole with the hammer. The hammer lies hidden in the plinth of his statue; you will find charcoal in the fire basket beside it.”' }
             : { nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de koude smidse. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij overhandigt je de twee stukken van het gebroken zwaard. “Smeed het bij de smidse weer heel — jij bent er klaar voor. Als het zwaard klaar is, krijg je van mij een touw.”', en: 'A young squire in a blue tabard keeps watch by the cold smithy. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword broke in two and the whole castle fell silent with grief.” He hands you the two pieces of the broken sword. “Forge it whole at the smithy — you’re ready for it. Once the sword is done, I’ll give you a rope.”' },
           givesWhen: [
-            { flag: 'metSquire', setFlag: 'squireGaveSword', item: 'swordBroken',
-              giveText: { nl: 'De schildknaap legt het gebroken zwaard van Sir Aldric — beide stukken — in je handen. “Smeed het weer heel bij de smidse: houtskool in de oven, het zwaard op het ijzer, en dan de hamer. Als het klaar is, krijg je van mij een touw. Veel succes, vriend.”', en: 'The squire places Sir Aldric’s broken sword — both pieces — into your hands. “Forge it whole at the smithy: charcoal in the oven, the sword on the iron, then the hammer. Once it’s done, I’ll give you a rope. Good luck, friend.”' } },
+            { setFlag: ['metSquire', 'squireGaveSword'], item: 'swordBroken',
+              giveText: { nl: 'De jonge schildknaap knikt je toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij legt meteen het gebroken zwaard — beide stukken — in je handen. “Smeed het weer heel bij de smidse: houtskool in de oven, het zwaard op het ijzer, en dan de hamer. Als het klaar is, krijg je van mij een touw. Veel succes, vriend.”', en: 'The young squire nods at you. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria. His sword broke in two and the whole castle fell silent with grief.” He places the broken sword — both pieces — into your hands at once. “Forge it whole at the smithy: charcoal in the oven, the sword on the iron, then the hammer. Once it’s done, I’ll give you a rope. Good luck, friend.”' } },
             { flag: 'gotSword', setFlag: 'squireGaveRope', item: 'rope', consume: 'sword',
               giveText: { nl: 'De schildknaap neemt het herstelde zwaard van Sir Aldric eerbiedig van je aan. “Sir Aldric zou trots zijn — ik bewaar het veilig. Zoals beloofd: hier is het touw. Daarmee bereik je wat in de oude put verloren ging.”', en: 'The squire reverently takes Sir Aldric’s reforged sword from you. “Sir Aldric would be proud — I’ll keep it safe. As promised: here is the rope. With it you can reach what was lost in the old well.”' } }
           ],
@@ -848,13 +848,21 @@ const GAME = {
             : state.flags.wizardTripping
             ? { nl: 'Het boek slaat vanzelf open bij een pagina vol sterren: de Spreuk van de Zonsverduistering! Pak hem nu de tovenaar in hogere sferen is.', en: 'The book falls open at a page full of stars: the Spell of the Solar Eclipse! Take it while the wizard is away with the stars.' }
             : { nl: 'Een groot boek op de lessenaar gloeit zacht. De tovenaar houdt het scherp in de gaten \u2014 je durft het niet aan te raken.', en: 'A great book on the lectern glows softly. The wizard watches it sharply \u2014 you dare not touch it.' },
-          requiresFlag: 'wizardTripping',
-          blockedText: { nl: '\u201CNiemand raakt de sterrenspreuken aan!\u201D snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201CKrra... paddenstoelen, bij de put!\u201D)', en: '\u201CNo one touches the star spells!\u201D snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201CCaw... mushrooms, by the well!\u201D)' },
-          gives: {
-            item: 'eclipsspell',
+          eclipsePuzzle: {
+            requiresFlag: 'wizardTripping',
+            blockedText: { nl: '\u201CNiemand raakt de sterrenspreuken aan!\u201D snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201CKrra... paddenstoelen, bij de put!\u201D)', en: '\u201CNo one touches the star spells!\u201D snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201CCaw... mushrooms, by the well!\u201D)' },
+            positions: 8,
+            title: { nl: 'De Hemelschijf', en: 'The Celestial Disc' },
+            hint: { nl: 'Het boek toont een draaibare hemelschijf met drie ringen: Zon \u2609, Maan \u263D en Ster \u2726. Draai elke ring (tik links of rechts) tot alle drie de tekens bovenaan onder de gouden wijzer staan en groen oplichten \u2014 zo lijn je zon, maan en aarde uit voor de verduistering.', en: 'The book shows a turnable celestial disc with three rings: Sun \u2609, Moon \u263D and Star \u2726. Turn each ring (tap left or right) until all three marks sit at the top under the golden pointer and glow green \u2014 aligning sun, moon and earth for the eclipse.' },
+            rings: [
+              { start: 3 },
+              { start: 6 },
+              { start: 2 }
+            ],
             setFlag: 'gotEclipseSpell',
-            giveText: { nl: 'Je legt je toverboek naast het gloeiende boek en de zilveren letters glijden over \u2014 de ZONSVERDUISTERING-SPREUK, \u201CUmbra Solis\u201D, schrijft zich in jouw boek! (Tik de spreuk aan in je tas om hem uit te spreken.)', en: 'You lay your spellbook beside the glowing book and the silver letters glide across \u2014 the SOLAR ECLIPSE SPELL, \u201CUmbra Solis\u201D, writes itself into your book! (Tap the spell in your bag to speak it.)' },
-            emptyText: { nl: 'Het boek is uitgedoofd; de spreuk staat al in jouw toverboek.', en: 'The book has gone dark; the spell is already in your spellbook.' }
+            give: 'eclipsspell',
+            solvedText: { nl: 'De drie ringen klikken op \u00E9\u00E9n lijn \u2014 de maan schuift langzaam v\u00F3\u00F3r de zon en een gloeiende corona vlamt op. Op de bladzijde schrijft de ZONSVERDUISTERING-SPREUK, \u201CUmbra Solis\u201D, zich in zilveren letters over in jouw toverboek! (Tik de spreuk aan in je tas om hem uit te spreken bij het grote raam.)', en: 'The three rings click into one line \u2014 the moon slides slowly across the sun and a glowing corona flares. On the page the SOLAR ECLIPSE SPELL, \u201CUmbra Solis\u201D, writes itself in silver letters into your spellbook! (Tap the spell in your bag to cast it at the great window.)' },
+            doneText: { nl: 'Het boek is uitgedoofd; de zonsverduistering-spreuk staat al in jouw toverboek.', en: 'The book has gone dark; the eclipse spell is already in your spellbook.' }
           }
         },
         {

@@ -4209,6 +4209,135 @@
     elAltar.addEventListener('click', (e) => { if (e.target === elAltar) altarClose(); });
   }
 
+  /* ---------- Zonsverduistering-puzzel: lijn de hemelringen uit ----------
+     Draai de drie concentrische ringen (Zon · Maan · Ster) tot hun merktekens
+     allemaal bovenaan onder de gouden wijzer staan. Dan schuift de maan voor de
+     zon en schrijft de zonsverduistering-spreuk zich in je boek. */
+  const elEcl       = document.getElementById('eclipse-screen');
+  const elEclCanvas = document.getElementById('eclipse-canvas');
+  const elEclTitle  = document.getElementById('eclipse-title');
+  const elEclHint   = document.getElementById('eclipse-hint');
+  const elEclStatus = document.getElementById('eclipse-status');
+  const eclCtx = elEclCanvas ? elEclCanvas.getContext('2d') : null;
+  let eclHs = null, eclOff = [0, 0, 0], eclSolved = false, eclAnim = null, eclSolveT = 0;
+  const ECL_R = [138, 102, 66], ECL_COL = ['#ffd36b', '#cfd6e6', '#8fd0ff'], ECL_GLYPH = ['☉', '☽', '✦'];
+
+  function openEclipsePuzzle(hs) {
+    const pz = hs.eclipsePuzzle;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    eclHs = hs; eclSolved = false; eclSolveT = 0;
+    eclOff = pz.rings.map((r) => r.start || 0);
+    if (elEclTitle)  elEclTitle.textContent  = L(pz.title);
+    if (elEclHint)   elEclHint.textContent   = L(pz.hint);
+    if (elEclStatus) elEclStatus.textContent = '';
+    if (elEcl) elEcl.hidden = false;
+    sfx('tap');
+    if (!eclAnim) eclLoop();
+  }
+  function eclipseClose() { if (elEcl) elEcl.hidden = true; eclHs = null; if (eclAnim) { cancelAnimationFrame(eclAnim); eclAnim = null; } }
+  function eclShift(r, dir) {
+    if (!eclHs || eclSolved) return;
+    const N = eclHs.eclipsePuzzle.positions || 8;
+    eclOff[r] = (eclOff[r] + (dir > 0 ? 1 : N - 1)) % N;
+    sfx('tap');
+    const pz = eclHs.eclipsePuzzle;
+    const aligned = eclOff.every((o) => o === 0);
+    if (elEclStatus && !aligned) {
+      const done = eclOff.filter((o) => o === 0).length;
+      elEclStatus.textContent = lang === 'nl' ? (done + ' van 3 uitgelijnd...') : (done + ' of 3 aligned...');
+    }
+    if (aligned) {                                  // alle merktekens bovenaan op één lijn
+      eclSolved = true; eclSolveT = performance.now();
+      state.flags[pz.setFlag] = true;
+      if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
+      sfx('combine');
+      const h = eclHs;
+      if (elEclStatus) elEclStatus.textContent = lang === 'nl' ? 'Uitgelijnd! De maan schuift voor de zon...' : 'Aligned! The moon slides across the sun...';
+      setTimeout(() => { eclipseClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 1600);
+    }
+  }
+  function eclLoop() {
+    if (!eclHs || !elEcl || elEcl.hidden) { eclAnim = null; return; }
+    drawEclipse(performance.now());
+    eclAnim = requestAnimationFrame(eclLoop);
+  }
+  function drawEclipse(now) {
+    if (!eclCtx || !eclHs) return;
+    const cv = elEclCanvas, x = eclCtx, W = cv.width, H = cv.height, cx = W / 2, cy = H / 2 + 4, TAU = Math.PI * 2;
+    const N = eclHs.eclipsePuzzle.positions || 8;
+    /* nachthemel */
+    let g = x.createRadialGradient(cx, cy, 20, cx, cy, W * 0.62);
+    g.addColorStop(0, '#131d38'); g.addColorStop(1, '#05060f');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    for (let i = 0; i < 70; i++) {                  // vaste sterren, zacht flikkerend
+      const a = i * 2.3999, rr = ((i * 137) % 1000) / 1000 * W * 0.56 + 8;
+      const sx = cx + Math.cos(a) * rr, sy = cy + Math.sin(a) * rr;
+      x.globalAlpha = (0.35 + 0.55 * Math.abs(Math.sin(now / 700 + i))) * 0.8;
+      x.fillStyle = '#dfe8ff'; x.fillRect(sx | 0, sy | 0, i % 4 === 0 ? 2 : 1, 1);
+    }
+    x.globalAlpha = 1;
+    const solveP = eclSolved ? Math.min(1, (now - eclSolveT) / 1000) : 0;
+    /* de drie ringen met hun merktekens */
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (let r = 0; r < 3; r++) {
+      x.strokeStyle = 'rgba(120,140,205,.32)'; x.lineWidth = 2;
+      x.beginPath(); x.arc(cx, cy, ECL_R[r], 0, TAU); x.stroke();
+      const ang = (eclOff[r] / N) * TAU;            // 0 = bovenaan
+      const mx = cx + Math.sin(ang) * ECL_R[r], my = cy - Math.cos(ang) * ECL_R[r];
+      const atTop = eclOff[r] === 0;
+      x.beginPath(); x.arc(mx, my, 13, 0, TAU);
+      x.fillStyle = atTop ? '#153a12' : '#1a2036'; x.fill();
+      x.strokeStyle = atTop ? 'rgba(126,230,110,.95)' : 'rgba(180,200,240,.6)'; x.lineWidth = 2; x.stroke();
+      if (atTop) { x.shadowColor = 'rgba(126,230,110,.9)'; x.shadowBlur = 12; }
+      x.font = '17px Georgia, serif'; x.fillStyle = atTop ? '#bff5ad' : ECL_COL[r];
+      x.fillText(ECL_GLYPH[r], mx, my + 1);
+      x.shadowBlur = 0;
+    }
+    /* vaste gouden wijzer bovenaan */
+    x.fillStyle = '#ffd36b';
+    x.beginPath(); x.moveTo(cx, cy - ECL_R[0] - 12); x.lineTo(cx - 9, cy - ECL_R[0] - 30); x.lineTo(cx + 9, cy - ECL_R[0] - 30); x.closePath(); x.fill();
+    x.strokeStyle = '#7a4a12'; x.lineWidth = 2; x.stroke();
+    /* midden: de zon — en tijdens het oplossen schuift de maan ervoor (eclips) */
+    const sunR = 24;
+    if (solveP < 1) {
+      const rays = 0.6 + 0.4 * Math.sin(now / 240);
+      x.strokeStyle = 'rgba(255,205,90,' + (0.5 * (1 - solveP)) + ')'; x.lineWidth = 2;
+      for (let k = 0; k < 12; k++) { const a = k / 12 * TAU + now / 3000; x.beginPath(); x.moveTo(cx + Math.cos(a) * (sunR + 6), cy + Math.sin(a) * (sunR + 6)); x.lineTo(cx + Math.cos(a) * (sunR + 6 + 7 * rays), cy + Math.sin(a) * (sunR + 6 + 7 * rays)); x.stroke(); }
+      let sg = x.createRadialGradient(cx, cy, 3, cx, cy, sunR);
+      sg.addColorStop(0, '#fff2c0'); sg.addColorStop(1, '#f0a828');
+      x.fillStyle = sg; x.beginPath(); x.arc(cx, cy, sunR, 0, TAU); x.fill();
+    }
+    if (solveP > 0) {                               // maan schuift van boven in, dekt de zon af + corona-flits
+      const my = cy - (1 - solveP) * 70;
+      if (solveP > 0.55) {                          // corona rond de verduisterde zon
+        const cr = sunR + 4 + 10 * Math.sin(now / 200);
+        let cg = x.createRadialGradient(cx, cy, sunR, cx, cy, cr + 14);
+        cg.addColorStop(0, 'rgba(255,240,200,.9)'); cg.addColorStop(1, 'rgba(255,240,200,0)');
+        x.fillStyle = cg; x.beginPath(); x.arc(cx, cy, cr + 14, 0, TAU); x.fill();
+      }
+      x.fillStyle = '#0b0c12'; x.beginPath(); x.arc(cx, my, sunR + 1, 0, TAU); x.fill();
+      x.strokeStyle = 'rgba(150,160,190,.5)'; x.lineWidth = 1; x.stroke();
+    }
+    /* links/rechts hint per ring: draai-pijlen */
+    x.font = '15px Georgia, serif'; x.fillStyle = 'rgba(231,207,134,.85)';
+    x.fillText('◀', 20, cy); x.fillText('▶', W - 20, cy);
+  }
+  if (elEcl && elEclCanvas) {
+    elEclCanvas.addEventListener('click', (e) => {
+      if (!eclHs || eclSolved) return;
+      const rc = elEclCanvas.getBoundingClientRect();
+      const px = (e.clientX - rc.left) * (elEclCanvas.width / rc.width);
+      const py = (e.clientY - rc.top) * (elEclCanvas.height / rc.height);
+      const cx = elEclCanvas.width / 2, cy = elEclCanvas.height / 2 + 4;
+      const dist = Math.hypot(px - cx, py - cy);
+      const r = dist < (ECL_R[2] + ECL_R[1]) / 2 ? 2 : dist < (ECL_R[1] + ECL_R[0]) / 2 ? 1 : 0;   // radiale band = ring
+      eclShift(r, px < cx ? -1 : 1);                // linkerhelft = terug, rechterhelft = vooruit
+    });
+    const exc = document.getElementById('eclipse-close');
+    if (exc) exc.addEventListener('click', eclipseClose);
+    elEcl.addEventListener('click', (e) => { if (e.target === elEcl) eclipseClose(); });
+  }
+
   /* ---------- Boeken-volgorde-puzzel (hergebruikt het runen-scherm) ----------
      Trek de vastzittende boeken in de juiste volgorde; dan komt het toverboek vrij. */
   function openBookPuzzle(hs) {
@@ -4980,6 +5109,15 @@
       openStarPuzzle(hs);
       return;
     }
+    if (hs.eclipsePuzzle) {
+      if (hs.eclipsePuzzle.requiresFlag && !state.flags[hs.eclipsePuzzle.requiresFlag]) {
+        sfx('error');
+        say(hs.eclipsePuzzle.blockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      openEclipsePuzzle(hs);
+      return;
+    }
     /* Spreuk uitspreken: heb je het juiste voorwerp in je tas, dan werkt het meteen
        (zonder selecteren) — zo kan het toverboek óók een leesbare afbeelding (zoomImg) hebben. */
     if (hs.castWith) {
@@ -5014,7 +5152,8 @@
     /* givesWhen mag een array zijn: de eerste config waarvan de flag staat én die nog niet
        is uitgevoerd, wordt gegeven (bv. schildknaap: eerst gebroken zwaard, later het touw). */
     const gwAll = hs.givesWhen ? (Array.isArray(hs.givesWhen) ? hs.givesWhen : [hs.givesWhen]) : [];
-    const gwReady = gwAll.find((x) => state.flags[x.flag] && !state.flags[x.setFlag]);
+    const gwDone = (x) => { const f = x.setFlag; return Array.isArray(f) ? f.every((k) => state.flags[k]) : state.flags[f]; };
+    const gwReady = gwAll.find((x) => (!x.flag || state.flags[x.flag]) && !gwDone(x));   // geen flag = meteen klaar (bv. schildknaap geeft het zwaard direct)
     if (gwReady) {
       const g = gwReady;
       if (g.needFlag && !state.flags[g.needFlag]) {     // tweede voorwaarde (bv. eerst een vlag)
@@ -5023,7 +5162,7 @@
       if (g.needItem && !state.inventory.includes(g.needItem)) {   // bv. eerst een leeg flesje voor de traan
         sfx('error'); say(g.needText || lookText(hs), hsSpeaker(hs), hsFace(hs)); return;
       }
-      state.flags[g.setFlag] = true;
+      (Array.isArray(g.setFlag) ? g.setFlag : [g.setFlag]).forEach((f) => { state.flags[f] = true; });
       const gwSc = GAME.scenes[state.currentScene];      // achtergrond meteen verversen als deze vlag een bg-variant aanstuurt (bv. schildknaap geeft gebroken zwaard -> leeg rek)
       if (gwSc && gwSc.bgVariants) paintBackground();
       if (g.consume) removeItem(g.consume);             // bv. het lege flesje wordt gevuld met de traan
@@ -5621,6 +5760,7 @@
     showBookPage();
     elZoom.hidden = false; sfx('tap');
     state.flags.bookSeenCount = pages.length;   // boek gezien → glinster-hint dooft (tot er een nieuwe spreuk bij komt)
+    state.flags.bookNewSpellsSeen = (state.flags.gotEclipseSpell ? 1 : 0) + (state.flags.gotInvisSpell ? 1 : 0);   // nieuw-in-Deel-2-spreuken bekeken
     renderInventory();
   }
   function showBookPage() {

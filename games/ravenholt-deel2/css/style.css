@@ -440,13 +440,13 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
 .inv-slot {
   pointer-events: auto;
   position: relative;
-  width: 62px;
-  height: 62px;
+  width: 52px;
+  height: 52px;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 26px;
   border-radius: 0;
   background: linear-gradient(180deg, #241a12, #140f0a);
   border: 2px solid #5e4a22;
@@ -1044,6 +1044,13 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
 }
 .rune-stone-btn:active { transform: scale(.92); }
 
+/* ---- Zonsverduistering-puzzel (hemelringen) ---- */
+.eclipse-canvas { display: block; margin: 6px auto 2px; width: min(330px, 78vw, 52dvh); height: auto; cursor: pointer; }
+@media (max-width: 560px), (max-height: 560px) {
+  #eclipse-title { font-size: 15px; }
+  #eclipse-hint { font-size: 10px; line-height: 1.35; margin: 4px 0; }
+}
+
 /* ---- Sterren-altaar (schuifrijen) ---- */
 .altar-canvas { display: block; margin: 6px auto 2px; width: min(420px, 82vw, 60dvh); height: auto; cursor: pointer; }
 @media (max-width: 560px), (max-height: 560px) {
@@ -1242,8 +1249,8 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
     /* vast 2-koloms grid: ook met 10+ items blijft ALLES in beeld
        (flex column-wrap vergroot de containerbreedte niet — vandaar grid) */
     display: grid;
-    grid-template-columns: repeat(2, 44px);
-    grid-auto-rows: 44px;
+    grid-template-columns: repeat(3, 40px);
+    grid-auto-rows: 40px;
     width: auto;
     margin: 0;
     gap: 4px;
@@ -1255,7 +1262,7 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
   }
   #invbar::-webkit-scrollbar { display: none; }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 44px; height: 44px; font-size: 22px; }
+  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
 
   /* tekstwolkje BOVENIN op mobiel (weg van de inventory + scène onderaan); iets compacter,
      grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */
