@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '122',
+  assetVer: '123',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -113,7 +113,7 @@ const GAME = {
     q_gethammer:{ nl: 'Voor de hamer: bij het smidsbeeld in de tuin moet je de geheime woorden van de smid aanklikken. Geef de papagaai de pindanoot (bij het aambeeld op het plein) — hij verklapt welke woorden, en in welke volgorde', en: 'For the hammer: at the smith statue in the garden you must click the smith’s secret words. Give the parrot the peanut (by the anvil in the courtyard) — he reveals which words, and in what order' },
     q_giveparrot:{ nl: 'Je hebt een pindanoot — geef hem aan de papagaai in de slottuin; hij verklapt de geheime woorden van de smid', en: 'You have a peanut — give it to the parrot in the garden; he reveals the smith’s secret words' },
     q_typephrase:{ nl: 'De papagaai verklapte de spreuk van de smid: ONLY · FIRE · FORGES · TRUE · STEEL. Klik die woorden in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s saying: ONLY · FIRE · FORGES · TRUE · STEEL. Click those words in that order at the smith statue in the garden to get the hammer' },
-    q_getcoal:  { nl: 'Zoek de houtskool tussen de bloemen in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Find the charcoal among the flowers in the garden to kindle the forge fire' },
+    q_getcoal:  { nl: 'Schep houtskool uit de rechter vuurkorf naast het smidsbeeld in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Scoop charcoal from the right fire basket beside the smith statue in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
     q_takesword:{ nl: 'Het zwaard is weer heel! Het ligt te glanzen bij de markttent rechts — pak het op', en: 'The sword is whole again! It gleams by the market tent on the right — go and take it' },
     q_getrope:  { nl: 'Het zwaard is gesmeed! Praat met de schildknaap — nu geeft hij je het touw dat je bij de put nodig hebt', en: 'The sword is forged! Talk to the squire — now he’ll give you the rope you need at the well' },
@@ -162,7 +162,7 @@ const GAME = {
     key: { name: { nl: 'Sleutel van de Geheime Poort', en: 'Secret Gate Key' }, icon: '🗝️', img: 'assets/art/item-key.png', sparkle: true,
              look: { nl: 'Een zware, oude sleutel die je van de prinses kreeg. Hij past op het slot onder de leeuwenkop van de fontein — de geheime poort.', en: 'A heavy old key the princess gave you. It fits the lock beneath the fountain’s lion head — the secret gate.' } },
     charcoal: { name: { nl: 'Houtskool', en: 'Charcoal' }, icon: '⬛', img: 'assets/art/item-coal.png',
-             look: { nl: 'Een handvol zwarte houtskool die je tussen de bloemen in de slottuin vond. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal you found among the flowers in the castle garden. Just what a smith needs to fire up his forge again.' } },
+             look: { nl: 'Een handvol zwarte houtskool uit de vuurkorf naast het smidsbeeld in de slottuin. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal from the fire basket beside the smith statue in the castle garden. Just what a smith needs to fire up his forge again.' } },
     nut: { name: { nl: 'Pindanoot', en: 'Peanut' }, icon: '🥜', img: 'assets/art/item-nut.png',
              look: { nl: 'Een pindanoot, half uit zijn schil gebroken — hij lag bij het aambeeld van de smidse. Vogels — papagaaien zeker — zijn er dol op.', en: 'A peanut, half broken out of its shell — it lay by the smithy anvil. Birds — parrots especially — love these.' } },
     trinket: { name: { nl: 'Bronzen Munt', en: 'Bronze Coin' }, icon: '🪙', img: 'assets/art/item-trinket.png', sparkle: true,
@@ -336,7 +336,7 @@ const GAME = {
             : state.flags.swordForged
             ? { nl: 'De schildknaap wijst trots naar de markttent. “Het zwaard van Sir Aldric — weer heel! Pak het gerust, het is van jou.”', en: 'The squire points proudly at the market tent. “Sir Aldric’s sword — whole again! Take it, it’s yours.”' }
             : state.flags.squireGaveSword
-            ? { nl: 'De schildknaap wijst naar de smidse. “Smeed het zwaard van de held: gooi eerst houtskool in de oven zodat het vuur hoog oplaait, leg dán het gebroken zwaard op het ijzer, en sla het met de hamer weer heel. De hamer ligt verborgen in de sokkel van zijn standbeeld, houtskool tussen de bloemen.”', en: 'The squire points at the smithy. “Forge the hero’s sword: first throw charcoal in the oven so the fire roars up, then lay the broken sword on the iron, and strike it whole with the hammer. The hammer lies hidden in the plinth of his statue, charcoal among the flowers.”' }
+            ? { nl: 'De schildknaap wijst naar de smidse. “Smeed het zwaard van de held: gooi eerst houtskool in de oven zodat het vuur hoog oplaait, leg dán het gebroken zwaard op het ijzer, en sla het met de hamer weer heel. De hamer ligt verborgen in de sokkel van zijn standbeeld, houtskool vind je in de vuurkorf ernaast.”', en: 'The squire points at the smithy. “Forge the hero’s sword: first throw charcoal in the oven so the fire roars up, then lay the broken sword on the iron, and strike it whole with the hammer. The hammer lies hidden in the plinth of his statue; you will find charcoal in the fire basket beside it.”' }
             : { nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de koude smidse. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij overhandigt je de twee stukken van het gebroken zwaard. “Smeed het bij de smidse weer heel — jij bent er klaar voor. Als het zwaard klaar is, krijg je van mij een touw.”', en: 'A young squire in a blue tabard keeps watch by the cold smithy. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword broke in two and the whole castle fell silent with grief.” He hands you the two pieces of the broken sword. “Forge it whole at the smithy — you’re ready for it. Once the sword is done, I’ll give you a rope.”' },
           givesWhen: [
             { flag: 'metSquire', setFlag: 'squireGaveSword', item: 'swordBroken',
@@ -515,13 +515,17 @@ const GAME = {
       obstacles: [
         { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
         { x: 0,   y: 248, w: 150, h: 72 },                 // de stenen bloembak (urn) linkerhoek — tot de linkerrand, nog meer ruimte erboven geblokkeerd
-        { x: 418, y: 248, w: 150, h: 72 }                  // de stenen bloembak (urn) rechterhoek — tot de rechterrand, nog meer ruimte erboven geblokkeerd
+        { x: 418, y: 248, w: 150, h: 72 },                 // de stenen bloembak (urn) rechterhoek — tot de rechterrand, nog meer ruimte erboven geblokkeerd
+        { x: 158, y: 236, w: 38, h: 18 },                  // linker vuurkorf
+        { x: 374, y: 236, w: 38, h: 18 }                   // rechter vuurkorf
       ],
       overlays: [
-        { img: 'assets/art/keyhole.png', x: 130, y: 168, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat in de muur rechts van de fontein — precies waar de geheime deur opengaat
+        { img: 'assets/art/keyhole.png', x: 130, y: 168, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' },  // sleutelgat in de muur rechts van de fontein — precies waar de geheime deur opengaat
+        { img: 'assets/art/brazier.png', x: 160, y: 215, base: 250 },   // vuurkorf links van het smidsbeeld
+        { img: 'assets/art/brazier.png', x: 376, y: 215, base: 250 }    // vuurkorf rechts van het smidsbeeld — hierin ligt de houtskool
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 352, y: 216, scale: 1.12, glowCol: '255,140,55', embers: 0.6 },   // houtskool rechts van het standbeeld; kleiner, met zachtere oplichtende sintels
+        { item: 'charcoal', hotspot: 'charcoal', x: 393, y: 222, scale: 0.72, glowCol: '255,140,55', embers: 0.55 },   // houtskool IN de rechter vuurkorf, met zacht nagloeiende sintels
         { item: 'trinket', hotspot: 'trinket', x: 72, y: 182, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.48, glintWide: 1.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, 2px hoger, iets kleiner maar breder (platter over het water)
       ],
       npcs: [
@@ -705,15 +709,22 @@ const GAME = {
         },
         {
           id: 'charcoal',
-          name: { nl: 'Houtskool', en: 'Charcoal' },
-          rect: { x: 330, y: 196, w: 46, h: 44 },
-          walkTo: { x: 352, y: 288 },
+          name: { nl: 'De Rechter Vuurkorf', en: 'The Right Fire Basket' },
+          rect: { x: 374, y: 206, w: 24, h: 46 },
+          walkTo: { x: 392, y: 276 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',
-            giveText: { nl: 'Tussen de kleurige bloemen ligt, vreemd genoeg, een hoopje zwarte houtskool met nog gloeiende sintels te glinsteren — alsof hier ooit een vuur heeft gebrand. Je raapt het op. Hier kan een smid vast iets mee.', en: 'Among the colourful flowers, oddly enough, a little heap of black charcoal with still-glowing embers glints — as if a fire once burned here. You pick it up. A smith could surely use this.' },
-            emptyText: { nl: 'De houtskool zit al in je tas.', en: 'The charcoal is already in your bag.' }
+            giveText: { nl: 'In de ijzeren vuurkorf rechts van het smidsbeeld ligt een hoopje houtskool, de sintels gloeien nog zachtjes na. Je schept een flinke handvol in je tas — precies wat een smidsvuur nodig heeft.', en: 'In the iron fire basket right of the smith statue lies a heap of charcoal, its embers still faintly aglow. You scoop a good handful into your bag — just what a forge fire needs.' },
+            emptyText: { nl: 'De vuurkorf is leeg geschept; de houtskool zit al in je tas.', en: 'You already scooped the basket empty; the charcoal is in your bag.' }
           }
+        },
+        {
+          id: 'brazierL',
+          name: { nl: 'De Linker Vuurkorf', en: 'The Left Fire Basket' },
+          rect: { x: 168, y: 210, w: 28, h: 42 },
+          walkTo: { x: 176, y: 270 },
+          look: { nl: 'Een ijzeren vuurkorf op drie poten, links van het smidsbeeld. De kolen hierin zijn allang koud en verkruimeld — niets meer aan te halen.', en: 'An iron fire basket on three legs, left of the smith statue. The coals in this one went cold long ago, crumbled to dust — nothing left to take.' }
         },
         {
           id: 'trinket',
