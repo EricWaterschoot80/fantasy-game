@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '113',
+  assetVer: '114',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -518,7 +518,7 @@ const GAME = {
         { x: 418, y: 248, w: 150, h: 72 }                  // de stenen bloembak (urn) rechterhoek — tot de rechterrand, nog meer ruimte erboven geblokkeerd
       ],
       overlays: [
-        { img: 'assets/art/keyhole.png', x: 68, y: 161, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat onder de leeuwenkop — kleiner, +20 rechts, 5 omhoog
+        { img: 'assets/art/keyhole.png', x: 130, y: 168, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat in de muur rechts van de fontein — precies waar de geheime deur opengaat
       ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 352, y: 216, scale: 1.12, glowCol: '255,140,55', embers: 0.6 },   // houtskool rechts van het standbeeld; kleiner, met zachtere oplichtende sintels
@@ -578,7 +578,7 @@ const GAME = {
           walkTo: { x: 96, y: 244 },
           hideFlag: 'secretGateOpen',                         // zodra de poort open is, neemt de geheime-poort-hotspot het over
           look: (state) => state.flags.fountainSolved
-            ? { nl: 'De leeuwenkop spuwt nog water, maar onder zijn muil is nu een ijzeren sleutelgat in de muur zichtbaar geworden. Het wacht op de juiste sleutel.', en: 'The lion’s head still spouts water, but beneath its jaws an iron keyhole has appeared in the wall. It waits for the right key.' }
+            ? { nl: 'De leeuwenkop spuwt nog water — en in de muur rechts van de fontein is nu een ijzeren sleutelgat verschenen. Het wacht op de juiste sleutel.', en: 'The lion’s head still spouts water — and in the wall to the right of the fountain an iron keyhole has appeared. It waits for the right key.' }
             : { nl: 'Een stenen leeuwenkop spuwt water in een schelpvormig bekken. Op de bodem ligt, vertroebeld door het water, een stenen wapen-mozaïek dat in losse stukken is geschoven. Schuif de stukken weer op hun plaats om te zien wat het in beweging zet.', en: 'A stone lion spouts water into a shell-shaped basin. On the floor, blurred by the water, lies a stone crest-mosaic shuffled into loose pieces. Slide them back into place to see what it sets in motion.' },
           slidePuzzle: {
             size: 3,
@@ -586,7 +586,7 @@ const GAME = {
             title: { nl: 'Het Wapen in de Fontein', en: 'The Crest in the Fountain' },
             setFlag: 'fountainSolved',
             burst: { x: 60, y: 150 },
-            solvedText: { nl: 'Het mozaïek klikt compleet op zijn plaats — het wapen van Sir Aldric, de Leeuw van Eldoria. Onder de leeuwenkop schuift met een steenachtig gerommel een paneel opzij, en daar verschijnt een ijzeren sleutelgat, diep in de muur verzonken. Waar zou de sleutel ervan op liggen?', en: 'The mosaic clicks complete — the arms of Sir Aldric, the Lion of Eldoria. Beneath the lion’s head a panel grinds aside, revealing an iron keyhole set deep into the wall. Where might its key be?' }
+            solvedText: { nl: 'Het mozaïek klikt compleet op zijn plaats — het wapen van Sir Aldric, de Leeuw van Eldoria. In de muur rechts van de fontein schuift met een steenachtig gerommel een paneel opzij, en daar verschijnt een ijzeren sleutelgat, diep in de steen verzonken. Waar zou de sleutel ervan op liggen?', en: 'The mosaic clicks complete — the arms of Sir Aldric, the Lion of Eldoria. In the wall to the right of the fountain a panel grinds aside, revealing an iron keyhole set deep into the stone. Where might its key be?' }
           },
           use: {
             key: {
@@ -596,17 +596,34 @@ const GAME = {
               keep: false,
               consume: 'key',
               setFlag: 'secretGateOpen',
-              text: { nl: 'Je steekt de oude sleutel in het slot onder de leeuwenkop en draait. Met een diepe, knarsende dreun schuift een hele muurpartij opzij — de geheime poort gaat open! Een koele, donkere gang gaapt erachter, diep het kasteel in.', en: 'You slide the old key into the lock beneath the lion’s head and turn. With a deep, grinding boom a whole section of wall slides aside — the secret gate opens! A cool, dark passage gapes beyond, deep into the castle.' }
+              text: { nl: 'Je steekt de oude sleutel in het slot in de muur en draait. Met een diepe, knarsende dreun schuift een hele muurpartij opzij — de geheime poort gaat open! Een koele, donkere gang gaapt erachter, diep het kasteel in.', en: 'You slide the old key into the lock in the wall and turn. With a deep, grinding boom a whole section of wall slides aside — the secret gate opens! A cool, dark passage gapes beyond, deep into the castle.' }
+            }
+          }
+        },
+        {
+          id: 'wallLock',
+          name: { nl: 'Het Sleutelgat', en: 'The Keyhole' },
+          rect: { x: 108, y: 144, w: 46, h: 48 },
+          walkTo: { x: 132, y: 244 },
+          appearFlag: 'fountainSolved',
+          hideFlag: 'secretGateOpen',
+          look: { nl: 'Een ijzeren sleutelgat, diep in de muur verzonken. Het wacht op de juiste sleutel.', en: 'An iron keyhole set deep into the wall. It waits for the right key.' },
+          use: {
+            key: {
+              keep: false,
+              consume: 'key',
+              setFlag: 'secretGateOpen',
+              text: { nl: 'Je steekt de oude sleutel in het slot in de muur en draait. Met een diepe, knarsende dreun schuift een hele muurpartij opzij — de geheime poort gaat open! Een koele, donkere gang gaapt erachter, diep het kasteel in.', en: 'You slide the old key into the lock in the wall and turn. With a deep, grinding boom a whole section of wall slides aside — the secret gate opens! A cool, dark passage gapes beyond, deep into the castle.' }
             }
           }
         },
         {
           id: 'secretGate',
           name: { nl: 'De Geheime Poort', en: 'The Secret Gate' },
-          rect: { x: 8, y: 96, w: 52, h: 122 },
-          walkTo: { x: 60, y: 244 },
+          rect: { x: 104, y: 116, w: 62, h: 106 },
+          walkTo: { x: 132, y: 244 },
           appearFlag: 'secretGateOpen',                      // verschijnt pas nadat de sleutel het slot opent
-          arrow: { x: 62, y: 168, dir: 'up' },
+          arrow: { x: 134, y: 162, dir: 'up' },
           exit: { to: 'library', travelText: { nl: 'Je stapt door de open geheime poort naast de leeuwenfontein. Een koele, donkere gang loopt diep het kasteel in en komt uit in een stille, stoffige bibliotheek vol oude boeken...', en: 'You step through the open secret gate beside the lion fountain. A cool, dark passage runs deep into the castle and opens into a quiet, dusty library full of ancient books...' } }
         },
         {
