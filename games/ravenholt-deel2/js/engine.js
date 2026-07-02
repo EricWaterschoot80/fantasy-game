@@ -3823,123 +3823,162 @@
     }
   }
 
-  /* ---------- Draai-/windas-puzzel (de put) ----------
-     Een echte windas met een hendel: draai het wiel linksom/rechtsom naar het juiste
-     getal en zet vast — als een brandkastslot. De combinatie verlangt zowel het getal
-     als de draairichting; één fout en de pal schiet terug. */
+  /* ---------- Hendel-puzzel van de put: laat de emmer voorzichtig zakken ----------
+     De raaf zit in de emmer. Draai de hendel om het touw te vieren — maar het oude
+     windas viert steeds sneller! Na twee slagen moet je de pal even vasthouden,
+     anders slipt het touw en schiet de emmer weer helemaal omhoog. Breng de raaf
+     veilig tot bij het glinsterende water beneden. */
   const elDial       = document.getElementById('dial-screen');
   const elDialCanvas = document.getElementById('dial-canvas');
   const elDialTitle  = document.getElementById('dial-title');
   const elDialHint   = document.getElementById('dial-hint');
   const elDialStatus = document.getElementById('dial-status');
   const dctx = elDialCanvas ? elDialCanvas.getContext('2d') : null;
-  let dialHs = null, dialPos = 0, dialDisp = 0, dialLastDir = null, dialStep = 0, dialSolved = false, dialAnim = null;
+  const W_DEPTH = 8;                                   // zoveel slagen vieren tot het water
+  let dialHs = null, wDepth = 0, wSpeed = 0, wSolved = false, wAnim = null, wSlipT = 0;
 
   function openDialPuzzle(hs) {
     const pz = hs.dialPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
-    dialHs = hs; dialPos = 0; dialDisp = 0; dialLastDir = null; dialStep = 0; dialSolved = false;
+    dialHs = hs; wDepth = 0; wSpeed = 0; wSolved = false; wSlipT = 0;
     if (elDialTitle)  elDialTitle.textContent  = L(pz.title);
     if (elDialHint)   elDialHint.textContent   = L(pz.hint);
     if (elDialStatus) elDialStatus.textContent = '';
+    const bl = document.getElementById('dial-left'), br = document.getElementById('dial-right');
+    if (bl) bl.textContent = lang === 'nl' ? '\u270B Vasthouden' : '\u270B Hold tight';
+    if (br) br.textContent = lang === 'nl' ? '\u27F3 Laten zakken' : '\u27F3 Lower';
     if (elDial) elDial.hidden = false;
-    drawDial();
     sfx('tap');
+    if (!wAnim) wLoop();
   }
-  function dialClose() { if (elDial) elDial.hidden = true; dialHs = null; if (dialAnim) { cancelAnimationFrame(dialAnim); dialAnim = null; } }
-  function dialTurn(dir) {
-    if (!dialHs || dialSolved) return;
-    const N = dialHs.dialPuzzle.positions || 12;
-    dialPos = dir === 'R' ? (dialPos + 1) % N : (dialPos + N - 1) % N;
-    dialLastDir = dir;
+  function dialClose() { if (elDial) elDial.hidden = true; dialHs = null; if (wAnim) { cancelAnimationFrame(wAnim); wAnim = null; } }
+  function winchLower() {
+    if (!dialHs || wSolved) return;
+    const pz = dialHs.dialPuzzle, DEP = pz.depth || W_DEPTH;
+    wDepth++; wSpeed++;
     sfx('tap');
-    const start = dialDisp, delta = dir === 'R' ? 1 : -1, target = start + delta, t0 = performance.now(), dur = 150;
-    if (dialAnim) cancelAnimationFrame(dialAnim);
-    (function frame(now) {
-      let k = Math.min(1, (now - t0) / dur); k = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-      dialDisp = start + delta * k; drawDial();
-      if (k < 1) { dialAnim = requestAnimationFrame(frame); }
-      else { dialDisp = ((target % N) + N) % N; dialAnim = null; drawDial(); }
-    })(performance.now());
-    if (elDialStatus) elDialStatus.textContent = (lang === 'nl' ? 'Stand: ' : 'Dial: ') + (dialPos + 1);
-  }
-  function dialLock() {
-    if (!dialHs || dialSolved) return;
-    const pz = dialHs.dialPuzzle, N = pz.positions || 12, step = pz.combo[dialStep];
-    if ((dialPos % N) + 1 === step.num && dialLastDir === step.dir) {
-      dialStep++; sfx('pickup');
-      if (dialStep >= pz.combo.length) {
-        dialSolved = true;
-        state.flags[pz.setFlag] = true;
-        if (pz.consume) (Array.isArray(pz.consume) ? pz.consume : [pz.consume]).forEach(removeItem);
-        if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
-        sfx('combine');
-        const h = dialHs;
-        if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'KLIK! Het slot springt open — de emmer zakt...' : 'CLICK! The lock springs open — the bucket drops...';
-        drawDial();
-        setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 750);
-      } else {
-        const rem = pz.combo.length - dialStep;
-        if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? ('Klik! Nog ' + rem + ' draai' + (rem > 1 ? 'en' : '') + '...') : ('Click! ' + rem + ' more turn' + (rem > 1 ? 's' : '') + '...');
-        drawDial();
-      }
-    } else {
-      dialStep = 0; dialLastDir = null; sfx('error');
-      if (elDialStatus) elDialStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'De pal schiet terug — begin opnieuw!' : 'The pawl slips back — start over!');
-      drawDial();
+    if (wDepth >= DEP) {                               // de emmer bereikt het water — gehaald!
+      wSolved = true;
+      state.flags[pz.setFlag] = true;
+      if (pz.consume) (Array.isArray(pz.consume) ? pz.consume : [pz.consume]).forEach(removeItem);
+      if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
+      sfx('combine');
+      const h = dialHs;
+      if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'PLONS! De raaf grist de ketting uit het water!' : 'SPLASH! The raven snatches the necklace from the water!';
+      setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 900);
+      return;
+    }
+    if (wSpeed >= 3) {                                 // te snel gevierd: het touw slipt en de emmer schiet omhoog
+      wSlipT = performance.now();
+      wDepth = 0; wSpeed = 0;
+      sfx('error');
+      if (elDialStatus) elDialStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'Te snel! Het touw slipt en de emmer schiet weer helemaal omhoog.' : 'Too fast! The rope slips and the bucket shoots back up.');
+      return;
+    }
+    if (elDialStatus) {
+      elDialStatus.textContent = wSpeed === 2
+        ? (lang === 'nl' ? 'Het touw giert door de katrol — HOUD even VAST!' : 'The rope whirs through the pulley — HOLD tight now!')
+        : (lang === 'nl' ? 'De emmer zakt rustig... (' + wDepth + ' van ' + DEP + ')' : 'The bucket eases down... (' + wDepth + ' of ' + DEP + ')');
     }
   }
-  function drawDial() {
+  function winchHold() {
+    if (!dialHs || wSolved) return;
+    wSpeed = 0;
+    sfx('pickup');
+    if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'Je houdt de pal vast — het touw komt tot rust.' : 'You hold the pawl — the rope settles.';
+  }
+  function wLoop() {
+    if (!dialHs || !elDial || elDial.hidden) { wAnim = null; return; }
+    drawWinch(performance.now());
+    wAnim = requestAnimationFrame(wLoop);
+  }
+  function drawWinch(now) {
     if (!dctx || !dialHs) return;
-    const cv = elDialCanvas, x = dctx, W = cv.width, H = cv.height, cx = W / 2, cy = H / 2 + 8, R = Math.min(W, H) * 0.38;
-    const N = dialHs.dialPuzzle.positions || 12, TAU = Math.PI * 2;
+    const cv = elDialCanvas, x = dctx, W = cv.width, H = cv.height, cx = W / 2;
+    const pz = dialHs.dialPuzzle, DEP = pz.depth || W_DEPTH;
     x.clearRect(0, 0, W, H);
-    // houten schijf + metalen rand
-    let g = x.createRadialGradient(cx, cy, R * 0.2, cx, cy, R * 1.1);
-    g.addColorStop(0, '#6b4a2b'); g.addColorStop(0.82, '#4a3018'); g.addColorStop(1, '#27190c');
-    x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R * 1.1, 0, TAU); x.fill();
-    x.lineWidth = R * 0.1; x.strokeStyle = '#b9852f'; x.beginPath(); x.arc(cx, cy, R * 0.99, 0, TAU); x.stroke();
-    x.lineWidth = 2; x.strokeStyle = '#e7c885'; x.beginPath(); x.arc(cx, cy, R * 0.93, 0, TAU); x.stroke();
-    let g2 = x.createRadialGradient(cx - R * 0.2, cy - R * 0.2, R * 0.1, cx, cy, R * 0.9);
-    g2.addColorStop(0, '#7a5530'); g2.addColorStop(1, '#3a2512');
-    x.fillStyle = g2; x.beginPath(); x.arc(cx, cy, R * 0.86, 0, TAU); x.fill();
-    // getallen + streepjes (draaien mee met dialDisp)
-    x.font = 'bold ' + Math.round(R * 0.17) + 'px Georgia, serif';
-    x.textAlign = 'center'; x.textBaseline = 'middle';
-    for (let i = 0; i < N; i++) {
-      const ang = (i - dialDisp) * (TAU / N), s = Math.sin(ang), c = Math.cos(ang);
-      x.strokeStyle = '#d8b878'; x.lineWidth = 2;
-      x.beginPath(); x.moveTo(cx + s * R * 0.84, cy - c * R * 0.84); x.lineTo(cx + s * R * 0.92, cy - c * R * 0.92); x.stroke();
-      x.fillStyle = '#f0dcab'; x.fillText(String(i + 1), cx + s * R * 0.72, cy - c * R * 0.72);
+    /* schacht-interieur (donker naar beneden) */
+    const wallW = 52;
+    let gi = x.createLinearGradient(0, 0, 0, H);
+    gi.addColorStop(0, '#3a3630'); gi.addColorStop(1, '#12100d');
+    x.fillStyle = gi; x.fillRect(wallW, 0, W - wallW * 2, H);
+    /* stenen wanden links + rechts */
+    for (let side = 0; side < 2; side++) {
+      const bx0 = side === 0 ? 0 : W - wallW;
+      x.fillStyle = '#57504a'; x.fillRect(bx0, 0, wallW, H);
+      x.strokeStyle = 'rgba(20,16,12,.55)'; x.lineWidth = 2;
+      for (let ry = 0; ry < H; ry += 22) {
+        x.strokeRect(bx0 - (((ry / 22) | 0) % 2 ? 13 : 0), ry, wallW + 13, 22);
+      }
+      x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(side === 0 ? wallW - 8 : W - wallW, 0, 8, H);
     }
-    // hendel/kruk (draait mee)
-    const ca = dialDisp * (TAU / N) + Math.PI * 0.28, hs2 = Math.sin(ca), hc = Math.cos(ca);
-    x.strokeStyle = '#5a3c20'; x.lineWidth = R * 0.085; x.lineCap = 'round';
-    x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + hs2 * R * 0.6, cy - hc * R * 0.6); x.stroke();
-    x.strokeStyle = '#caa15a'; x.lineWidth = R * 0.045;
-    x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + hs2 * R * 0.6, cy - hc * R * 0.6); x.stroke();
-    x.fillStyle = '#7a5530'; x.beginPath(); x.arc(cx + hs2 * R * 0.6, cy - hc * R * 0.6, R * 0.085, 0, TAU); x.fill();
-    x.strokeStyle = '#e7c885'; x.lineWidth = 2; x.stroke();
-    // naaf
-    x.fillStyle = '#4a3119'; x.beginPath(); x.arc(cx, cy, R * 0.17, 0, TAU); x.fill();
+    /* water onderin (golfjes + glinstering van de ketting) */
+    const wy = H - 42;
+    let gw = x.createLinearGradient(0, wy, 0, H);
+    gw.addColorStop(0, '#1d4a63'); gw.addColorStop(1, '#0a1e2c');
+    x.fillStyle = gw; x.fillRect(wallW, wy, W - wallW * 2, H - wy);
+    x.strokeStyle = 'rgba(150,220,245,.5)'; x.lineWidth = 2;
+    x.beginPath();
+    for (let px = wallW; px <= W - wallW; px += 6) {
+      const yy = wy + Math.sin(px / 14 + now / 380) * 2;
+      px === wallW ? x.moveTo(px, yy) : x.lineTo(px, yy);
+    }
+    x.stroke();
+    const gl = 0.5 + 0.5 * Math.sin(now / 320);
+    x.strokeStyle = 'rgba(255,225,140,' + (0.35 + 0.55 * gl) + ')'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(cx + 24 - 7, wy + 18); x.lineTo(cx + 24 + 7, wy + 18); x.moveTo(cx + 24, wy + 18 - 7); x.lineTo(cx + 24, wy + 18 + 7); x.stroke();
+    /* dwarsbalk + windas-trommel bovenaan */
+    x.fillStyle = '#4a3119'; x.fillRect(wallW - 10, 20, W - wallW * 2 + 20, 12);
+    x.strokeStyle = '#2a1c0e'; x.lineWidth = 2; x.strokeRect(wallW - 10, 20, W - wallW * 2 + 20, 12);
+    x.fillStyle = '#6b4a2b'; x.beginPath(); x.arc(cx, 44, 15, 0, Math.PI * 2); x.fill();
     x.strokeStyle = '#caa15a'; x.lineWidth = 3; x.stroke();
-    // vaste wijzer bovenaan
-    x.fillStyle = '#ffd36b'; x.beginPath(); x.moveTo(cx, cy - R * 1.0); x.lineTo(cx - R * 0.1, cy - R * 1.2); x.lineTo(cx + R * 0.1, cy - R * 1.2); x.closePath(); x.fill();
-    x.strokeStyle = '#7a4a12'; x.lineWidth = 2; x.stroke();
-    // voortgangs-pips (hoeveel draaien vastgezet)
-    const total = dialHs.dialPuzzle.combo.length;
-    for (let i = 0; i < total; i++) {
-      const px = cx - (total - 1) * 9 + i * 18, py = cy + R * 1.28;
-      x.beginPath(); x.arc(px, py, 5, 0, TAU);
-      x.fillStyle = i < dialStep ? '#ffd36b' : '#3a2512'; x.fill();
+    /* hendel draait mee met de diepte (wiebelt harder bij vaart) */
+    const hAng = wDepth * 1.15 + Math.sin(now / 90) * 0.06 * wSpeed;
+    x.strokeStyle = '#caa15a'; x.lineWidth = 5; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(cx, 44); x.lineTo(cx + Math.cos(hAng) * 26, 44 + Math.sin(hAng) * 26); x.stroke();
+    x.fillStyle = '#e7c885'; x.beginPath(); x.arc(cx + Math.cos(hAng) * 26, 44 + Math.sin(hAng) * 26, 5, 0, Math.PI * 2); x.fill();
+    /* emmer + raaf aan het touw (slingert harder naarmate je sneller viert) */
+    const topY = 76, botY = wy - 22;
+    const slip = Math.max(0, 1 - (now - wSlipT) / 380);
+    const by = topY + (botY - topY) * (wDepth / DEP);
+    const amp = 1.5 + wSpeed * 7;
+    const bx2 = cx + Math.sin(now / 250) * amp;
+    x.strokeStyle = '#b39869'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(cx, 59); x.lineTo(bx2, by - 12); x.stroke();
+    /* emmer */
+    x.fillStyle = '#6b4a2b';
+    x.beginPath(); x.moveTo(bx2 - 17, by - 10); x.lineTo(bx2 + 17, by - 10); x.lineTo(bx2 + 13, by + 12); x.lineTo(bx2 - 13, by + 12); x.closePath(); x.fill();
+    x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
+    x.strokeStyle = '#8a6a3a'; x.beginPath(); x.moveTo(bx2 - 16, by - 4); x.lineTo(bx2 + 16, by - 4); x.stroke();
+    /* raaf in de emmer (kopje boven de rand, wipt zachtjes mee) */
+    const rb = Math.sin(now / 300) * 1.5;
+    x.fillStyle = '#16161c';
+    x.beginPath(); x.ellipse(bx2, by - 14 + rb, 10, 7, 0, 0, Math.PI * 2); x.fill();          // lijfje
+    x.beginPath(); x.arc(bx2 + 8, by - 21 + rb, 5, 0, Math.PI * 2); x.fill();                  // kopje
+    x.fillStyle = '#e8a33d';
+    x.beginPath(); x.moveTo(bx2 + 12, by - 21 + rb); x.lineTo(bx2 + 19, by - 19 + rb); x.lineTo(bx2 + 12, by - 18 + rb); x.closePath(); x.fill();   // snavel
+    x.fillStyle = '#fff'; x.fillRect(bx2 + 8, by - 23 + rb, 2, 2);                             // oogje
+    /* vaart-lampjes rechtsboven: groen -> oranje -> rood */
+    const lampCols = ['#7fd66b', '#ffd36b', '#ff6b57'];
+    for (let i = 0; i < 3; i++) {
+      x.beginPath(); x.arc(W - 66 + i * 20, 14, 6, 0, Math.PI * 2);
+      x.fillStyle = i < wSpeed ? lampCols[Math.min(wSpeed, 3) - 1] : '#241c12'; x.fill();
       x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
     }
+    /* diepte-streepjes op de rechterwand */
+    for (let i = 0; i <= DEP; i++) {
+      const ty = topY + (botY - topY) * (i / DEP);
+      x.strokeStyle = i <= wDepth ? '#ffd36b' : 'rgba(231,207,134,.28)'; x.lineWidth = 2;
+      x.beginPath(); x.moveTo(W - wallW, ty); x.lineTo(W - wallW + 8, ty); x.stroke();
+    }
+    /* rode flits als het touw slipt */
+    if (slip > 0) { x.fillStyle = 'rgba(255,70,50,' + (0.22 * slip) + ')'; x.fillRect(0, 0, W, H); }
   }
   if (elDial) {
     const dl = document.getElementById('dial-left'), dr = document.getElementById('dial-right'), dk = document.getElementById('dial-lock'), dx = document.getElementById('dial-close');
-    if (dl) dl.addEventListener('click', () => dialTurn('L'));
-    if (dr) dr.addEventListener('click', () => dialTurn('R'));
-    if (dk) dk.addEventListener('click', dialLock);
+    if (dk) dk.remove();                               // de oude vastzet-knop is vervallen
+    if (dl) dl.addEventListener('click', winchHold);
+    if (dr) dr.addEventListener('click', winchLower);
     if (dx) dx.addEventListener('click', dialClose);
     elDial.addEventListener('click', (e) => { if (e.target === elDial) dialClose(); });
   }

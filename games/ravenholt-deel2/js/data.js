@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '107',
+  assetVer: '108',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -361,27 +361,21 @@ const GAME = {
           look: (state) => state.flags.gotNecklace
             ? { nl: 'De oude put. Diep beneden klatert het donkere water. De ketting van de prinses heb je veilig omhoog gehesen.', en: 'The old well. Far below, dark water trickles. You’ve safely hauled up the princess’s necklace.' }
             : state.flags.ravenInBucket
-            ? { nl: 'Diep in de schacht zit de raaf in de emmer te wachten, met iets glinsterends in zijn snavel. Hijs de emmer omhoog — maar het windwerk heeft een touw nodig.', en: 'Deep in the shaft the raven waits in the bucket, something glinting in his beak. Haul the bucket up — but the winch needs a rope.' }
+            ? { nl: 'De raaf zit parmantig in de emmer, klaar voor de afdaling. Diep beneden glinstert iets in het donkere water. Laat de emmer voorzichtig zakken — maar het windwerk heeft eerst een touw nodig.', en: 'The raven perches proudly in the bucket, ready for the descent. Deep below, something glints in the dark water. Lower the bucket carefully — but the winch needs a rope first.' }
             : { nl: 'Een oude stenen put met een houten windwerk, maar zonder touw. Diep beneden, in het donkere water, ligt iets te glinsteren — te diep om er zelf bij te komen. Misschien kan iets (of iemand) kleins het halen?', en: 'An old stone well with a wooden winch, but no rope. Far below, in the dark water, something glints — too deep to reach yourself. Maybe something (or someone) small could fetch it?' },
           dialPuzzle: {
             requiresFlag: 'ravenInBucket',
             blockedText: { nl: 'De put is veel te diep om er zelf bij te komen. Lok eerst de raaf de emmer in met iets glimmends.', en: 'The well is far too deep to reach yourself. First lure the raven into the bucket with something shiny.' },
             needItem: 'rope',
             needText: { nl: 'Het windwerk heeft eerst een touw nodig om de emmer te kunnen laten zakken. Haal het touw bij de schildknaap.', en: 'The winch first needs a rope before it can lower the bucket. Get the rope from the squire.' },
-            positions: 12,
-            title: { nl: 'Het Windas-Slot van de Put', en: 'The Well’s Winch-Lock' },
-            hint: { nl: 'Het windwerk zit op een draaislot. Met de hendel draai je het rad linksom of rechtsom; bovenaan wijst de pijl het getal aan. In het hout staan vier merktekens gekrast: ⟳ rechtsom 7 · ⟲ linksom 2 · ⟳ rechtsom 11 · ⟲ linksom 5. Draai naar elk getal en zet telkens vast — de RICHTING telt mee! Draai je verkeerd of zet je het verkeerde getal vast, dan schiet de pal terug en begin je opnieuw.', en: 'The winch is held by a turn-lock. Use the crank to turn the wheel left or right; the arrow at the top marks the number. Four marks are scratched in the wood: ⟳ right 7 · ⟲ left 2 · ⟳ right 11 · ⟲ left 5. Turn to each number and lock it in — the DIRECTION matters! Turn the wrong way or lock the wrong number and the pawl slips back; start over.' },
-            combo: [
-              { dir: 'R', num: 7 },
-              { dir: 'L', num: 2 },
-              { dir: 'R', num: 11 },
-              { dir: 'L', num: 5 }
-            ],
+            depth: 8,
+            title: { nl: 'Laat de Raaf Zakken', en: 'Lower the Raven' },
+            hint: { nl: 'De raaf zit in de emmer en beneden glinstert de ketting in het water. Draai de hendel (⟳ Laten zakken) om het touw te vieren — maar pas op: het oude touw gaat steeds sneller! Zie je de lampjes oranje worden, houd dan even vast (✋) om af te remmen. Viert je drie slagen achter elkaar, dan slipt het touw en schiet de emmer weer helemaal omhoog.', en: 'The raven sits in the bucket, and below the necklace glints in the water. Turn the crank (⟳ Lower) to pay out the rope — but careful: the old rope runs faster and faster! When the lamps turn orange, hold tight (✋) for a moment to brake. Lower three times in a row and the rope slips, shooting the bucket all the way back up.' },
             setFlag: 'gotNecklace',
             consume: 'rope',
             give: 'necklace',
-            solvedText: { nl: 'Bij de laatste draai klikt diep in het windwerk een pal vast — de juiste combinatie! Je grijpt de hendel en draait; krakend zakt het touw, de emmer komt omhoog met de raaf erin, trots, een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'On the last turn a pawl clicks deep in the winch — the right combination! You grab the crank and turn; creaking, the rope feeds out and the bucket rises with the raven inside, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' },
-            resetText: { nl: 'KNERS — de pal schiet terug en het rad draait los. Begin weer bij het eerste merkteken.', en: 'GRIND — the pawl slips back and the wheel spins free. Start again from the first mark.' }
+            solvedText: { nl: 'PLONS — de emmer raakt zachtjes het water! De raaf duikt met zijn snavel tussen de rimpels en grist de glinsterende ketting van de bodem. Je draait de hendel terug omhoog; krakend komt de emmer boven, met de raaf erin, trots, een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'SPLASH — the bucket gently touches the water! The raven dips his beak between the ripples and snatches the glittering necklace from the bottom. You crank the handle back up; creaking, the bucket rises, the raven inside, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' },
+            resetText: { nl: 'ZOEF! Te snel gevierd — het touw slipt door de katrol en de emmer schiet weer helemaal omhoog. De raaf klappert verontwaardigd met zijn vleugels. Probeer het rustiger: twee slagen zakken, dan even vasthouden.', en: 'WHIZZ! Too fast — the rope slips through the pulley and the bucket shoots all the way back up. The raven flaps his wings indignantly. Try it more gently: lower twice, then hold.' }
           }
         },
         {
