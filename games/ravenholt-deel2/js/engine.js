@@ -3823,11 +3823,12 @@
     }
   }
 
-  /* ---------- Hendel-puzzel van de put: laat de emmer voorzichtig zakken ----------
-     De raaf zit in de emmer. Draai de hendel om het touw te vieren — maar het oude
-     windas viert steeds sneller! Na twee slagen moet je de pal even vasthouden,
-     anders slipt het touw en schiet de emmer weer helemaal omhoog. Breng de raaf
-     veilig tot bij het glinsterende water beneden. */
+  /* ---------- Hendel-puzzel van de put: timing! ----------
+     De raaf zit in de emmer en de emmer slingert vanzelf heen en weer. Alleen als
+     hij (ongeveer) in het midden hangt mag je een slag vieren — de balk bovenin is
+     dan groen. Klik je terwijl de emmer uitzwaait (rood), dan slipt het touw en
+     schiet de emmer weer helemaal omhoog. Hoe dieper, hoe wilder en sneller het
+     slingeren en hoe smaller de groene zone: het wordt vanzelf steeds moeilijker. */
   const elDial       = document.getElementById('dial-screen');
   const elDialCanvas = document.getElementById('dial-canvas');
   const elDialTitle  = document.getElementById('dial-title');
@@ -3835,17 +3836,22 @@
   const elDialStatus = document.getElementById('dial-status');
   const dctx = elDialCanvas ? elDialCanvas.getContext('2d') : null;
   const W_DEPTH = 8;                                   // zoveel slagen vieren tot het water
-  let dialHs = null, wDepth = 0, wSpeed = 0, wSolved = false, wAnim = null, wSlipT = 0, wBarV = 0;
+  const W_SAFE = 12;                                   // binnen zoveel px van het midden is het veilig
+  let dialHs = null, wDepth = 0, wSolved = false, wAnim = null, wSlipT = 0, wPhase0 = 0, wLastLower = 0;
+
+  function pendAmp() { return 13 + wDepth * 5; }                                   // uitzwaai groeit met de diepte
+  function pendPeriod() { return Math.max(950, 1650 - wDepth * 95); }              // en het slingeren wordt sneller
+  function pendOff(now) { return Math.sin((now - wPhase0) / pendPeriod() * Math.PI * 2) * pendAmp(); }
 
   function openDialPuzzle(hs) {
     const pz = hs.dialPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
-    dialHs = hs; wDepth = 0; wSpeed = 0; wSolved = false; wSlipT = 0; wBarV = 0;
+    dialHs = hs; wDepth = 0; wSolved = false; wSlipT = 0; wPhase0 = performance.now();
     if (elDialTitle)  elDialTitle.textContent  = L(pz.title);
     if (elDialHint)   elDialHint.textContent   = L(pz.hint);
     if (elDialStatus) elDialStatus.textContent = '';
     const bl = document.getElementById('dial-left'), br = document.getElementById('dial-right');
-    if (bl) bl.textContent = lang === 'nl' ? '\u270B Vasthouden' : '\u270B Hold tight';
+    if (bl) bl.hidden = true;                          // er valt niets vast te houden — alles draait om timing
     if (br) br.textContent = lang === 'nl' ? '\u27F3 Laten zakken' : '\u27F3 Lower';
     if (elDial) elDial.hidden = false;
     sfx('tap');
@@ -3855,7 +3861,22 @@
   function winchLower() {
     if (!dialHs || wSolved) return;
     const pz = dialHs.dialPuzzle, DEP = pz.depth || W_DEPTH;
-    wDepth++; wSpeed++;
+    const nowT = performance.now();
+    if (nowT - wLastLower < 260) return;               // heel snel dubbelklikken telt niet — elke slag vraagt eigen timing
+    const off = pendOff(nowT);
+    if (Math.abs(off) > W_SAFE) {                      // buiten het midden geklikt: het touw slipt
+      wSlipT = nowT;
+      wDepth = 0; wLastLower = 0;
+      wPhase0 = nowT;                                  // de emmer hangt boven weer stil in het midden
+      sfx('error');
+      if (elDialStatus) elDialStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'De emmer slingerde te ver — het touw slipt en schiet weer helemaal omhoog!' : 'The bucket swung too far — the rope slips and shoots all the way back up!');
+      return;
+    }
+    const oldT = pendPeriod();
+    wDepth++;
+    const frac = ((nowT - wPhase0) / oldT) % 1;        // slinger loopt naadloos door, ook nu de periode korter wordt
+    wPhase0 = nowT - frac * pendPeriod();
+    wLastLower = nowT;
     sfx('tap');
     if (wDepth >= DEP) {                               // de emmer bereikt het water — gehaald!
       wSolved = true;
@@ -3868,24 +3889,11 @@
       setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 900);
       return;
     }
-    if (wSpeed >= 3) {                                 // te snel gevierd: het touw slipt en de emmer schiet omhoog
-      wSlipT = performance.now();
-      wDepth = 0; wSpeed = 0; wBarV = 1;               // balk schiet vol in het rood
-      sfx('error');
-      if (elDialStatus) elDialStatus.textContent = pz.resetText ? L(pz.resetText) : (lang === 'nl' ? 'Te snel! Het touw slipt en de emmer schiet weer helemaal omhoog.' : 'Too fast! The rope slips and the bucket shoots back up.');
-      return;
-    }
     if (elDialStatus) {
-      elDialStatus.textContent = wSpeed === 2
-        ? (lang === 'nl' ? 'Het touw giert door de katrol — HOUD even VAST!' : 'The rope whirs through the pulley — HOLD tight now!')
-        : (lang === 'nl' ? 'De emmer zakt rustig... (' + wDepth + ' van ' + DEP + ')' : 'The bucket eases down... (' + wDepth + ' of ' + DEP + ')');
+      elDialStatus.textContent = lang === 'nl'
+        ? 'Goed getimed! (' + wDepth + ' van ' + DEP + ') — het slingeren wordt wilder...'
+        : 'Well timed! (' + wDepth + ' of ' + DEP + ') — the swinging grows wilder...';
     }
-  }
-  function winchHold() {
-    if (!dialHs || wSolved) return;
-    wSpeed = 0;
-    sfx('pickup');
-    if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'Je houdt de pal vast — het touw komt tot rust.' : 'You hold the pawl — the rope settles.';
   }
   function wLoop() {
     if (!dialHs || !elDial || elDial.hidden) { wAnim = null; return; }
@@ -3912,7 +3920,7 @@
       }
       x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(side === 0 ? wallW - 8 : W - wallW, 0, 8, H);
     }
-    /* water onderin (golfjes + glinstering van de ketting) */
+    /* water onderin (golfjes) */
     const wy = H - 42;
     let gw = x.createLinearGradient(0, wy, 0, H);
     gw.addColorStop(0, '#1d4a63'); gw.addColorStop(1, '#0a1e2c');
@@ -3939,23 +3947,28 @@
     x.strokeStyle = '#2a1c0e'; x.lineWidth = 2; x.strokeRect(wallW - 10, 20, W - wallW * 2 + 20, 12);
     x.fillStyle = '#6b4a2b'; x.beginPath(); x.arc(cx, 44, 15, 0, Math.PI * 2); x.fill();
     x.strokeStyle = '#caa15a'; x.lineWidth = 3; x.stroke();
-    /* hendel draait mee met de diepte (wiebelt harder bij vaart) */
-    const hAng = wDepth * 1.15 + Math.sin(now / 90) * 0.06 * wSpeed;
+    /* hendel draait mee met de diepte */
+    const hAng = wDepth * 1.15 + now / 4000;
     x.strokeStyle = '#caa15a'; x.lineWidth = 5; x.lineCap = 'round';
     x.beginPath(); x.moveTo(cx, 44); x.lineTo(cx + Math.cos(hAng) * 26, 44 + Math.sin(hAng) * 26); x.stroke();
     x.fillStyle = '#e7c885'; x.beginPath(); x.arc(cx + Math.cos(hAng) * 26, 44 + Math.sin(hAng) * 26, 5, 0, Math.PI * 2); x.fill();
-    /* emmer + raaf aan het touw (slingert harder naarmate je sneller viert) */
+    /* emmer + raaf: slingert vanzelf, steeds wilder naarmate je dieper komt */
     const topY = 76, botY = wy - 22;
     const slip = Math.max(0, 1 - (now - wSlipT) / 380);
     const by = topY + (botY - topY) * (wDepth / DEP);
-    const amp = 1.5 + wSpeed * 7;
-    const bx2 = cx + Math.sin(now / 250) * amp;
+    const off = pendOff(now);
+    const bx2 = cx + off;
+    const safe = Math.abs(off) <= W_SAFE;
     x.strokeStyle = '#b39869'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(cx, 59); x.lineTo(bx2, by - 12); x.stroke();
+    /* veilige midden-zone op de bodem van de schacht (stippellijnen) */
+    x.setLineDash([3, 4]); x.strokeStyle = 'rgba(126,214,110,.4)'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(cx - W_SAFE, 66); x.lineTo(cx - W_SAFE, wy - 4); x.moveTo(cx + W_SAFE, 66); x.lineTo(cx + W_SAFE, wy - 4); x.stroke();
+    x.setLineDash([]);
     /* emmer */
     x.fillStyle = '#6b4a2b';
     x.beginPath(); x.moveTo(bx2 - 17, by - 10); x.lineTo(bx2 + 17, by - 10); x.lineTo(bx2 + 13, by + 12); x.lineTo(bx2 - 13, by + 12); x.closePath(); x.fill();
-    x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
+    x.strokeStyle = safe ? '#7ed66e' : '#caa15a'; x.lineWidth = 2; x.stroke();     // groen randje = nu mag het
     x.strokeStyle = '#8a6a3a'; x.beginPath(); x.moveTo(bx2 - 16, by - 4); x.lineTo(bx2 + 16, by - 4); x.stroke();
     /* raaf in de emmer — duidelijk herkenbaar: staart, vleugel, glanzende veren */
     const rb = Math.sin(now / 300) * 1.5;
@@ -3970,18 +3983,20 @@
     x.fillStyle = '#fff'; x.fillRect(bx2 + 9, by - 28 + rb, 2, 2);                             // oogje
     x.strokeStyle = 'rgba(150,165,220,.4)'; x.lineWidth = 1.5;
     x.beginPath(); x.arc(bx2 - 2, by - 20 + rb, 9, Math.PI * 1.15, Math.PI * 1.6); x.stroke(); // blauwige veerglans
-    /* touwspannings-balk bovenaan: GROEN = zakken mag, ROOD (voorbij het midden) = eerst vasthouden */
+    /* slinger-balk bovenaan: het blokje beweegt live mee met de emmer.
+       GROEN vlak in het midden = nu klikken mag; hoe dieper, hoe smaller het groen. */
     const barX = wallW, barW2 = W - wallW * 2, barY = 3, barH = 13;
+    const half = barW2 / 2 - 5, ampNow = pendAmp();
     x.fillStyle = '#1a140c'; x.fillRect(barX - 2, barY - 2, barW2 + 4, barH + 4);
-    x.fillStyle = 'rgba(110,205,100,.30)'; x.fillRect(barX, barY, barW2 * 0.55, barH);                    // groene zone (veilig)
-    x.fillStyle = 'rgba(255,200,90,.30)';  x.fillRect(barX + barW2 * 0.55, barY, barW2 * 0.20, barH);     // oranje zone
-    x.fillStyle = 'rgba(255,90,70,.30)';   x.fillRect(barX + barW2 * 0.75, barY, barW2 * 0.25, barH);     // rode zone (stop!)
-    wBarV += (Math.min(1, wSpeed / 2.5) - wBarV) * 0.16;                                                  // vulling glijdt soepel mee
-    x.fillStyle = wBarV > 0.6 ? '#ff5a46' : wBarV > 0.45 ? '#ffc25a' : '#6ecf62';
-    x.fillRect(barX, barY, barW2 * wBarV, barH);
+    x.fillStyle = 'rgba(255,90,70,.30)'; x.fillRect(barX, barY, barW2, barH);                   // rood = te ver uitgezwaaid
+    const gw2 = (W_SAFE / ampNow) * half;                                                       // groene zone krimpt met de diepte
+    x.fillStyle = safe ? 'rgba(110,220,100,.85)' : 'rgba(110,205,100,.45)';
+    x.fillRect(barX + barW2 / 2 - gw2, barY, gw2 * 2, barH);
     x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.strokeRect(barX - 2, barY - 2, barW2 + 4, barH + 4);
-    x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 2;                                             // midden-streep: tot hier is het veilig
-    x.beginPath(); x.moveTo(barX + barW2 * 0.55, barY - 2); x.lineTo(barX + barW2 * 0.55, barY + barH + 2); x.stroke();
+    const mk = barX + barW2 / 2 + (off / ampNow) * half;                                        // het blokje = de emmer
+    x.fillStyle = safe ? '#eaffe2' : '#ffd7cf';
+    x.fillRect(mk - 3, barY - 1, 6, barH + 2);
+    x.strokeStyle = '#5a3c20'; x.lineWidth = 1.5; x.strokeRect(mk - 3, barY - 1, 6, barH + 2);
     /* diepte-streepjes op de rechterwand */
     for (let i = 0; i <= DEP; i++) {
       const ty = topY + (botY - topY) * (i / DEP);
@@ -3992,9 +4007,8 @@
     if (slip > 0) { x.fillStyle = 'rgba(255,70,50,' + (0.22 * slip) + ')'; x.fillRect(0, 0, W, H); }
   }
   if (elDial) {
-    const dl = document.getElementById('dial-left'), dr = document.getElementById('dial-right'), dk = document.getElementById('dial-lock'), dx = document.getElementById('dial-close');
-    if (dk) dk.remove();                               // de oude vastzet-knop is vervallen
-    if (dl) dl.addEventListener('click', winchHold);
+    const dr = document.getElementById('dial-right'), dk = document.getElementById('dial-lock'), dx = document.getElementById('dial-close');
+    if (dk) dk.remove();                               // oude vastzet-knop is vervallen
     if (dr) dr.addEventListener('click', winchLower);
     if (dx) dx.addEventListener('click', dialClose);
     elDial.addEventListener('click', (e) => { if (e.target === elDial) dialClose(); });
