@@ -4120,26 +4120,37 @@
   }
   function altarClose() { if (elAltar) elAltar.hidden = true; altarHs = null; if (altAnim) { cancelAnimationFrame(altAnim); altAnim = null; } }
   function altShown(r, p) { const row = altarHs.starPuzzle.rows[r]; return row.symbols[(p + altOff[r]) % row.symbols.length]; }
+  function altAligned() { const pz = altarHs.starPuzzle; return pz.rows.every((row, i) => altShown(i, ALT_N - 1) === pz.targets[i]); }
+  function altSolveNow() {
+    const pz = altarHs.starPuzzle;
+    altSolved = true;
+    (Array.isArray(pz.setFlag) ? pz.setFlag : [pz.setFlag]).forEach((f) => { state.flags[f] = true; });
+    if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
+    const sc = GAME.scenes[state.currentScene];             // de geheime deur zwaait open -> achtergrond wisselt
+    if (sc && sc.bgVariants) paintBackground();
+    sfx('combine');
+    const h = altarHs;
+    if (elAltarStatus) elAltarStatus.textContent = lang === 'nl' ? 'De tekens gloeien op — de geheime deur zwaait open!' : 'The signs glow — the secret door swings open!';
+    setTimeout(() => {
+      altarClose();
+      if (pz.solvedText) say(pz.solvedText, hsSpeaker(h));
+      if (pz.win) { pendingWin = true; sfx('win'); }
+      updateQuest();
+    }, 1100);
+  }
   function altShift(r, dir) {
     if (!altarHs || altSolved) return;
     const len = altarHs.starPuzzle.rows[r].symbols.length;
     altOff[r] = (altOff[r] + (dir > 0 ? 1 : len - 1)) % len;
     sfx('tap');
+    if (elAltarStatus && altarHs.starPuzzle.manualCheck) elAltarStatus.textContent = '';
+    if (!altarHs.starPuzzle.manualCheck && altAligned()) altSolveNow();   // klassiek: lost vanzelf op
+  }
+  function altCheck() {                                     // handmatige controle via de hendel
+    if (!altarHs || altSolved) return;
     const pz = altarHs.starPuzzle;
-    if (pz.rows.every((row, i) => altShown(i, ALT_N - 1) === pz.targets[i])) {   // alle drie de tekens rechts op één lijn
-      altSolved = true;
-      state.flags[pz.setFlag] = true;
-      if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
-      sfx('combine');
-      const h = altarHs;
-      if (elAltarStatus) elAltarStatus.textContent = lang === 'nl' ? 'De tekens gloeien op — het altaar ontwaakt!' : 'The signs glow — the altar awakens!';
-      setTimeout(() => {
-        altarClose();
-        if (pz.solvedText) say(pz.solvedText, hsSpeaker(h));
-        if (pz.win) { pendingWin = true; sfx('win'); }
-        updateQuest();
-      }, 1000);
-    }
+    if (altAligned()) altSolveNow();
+    else { sfx('error'); if (elAltarStatus) elAltarStatus.textContent = pz.wrongText ? L(pz.wrongText) : (lang === 'nl' ? 'Nog niet juist — probeer opnieuw.' : 'Not right yet — try again.'); }
   }
   function altLoop() {
     if (!altarHs || !elAltar || elAltar.hidden) { altAnim = null; return; }
@@ -4164,9 +4175,9 @@
         x.strokeStyle = 'rgba(138,106,58,.4)'; x.lineWidth = 1;
         x.beginPath(); x.moveTo(ALT_X0 + p * ALT_SLOT, ry - 22); x.lineTo(ALT_X0 + p * ALT_SLOT, ry + 22); x.stroke();
       }
-      /* het gouden doel-vakje rechts (pulserende gloed) */
+      /* het gouden doel-vakje rechts (pulserende gloed) — bij manualCheck GEEN groen goed/fout-hint */
       const gx = ALT_X0 + (ALT_N - 1) * ALT_SLOT;
-      const ok = altShown(r, ALT_N - 1) === pz.targets[r];
+      const ok = !pz.manualCheck && altShown(r, ALT_N - 1) === pz.targets[r];
       const pu = 0.5 + 0.5 * Math.sin(now / 420);
       x.strokeStyle = ok ? 'rgba(126,230,110,' + (0.75 + 0.25 * pu) + ')' : 'rgba(255,211,107,' + (0.55 + 0.4 * pu) + ')';
       x.lineWidth = 3;
@@ -4206,6 +4217,8 @@
     });
     const axc = document.getElementById('altar-close');
     if (axc) axc.addEventListener('click', altarClose);
+    const alv = document.getElementById('altar-lever');
+    if (alv) alv.addEventListener('click', altCheck);
     elAltar.addEventListener('click', (e) => { if (e.target === elAltar) altarClose(); });
   }
 

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '127',
+  assetVer: '128',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -67,7 +67,9 @@ const GAME = {
     squire:        'assets/art/squire.png',     // jonge schildknaap op de binnenplaats (Deel 2)
     princess:      'assets/art/princess.png',     // de prinses in de slottuin (Deel 2)
     parrot:        'assets/art/parrot.png',        // kleurrijke papagaai in de slottuin (Deel 2)
-    librarian:     'assets/art/librarian.png'     // de oude bibliothecaris in de kasteelbibliotheek (Deel 2)
+    librarian:     'assets/art/librarian.png',    // de warrige oude tovenaar in de kasteelbibliotheek (Deel 2)
+    'librarian-trip1': 'assets/art/librarian-trip1.png',   // tovenaar in trance (paddenstoel-trip), frame 1
+    'librarian-trip2': 'assets/art/librarian-trip2.png'    // tovenaar in trance (paddenstoel-trip), frame 2
   },
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -520,7 +522,7 @@ const GAME = {
         { x: 340, y: 236, w: 38, h: 18 }                   // rechter vuurkorf
       ],
       overlays: [
-        { img: 'assets/art/keyhole.png', x: 130, y: 168, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' },  // sleutelgat in de muur rechts van de fontein — precies waar de geheime deur opengaat
+        { img: 'assets/art/keyhole.png', x: 134, y: 158, base: 240, scale: 0.56, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' },  // sleutelgat in de muur rechts van de fontein — iets hoger + kleiner
         { img: 'assets/art/brazier-empty.png', x: 194, y: 216, base: 250, shadow: { a: 0.3, w: 15, h: 3.5 } },   // LEGE vuurkorf links van het smidsbeeld
         { img: 'assets/art/brazier.png', x: 342, y: 216, base: 250, shadow: { a: 0.3, w: 15, h: 3.5 } }    // vuurkorf rechts van het smidsbeeld — hierin ligt de houtskool
       ],
@@ -763,7 +765,8 @@ const GAME = {
       name: { nl: 'De Kasteelbibliotheek', en: 'The Castle Library' },
       bg: 'assets/art/scene-library.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-library-night.jpg', flag: 'eclipseActive' }   // de zonsverduistering-spreuk dooft de zon: nacht + eclips door het raam
+        { img: 'assets/art/scene-library-open.jpg',  flag: 'altarSolved' },     // altaar opgelost -> de eclips is voorbij, daglicht keert terug én een geheime deur staat open
+        { img: 'assets/art/scene-library-night.jpg', flag: 'eclipseActive' }    // de zonsverduistering-spreuk dooft de zon: nacht + eclips door het raam
       ],
       charFilter: 'saturate(1.02) brightness(0.88) sepia(0.14) contrast(1.04)',   // warm kaarslicht, wat donkerder zodat de figuren in de schemerige zaal opgaan
       heroShade: 0.8,
@@ -785,7 +788,7 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.14, sway: 0.018, flip: true, filter: 'brightness(0.74) saturate(0.9)' },   // de oude tovenaar — iets groter, met meer schaduw
+        { id: 'librarian', sprite: 'librarian', x: 206, y: 254, scale: 1.34, sway: 0.02, flip: true, filter: 'brightness(0.82) saturate(0.95)', aweSprites: ['librarian-trip1', 'librarian-trip2'], aweFlag: 'wizardTripping' },   // de warrige tovenaar — groter; met een paddenstoel raakt hij in trance (trip-frames)
         { id: 'libRaven', sprite: 'ravenPerch', x: 364, y: 156, scale: 0.82, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — groter, iets meer rechts en lager
       ],
       worldItems: [],
@@ -888,19 +891,21 @@ const GAME = {
             requiresFlag: 'sawStars',
             blockedText: { nl: 'Drie rijen schuivende tekens en drie gouden vakjes... maar welke tekens horen erin? Je hebt geen idee \u2014 misschien staat het antwoord in de sterren geschreven.', en: 'Three rows of sliding signs and three golden boxes... but which signs belong there? You have no idea \u2014 perhaps the answer is written in the stars.' },
             img: 'assets/art/puzzle-altar.jpg',
+            manualCheck: true,
             title: { nl: 'Het Sterren-Altaar', en: 'The Star Altar' },
-            hint: { nl: 'Schuif elke rij (tik links of rechts van een rij) tot het teken uit de sterrenkaart in het gouden vakje staat.', en: 'Slide each row (tap left or right of a row) until the sign from the star chart sits in the golden box.' },
+            hint: { nl: 'Schuif elke rij (tik links of rechts van een rij) tot je denkt dat de juiste tekens uit de sterrenkaart in de gouden vakjes staan. Trek dán aan de HENDEL onderaan. Zit het goed, dan zwaait de geheime deur open!', en: 'Slide each row (tap left or right of a row) until you think the right signs from the star chart sit in the golden boxes. Then pull the LEVER below. If it is right, the secret door swings open!' },
             rows: [
               { symbols: ['\u03A8', '\u03A9', '\u0394', '\u2644', '\u03A6'], start: 2 },
               { symbols: ['\u2643', '\u03A6', '\u03A8', '\u03A9', '\u0394'], start: 3 },
               { symbols: ['\u2644', '\u0394', '\u03A9', '\u2643', '\u03A8'], start: 1 }
             ],
             targets: ['\u03A8', '\u2643', '\u2644'],
-            setFlag: 'gotInvisSpell',
+            setFlag: ['altarSolved', 'gotInvisSpell'],
             give: 'invisspell',
             win: true,
-            solvedText: { nl: 'De drie sterren-tekens staan op \u00E9\u00E9n lijn en gloeien fel op! Het altaar zoemt, een geheime stenen lade schuift open... daarin ligt een zilveren bladzijde die zich meteen in je toverboek schrijft: de SPREUK VAN ONZICHTBAARHEID! Met de staf van je vader, het herstelde zwaard van Sir Aldric \u00E9n je nieuwe spreuken ben je klaar voor wat er dieper in het kasteel wacht... (wordt vervolgd in Deel 3)', en: 'The three star signs stand in one line and blaze with light! The altar hums, a secret stone drawer slides open... inside lies a silver page that writes itself straight into your spellbook: the SPELL OF INVISIBILITY! With your father\u2019s staff, Sir Aldric\u2019s reforged sword and your new spells, you are ready for whatever waits deeper in the castle... (to be continued in Part 3)' },
-            doneText: { nl: 'Het altaar rust; de tekens gloeien zachtjes na.', en: 'The altar rests; the signs glow faintly.' }
+            wrongText: { nl: 'Je trekt aan de hendel... maar de tekens doven en het altaar bromt afkeurend. Nog niet juist \u2014 kijk nog eens goed naar de sterrenkaart en schuif de rijen bij.', en: 'You pull the lever... but the signs go dark and the altar grumbles. Not right yet \u2014 study the star chart again and adjust the rows.' },
+            solvedText: { nl: 'De drie sterren-tekens staan op \u00E9\u00E9n lijn en gloeien fel op! Met een diep, knarsend gerommel zwaait achter de boekenkast een geheime deur open \u2014 en op het altaar schrijft een zilveren bladzijde zich in je toverboek: de SPREUK VAN ONZICHTBAARHEID! Met de staf van je vader, het herstelde zwaard van Sir Aldric \u00E9n je nieuwe spreuken ben je klaar voor wat er achter die deur wacht... (wordt vervolgd in Deel 3)', en: 'The three star signs stand in one line and blaze with light! With a deep grinding rumble a secret door swings open behind the bookcase \u2014 and on the altar a silver page writes itself into your spellbook: the SPELL OF INVISIBILITY! With your father\u2019s staff, Sir Aldric\u2019s reforged sword and your new spells, you are ready for whatever waits beyond that door... (to be continued in Part 3)' },
+            doneText: { nl: 'Het altaar rust; de tekens gloeien zachtjes na en de geheime deur staat open.', en: 'The altar rests; the signs glow faintly and the secret door stands open.' }
           }
         }
       ]
