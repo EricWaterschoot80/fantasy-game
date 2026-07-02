@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '123',
+  assetVer: '124',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -516,16 +516,16 @@ const GAME = {
         { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
         { x: 0,   y: 248, w: 150, h: 72 },                 // de stenen bloembak (urn) linkerhoek — tot de linkerrand, nog meer ruimte erboven geblokkeerd
         { x: 418, y: 248, w: 150, h: 72 },                 // de stenen bloembak (urn) rechterhoek — tot de rechterrand, nog meer ruimte erboven geblokkeerd
-        { x: 158, y: 236, w: 38, h: 18 },                  // linker vuurkorf
-        { x: 374, y: 236, w: 38, h: 18 }                   // rechter vuurkorf
+        { x: 192, y: 236, w: 38, h: 18 },                  // linker vuurkorf
+        { x: 340, y: 236, w: 38, h: 18 }                   // rechter vuurkorf
       ],
       overlays: [
         { img: 'assets/art/keyhole.png', x: 130, y: 168, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' },  // sleutelgat in de muur rechts van de fontein — precies waar de geheime deur opengaat
-        { img: 'assets/art/brazier.png', x: 160, y: 215, base: 250 },   // vuurkorf links van het smidsbeeld
-        { img: 'assets/art/brazier.png', x: 376, y: 215, base: 250 }    // vuurkorf rechts van het smidsbeeld — hierin ligt de houtskool
+        { img: 'assets/art/brazier.png', x: 194, y: 216, base: 250 },   // vuurkorf links van het smidsbeeld — dichter bij het beeld
+        { img: 'assets/art/brazier.png', x: 342, y: 216, base: 250 }    // vuurkorf rechts van het smidsbeeld — dichter bij het beeld, hierin ligt de houtskool
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 393, y: 222, scale: 0.72, glowCol: '255,140,55', embers: 0.55 },   // houtskool IN de rechter vuurkorf, met zacht nagloeiende sintels
+        { item: 'charcoal', hotspot: 'charcoal', x: 359, y: 223, scale: 0.72, glowCol: '255,150,60', embers: 0.9 },   // houtskool IN de rechter vuurkorf — duidelijker nagloeiende sintels zodat je 'm kunt pakken
         { item: 'trinket', hotspot: 'trinket', x: 72, y: 182, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.48, glintWide: 1.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, 2px hoger, iets kleiner maar breder (platter over het water)
       ],
       npcs: [
@@ -710,8 +710,8 @@ const GAME = {
         {
           id: 'charcoal',
           name: { nl: 'De Rechter Vuurkorf', en: 'The Right Fire Basket' },
-          rect: { x: 374, y: 206, w: 24, h: 46 },
-          walkTo: { x: 392, y: 276 },
+          rect: { x: 340, y: 206, w: 26, h: 46 },
+          walkTo: { x: 358, y: 276 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',
@@ -722,8 +722,8 @@ const GAME = {
         {
           id: 'brazierL',
           name: { nl: 'De Linker Vuurkorf', en: 'The Left Fire Basket' },
-          rect: { x: 168, y: 210, w: 28, h: 42 },
-          walkTo: { x: 176, y: 270 },
+          rect: { x: 202, y: 210, w: 28, h: 42 },
+          walkTo: { x: 210, y: 270 },
           look: { nl: 'Een ijzeren vuurkorf op drie poten, links van het smidsbeeld. De kolen hierin zijn allang koud en verkruimeld — niets meer aan te halen.', en: 'An iron fire basket on three legs, left of the smith statue. The coals in this one went cold long ago, crumbled to dust — nothing left to take.' }
         },
         {
