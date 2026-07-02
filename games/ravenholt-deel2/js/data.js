@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '114',
+  assetVer: '115',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -773,8 +773,8 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' },   // de oude tovenaar bij de lessenaar
-        { id: 'libRaven', sprite: 'ravenPerch', x: 340, y: 148, scale: 0.66, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank bij het grote raam
+        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.14, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' },   // de oude tovenaar bij de lessenaar — iets groter
+        { id: 'libRaven', sprite: 'ravenPerch', x: 352, y: 148, scale: 0.66, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank bij het grote raam
       ],
       worldItems: [],
       hotspots: [
@@ -789,8 +789,8 @@ const GAME = {
         {
           id: 'libRaven',
           name: { nl: 'De Raaf', en: 'The Raven' },
-          rect: { x: 306, y: 120, w: 54, h: 50 },
-          walkTo: { x: 330, y: 252 },
+          rect: { x: 330, y: 116, w: 50, h: 52 },
+          walkTo: { x: 344, y: 252 },
           look: (state) => state.flags.gotInvisSpell
             ? { nl: '\u201CKrra! Goed gedaan, kleine tovenaar. De sterren vergeten jou niet.\u201D De raaf buigt plechtig zijn kopje.', en: '\u201CCaw! Well done, little wizard. The stars will not forget you.\u201D The raven bows his head solemnly.' }
             : state.flags.sawStars
@@ -806,14 +806,14 @@ const GAME = {
         {
           id: 'shelves',
           name: { nl: 'De Boekenkasten', en: 'The Bookcases' },
-          rect: { x: 430, y: 40, w: 100, h: 120 },
+          rect: { x: 446, y: 36, w: 84, h: 118 },
           walkTo: { x: 460, y: 268 },
           look: { nl: 'Rijen op rijen eeuwenoude boeken: kronieken van Eldoria, sterrenkaarten, verboden spreukenboeken. Maar \u00E9\u00E9n boek, op de lessenaar, gloeit zachtjes \u2014 d\u00E1\u00E1r moet je zijn.', en: 'Rows upon rows of ancient tomes: chronicles of Eldoria, star charts, forbidden spellbooks. But one book, on the lectern, glows softly \u2014 that is the one you want.' }
         },
         {
           id: 'librarian',
           name: { nl: 'De Tovenaar', en: 'The Wizard' },
-          rect: { x: 180, y: 150, w: 74, h: 112 },
+          rect: { x: 174, y: 140, w: 54, h: 122 },
           walkTo: { x: 168, y: 256 },
           look: (state) => state.flags.wizardTripping
             ? { nl: 'De oude tovenaar zweeft bijna. Hij staart met grote ogen naar het plafond en giechelt: \u201CDe sterren... de sterren d\u00E1nsen! Ik zie de hemelwielen draaien...\u201D Het gloeiende boek ziet hij allang niet meer.', en: 'The old wizard is practically floating. He stares wide-eyed at the ceiling and giggles: \u201CThe stars... the stars are DANCING! I can see the heavens turning...\u201D He has long forgotten the glowing book.' }
@@ -829,8 +829,8 @@ const GAME = {
         {
           id: 'spelltome',
           name: { nl: 'Het Gloeiende Boek', en: 'The Glowing Book' },
-          rect: { x: 298, y: 118, w: 84, h: 96 },
-          walkTo: { x: 332, y: 256 },
+          rect: { x: 228, y: 122, w: 92, h: 94 },
+          walkTo: { x: 300, y: 256 },
           look: (state) => state.flags.gotEclipseSpell
             ? { nl: 'Het grote boek is uitgedoofd \u2014 de zonsverduistering-spreuk staat nu in jouw toverboek.', en: 'The great book has gone dark \u2014 the eclipse spell is now in your own spellbook.' }
             : state.flags.wizardTripping
@@ -848,8 +848,8 @@ const GAME = {
         {
           id: 'telescope',
           name: { nl: 'De Telescoop', en: 'The Telescope' },
-          rect: { x: 364, y: 96, w: 76, h: 88 },
-          walkTo: { x: 400, y: 252 },
+          rect: { x: 382, y: 94, w: 58, h: 74 },
+          walkTo: { x: 404, y: 252 },
           zoomImg: 'assets/art/telescope-view.jpg',
           zoomRequiresFlag: 'eclipseActive',
           zoomBlockedText: { nl: 'Je tuurt door de koperen telescoop, maar het felle daglicht verblindt alles \u2014 geen ster te zien. Alleen als de zon zou doven, zouden de sterren zich overdag tonen...', en: 'You peer through the brass telescope, but the bright daylight blinds everything \u2014 not a star in sight. Only if the sun went dark would the stars show themselves by day...' },
@@ -859,8 +859,8 @@ const GAME = {
         {
           id: 'altar',
           name: { nl: 'Het Sterren-Altaar', en: 'The Star Altar' },
-          rect: { x: 432, y: 168, w: 100, h: 96 },
-          walkTo: { x: 462, y: 270 },
+          rect: { x: 418, y: 170, w: 114, h: 106 },
+          walkTo: { x: 458, y: 272 },
           look: (state) => state.flags.gotInvisSpell
             ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
             : { nl: 'Een stenen altaar met drie schuifrijen vol vreemde tekens, en rechts drie gouden vakjes onder elkaar. Welke drie tekens horen daar? De sterren weten het antwoord...', en: 'A stone altar with three sliding rows of strange signs, and three golden boxes on the right. Which three signs belong there? The stars know the answer...' },
