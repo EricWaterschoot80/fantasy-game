@@ -2541,6 +2541,21 @@
         } else {
           drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: swayRot, squashY: breaths });
         }
+        /* Hypnose-twinkels: een paar sterretjes die traag om het hoofd zweven, elk in een
+           eigen sin-baan met eigen tempo — vloeiend drijvend i.p.v. verspringende pixels. */
+        if (npcInAwe) {
+          const savedF = fctx.filter; fctx.filter = 'none';
+          const spr2 = ready(img) ? img : null;
+          const hh = (spr2 ? (spr2.naturalHeight || 300) : 300) * 0.5 * sc2 * 0.62;   // ± hoofd-hoogte
+          for (let i = 0; i < 5; i++) {
+            const sp = 2400 + i * 420;                                    // eigen tempo per ster
+            const tx = rt.x + Math.sin(now / sp + i * 1.9) * (20 + i * 4) * sc2;
+            const ty = rt.y - hh * 1.35 + Math.sin(now / (sp * 0.77) + i * 2.3) * 9 * sc2 - i * 5;
+            const a = 0.18 + 0.4 * (0.5 + 0.5 * Math.sin(now / 520 + i * 2.1));   // zacht in-/uitfaden
+            twinkle(tx, ty, a, '190,215,255');
+          }
+          fctx.filter = savedF;
+        }
       }
     }
   }
