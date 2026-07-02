@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '111',
+  assetVer: '112',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -124,8 +124,11 @@ const GAME = {
     q_fountainpuzzle:{ nl: 'Je kreeg een sleutel van de prinses — los de schuifpuzzel bij de leeuwenfontein op om het slot te onthullen', en: 'The princess gave you a key — solve the sliding puzzle at the lion fountain to reveal the lock' },
     q_usekey:   { nl: 'Gebruik de sleutel op het slot onder de leeuwenkop van de fontein om de geheime poort te openen', en: 'Use the key on the lock beneath the fountain’s lion head to open the secret gate' },
     q_through:  { nl: 'De geheime poort staat open naast de leeuwenfontein — stap erdoorheen, de donkere gang in', en: 'The secret gate stands open beside the lion fountain — step through it, into the dark passage' },
-    q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een bibliothecaris bewaakt het gloeiende boek — verdoof hem met de magische paddenstoelen (geplukt bij de put op de binnenplaats)', en: 'Through the secret gate you reach the castle library. A librarian guards the glowing book — put him to sleep with the magic mushrooms (picked by the well in the courtyard)' },
-    q_takespell:{ nl: 'De bibliothecaris slaapt — pak nu de Spreuk van Onzichtbaarheid uit het gloeiende boek op de lessenaar', en: 'The librarian is asleep — now take the Spell of Invisibility from the glowing book on the lectern' },
+    q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een oude tovenaar bewaakt het gloeiende boek — de raaf op de vensterbank weet vast raad (psst: hij fluistert iets over paddenstoelen bij de put)', en: 'Through the secret gate you reach the castle library. An old wizard guards the glowing book — the raven on the windowsill surely knows a trick (psst: he whispers something about mushrooms by the well)' },
+    q_takespell:{ nl: 'De tovenaar zweeft in hogere sferen — kijk nu in het gloeiende boek op de lessenaar: daar wacht de Zonsverduistering-spreuk', en: 'The wizard floats among the stars — look in the glowing book on the lectern: the Solar Eclipse spell awaits' },
+    q_castEclipse:{ nl: 'Je hebt de Zonsverduistering-spreuk! Tik hem aan in je tas en spreek hem uit bij het grote raam van de bibliotheek', en: 'You have the Solar Eclipse spell! Tap it in your bag and speak it at the great library window' },
+    q_telescope:{ nl: 'De zon is verduisterd en de sterren fonkelen — kijk snel door de telescoop bij het raam!', en: 'The sun is darkened and the stars sparkle — quick, look through the telescope by the window!' },
+    q_altar:    { nl: 'Je zag drie gloeiende tekens tussen de sterren. Zet ze op het sterren-altaar rechts in de bibliotheek — elk teken in het gouden vakje', en: 'You saw three glowing signs among the stars. Set them on the star altar at the right of the library — each sign in its golden box' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
     q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
@@ -143,7 +146,9 @@ const GAME = {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Hij voelt vertrouwd in je hand — met de juiste spreuk in je boek kun je hem laten werken.', en: 'My father’s wooden staff. It feels familiar in your hand — with the right spell in your book you can make it work.' } },
     invisspell: { name: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' }, icon: '👻', img: 'assets/art/item-invisspell.png', sparkle: true, border: 'blue',
-             look: { nl: 'De onzichtbaarheidsspreuk uit het gloeiende boek in de kasteelbibliotheek. De letters lijken weg te vagen terwijl je kijkt — wie weet welke deuren dit in Deel 3 opent...', en: 'The invisibility spell from the glowing book in the castle library. Its letters seem to fade away as you watch — who knows what doors this opens in Part 3...' } },
+             look: { nl: 'De onzichtbaarheidsspreuk uit het sterren-altaar in de kasteelbibliotheek. De letters lijken weg te vagen terwijl je kijkt — wie weet welke deuren dit in Deel 3 opent...', en: 'The invisibility spell from the star altar in the castle library. Its letters seem to fade away as you watch — who knows what doors this opens in Part 3...' } },
+    eclipsspell: { name: { nl: 'Zonsverduistering-spreuk', en: 'Solar Eclipse Spell' }, icon: '🌑', img: 'assets/art/item-eclipsspell.png', border: 'blue',
+             look: { nl: 'De Spreuk van de Zonsverduistering — “Umbra Solis” — uit het gloeiende boek. Spreek hem uit bij het grote raam van de bibliotheek en de zon dooft, zodat de sterren zich overdag tonen. (Tik de spreuk aan om hem uit te spreken.)', en: 'The Spell of the Solar Eclipse — “Umbra Solis” — from the glowing book. Speak it at the great library window and the sun goes dark, so the stars show themselves by day. (Tap the spell to cast it.)' } },
     hammer: { name: { nl: 'Smidshamer', en: 'Blacksmith’s Hammer' }, icon: '🔨', img: 'assets/art/item-hammer.png',
              look: { nl: 'Een zware smidshamer uit de sokkel van het ridderbeeld. Hiermee kun je bij de smidse het zwaard van de held smeden.', en: 'A heavy blacksmith’s hammer from the plinth of the knight statue. With it you can forge the hero’s sword at the smithy.' } },
     swordBroken: { name: { nl: 'Gebroken Zwaard', en: 'Broken Sword' }, icon: '🗡️', img: 'assets/art/item-sword-broken.png',
@@ -243,8 +248,11 @@ const GAME = {
   ],
 
   questRules: [
-    { when: { flag: 'librarianAsleep', notFlag: 'gotInvisSpell' },       quest: 'q_takespell' },     // bibliothecaris slaapt -> pak de onzichtbaarheidsspreuk
-    { when: { flag: 'secretGateOpen', notFlag: 'gotInvisSpell' },        quest: 'q_library' },       // poort open -> de bibliotheek in, verdoof de bibliothecaris met de paddenstoelen
+    { when: { flag: 'sawStars', notFlag: 'gotInvisSpell' },              quest: 'q_altar' },         // tekens gezien -> zet ze op het sterren-altaar
+    { when: { flag: 'eclipseActive', notFlag: 'sawStars' },              quest: 'q_telescope' },     // eclips actief -> kijk door de telescoop
+    { when: { flag: 'gotEclipseSpell', notFlag: 'eclipseActive' },       quest: 'q_castEclipse' },   // spreuk binnen -> spreek hem uit
+    { when: { flag: 'wizardTripping', notFlag: 'gotEclipseSpell' },      quest: 'q_takespell' },     // tovenaar in trance -> kijk in het gloeiende boek
+    { when: { flag: 'secretGateOpen', notFlag: 'gotInvisSpell' },        quest: 'q_library' },       // poort open -> de bibliotheek in, geef de tovenaar de paddenstoelen
     { when: { has: 'key', flag: 'fountainSolved' },                      quest: 'q_usekey' },        // sleutel + slot zichtbaar -> open de poort
     { when: { has: 'key' },                                              quest: 'q_fountainpuzzle' },// sleutel maar slot nog verborgen -> los de fontein op
     { when: { has: 'necklace' },                                         quest: 'q_givenecklace' },  // ketting -> naar de prinses
@@ -727,13 +735,13 @@ const GAME = {
       name: { nl: 'De Kasteelbibliotheek', en: 'The Castle Library' },
       bg: 'assets/art/scene-library.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-library-night.jpg', flag: 'gotInvisSpell' }   // zodra je op het gloeiende boek klikt (spreuk gepakt) valt de nacht in de bibliotheek
+        { img: 'assets/art/scene-library-night.jpg', flag: 'eclipseActive' }   // de zonsverduistering-spreuk dooft de zon: nacht + eclips door het raam
       ],
       charFilter: 'saturate(1.04) brightness(0.98) sepia(0.14) contrast(1.03)',   // warm kaarslicht zodat de figuren in de bibliotheek opgaan
       heroShade: 0.92,
       entryText: {
-        nl: 'De geheime gang komt uit in een stille, stoffige kasteelbibliotheek. Hoge boekenkasten vol oude folianten reiken tot het plafond, gouden zonlicht valt door een groot glas-in-loodraam, en midden in de zaal gloeit een boek op een sierlijke lessenaar. Maar... een strenge oude bibliothecaris waakt erover.',
-        en: 'The secret passage opens into a quiet, dusty castle library. Tall bookcases of ancient tomes rise to the ceiling, golden sunlight streams through a great stained-glass window, and in the middle of the hall a book glows on an ornate lectern. But... a stern old librarian keeps watch over it.'
+        nl: 'De geheime gang komt uit in een stille kasteelbibliotheek. Hoge boekenkasten reiken tot het plafond, bij het grote raam staat een koperen telescoop, en midden in de zaal gloeit een boek op een sierlijke lessenaar. Een oude tovenaar tuurt erin, en op de vensterbank zit... de raaf!',
+        en: 'The secret passage opens into a quiet castle library. Tall bookcases rise to the ceiling, a brass telescope stands by the great window, and in the middle of the hall a book glows on an ornate lectern. An old wizard peers into it, and on the windowsill sits... the raven!'
       },
       playerStart: { x: 300, y: 298 },
       spawnFrom: { garden: { x: 300, y: 298 } },
@@ -748,7 +756,8 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' }   // de oude bibliothecaris bij de lessenaar
+        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.0, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' },   // de oude tovenaar bij de lessenaar
+        { id: 'libRaven', sprite: 'ravenPerch', x: 340, y: 148, scale: 0.66, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank bij het grote raam
       ],
       worldItems: [],
       hotspots: [
@@ -761,25 +770,42 @@ const GAME = {
           exit: { to: 'garden', travelText: { nl: 'Je sluipt de gang weer door, terug naar de slottuin.', en: 'You slip back through the passage, into the castle garden.' } }
         },
         {
+          id: 'libRaven',
+          name: { nl: 'De Raaf', en: 'The Raven' },
+          rect: { x: 306, y: 120, w: 54, h: 50 },
+          walkTo: { x: 330, y: 252 },
+          look: (state) => state.flags.gotInvisSpell
+            ? { nl: '\u201CKrra! Goed gedaan, kleine tovenaar. De sterren vergeten jou niet.\u201D De raaf buigt plechtig zijn kopje.', en: '\u201CCaw! Well done, little wizard. The stars will not forget you.\u201D The raven bows his head solemnly.' }
+            : state.flags.sawStars
+            ? { nl: '\u201CKrra! Je z\u00E1g ze, h\u00E8 \u2014 de drie tekens tussen de sterren! Zet ze op het sterren-altaar daar rechts, alle drie in het gouden vakje.\u201D', en: '\u201CCaw! You SAW them \u2014 the three signs among the stars! Set them on the star altar to the right, all three in the golden box.\u201D' }
+            : state.flags.eclipseActive
+            ? { nl: '\u201CKrra! De zon is gedoofd \u2014 kijk N\u00DA door de telescoop, voordat het licht terugkeert!\u201D', en: '\u201CCaw! The sun is dark \u2014 look through the telescope NOW, before the light returns!\u201D' }
+            : state.flags.gotEclipseSpell
+            ? { nl: '\u201CKrra! Je hebt de spreuk! Tik hem aan in je tas en spreek hem uit \u2014 dan dooft de zon en tonen de sterren zich.\u201D', en: '\u201CCaw! You have the spell! Tap it in your bag and speak it \u2014 the sun will darken and the stars will show themselves.\u201D' }
+            : state.flags.wizardTripping
+            ? { nl: '\u201CKrra! Moet je hem zien zweven... Sn\u00E9l, kijk nu in het gloeiende boek \u2014 de spreuk van de zonsverduistering wacht op je!\u201D', en: '\u201CCaw! Look at him float... Quick, look in the glowing book now \u2014 the eclipse spell awaits you!\u201D' }
+            : { nl: 'De raaf zit parmantig op de vensterbank. \u201CKrra! Die oude tovenaar wijkt geen duimbreed van dat boek... Maar ik weet w\u00E1t hij niet kan weerstaan: paddenstoelen! Van die glimmende, bij de oude put op de binnenplaats.\u201D', en: 'The raven perches proudly on the windowsill. \u201CCaw! That old wizard will not budge an inch from that book... But I know what he cannot resist: mushrooms! The shiny kind, by the old well in the courtyard.\u201D' }
+        },
+        {
           id: 'shelves',
           name: { nl: 'De Boekenkasten', en: 'The Bookcases' },
-          rect: { x: 332, y: 40, w: 150, h: 170 },
-          walkTo: { x: 430, y: 252 },
-          look: { nl: 'Rijen op rijen eeuwenoude boeken: kronieken van Eldoria, verboden spreukenboeken, vergeelde kaarten. Eén boek, midden op de lessenaar, gloeit zacht na — dáár moet je zijn.', en: 'Rows upon rows of ancient books: chronicles of Eldoria, forbidden spell-tomes, yellowed maps. One book, on the lectern in the middle, glows softly — that’s the one you want.' }
+          rect: { x: 430, y: 40, w: 100, h: 120 },
+          walkTo: { x: 460, y: 268 },
+          look: { nl: 'Rijen op rijen eeuwenoude boeken: kronieken van Eldoria, sterrenkaarten, verboden spreukenboeken. Maar \u00E9\u00E9n boek, op de lessenaar, gloeit zachtjes \u2014 d\u00E1\u00E1r moet je zijn.', en: 'Rows upon rows of ancient tomes: chronicles of Eldoria, star charts, forbidden spellbooks. But one book, on the lectern, glows softly \u2014 that is the one you want.' }
         },
         {
           id: 'librarian',
-          name: { nl: 'De Bibliothecaris', en: 'The Librarian' },
+          name: { nl: 'De Tovenaar', en: 'The Wizard' },
           rect: { x: 180, y: 150, w: 74, h: 112 },
           walkTo: { x: 168, y: 256 },
-          look: (state) => state.flags.librarianAsleep
-            ? { nl: 'De oude bibliothecaris ligt onderuitgezakt tegen de lessenaar te snurken, diep in slaap door de paddenstoel-sporen. Nu kun je ongestoord bij het gloeiende boek.', en: 'The old librarian slumps against the lectern, snoring, deep asleep from the mushroom spores. Now you can reach the glowing book undisturbed.' }
-            : { nl: 'Een strenge oude bibliothecaris met een lange grijze baard en een halvemaanbrilletje waakt over het gloeiende boek. “Niemand raakt de verboden spreuken aan!” bromt hij. Zolang hij wakker is, kom je er niet bij... Hoe krijg je hem in slaap? Misschien met iets magisch — die paddenstoelen bij de put?', en: 'A stern old librarian with a long grey beard and half-moon spectacles guards the glowing book. “No one touches the forbidden spells!” he grumbles. While he’s awake you can’t get to it... How could you put him to sleep? Perhaps with something magical — those mushrooms by the well?' },
+          look: (state) => state.flags.wizardTripping
+            ? { nl: 'De oude tovenaar zweeft bijna. Hij staart met grote ogen naar het plafond en giechelt: \u201CDe sterren... de sterren d\u00E1nsen! Ik zie de hemelwielen draaien...\u201D Het gloeiende boek ziet hij allang niet meer.', en: 'The old wizard is practically floating. He stares wide-eyed at the ceiling and giggles: \u201CThe stars... the stars are DANCING! I can see the heavens turning...\u201D He has long forgotten the glowing book.' }
+            : { nl: 'Een oude tovenaar met een lange grijze baard tuurt in het gloeiende boek. \u201CNiemand raakt de sterrenspreuken aan!\u201D bromt hij. Maar zijn neus snuffelt dromerig... alsof hij ergens naar hunkert. (De raaf op de vensterbank grinnikt: \u201CKrra... paddenstoelen!\u201D)', en: 'An old wizard with a long grey beard peers into the glowing book. \u201CNo one touches the star spells!\u201D he grumbles. But his nose sniffs dreamily... as if he craves something. (The raven on the sill snickers: \u201CCaw... mushrooms!\u201D)' },
           use: {
             mushroom: {
               consume: 'mushroom',
-              setFlag: 'librarianAsleep',
-              text: { nl: 'Je houdt de magische paddenstoelen vlak onder zijn neus en knijpt ze fijn. Een wolkje glinsterende slaapsporen dwarrelt op. De bibliothecaris snuift, zijn oogleden worden loodzwaar, hij geeuwt diep... en zakt zachtjes snurkend in slaap tegen de lessenaar. De weg naar het gloeiende boek is vrij!', en: 'You hold the magic mushrooms right under his nose and crush them. A puff of glittering sleep-spores drifts up. The librarian sniffs, his eyelids grow heavy, he yawns deeply... and slumps softly snoring against the lectern. The way to the glowing book is clear!' }
+              setFlag: 'wizardTripping',
+              text: { nl: 'Je geeft de tovenaar de glimmende paddenstoelen. Zijn ogen lichten op \u2014 h\u00F3p, in \u00E9\u00E9n keer naar binnen! Even is het stil... dan beginnen zijn pupillen te draaien als sterrenwielen. \u201COoooh... ik zie het hele heelal...\u201D giechelt hij, en hij danst wankelend tussen de boekenkasten. Het gloeiende boek is nu onbewaakt!', en: 'You hand the wizard the shiny mushrooms. His eyes light up \u2014 gulp, down in one! For a moment all is still... then his pupils start spinning like star-wheels. \u201COoooh... I can see the whole universe...\u201D he giggles, tottering off in a dance between the bookcases. The glowing book is unguarded!' }
             }
           }
         },
@@ -788,17 +814,57 @@ const GAME = {
           name: { nl: 'Het Gloeiende Boek', en: 'The Glowing Book' },
           rect: { x: 298, y: 118, w: 84, h: 96 },
           walkTo: { x: 332, y: 256 },
+          look: (state) => state.flags.gotEclipseSpell
+            ? { nl: 'Het grote boek is uitgedoofd \u2014 de zonsverduistering-spreuk staat nu in jouw toverboek.', en: 'The great book has gone dark \u2014 the eclipse spell is now in your own spellbook.' }
+            : state.flags.wizardTripping
+            ? { nl: 'Het boek slaat vanzelf open bij een pagina vol sterren: de Spreuk van de Zonsverduistering! Pak hem nu de tovenaar in hogere sferen is.', en: 'The book falls open at a page full of stars: the Spell of the Solar Eclipse! Take it while the wizard is away with the stars.' }
+            : { nl: 'Een groot boek op de lessenaar gloeit zacht. De tovenaar houdt het scherp in de gaten \u2014 je durft het niet aan te raken.', en: 'A great book on the lectern glows softly. The wizard watches it sharply \u2014 you dare not touch it.' },
+          requiresFlag: 'wizardTripping',
+          blockedText: { nl: '\u201CNiemand raakt de sterrenspreuken aan!\u201D snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201CKrra... paddenstoelen, bij de put!\u201D)', en: '\u201CNo one touches the star spells!\u201D snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201CCaw... mushrooms, by the well!\u201D)' },
+          gives: {
+            item: 'eclipsspell',
+            setFlag: 'gotEclipseSpell',
+            giveText: { nl: 'Je legt je toverboek naast het gloeiende boek en de zilveren letters glijden over \u2014 de ZONSVERDUISTERING-SPREUK, \u201CUmbra Solis\u201D, schrijft zich in jouw boek! (Tik de spreuk aan in je tas om hem uit te spreken.)', en: 'You lay your spellbook beside the glowing book and the silver letters glide across \u2014 the SOLAR ECLIPSE SPELL, \u201CUmbra Solis\u201D, writes itself into your book! (Tap the spell in your bag to speak it.)' },
+            emptyText: { nl: 'Het boek is uitgedoofd; de spreuk staat al in jouw toverboek.', en: 'The book has gone dark; the spell is already in your spellbook.' }
+          }
+        },
+        {
+          id: 'telescope',
+          name: { nl: 'De Telescoop', en: 'The Telescope' },
+          rect: { x: 364, y: 96, w: 76, h: 88 },
+          walkTo: { x: 400, y: 252 },
+          zoomImg: 'assets/art/telescope-view.jpg',
+          zoomRequiresFlag: 'eclipseActive',
+          zoomBlockedText: { nl: 'Je tuurt door de koperen telescoop, maar het felle daglicht verblindt alles \u2014 geen ster te zien. Alleen als de zon zou doven, zouden de sterren zich overdag tonen...', en: 'You peer through the brass telescope, but the bright daylight blinds everything \u2014 not a star in sight. Only if the sun went dark would the stars show themselves by day...' },
+          setFlag: 'sawStars',
+          look: { nl: 'Een prachtige koperen telescoop, gericht op de hemel boven het grote raam.', en: 'A beautiful brass telescope, aimed at the sky above the great window.' }
+        },
+        {
+          id: 'altar',
+          name: { nl: 'Het Sterren-Altaar', en: 'The Star Altar' },
+          rect: { x: 432, y: 168, w: 100, h: 96 },
+          walkTo: { x: 462, y: 270 },
           look: (state) => state.flags.gotInvisSpell
-            ? { nl: 'De lessenaar is leeg — de onzichtbaarheidsspreuk staat nu veilig in je eigen toverboek.', en: 'The lectern is empty — the invisibility spell is now safely in your own spellbook.' }
-            : state.flags.librarianAsleep
-            ? { nl: 'Het grote boek op de lessenaar gloeit zacht en slaat open bij de Spreuk van Onzichtbaarheid. De bibliothecaris snurkt — pak de spreuk nu!', en: 'The great book on the lectern glows softly and falls open at the Spell of Invisibility. The librarian snores — take the spell now!' }
-            : { nl: 'Een groot boek op de lessenaar gloeit zacht. De strenge bibliothecaris houdt het scherp in de gaten — zolang hij wakker is, durf je het niet aan te raken.', en: 'A great book on the lectern glows softly. The stern librarian watches it sharply — while he’s awake you dare not touch it.' },
-          requiresFlag: 'librarianAsleep',
-          blockedText: { nl: 'De bibliothecaris houdt het gloeiende boek scherp in de gaten. Zolang hij wakker is, kun je het niet pakken — je moet hem eerst in slaap krijgen (met de magische paddenstoelen).', en: 'The librarian watches the glowing book sharply. While he’s awake you can’t take it — you must put him to sleep first (with the magic mushrooms).' },
-          endGame: true,
-          give: 'invisspell',
-          setFlag: 'gotInvisSpell',
-          enterText: { nl: 'Op je tenen sluip je langs de snurkende bibliothecaris naar de lessenaar. Het gloeiende boek slaat vanzelf open bij de Spreuk van Onzichtbaarheid. Je legt je eigen toverboek ernaast en de zilveren letters glijden over — woord voor woord schrijft de onzichtbaarheidsspreuk zich in jouw boek! Met de staf van je vader, het herstelde zwaard van Sir Aldric én nu drie spreuken in je toverboek ben je klaar voor wat er dieper in het kasteel op je wacht... (wordt vervolgd in Deel 3)', en: 'On tiptoe you slip past the snoring librarian to the lectern. The glowing book falls open of itself at the Spell of Invisibility. You lay your own spellbook beside it and the silver letters glide across — word by word the invisibility spell writes itself into your book! With your father’s staff, Sir Aldric’s reforged sword, and now three spells in your spellbook, you are ready for whatever waits deeper in the castle... (to be continued in Part 3)' }
+            ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
+            : { nl: 'Een stenen altaar met drie schuifrijen vol vreemde tekens, en rechts drie gouden vakjes onder elkaar. Welke drie tekens horen daar? De sterren weten het antwoord...', en: 'A stone altar with three sliding rows of strange signs, and three golden boxes on the right. Which three signs belong there? The stars know the answer...' },
+          starPuzzle: {
+            requiresFlag: 'sawStars',
+            blockedText: { nl: 'Drie rijen schuivende tekens en drie gouden vakjes... maar welke tekens horen erin? Je hebt geen idee \u2014 misschien staat het antwoord in de sterren geschreven.', en: 'Three rows of sliding signs and three golden boxes... but which signs belong there? You have no idea \u2014 perhaps the answer is written in the stars.' },
+            img: 'assets/art/puzzle-altar.jpg',
+            title: { nl: 'Het Sterren-Altaar', en: 'The Star Altar' },
+            hint: { nl: 'Schuif elke rij (tik links of rechts van een rij) tot het teken uit de sterrenkaart in het gouden vakje staat.', en: 'Slide each row (tap left or right of a row) until the sign from the star chart sits in the golden box.' },
+            rows: [
+              { symbols: ['\u03A8', '\u03A9', '\u0394', '\u2644', '\u03A6'], start: 2 },
+              { symbols: ['\u2643', '\u03A6', '\u03A8', '\u03A9', '\u0394'], start: 3 },
+              { symbols: ['\u2644', '\u0394', '\u03A9', '\u2643', '\u03A8'], start: 1 }
+            ],
+            targets: ['\u03A8', '\u2643', '\u2644'],
+            setFlag: 'gotInvisSpell',
+            give: 'invisspell',
+            win: true,
+            solvedText: { nl: 'De drie sterren-tekens staan op \u00E9\u00E9n lijn en gloeien fel op! Het altaar zoemt, een geheime stenen lade schuift open... daarin ligt een zilveren bladzijde die zich meteen in je toverboek schrijft: de SPREUK VAN ONZICHTBAARHEID! Met de staf van je vader, het herstelde zwaard van Sir Aldric \u00E9n je nieuwe spreuken ben je klaar voor wat er dieper in het kasteel wacht... (wordt vervolgd in Deel 3)', en: 'The three star signs stand in one line and blaze with light! The altar hums, a secret stone drawer slides open... inside lies a silver page that writes itself straight into your spellbook: the SPELL OF INVISIBILITY! With your father\u2019s staff, Sir Aldric\u2019s reforged sword and your new spells, you are ready for whatever waits deeper in the castle... (to be continued in Part 3)' },
+            doneText: { nl: 'Het altaar rust; de tekens gloeien zachtjes na.', en: 'The altar rests; the signs glow faintly.' }
+          }
         }
       ]
     }

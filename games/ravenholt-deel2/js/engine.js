@@ -2695,6 +2695,7 @@
   function castSpell(spellId) {
     spellId = spellId || 'spell';
     const isDragon = spellId === 'dragonspell';
+    if (spellId === 'eclipsspell') { castEclipse(); return; }
     if (!isDragon && !state.flags.spellWritten) return;
     if (isDragon && !state.flags.dragonSpellLearned) return;
     if (msgOpen()) showNextMsg();
@@ -2734,6 +2735,28 @@
     sfx('combine'); triggerCastFx();
     if (isDragon) { say({ nl: 'De drakenspreuk gonst diep in je staf en een schaduwteken flikkert op... maar hier is niemand om de stuipen op het lijf te jagen.', en: 'The dragon spell hums deep in your staff and a shadow-sign flickers up... but there’s no one here to strike with terror.' }); return; }
     say({ nl: 'Het spreukteken van de dansende bloemen gloeit blauw op je vingertoppen... maar hier is niets levends om te laten dansen.', en: 'The dancing-flowers spell-sign glows blue at your fingertips... but there’s nothing alive here to make dance.' });
+  }
+  /* De zonsverduistering-spreuk: alleen in de bibliotheek dooft de zon — de zaal wordt
+     nacht (eclips door het raam) en dán kun je door de telescoop de sterren zien. */
+  function castEclipse() {
+    if (!state.flags.gotEclipseSpell) return;
+    if (msgOpen()) showNextMsg();
+    if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
+    if (state.currentScene !== 'library') {
+      sfx('combine'); triggerCastFx();
+      say({ nl: 'De spreuk gonst in je staf... maar hier buiten voelt hij te zwak. Bij het grote raam van de bibliotheek — dáár moet je hem uitspreken.', en: 'The spell hums in your staff... but out here it feels too weak. At the great library window — that is where you must speak it.' });
+      return;
+    }
+    if (state.flags.eclipseActive) {
+      say({ nl: 'De zon is al verduisterd — de sterren fonkelen door het grote raam. Kijk door de telescoop!', en: 'The sun is already darkened — the stars sparkle through the great window. Look through the telescope!' });
+      return;
+    }
+    state.flags.eclipseActive = true;
+    sfx('combine'); triggerCastFx();
+    paintBackground();
+    burstAt(300, 120, { n: 26, col: '150,170,255', up: 10, life: 1.4, spread: 40 });
+    updateQuest();
+    say({ nl: '“Umbra Solis!” De woorden trillen door de zaal... Buiten schuift langzaam een zwarte schijf voor de zon. Het daglicht dooft, de sterren springen aan de hemel — een zonsverduistering! Nu kun je door de telescoop kijken.', en: '“Umbra Solis!” The words tremble through the hall... Outside, a black disc slides across the sun. Daylight fades, stars leap into the sky — a solar eclipse! Now you can look through the telescope.' });
   }
   if (elSpellBtn) elSpellBtn.addEventListener('click', () => {
     elSpellBtn.classList.remove('cast'); void elSpellBtn.offsetWidth; elSpellBtn.classList.add('cast');
@@ -2915,7 +2938,7 @@
   function renderInventory() {
     elInvbar.innerHTML = '';
     /* De spreuken (dans + draak) staan altijd in de meest rechtse vakjes; de rest links. */
-    const spells = ['spell', 'dragonspell', 'invisspell'].filter((id) => state.inventory.includes(id));
+    const spells = ['spell', 'dragonspell', 'eclipsspell', 'invisspell'].filter((id) => state.inventory.includes(id));
     const others = state.inventory.filter((id) => id !== 'spell' && id !== 'dragonspell' && id !== 'invisspell');
     const slots = Math.max(MIN_SLOTS, others.length + spells.length);
     const firstSpell = slots - spells.length;   // index van het eerste spreuk-vakje (rechts)
@@ -2955,7 +2978,7 @@
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
     /* De dans-spreuk werkt rechtstreeks vanuit je tas: tik = uitspreken. */
-    if (itemId === 'spell' || itemId === 'dragonspell') {
+    if (itemId === 'spell' || itemId === 'dragonspell' || itemId === 'eclipsspell') {
       state.selectedItem = null;
       const sl = elInvbar.querySelector('.inv-slot[data-item="' + itemId + '"]');
       if (sl) { sl.classList.remove('cast'); void sl.offsetWidth; sl.classList.add('cast'); setTimeout(() => sl.classList.remove('cast'), 660); }
@@ -3839,8 +3862,8 @@
   const W_SAFE = 12;                                   // binnen zoveel px van het midden is het veilig
   let dialHs = null, wDepth = 0, wSolved = false, wAnim = null, wSlipT = 0, wPhase0 = 0, wLastLower = 0;
 
-  function pendAmp() { return 13 + wDepth * 5; }                                   // uitzwaai groeit met de diepte
-  function pendPeriod() { return Math.max(950, 1650 - wDepth * 95); }              // en het slingeren wordt sneller
+  function pendAmp() { return 13 + wDepth * 4; }                                   // uitzwaai groeit met de diepte
+  function pendPeriod() { return Math.max(1350, 1700 - wDepth * 50); }             // iets sneller naar het einde, maar rustig genoeg om te timen
   function pendOff(now) { return Math.sin((now - wPhase0) / pendPeriod() * Math.PI * 2) * pendAmp(); }
 
   function openDialPuzzle(hs) {
@@ -3961,24 +3984,10 @@
     const safe = Math.abs(off) <= W_SAFE;
     x.strokeStyle = '#b39869'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(cx, 59); x.lineTo(bx2, by - 12); x.stroke();
-    /* veilige midden-zone: zachte groene lichtbaan door de schacht */
-    const zg = x.createLinearGradient(cx - W_SAFE - 6, 0, cx + W_SAFE + 6, 0);
-    const za = safe ? 0.16 : 0.07;
-    zg.addColorStop(0, 'rgba(126,230,110,0)'); zg.addColorStop(0.5, 'rgba(126,230,110,' + za + ')'); zg.addColorStop(1, 'rgba(126,230,110,0)');
-    x.fillStyle = zg; x.fillRect(cx - W_SAFE - 6, 62, (W_SAFE + 6) * 2, wy - 66);
-    x.setLineDash([3, 4]); x.strokeStyle = safe ? 'rgba(126,230,110,.6)' : 'rgba(126,214,110,.28)'; x.lineWidth = 2;
-    x.beginPath(); x.moveTo(cx - W_SAFE, 66); x.lineTo(cx - W_SAFE, wy - 4); x.moveTo(cx + W_SAFE, 66); x.lineTo(cx + W_SAFE, wy - 4); x.stroke();
-    x.setLineDash([]);
-    /* zachte gloed om de emmer als het veilig is */
-    if (safe) {
-      const gg = x.createRadialGradient(bx2, by - 6, 3, bx2, by - 6, 36);
-      gg.addColorStop(0, 'rgba(126,230,110,.30)'); gg.addColorStop(1, 'rgba(126,230,110,0)');
-      x.fillStyle = gg; x.fillRect(bx2 - 36, by - 42, 72, 74);
-    }
-    /* emmer */
+    /* emmer (rustig beeld: alléén de balk bovenin kleurt groen/rood) */
     x.fillStyle = '#6b4a2b';
     x.beginPath(); x.moveTo(bx2 - 17, by - 10); x.lineTo(bx2 + 17, by - 10); x.lineTo(bx2 + 13, by + 12); x.lineTo(bx2 - 13, by + 12); x.closePath(); x.fill();
-    x.strokeStyle = safe ? '#7ed66e' : '#caa15a'; x.lineWidth = 2; x.stroke();     // groen randje = nu mag het
+    x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
     x.strokeStyle = '#8a6a3a'; x.beginPath(); x.moveTo(bx2 - 16, by - 4); x.lineTo(bx2 + 16, by - 4); x.stroke();
     /* raaf in de emmer — duidelijk herkenbaar: staart, vleugel, glanzende veren */
     const rb = Math.sin(now / 300) * 1.5;
@@ -4029,6 +4038,122 @@
     if (dr) dr.addEventListener('click', winchLower);
     if (dx) dx.addEventListener('click', dialClose);
     elDial.addEventListener('click', (e) => { if (e.target === elDial) dialClose(); });
+  }
+
+  /* ---------- Sterren-altaar: drie schuifrijen ----------
+     Drie rijen met tekens schuiven langs bronzen rails; zet in elke rij het juiste
+     teken (uit de sterrenkaart door de telescoop) in het gouden vakje rechts. */
+  const elAltar       = document.getElementById('altar-screen');
+  const elAltarCanvas = document.getElementById('altar-canvas');
+  const elAltarTitle  = document.getElementById('altar-title');
+  const elAltarHint   = document.getElementById('altar-hint');
+  const elAltarStatus = document.getElementById('altar-status');
+  const altCtx = elAltarCanvas ? elAltarCanvas.getContext('2d') : null;
+  let altarHs = null, altOff = [0, 0, 0], altSolved = false, altAnim = null, altBg = null;
+  const ALT_ROWS_Y = [78, 158, 238], ALT_X0 = 58, ALT_SLOT = 54, ALT_N = 5;
+
+  function openStarPuzzle(hs) {
+    const pz = hs.starPuzzle;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    altarHs = hs; altSolved = false;
+    altOff = pz.rows.map((r) => r.start || 0);
+    if (!altBg) { altBg = new Image(); altBg.src = (pz.img || 'assets/art/puzzle-altar.jpg') + AV; }
+    if (elAltarTitle)  elAltarTitle.textContent  = L(pz.title);
+    if (elAltarHint)   elAltarHint.textContent   = L(pz.hint);
+    if (elAltarStatus) elAltarStatus.textContent = '';
+    if (elAltar) elAltar.hidden = false;
+    sfx('tap');
+    if (!altAnim) altLoop();
+  }
+  function altarClose() { if (elAltar) elAltar.hidden = true; altarHs = null; if (altAnim) { cancelAnimationFrame(altAnim); altAnim = null; } }
+  function altShown(r, p) { const row = altarHs.starPuzzle.rows[r]; return row.symbols[(p + altOff[r]) % row.symbols.length]; }
+  function altShift(r, dir) {
+    if (!altarHs || altSolved) return;
+    const len = altarHs.starPuzzle.rows[r].symbols.length;
+    altOff[r] = (altOff[r] + (dir > 0 ? 1 : len - 1)) % len;
+    sfx('tap');
+    const pz = altarHs.starPuzzle;
+    if (pz.rows.every((row, i) => altShown(i, ALT_N - 1) === pz.targets[i])) {   // alle drie de tekens rechts op één lijn
+      altSolved = true;
+      state.flags[pz.setFlag] = true;
+      if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
+      sfx('combine');
+      const h = altarHs;
+      if (elAltarStatus) elAltarStatus.textContent = lang === 'nl' ? 'De tekens gloeien op — het altaar ontwaakt!' : 'The signs glow — the altar awakens!';
+      setTimeout(() => {
+        altarClose();
+        if (pz.solvedText) say(pz.solvedText, hsSpeaker(h));
+        if (pz.win) { pendingWin = true; sfx('win'); }
+        updateQuest();
+      }, 1000);
+    }
+  }
+  function altLoop() {
+    if (!altarHs || !elAltar || elAltar.hidden) { altAnim = null; return; }
+    drawAltar(performance.now());
+    altAnim = requestAnimationFrame(altLoop);
+  }
+  function drawAltar(now) {
+    if (!altCtx || !altarHs) return;
+    const cv = elAltarCanvas, x = altCtx, W = cv.width, H = cv.height;
+    const pz = altarHs.starPuzzle;
+    x.clearRect(0, 0, W, H);
+    if (altBg && altBg.complete && altBg.naturalWidth > 0) x.drawImage(altBg, 0, 0, W, H);
+    else { x.fillStyle = '#221c16'; x.fillRect(0, 0, W, H); }
+    for (let r = 0; r < 3; r++) {
+      const ry = ALT_ROWS_Y[r];
+      /* rail: donkere gleuf met bronzen rand */
+      x.fillStyle = 'rgba(10,8,6,.72)';
+      x.fillRect(ALT_X0 - 6, ry - 26, ALT_SLOT * ALT_N + 12, 52);
+      x.strokeStyle = '#8a6a3a'; x.lineWidth = 2;
+      x.strokeRect(ALT_X0 - 6, ry - 26, ALT_SLOT * ALT_N + 12, 52);
+      for (let p = 1; p < ALT_N; p++) {                    // vakjes-scheidingen
+        x.strokeStyle = 'rgba(138,106,58,.4)'; x.lineWidth = 1;
+        x.beginPath(); x.moveTo(ALT_X0 + p * ALT_SLOT, ry - 22); x.lineTo(ALT_X0 + p * ALT_SLOT, ry + 22); x.stroke();
+      }
+      /* het gouden doel-vakje rechts (pulserende gloed) */
+      const gx = ALT_X0 + (ALT_N - 1) * ALT_SLOT;
+      const ok = altShown(r, ALT_N - 1) === pz.targets[r];
+      const pu = 0.5 + 0.5 * Math.sin(now / 420);
+      x.strokeStyle = ok ? 'rgba(126,230,110,' + (0.75 + 0.25 * pu) + ')' : 'rgba(255,211,107,' + (0.55 + 0.4 * pu) + ')';
+      x.lineWidth = 3;
+      x.strokeRect(gx + 3, ry - 23, ALT_SLOT - 6, 46);
+      /* tekens op de rij */
+      x.font = '30px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      for (let p = 0; p < ALT_N; p++) {
+        const sxp = ALT_X0 + p * ALT_SLOT + ALT_SLOT / 2;
+        const sym = altShown(r, p);
+        x.shadowColor = 'rgba(120,170,255,.9)'; x.shadowBlur = (p === ALT_N - 1) ? 12 : 6;
+        x.fillStyle = (p === ALT_N - 1) ? '#dbe9ff' : 'rgba(190,214,255,.82)';
+        x.fillText(sym, sxp, ry + 1);
+        x.shadowBlur = 0;
+      }
+      /* pijlen links + rechts van de rij */
+      for (const [ax, dir, glyph] of [[ALT_X0 - 26, -1, '◀'], [ALT_X0 + ALT_SLOT * ALT_N + 26, 1, '▶']]) {
+        x.fillStyle = '#241a12'; x.beginPath(); x.arc(ax, ry, 16, 0, Math.PI * 2); x.fill();
+        x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
+        x.fillStyle = '#e7cf86'; x.font = '13px Georgia, serif';
+        x.fillText(glyph, ax, ry + 1);
+      }
+      x.font = '30px Georgia, serif';
+    }
+  }
+  if (elAltar && elAltarCanvas) {
+    elAltarCanvas.addEventListener('click', (e) => {
+      if (!altarHs || altSolved) return;
+      const rc = elAltarCanvas.getBoundingClientRect();
+      const px = (e.clientX - rc.left) * (elAltarCanvas.width / rc.width);
+      const py = (e.clientY - rc.top) * (elAltarCanvas.height / rc.height);
+      for (let r = 0; r < 3; r++) {
+        if (Math.abs(py - ALT_ROWS_Y[r]) <= 26) {
+          altShift(r, px < ALT_X0 + (ALT_SLOT * ALT_N) / 2 ? -1 : 1);   // linkerhelft = terug, rechterhelft = vooruit
+          return;
+        }
+      }
+    });
+    const axc = document.getElementById('altar-close');
+    if (axc) axc.addEventListener('click', altarClose);
+    elAltar.addEventListener('click', (e) => { if (e.target === elAltar) altarClose(); });
   }
 
   /* ---------- Boeken-volgorde-puzzel (hergebruikt het runen-scherm) ----------
@@ -4658,6 +4783,11 @@
       return;
     }
     if (hs.zoomImg) {
+      if (hs.zoomRequiresFlag && !state.flags[hs.zoomRequiresFlag]) {   // bv. de telescoop: pas kijken als de zon verduisterd is
+        sfx('error');
+        say(hs.zoomBlockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
       if (hs.setFlag && !state.flags[hs.setFlag]) { state.flags[hs.setFlag] = true; updateQuest(); }   // bv. het hint-boek inkijken zet readMillBook
       openZoom(typeof hs.zoomImg === 'function' ? hs.zoomImg(state) : hs.zoomImg);
       return;
@@ -4786,6 +4916,15 @@
         return;
       }
       openDialPuzzle(hs);
+      return;
+    }
+    if (hs.starPuzzle) {
+      if (hs.starPuzzle.requiresFlag && !state.flags[hs.starPuzzle.requiresFlag]) {
+        sfx('error');
+        say(hs.starPuzzle.blockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      openStarPuzzle(hs);
       return;
     }
     /* Spreuk uitspreken: heb je het juiste voorwerp in je tas, dan werkt het meteen

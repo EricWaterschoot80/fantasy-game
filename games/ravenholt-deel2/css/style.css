@@ -1042,6 +1042,13 @@ html, body {
 }
 .rune-stone-btn:active { transform: scale(.92); }
 
+/* ---- Sterren-altaar (schuifrijen) ---- */
+.altar-canvas { display: block; margin: 6px auto 2px; width: min(420px, 82vw, 60dvh); height: auto; cursor: pointer; }
+@media (max-width: 560px), (max-height: 560px) {
+  #altar-title { font-size: 15px; }
+  #altar-hint { font-size: 10px; line-height: 1.35; margin: 4px 0; }
+}
+
 /* ---- Hendel-puzzel van de put ---- */
 .dial-canvas { display: block; margin: 6px auto 2px; width: min(320px, 76vw, 48dvh); height: auto; }
 .dial-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
