@@ -2694,6 +2694,7 @@
   function spellWorksHere(spellId) {
     const scene = GAME.scenes[state.currentScene];
     if (!scene) return false;
+    if (spellId === 'invisspell') return state.currentScene === 'dungeon' && state.flags.gotInvisSpell && !state.flags.guardPassed;
     const isDragon = spellId === 'dragonspell';
     if (isDragon && !state.flags.dragonSpellLearned) return false;
     if (!isDragon && !state.flags.spellWritten) return false;
@@ -2711,6 +2712,7 @@
     spellId = spellId || 'spell';
     const isDragon = spellId === 'dragonspell';
     if (spellId === 'eclipsspell') { castEclipse(); return; }
+    if (spellId === 'invisspell') { castInvis(); return; }
     if (!isDragon && !state.flags.spellWritten) return;
     if (isDragon && !state.flags.dragonSpellLearned) return;
     if (msgOpen()) showNextMsg();
@@ -2771,7 +2773,28 @@
     paintBackground();
     burstAt(300, 120, { n: 26, col: '150,170,255', up: 10, life: 1.4, spread: 40 });
     updateQuest();
-    say({ nl: '“Umbra Solis!” De woorden trillen door de zaal... Buiten schuift langzaam een zwarte schijf voor de zon. Het daglicht dooft, de sterren springen aan de hemel — een zonsverduistering! Nu kun je door de telescoop kijken.', en: '“Umbra Solis!” The words tremble through the hall... Outside, a black disc slides across the sun. Daylight fades, stars leap into the sky — a solar eclipse! Now you can look through the telescope.' });
+    say({ nl: '“Umbra Solis!” De woorden trillen door de zaal... Buiten schuift langzaam een zwarte schijf voor de zon. Het daglicht dooft, de sterren springen aan de hemel — een zonsverduistering! Nu kun je het gloeiende boek lezen en door de telescoop kijken.', en: '“Umbra Solis!” The words tremble through the hall... Outside, a black disc slides across the sun. Daylight fades, stars leap into the sky — a solar eclipse! Now you can read the glowing book and look through the telescope.' });
+  }
+  /* De onzichtbaarheidsspreuk: alleen in de kerker werkt hij — je vervaagt en sluipt
+     ongezien langs de wachter naar de cel van je vader. */
+  function castInvis() {
+    if (!state.flags.gotInvisSpell) return;
+    if (msgOpen()) showNextMsg();
+    if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
+    const scene = GAME.scenes[state.currentScene];
+    const hs = (scene.hotspots || []).find((h) => h.castWith && h.castWith.item === 'invisspell');
+    if (!hs) {
+      sfx('combine'); triggerCastFx();
+      say({ nl: 'Je fluistert de onzichtbaarheidsspreuk en vervaagt heel even tot een rilling in de lucht... maar hier is niemand om ongezien langs te sluipen.', en: 'You whisper the invisibility spell and fade for a moment to a shimmer in the air... but there is no one here to slip past unseen.' });
+      return;
+    }
+    const c = hs.castWith;
+    const fls = Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag];
+    if (fls.some((f) => state.flags[f])) { say(lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
+    fls.forEach((f) => { state.flags[f] = true; });
+    sfx('combine'); triggerCastFx(); updateQuest();
+    say(c.text, hsSpeaker(hs), hsFace(hs));
+    if (scene.bgVariants) paintBackground();
   }
   if (elSpellBtn) elSpellBtn.addEventListener('click', () => {
     elSpellBtn.classList.remove('cast'); void elSpellBtn.offsetWidth; elSpellBtn.classList.add('cast');
@@ -2993,7 +3016,7 @@
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
     /* De dans-spreuk werkt rechtstreeks vanuit je tas: tik = uitspreken. */
-    if (itemId === 'spell' || itemId === 'dragonspell' || itemId === 'eclipsspell') {
+    if (itemId === 'spell' || itemId === 'dragonspell' || itemId === 'eclipsspell' || itemId === 'invisspell') {
       state.selectedItem = null;
       const sl = elInvbar.querySelector('.inv-slot[data-item="' + itemId + '"]');
       if (sl) { sl.classList.remove('cast'); void sl.offsetWidth; sl.classList.add('cast'); setTimeout(() => sl.classList.remove('cast'), 660); }
@@ -4136,6 +4159,18 @@
       if (pz.solvedText) say(pz.solvedText, hsSpeaker(h));
       if (pz.win) { pendingWin = true; sfx('win'); }
       updateQuest();
+      /* De deur ging open terwijl het nog nacht was (nacht-deur-achtergrond); even later
+         trekt de eclips weg en keert het daglicht terug (open-deur-overdag). */
+      if (pz.relight) {
+        setTimeout(() => {
+          if (pz.relight.clearFlag) (Array.isArray(pz.relight.clearFlag) ? pz.relight.clearFlag : [pz.relight.clearFlag]).forEach((f) => { state.flags[f] = false; });
+          if (pz.relight.setFlag)   (Array.isArray(pz.relight.setFlag)   ? pz.relight.setFlag   : [pz.relight.setFlag]).forEach((f) => { state.flags[f] = true; });
+          const sc2 = GAME.scenes[state.currentScene];
+          if (sc2 && sc2.bgVariants) paintBackground();
+          if (pz.relight.text) say(pz.relight.text, hsSpeaker(h));
+          updateQuest();
+        }, pz.relight.delay || 2400);
+      }
     }, 1100);
   }
   function altShift(r, dir) {
@@ -5123,9 +5158,20 @@
       return;
     }
     if (hs.eclipsePuzzle) {
-      if (hs.eclipsePuzzle.requiresFlag && !state.flags[hs.eclipsePuzzle.requiresFlag]) {
+      const epz = hs.eclipsePuzzle;
+      /* Ná de eclips-spreuk: het boek is alléén tijdens de zonsverduistering te lezen en
+         toont dan de drie blauwe geheime tekens (de sleutel tot het altaar). */
+      if (epz.afterSigns && state.flags[epz.setFlag]) {
+        const bs = epz.afterSigns;
+        if (!state.flags[bs.eclipseFlag]) { sfx('error'); say(bs.dayText || lookText(hs), hsSpeaker(hs)); return; }
+        if (!state.flags[bs.setFlag]) { state.flags[bs.setFlag] = true; updateQuest(); }
+        sfx('tap');
+        openZoom(bs.zoomImg);
+        return;
+      }
+      if (epz.requiresFlag && !state.flags[epz.requiresFlag]) {
         sfx('error');
-        say(hs.eclipsePuzzle.blockedText || lookText(hs), hsSpeaker(hs));
+        say(epz.blockedText || lookText(hs), hsSpeaker(hs));
         return;
       }
       openEclipsePuzzle(hs);
