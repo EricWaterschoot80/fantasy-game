@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '131',
+  assetVer: '132',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -794,7 +794,7 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 206, y: 260, scale: 0.98, sway: 0.02, flip: true, filter: 'brightness(0.86) saturate(0.98)', aweSprites: ['librarian-trip1', 'librarian-trip2'], aweFlag: 'wizardTripping' },   // de pixel-tovenaar — kleiner, past bij de omgeving; met een paddenstoel raakt hij zacht in trance (subtiele zweef-frames)
+        { id: 'librarian', sprite: 'librarian', x: 188, y: 260, scale: 0.86, sway: 0, flip: true, filter: 'brightness(0.72) saturate(0.88)', aweSprites: ['librarian-trip1', 'librarian-trip2'], aweFlag: 'wizardTripping' },   // de pixel-tovenaar — stil en in schaduw (mysterieus), donkere mantel zonder sterren; met een paddenstoel raakt hij zacht in trance
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 150, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter
       ],
       worldItems: [],
