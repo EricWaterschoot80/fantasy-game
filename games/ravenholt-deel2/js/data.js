@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '119',
+  assetVer: '120',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -775,7 +775,7 @@ const GAME = {
       fx: {},
       npcs: [
         { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.14, sway: 0.018, flip: true, filter: 'brightness(0.74) saturate(0.9)' },   // de oude tovenaar — iets groter, met meer schaduw
-        { id: 'libRaven', sprite: 'ravenPerch', x: 352, y: 148, scale: 0.82, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — groter en goed zichtbaar
+        { id: 'libRaven', sprite: 'ravenPerch', x: 364, y: 156, scale: 0.82, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — groter, iets meer rechts en lager
       ],
       worldItems: [],
       hotspots: [
@@ -790,7 +790,7 @@ const GAME = {
         {
           id: 'libRaven',
           name: { nl: 'De Raaf', en: 'The Raven' },
-          rect: { x: 326, y: 110, w: 54, h: 58 },
+          rect: { x: 338, y: 118, w: 42, h: 58 },
           walkTo: { x: 344, y: 252 },
           look: (state) => state.flags.gotInvisSpell
             ? { nl: '\u201CKrra! Goed gedaan, kleine tovenaar. De sterren vergeten jou niet.\u201D De raaf buigt plechtig zijn kopje.', en: '\u201CCaw! Well done, little wizard. The stars will not forget you.\u201D The raven bows his head solemnly.' }
