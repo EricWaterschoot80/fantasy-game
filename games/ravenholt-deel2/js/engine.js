@@ -1086,7 +1086,22 @@
         if (!flagVisible(o)) continue;             // overlay kan met appearFlag/hideFlag verschijnen (bv. sleutelgat na de puzzel)
         ents.push({ y: o.base, draw: () => {
           const img = o.img && overlayImg(o.img);
-          if (img && ready(img)) fctx.drawImage(img, o.x, o.y);
+          if (img && ready(img)) {
+            if (o.shadow) {                        // zachte contactschaduw zodat het object in de grond 'zakt' i.p.v. plakt
+              const iw = img.width, ih = img.height;
+              const sc = o.shadow;
+              fctx.save();
+              fctx.globalAlpha = sc.a != null ? sc.a : 0.32;
+              fctx.fillStyle = '#000';
+              fctx.beginPath();
+              fctx.ellipse(o.x + iw / 2 + (sc.dx || 0), o.y + ih - (sc.dy || 1), (sc.w || iw * 0.42), (sc.h || 3.5), 0, 0, Math.PI * 2);
+              fctx.filter = 'blur(1.5px)';
+              fctx.fill();
+              fctx.restore();
+            }
+            if (o.filter) { fctx.save(); fctx.filter = o.filter; fctx.drawImage(img, o.x, o.y); fctx.restore(); }
+            else fctx.drawImage(img, o.x, o.y);
+          }
           else fctx.drawImage(bgCanvas, o.x * SS, o.y * SS, o.w * SS, o.h * SS, o.x, o.y, o.w, o.h);
         } });
       }

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '124',
+  assetVer: '125',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -521,8 +521,8 @@ const GAME = {
       ],
       overlays: [
         { img: 'assets/art/keyhole.png', x: 130, y: 168, base: 240, scale: 0.7, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' },  // sleutelgat in de muur rechts van de fontein — precies waar de geheime deur opengaat
-        { img: 'assets/art/brazier.png', x: 194, y: 216, base: 250 },   // vuurkorf links van het smidsbeeld — dichter bij het beeld
-        { img: 'assets/art/brazier.png', x: 342, y: 216, base: 250 }    // vuurkorf rechts van het smidsbeeld — dichter bij het beeld, hierin ligt de houtskool
+        { img: 'assets/art/brazier-empty.png', x: 194, y: 216, base: 250, shadow: { a: 0.3, w: 15, h: 3.5 } },   // LEGE vuurkorf links van het smidsbeeld
+        { img: 'assets/art/brazier.png', x: 342, y: 216, base: 250, shadow: { a: 0.3, w: 15, h: 3.5 } }    // vuurkorf rechts van het smidsbeeld — hierin ligt de houtskool
       ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 359, y: 223, scale: 0.72, glowCol: '255,150,60', embers: 0.9 },   // houtskool IN de rechter vuurkorf — duidelijker nagloeiende sintels zodat je 'm kunt pakken
@@ -724,7 +724,7 @@ const GAME = {
           name: { nl: 'De Linker Vuurkorf', en: 'The Left Fire Basket' },
           rect: { x: 202, y: 210, w: 28, h: 42 },
           walkTo: { x: 210, y: 270 },
-          look: { nl: 'Een ijzeren vuurkorf op drie poten, links van het smidsbeeld. De kolen hierin zijn allang koud en verkruimeld — niets meer aan te halen.', en: 'An iron fire basket on three legs, left of the smith statue. The coals in this one went cold long ago, crumbled to dust — nothing left to take.' }
+          look: { nl: 'Een ijzeren vuurkorf op drie poten, links van het smidsbeeld. Deze is helemaal leeg — kaal, koud ijzer, geen kooltje te bekennen.', en: 'An iron fire basket on three legs, left of the smith statue. This one is completely empty — bare, cold iron, not a coal in sight.' }
         },
         {
           id: 'trinket',
