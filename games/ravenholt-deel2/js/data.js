@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '110',
+  assetVer: '111',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -370,12 +370,12 @@ const GAME = {
             needText: { nl: 'Het windwerk heeft eerst een touw nodig om de emmer te kunnen laten zakken. Haal het touw bij de schildknaap.', en: 'The winch first needs a rope before it can lower the bucket. Get the rope from the squire.' },
             depth: 8,
             title: { nl: 'Laat de Raaf Zakken', en: 'Lower the Raven' },
-            hint: { nl: 'De raaf zit in de emmer en beneden glinstert de ketting met de diamant in het water. De emmer slingert vanzelf heen en weer — druk op ⟳ Laten zakken precies wanneer de emmer in het MIDDEN hangt: het blokje in de balk bovenin staat dan in het GROENE vlak. Klik je terwijl de emmer uitzwaait (rood), dan slipt het touw en schiet de emmer weer helemaal omhoog. En pas op: hoe dieper, hoe wilder het slingeren en hoe smaller het groene vlak!', en: 'The raven sits in the bucket, and below the necklace with its diamond glints in the water. The bucket swings to and fro all by itself — press ⟳ Lower exactly when the bucket hangs in the MIDDLE: the marker in the bar at the top sits in the GREEN zone. Click while the bucket swings out (red) and the rope slips, shooting the bucket all the way back up. And beware: the deeper you go, the wilder the swinging and the narrower the green zone!' },
+            hint: { nl: 'Klik ⟳ Laten zakken precies als de emmer in het midden hangt — alles kleurt dan GROEN. Rood = wachten! Hoe dieper, hoe wilder het slingeren.', en: 'Press ⟳ Lower exactly when the bucket hangs in the middle — everything turns GREEN. Red = wait! The deeper you go, the wilder the swing.' },
             setFlag: 'gotNecklace',
             consume: 'rope',
             give: 'necklace',
             solvedText: { nl: 'PLONS — de emmer raakt zachtjes het water! De raaf duikt met zijn snavel tussen de rimpels en grist de glinsterende ketting van de bodem. Je draait de hendel terug omhoog; krakend komt de emmer boven, met de raaf erin, trots, een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'SPLASH — the bucket gently touches the water! The raven dips his beak between the ripples and snatches the glittering necklace from the bottom. You crank the handle back up; creaking, the bucket rises, the raven inside, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' },
-            resetText: { nl: 'ZOEF! De emmer slingerde te ver uit het midden — het touw slipt door de katrol en de emmer schiet weer helemaal omhoog. De raaf klappert verontwaardigd met zijn vleugels. Wacht tot het blokje in het groene vlak staat en klik dán.', en: 'WHIZZ! The bucket swung too far from the middle — the rope slips through the pulley and the bucket shoots all the way back up. The raven flaps his wings indignantly. Wait until the marker sits in the green zone, then click.' }
+            resetText: { nl: 'ZOEF! Het touw slipt — de emmer schiet weer omhoog. Klik alleen als alles GROEN kleurt.', en: 'WHIZZ! The rope slips — the bucket shoots back up. Only click when everything turns GREEN.' }
           }
         },
         {

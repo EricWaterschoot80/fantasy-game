@@ -3961,10 +3961,20 @@
     const safe = Math.abs(off) <= W_SAFE;
     x.strokeStyle = '#b39869'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(cx, 59); x.lineTo(bx2, by - 12); x.stroke();
-    /* veilige midden-zone op de bodem van de schacht (stippellijnen) */
-    x.setLineDash([3, 4]); x.strokeStyle = 'rgba(126,214,110,.4)'; x.lineWidth = 2;
+    /* veilige midden-zone: zachte groene lichtbaan door de schacht */
+    const zg = x.createLinearGradient(cx - W_SAFE - 6, 0, cx + W_SAFE + 6, 0);
+    const za = safe ? 0.16 : 0.07;
+    zg.addColorStop(0, 'rgba(126,230,110,0)'); zg.addColorStop(0.5, 'rgba(126,230,110,' + za + ')'); zg.addColorStop(1, 'rgba(126,230,110,0)');
+    x.fillStyle = zg; x.fillRect(cx - W_SAFE - 6, 62, (W_SAFE + 6) * 2, wy - 66);
+    x.setLineDash([3, 4]); x.strokeStyle = safe ? 'rgba(126,230,110,.6)' : 'rgba(126,214,110,.28)'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(cx - W_SAFE, 66); x.lineTo(cx - W_SAFE, wy - 4); x.moveTo(cx + W_SAFE, 66); x.lineTo(cx + W_SAFE, wy - 4); x.stroke();
     x.setLineDash([]);
+    /* zachte gloed om de emmer als het veilig is */
+    if (safe) {
+      const gg = x.createRadialGradient(bx2, by - 6, 3, bx2, by - 6, 36);
+      gg.addColorStop(0, 'rgba(126,230,110,.30)'); gg.addColorStop(1, 'rgba(126,230,110,0)');
+      x.fillStyle = gg; x.fillRect(bx2 - 36, by - 42, 72, 74);
+    }
     /* emmer */
     x.fillStyle = '#6b4a2b';
     x.beginPath(); x.moveTo(bx2 - 17, by - 10); x.lineTo(bx2 + 17, by - 10); x.lineTo(bx2 + 13, by + 12); x.lineTo(bx2 - 13, by + 12); x.closePath(); x.fill();
@@ -3984,19 +3994,26 @@
     x.strokeStyle = 'rgba(150,165,220,.4)'; x.lineWidth = 1.5;
     x.beginPath(); x.arc(bx2 - 2, by - 20 + rb, 9, Math.PI * 1.15, Math.PI * 1.6); x.stroke(); // blauwige veerglans
     /* slinger-balk bovenaan: het blokje beweegt live mee met de emmer.
-       GROEN vlak in het midden = nu klikken mag; hoe dieper, hoe smaller het groen. */
-    const barX = wallW, barW2 = W - wallW * 2, barY = 3, barH = 13;
+       GROEN in het midden = nu klikken mag; hoe dieper, hoe smaller het groen. */
+    const barX = wallW, barW2 = W - wallW * 2, barY = 4, barH = 14;
     const half = barW2 / 2 - 5, ampNow = pendAmp();
-    x.fillStyle = '#1a140c'; x.fillRect(barX - 2, barY - 2, barW2 + 4, barH + 4);
-    x.fillStyle = 'rgba(255,90,70,.30)'; x.fillRect(barX, barY, barW2, barH);                   // rood = te ver uitgezwaaid
+    function rr(xx, yy, ww, hh, rad) { x.beginPath(); x.moveTo(xx + rad, yy); x.arcTo(xx + ww, yy, xx + ww, yy + hh, rad); x.arcTo(xx + ww, yy + hh, xx, yy + hh, rad); x.arcTo(xx, yy + hh, xx, yy, rad); x.arcTo(xx, yy, xx + ww, yy, rad); x.closePath(); }
+    rr(barX - 3, barY - 3, barW2 + 6, barH + 6, 9); x.fillStyle = '#1a140c'; x.fill();          // donkere houder
+    rr(barX, barY, barW2, barH, 7);
+    x.fillStyle = safe ? 'rgba(255,90,70,.20)' : 'rgba(255,90,70,.42)'; x.fill();               // rood = te ver uitgezwaaid
     const gw2 = (W_SAFE / ampNow) * half;                                                       // groene zone krimpt met de diepte
-    x.fillStyle = safe ? 'rgba(110,220,100,.85)' : 'rgba(110,205,100,.45)';
-    x.fillRect(barX + barW2 / 2 - gw2, barY, gw2 * 2, barH);
-    x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.strokeRect(barX - 2, barY - 2, barW2 + 4, barH + 4);
+    if (safe) { x.shadowColor = 'rgba(126,230,110,.9)'; x.shadowBlur = 10; }
+    rr(barX + barW2 / 2 - gw2, barY, gw2 * 2, barH, 6);
+    x.fillStyle = safe ? '#79e668' : 'rgba(110,205,100,.40)'; x.fill();
+    x.shadowBlur = 0;
+    rr(barX - 3, barY - 3, barW2 + 6, barH + 6, 9); x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
     const mk = barX + barW2 / 2 + (off / ampNow) * half;                                        // het blokje = de emmer
-    x.fillStyle = safe ? '#eaffe2' : '#ffd7cf';
-    x.fillRect(mk - 3, barY - 1, 6, barH + 2);
-    x.strokeStyle = '#5a3c20'; x.lineWidth = 1.5; x.strokeRect(mk - 3, barY - 1, 6, barH + 2);
+    rr(mk - 3.5, barY - 2, 7, barH + 4, 3);
+    x.fillStyle = safe ? '#eaffe2' : '#ffb3a6'; x.fill();
+    x.strokeStyle = '#5a3c20'; x.lineWidth = 1.5; x.stroke();
+    /* de zak-knop kleurt mee: groen = nu klikken, rood = wachten */
+    const brBtn = document.getElementById('dial-right');
+    if (brBtn) { brBtn.classList.toggle('dial-go', safe && !wSolved); brBtn.classList.toggle('dial-stop', !safe && !wSolved); }
     /* diepte-streepjes op de rechterwand */
     for (let i = 0; i <= DEP; i++) {
       const ty = topY + (botY - topY) * (i / DEP);

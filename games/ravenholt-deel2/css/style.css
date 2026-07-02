@@ -1042,8 +1042,8 @@ html, body {
 }
 .rune-stone-btn:active { transform: scale(.92); }
 
-/* ---- Draai-/windas-puzzel ---- */
-.dial-canvas { display: block; margin: 6px auto 2px; width: 320px; max-width: 76vw; height: auto; }
+/* ---- Hendel-puzzel van de put ---- */
+.dial-canvas { display: block; margin: 6px auto 2px; width: min(320px, 76vw, 48dvh); height: auto; }
 .dial-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
 .dial-btn {
   background: linear-gradient(180deg, #241a12, #140f0a);
@@ -1051,14 +1051,30 @@ html, body {
   color: var(--gold-light);
   font-family: var(--font-pixel);
   font-size: 14px;
-  padding: 12px 16px;
+  padding: 12px 18px;
   cursor: pointer;
   box-shadow: 0 0 0 2px #1f1410, inset 0 2px 0 rgba(231,207,134,.15);
-  transition: background .12s, transform .08s;
+  transition: background .15s, transform .08s, border-color .15s, color .15s, box-shadow .15s;
 }
-.dial-btn.dial-lock { border-color: var(--gold-light); background: linear-gradient(180deg, #2e2113, #1a120a); }
-.dial-btn:active { transform: scale(.93); background: rgba(231,207,134,.16); }
-@media (max-width: 560px) { .dial-btn { font-size: 12px; padding: 10px 12px; } }
+.dial-btn:active { transform: scale(.93); }
+/* de knop kleurt mee met de balk: groen = nu klikken, rood = wachten */
+.dial-btn.dial-go {
+  border-color: #7ed66e;
+  color: #dcffd2;
+  background: linear-gradient(180deg, #21391a, #132410);
+  box-shadow: 0 0 0 2px #1f1410, 0 0 16px rgba(126,214,110,.55), inset 0 2px 0 rgba(200,255,180,.18);
+}
+.dial-btn.dial-stop {
+  border-color: #b96253;
+  color: #f3c0b5;
+  background: linear-gradient(180deg, #33150f, #200f0a);
+  box-shadow: 0 0 0 2px #1f1410;
+}
+@media (max-width: 560px), (max-height: 560px) {
+  .dial-btn { font-size: 12px; padding: 9px 14px; }
+  #dial-title { font-size: 15px; }
+  #dial-hint { font-size: 10px; line-height: 1.35; margin: 4px 0; }
+}
 .rune-btn-row.tile-grid {
   display: grid;
   grid-template-columns: repeat(2, auto);   /* altijd 2 rijen × 2 kolommen */
