@@ -3859,11 +3859,11 @@
   const elDialStatus = document.getElementById('dial-status');
   const dctx = elDialCanvas ? elDialCanvas.getContext('2d') : null;
   const W_DEPTH = 8;                                   // zoveel slagen vieren tot het water
-  const W_SAFE = 12;                                   // binnen zoveel px van het midden is het veilig
+  const W_SAFE = 14;                                   // binnen zoveel px van het midden is het veilig
   let dialHs = null, wDepth = 0, wSolved = false, wAnim = null, wSlipT = 0, wPhase0 = 0, wLastLower = 0;
 
-  function pendAmp() { return 13 + wDepth * 4; }                                   // uitzwaai groeit met de diepte
-  function pendPeriod() { return Math.max(1350, 1700 - wDepth * 50); }             // iets sneller naar het einde, maar rustig genoeg om te timen
+  function pendAmp() { return 12 + wDepth * 3.5; }                                 // uitzwaai groeit rustig met de diepte
+  function pendPeriod() { return Math.max(1450, 1700 - wDepth * 40); }             // ook op het einde blijft het slingeren goed te volgen
   function pendOff(now) { return Math.sin((now - wPhase0) / pendPeriod() * Math.PI * 2) * pendAmp(); }
 
   function openDialPuzzle(hs) {
@@ -3885,8 +3885,11 @@
     if (!dialHs || wSolved) return;
     const pz = dialHs.dialPuzzle, DEP = pz.depth || W_DEPTH;
     const nowT = performance.now();
-    if (nowT - wLastLower < 260) return;               // heel snel dubbelklikken telt niet — elke slag vraagt eigen timing
-    const off = pendOff(nowT);
+    if (nowT - wLastLower < 220) return;               // heel snel dubbelklikken telt niet — elke slag vraagt eigen timing
+    /* Coulance voor je reactietijd: de klik telt ook als de emmer een fractie
+       eerder nog in het groen hing — wat groen leek, is dus ook echt goed. */
+    const offs = [pendOff(nowT), pendOff(nowT - 100), pendOff(nowT - 190)];
+    const off = offs.reduce((a, b) => Math.abs(b) < Math.abs(a) ? b : a);
     if (Math.abs(off) > W_SAFE) {                      // buiten het midden geklikt: het touw slipt
       wSlipT = nowT;
       wDepth = 0; wLastLower = 0;
@@ -3933,28 +3936,43 @@
     let gi = x.createLinearGradient(0, 0, 0, H);
     gi.addColorStop(0, '#3a3630'); gi.addColorStop(1, '#12100d');
     x.fillStyle = gi; x.fillRect(wallW, 0, W - wallW * 2, H);
-    /* stenen wanden links + rechts */
+    /* stenen wanden links + rechts: gevarieerd metselwerk met mos-tinten */
+    const stoneCols = ['#5b544d', '#544e46', '#605850', '#4e4841', '#575046', '#525047'];
     for (let side = 0; side < 2; side++) {
       const bx0 = side === 0 ? 0 : W - wallW;
-      x.fillStyle = '#57504a'; x.fillRect(bx0, 0, wallW, H);
-      x.strokeStyle = 'rgba(20,16,12,.55)'; x.lineWidth = 2;
-      for (let ry = 0; ry < H; ry += 22) {
-        x.strokeRect(bx0 - (((ry / 22) | 0) % 2 ? 13 : 0), ry, wallW + 13, 22);
+      for (let row = 0; row * 22 < H; row++) {
+        const ry = row * 22, offX = (row % 2 ? -13 : 0);
+        for (let col = 0; col < 3; col++) {
+          const bxx = bx0 + offX + col * 26;
+          x.fillStyle = stoneCols[(row * 3 + col + side) % stoneCols.length];
+          x.fillRect(bxx, ry, 25, 21);
+          x.fillStyle = 'rgba(255,244,214,.06)'; x.fillRect(bxx, ry, 25, 2);      // lichtrandje bovenop elke steen
+        }
       }
-      x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(side === 0 ? wallW - 8 : W - wallW, 0, 8, H);
+      x.fillStyle = 'rgba(96,110,60,.16)';                                        // vleugje mos
+      for (let m = 0; m < 6; m++) x.fillRect(bx0 + ((m * 37) % (wallW - 10)), (m * 89 + side * 40) % (H - 30) + 10, 9, 5);
+      x.fillStyle = 'rgba(0,0,0,.34)'; x.fillRect(side === 0 ? wallW - 8 : W - wallW, 0, 8, H);   // schaduw op de binnenrand
     }
     /* water onderin (golfjes) */
     const wy = H - 42;
     let gw = x.createLinearGradient(0, wy, 0, H);
     gw.addColorStop(0, '#1d4a63'); gw.addColorStop(1, '#0a1e2c');
     x.fillStyle = gw; x.fillRect(wallW, wy, W - wallW * 2, H - wy);
-    x.strokeStyle = 'rgba(150,220,245,.5)'; x.lineWidth = 2;
+    x.strokeStyle = 'rgba(170,230,250,.6)'; x.lineWidth = 2;
     x.beginPath();
     for (let px = wallW; px <= W - wallW; px += 6) {
       const yy = wy + Math.sin(px / 14 + now / 380) * 2;
       px === wallW ? x.moveTo(px, yy) : x.lineTo(px, yy);
     }
     x.stroke();
+    x.strokeStyle = 'rgba(120,190,220,.22)'; x.lineWidth = 1;                      // zachte tweede golflijn
+    x.beginPath();
+    for (let px = wallW; px <= W - wallW; px += 6) {
+      const yy = wy + 7 + Math.sin(px / 11 + now / 470 + 2) * 1.6;
+      px === wallW ? x.moveTo(px, yy) : x.lineTo(px, yy);
+    }
+    x.stroke();
+    x.fillStyle = 'rgba(190,235,255,.10)'; x.fillRect(cx - 30, wy + 4, 60, 4);     // vage lichtspiegeling in het midden
     /* de gouden ketting met diamant, zichtbaar onder water */
     const nx = cx + 24, ny = wy + 22, gl = 0.5 + 0.5 * Math.sin(now / 320);
     x.strokeStyle = 'rgba(255,215,120,' + (0.55 + 0.4 * gl) + ')'; x.lineWidth = 2;
@@ -3965,11 +3983,19 @@
     x.beginPath(); x.moveTo(nx - 6, ny); x.lineTo(nx + 6, ny); x.moveTo(nx, ny - 5); x.lineTo(nx, ny + 8); x.stroke();   // facetlijnen
     x.strokeStyle = 'rgba(255,255,255,' + (0.4 + 0.6 * gl) + ')'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(nx - 12, ny - 12); x.lineTo(nx - 8, ny - 12); x.moveTo(nx - 10, ny - 14); x.lineTo(nx - 10, ny - 10); x.stroke();   // fonkel-ster
-    /* dwarsbalk + windas-trommel bovenaan */
-    x.fillStyle = '#4a3119'; x.fillRect(wallW - 10, 20, W - wallW * 2 + 20, 12);
-    x.strokeStyle = '#2a1c0e'; x.lineWidth = 2; x.strokeRect(wallW - 10, 20, W - wallW * 2 + 20, 12);
+    /* dwarsbalk met houtnerf + metalen beslag */
+    x.fillStyle = '#4a3119'; x.fillRect(wallW - 10, 20, W - wallW * 2 + 20, 13);
+    x.strokeStyle = 'rgba(30,18,8,.6)'; x.lineWidth = 1;
+    for (let g = 0; g < 3; g++) { x.beginPath(); x.moveTo(wallW - 6, 24 + g * 4); x.lineTo(W - wallW + 6, 23.5 + g * 4 + (g % 2)); x.stroke(); }
+    x.strokeStyle = '#2a1c0e'; x.lineWidth = 2; x.strokeRect(wallW - 10, 20, W - wallW * 2 + 20, 13);
+    x.fillStyle = '#3c3a3a';                                                       // beslagplaatjes op de uiteinden
+    x.fillRect(wallW - 8, 18, 10, 17); x.fillRect(W - wallW - 2, 18, 10, 17);
+    x.strokeStyle = '#8f8b84'; x.lineWidth = 1; x.strokeRect(wallW - 8, 18, 10, 17); x.strokeRect(W - wallW - 2, 18, 10, 17);
+    /* windas-trommel met touwwikkels */
     x.fillStyle = '#6b4a2b'; x.beginPath(); x.arc(cx, 44, 15, 0, Math.PI * 2); x.fill();
-    x.strokeStyle = '#caa15a'; x.lineWidth = 3; x.stroke();
+    x.strokeStyle = 'rgba(179,152,105,.75)'; x.lineWidth = 2;
+    for (let t2 = 0; t2 < 3; t2++) { x.beginPath(); x.arc(cx, 44, 6 + t2 * 3.4, 0, Math.PI * 2); x.stroke(); }
+    x.strokeStyle = '#caa15a'; x.lineWidth = 3; x.beginPath(); x.arc(cx, 44, 15, 0, Math.PI * 2); x.stroke();
     /* hendel draait mee met de diepte */
     const hAng = wDepth * 1.15 + now / 4000;
     x.strokeStyle = '#caa15a'; x.lineWidth = 5; x.lineCap = 'round';
@@ -3984,10 +4010,18 @@
     const safe = Math.abs(off) <= W_SAFE;
     x.strokeStyle = '#b39869'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(cx, 59); x.lineTo(bx2, by - 12); x.stroke();
-    /* emmer (rustig beeld: alléén de balk bovenin kleurt groen/rood) */
+    /* emmer: houten plankjes, twee metalen banden en een hengsel aan het touw */
     x.fillStyle = '#6b4a2b';
     x.beginPath(); x.moveTo(bx2 - 17, by - 10); x.lineTo(bx2 + 17, by - 10); x.lineTo(bx2 + 13, by + 12); x.lineTo(bx2 - 13, by + 12); x.closePath(); x.fill();
-    x.strokeStyle = '#caa15a'; x.lineWidth = 2; x.stroke();
+    x.strokeStyle = 'rgba(40,24,10,.55)'; x.lineWidth = 1;                          // plank-naden
+    for (let pl = -1; pl <= 1; pl++) { x.beginPath(); x.moveTo(bx2 + pl * 8, by - 10); x.lineTo(bx2 + pl * 7, by + 12); x.stroke(); }
+    x.strokeStyle = '#8f8b84'; x.lineWidth = 2;                                     // metalen banden
+    x.beginPath(); x.moveTo(bx2 - 16.5, by - 7); x.lineTo(bx2 + 16.5, by - 7); x.stroke();
+    x.beginPath(); x.moveTo(bx2 - 14, by + 7); x.lineTo(bx2 + 14, by + 7); x.stroke();
+    x.strokeStyle = '#b39869'; x.lineWidth = 2;                                     // hengselboog naar het touw
+    x.beginPath(); x.arc(bx2, by - 10, 12, Math.PI * 1.08, Math.PI * 1.92); x.stroke();
+    x.strokeStyle = '#caa15a'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(bx2 - 17, by - 10); x.lineTo(bx2 + 17, by - 10); x.lineTo(bx2 + 13, by + 12); x.lineTo(bx2 - 13, by + 12); x.closePath(); x.stroke();
     x.strokeStyle = '#8a6a3a'; x.beginPath(); x.moveTo(bx2 - 16, by - 4); x.lineTo(bx2 + 16, by - 4); x.stroke();
     /* raaf in de emmer — duidelijk herkenbaar: staart, vleugel, glanzende veren */
     const rb = Math.sin(now / 300) * 1.5;
@@ -4029,6 +4063,10 @@
       x.strokeStyle = i <= wDepth ? '#ffd36b' : 'rgba(231,207,134,.28)'; x.lineWidth = 2;
       x.beginPath(); x.moveTo(W - wallW, ty); x.lineTo(W - wallW + 8, ty); x.stroke();
     }
+    /* zacht vignet zodat de schacht diepte krijgt */
+    const vg = x.createRadialGradient(cx, H * 0.44, H * 0.28, cx, H * 0.5, H * 0.75);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.30)');
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
     /* rode flits als het touw slipt */
     if (slip > 0) { x.fillStyle = 'rgba(255,70,50,' + (0.22 * slip) + ')'; x.fillRect(0, 0, W, H); }
   }
