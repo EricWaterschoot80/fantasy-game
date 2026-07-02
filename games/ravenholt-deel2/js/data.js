@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '115',
+  assetVer: '116',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -754,15 +754,15 @@ const GAME = {
       bgVariants: [
         { img: 'assets/art/scene-library-night.jpg', flag: 'eclipseActive' }   // de zonsverduistering-spreuk dooft de zon: nacht + eclips door het raam
       ],
-      charFilter: 'saturate(1.04) brightness(0.98) sepia(0.14) contrast(1.03)',   // warm kaarslicht zodat de figuren in de bibliotheek opgaan
-      heroShade: 0.92,
+      charFilter: 'saturate(1.02) brightness(0.88) sepia(0.14) contrast(1.04)',   // warm kaarslicht, wat donkerder zodat de figuren in de schemerige zaal opgaan
+      heroShade: 0.8,
       entryText: {
         nl: 'De geheime gang komt uit in een stille kasteelbibliotheek. Hoge boekenkasten reiken tot het plafond, bij het grote raam staat een koperen telescoop, en midden in de zaal gloeit een boek op een sierlijke lessenaar. Een oude tovenaar tuurt erin, en op de vensterbank zit... de raaf!',
         en: 'The secret passage opens into a quiet castle library. Tall bookcases rise to the ceiling, a brass telescope stands by the great window, and in the middle of the hall a book glows on an ornate lectern. An old wizard peers into it, and on the windowsill sits... the raven!'
       },
       playerStart: { x: 300, y: 298 },
       spawnFrom: { garden: { x: 300, y: 298 } },
-      depth: { far: 210, near: 316, sFar: 0.72, sNear: 1.04 },
+      depth: { far: 210, near: 316, sFar: 0.80, sNear: 1.16 },   // Finn wat groter in de zaal
       walkable: [
         { x: 64, y: 250, w: 440, h: 58 },                  // open vloer/tapijt voor de lessenaar
         { x: 150, y: 224, w: 280, h: 30 }                  // smalle strook richting de lessenaar
@@ -773,8 +773,8 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.14, sway: 0.018, flip: true, filter: 'brightness(0.9) saturate(0.95)' },   // de oude tovenaar bij de lessenaar — iets groter
-        { id: 'libRaven', sprite: 'ravenPerch', x: 352, y: 148, scale: 0.66, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank bij het grote raam
+        { id: 'librarian', sprite: 'librarian', x: 210, y: 252, scale: 1.14, sway: 0.018, flip: true, filter: 'brightness(0.74) saturate(0.9)' },   // de oude tovenaar — iets groter, met meer schaduw
+        { id: 'libRaven', sprite: 'ravenPerch', x: 352, y: 148, scale: 0.82, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — groter en goed zichtbaar
       ],
       worldItems: [],
       hotspots: [
@@ -789,7 +789,7 @@ const GAME = {
         {
           id: 'libRaven',
           name: { nl: 'De Raaf', en: 'The Raven' },
-          rect: { x: 330, y: 116, w: 50, h: 52 },
+          rect: { x: 326, y: 110, w: 54, h: 58 },
           walkTo: { x: 344, y: 252 },
           look: (state) => state.flags.gotInvisSpell
             ? { nl: '\u201CKrra! Goed gedaan, kleine tovenaar. De sterren vergeten jou niet.\u201D De raaf buigt plechtig zijn kopje.', en: '\u201CCaw! Well done, little wizard. The stars will not forget you.\u201D The raven bows his head solemnly.' }
