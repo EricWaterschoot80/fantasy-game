@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '138',
+  assetVer: '139',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -132,7 +132,7 @@ const GAME = {
     q_takespell:{ nl: 'De tovenaar zweeft in hogere sferen — bekijk het ZONNESTELSEL op de sokkel rechts en draai de hemelschijf: daar wacht de Zonsverduistering-spreuk', en: 'The wizard floats among the stars — examine the SOLAR SYSTEM on the pedestal to the right and turn the celestial disc: the Solar Eclipse spell awaits' },
     q_castEclipse:{ nl: 'Je hebt de Zonsverduistering-spreuk! Tik hem aan in je tas en spreek hem uit bij het grote raam van de bibliotheek', en: 'You have the Solar Eclipse spell! Tap it in your bag and speak it at the great library window' },
     q_telescope:{ nl: 'De zon is verduisterd en de sterren fonkelen — kijk snel door de telescoop bij het raam!', en: 'The sun is darkened and the stars sparkle — quick, look through the telescope by the window!' },
-    q_readbook: { nl: 'De zon is verduisterd — er gloeien blauwe tekens op het boek! Alléén nu kun je het lezen: tik het aan en los de tekens-puzzel op voor de ONZICHTBAARHEIDSSPREUK', en: 'The sun is eclipsed — blue signs glow on the book! Only now can you read it: tap it and solve the signs puzzle for the INVISIBILITY SPELL' },
+    q_readbook: { nl: 'De zon is verduisterd! Kijk door de telescoop — drie tekens fonkelen tussen de sterren — en lees dan het gloeiende boek: los de tekens-puzzel op voor de ONZICHTBAARHEIDSSPREUK', en: 'The sun is eclipsed! Look through the telescope — three signs sparkle among the stars — then read the glowing book: solve the signs puzzle for the INVISIBILITY SPELL' },
     q_altar:    { nl: 'De onzichtbaarheidsspreuk is binnen! Open nu de geheime deur: zet de drie blauwe tekens Ψ ♃ ♄ op het sterren-altaar — elk in het gouden vakje — en trek aan de hendel', en: 'The invisibility spell is yours! Now open the secret door: set the three blue signs Ψ ♃ ♄ on the star altar — each in its golden box — and pull the lever' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
     q_freefather:{ nl: 'Je bent onzichtbaar langs de wachter! Praat met de gevangene bij de tralies — hij fluistert de volgorde van het kerkerslot: zon, maan, ster... en het teken van zijn staf', en: 'You slipped past the guard unseen! Talk to the prisoner at the bars — he whispers the order of the dungeon lock: sun, moon, star... and the sign of his staff' },
@@ -795,7 +795,8 @@ const GAME = {
       ],
       obstacles: [
         { x: 308, y: 206, w: 48, h: 50 },                  // de lessenaar zelf
-        { x: 416, y: 244, w: 118, h: 60 }                  // de altaar-sokkel met het zonnestelsel — niet doorheen lopen
+        { x: 416, y: 244, w: 118, h: 60 },                 // de altaar-sokkel met het zonnestelsel — niet doorheen lopen
+        { x: 160, y: 238, w: 56, h: 34 }                   // de tovenaar zelf — je loopt niet dwars door hem heen
       ],
       overlays: [],
       fx: {},
@@ -832,7 +833,7 @@ const GAME = {
             : state.flags.gotInvisSpell
             ? { nl: '\u201CKrra! De onzichtbaarheidsspreuk is van jou! Zet nu de drie blauwe tekens op het sterren-altaar daar rechts \u2014 elk in het gouden vakje \u2014 en trek aan de hendel: dan zwaait de geheime deur open.\u201D', en: '\u201CCaw! The invisibility spell is yours! Now set the three blue signs on the star altar to the right \u2014 each in its golden box \u2014 and pull the lever: the secret door will swing open.\u201D' }
             : state.flags.eclipseActive
-            ? { nl: '\u201CKrra! De zon is gedoofd \u2014 kijk, er gloeien blauwe tekens op het gloeiende boek! Lees het N\u00DA en los de tekens-puzzel op, voordat het licht terugkeert.\u201D', en: '\u201CCaw! The sun is dark \u2014 look, blue signs glow on the glowing book! Read it NOW and solve the signs puzzle, before the light returns.\u201D' }
+            ? { nl: '\u201CKrra! De zon is gedoofd \u2014 kijk door de TELESCOOP: drie tekens fonkelen tussen de sterren, van fel naar zwak! En op het gloeiende boek gloeit geheimschrift \u2014 lees het en los de tekens-puzzel op.\u201D', en: '\u201CCaw! The sun is dark \u2014 look through the TELESCOPE: three signs sparkle among the stars, bright to faint! And secret script glows on the glowing book \u2014 read it and solve the signs puzzle.\u201D' }
             : state.flags.gotEclipseSpell
             ? { nl: '\u201CKrra! Je hebt de spreuk! Tik hem aan in je tas en spreek hem uit \u2014 dan dooft de zon en tonen de geheime tekens zich in het boek.\u201D', en: '\u201CCaw! You have the spell! Tap it in your bag and speak it \u2014 the sun will darken and the secret signs will show in the book.\u201D' }
             : state.flags.wizardTripping
@@ -850,7 +851,7 @@ const GAME = {
           id: 'librarian',
           name: { nl: 'De Tovenaar', en: 'The Wizard' },
           rect: { x: 174, y: 140, w: 54, h: 122 },
-          walkTo: { x: 168, y: 256 },
+          walkTo: { x: 244, y: 268 },
           look: (state) => state.flags.wizardTripping
             ? { nl: 'De oude tovenaar zweeft bijna. Hij staart met grote ogen naar het plafond en giechelt: \u201CDe sterren... de sterren d\u00E1nsen! Ik zie de hemelwielen draaien...\u201D Het gloeiende boek ziet hij allang niet meer.', en: 'The old wizard is practically floating. He stares wide-eyed at the ceiling and giggles: \u201CThe stars... the stars are DANCING! I can see the heavens turning...\u201D He has long forgotten the glowing book.' }
             : { nl: 'Een oude tovenaar met een lange grijze baard tuurt in het gloeiende boek. \u201CNiemand raakt de sterrenspreuken aan!\u201D bromt hij. Maar zijn neus snuffelt dromerig... alsof hij ergens naar hunkert. (De raaf op de vensterbank grinnikt: \u201CKrra... paddenstoelen!\u201D)', en: 'An old wizard with a long grey beard peers into the glowing book. \u201CNo one touches the star spells!\u201D he grumbles. But his nose sniffs dreamily... as if he craves something. (The raven on the sill snickers: \u201CCaw... mushrooms!\u201D)' },
