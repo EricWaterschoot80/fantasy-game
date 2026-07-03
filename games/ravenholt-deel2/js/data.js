@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '137',
+  assetVer: '138',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -129,11 +129,11 @@ const GAME = {
     q_usekey:   { nl: 'Gebruik de sleutel op het slot onder de leeuwenkop van de fontein om de geheime poort te openen', en: 'Use the key on the lock beneath the fountain’s lion head to open the secret gate' },
     q_through:  { nl: 'De geheime poort staat open naast de leeuwenfontein — stap erdoorheen, de donkere gang in', en: 'The secret gate stands open beside the lion fountain — step through it, into the dark passage' },
     q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een oude tovenaar bewaakt het gloeiende boek — de raaf op de vensterbank weet vast raad (psst: hij fluistert iets over paddenstoelen bij de put)', en: 'Through the secret gate you reach the castle library. An old wizard guards the glowing book — the raven on the windowsill surely knows a trick (psst: he whispers something about mushrooms by the well)' },
-    q_takespell:{ nl: 'De tovenaar zweeft in hogere sferen — kijk nu in het gloeiende boek op de lessenaar: daar wacht de Zonsverduistering-spreuk', en: 'The wizard floats among the stars — look in the glowing book on the lectern: the Solar Eclipse spell awaits' },
+    q_takespell:{ nl: 'De tovenaar zweeft in hogere sferen — bekijk het ZONNESTELSEL op de sokkel rechts en draai de hemelschijf: daar wacht de Zonsverduistering-spreuk', en: 'The wizard floats among the stars — examine the SOLAR SYSTEM on the pedestal to the right and turn the celestial disc: the Solar Eclipse spell awaits' },
     q_castEclipse:{ nl: 'Je hebt de Zonsverduistering-spreuk! Tik hem aan in je tas en spreek hem uit bij het grote raam van de bibliotheek', en: 'You have the Solar Eclipse spell! Tap it in your bag and speak it at the great library window' },
     q_telescope:{ nl: 'De zon is verduisterd en de sterren fonkelen — kijk snel door de telescoop bij het raam!', en: 'The sun is darkened and the stars sparkle — quick, look through the telescope by the window!' },
-    q_readbook: { nl: 'De zon is verduisterd! Alléén nu kun je het gloeiende boek lezen — tik het aan en bekijk de drie blauwe geheime tekens van de onzichtbaarheidsspreuk', en: 'The sun is eclipsed! Only now can you read the glowing book — tap it and study the three blue secret signs of the invisibility spell' },
-    q_altar:    { nl: 'Je zag drie blauwe tekens in het boek: Ψ ♃ ♄. Zet ze op het sterren-altaar rechts in de bibliotheek — elk teken in het gouden vakje — en trek aan de hendel', en: 'You saw three blue signs in the book: Ψ ♃ ♄. Set them on the star altar at the right of the library — each sign in its golden box — and pull the lever' },
+    q_readbook: { nl: 'De zon is verduisterd — er gloeien blauwe tekens op het boek! Alléén nu kun je het lezen: tik het aan en los de tekens-puzzel op voor de ONZICHTBAARHEIDSSPREUK', en: 'The sun is eclipsed — blue signs glow on the book! Only now can you read it: tap it and solve the signs puzzle for the INVISIBILITY SPELL' },
+    q_altar:    { nl: 'De onzichtbaarheidsspreuk is binnen! Open nu de geheime deur: zet de drie blauwe tekens Ψ ♃ ♄ op het sterren-altaar — elk in het gouden vakje — en trek aan de hendel', en: 'The invisibility spell is yours! Now open the secret door: set the three blue signs Ψ ♃ ♄ on the star altar — each in its golden box — and pull the lever' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
     q_freefather:{ nl: 'Je bent onzichtbaar langs de wachter! Praat met de gevangene bij de tralies — hij fluistert de volgorde van het kerkerslot: zon, maan, ster... en het teken van zijn staf', en: 'You slipped past the guard unseen! Talk to the prisoner at the bars — he whispers the order of the dungeon lock: sun, moon, star... and the sign of his staff' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
@@ -153,7 +153,7 @@ const GAME = {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Hij voelt vertrouwd in je hand — met de juiste spreuk in je boek kun je hem laten werken.', en: 'My father’s wooden staff. It feels familiar in your hand — with the right spell in your book you can make it work.' } },
     invisspell: { name: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' }, icon: '👻', img: 'assets/art/item-invisspell.png', sparkle: true, border: 'blue',
-             look: { nl: 'De onzichtbaarheidsspreuk uit het sterren-altaar in de kasteelbibliotheek. De letters lijken weg te vagen terwijl je kijkt — wie weet welke deuren dit in Deel 3 opent...', en: 'The invisibility spell from the star altar in the castle library. Its letters seem to fade away as you watch — who knows what doors this opens in Part 3...' } },
+             look: { nl: 'De onzichtbaarheidsspreuk uit het gloeiende boek — gelezen bij het licht van de zonsverduistering. De letters lijken weg te vagen terwijl je kijkt... Spreek hem uit waar een bewaker je níet mag zien. (Tik de spreuk aan om hem uit te spreken.)', en: 'The invisibility spell from the glowing book — read by the light of the solar eclipse. Its letters seem to fade away as you watch... Speak it where a guard must not see you. (Tap the spell to cast it.)' } },
     eclipsspell: { name: { nl: 'Zonsverduistering-spreuk', en: 'Solar Eclipse Spell' }, icon: '🌑', img: 'assets/art/item-eclipsspell.png', border: 'blue',
              look: { nl: 'De Spreuk van de Zonsverduistering — “Umbra Solis” — uit het gloeiende boek. Spreek hem uit bij het grote raam van de bibliotheek en de zon dooft, zodat de sterren zich overdag tonen. (Tik de spreuk aan om hem uit te spreken.)', en: 'The Spell of the Solar Eclipse — “Umbra Solis” — from the glowing book. Speak it at the great library window and the sun goes dark, so the stars show themselves by day. (Tap the spell to cast it.)' } },
     hammer: { name: { nl: 'Smidshamer', en: 'Blacksmith’s Hammer' }, icon: '🔨', img: 'assets/art/item-hammer.png',
@@ -256,9 +256,9 @@ const GAME = {
 
   questRules: [
     { when: { flag: 'guardPassed', notFlag: 'fatherFreed' },             quest: 'q_freefather' },    // onzichtbaar langs de wachter -> open het kerkerslot bij de cel
-    { when: { flag: 'gotInvisSpell', notFlag: 'fatherFreed' },           quest: 'q_dungeon' },       // spreuk + open deur -> daal af in de kerker en word onzichtbaar langs de wachter
-    { when: { flag: 'sawSigns', notFlag: 'gotInvisSpell' },              quest: 'q_altar' },         // blauwe tekens gezien -> zet ze op het sterren-altaar
-    { when: { flag: 'eclipseActive', notFlag: 'sawSigns' },              quest: 'q_readbook' },      // eclips actief -> lees nu de blauwe tekens in het gloeiende boek
+    { when: { flag: 'altarSolved', notFlag: 'fatherFreed' },             quest: 'q_dungeon' },       // geheime deur open -> daal af in de kerker en word onzichtbaar langs de wachter
+    { when: { flag: 'gotInvisSpell', notFlag: 'altarSolved' },           quest: 'q_altar' },         // spreuk binnen -> open de geheime deur met de drie tekens + hendel
+    { when: { flag: 'eclipseActive', notFlag: 'gotInvisSpell' },         quest: 'q_readbook' },      // eclips actief -> los de tekens-puzzel in het gloeiende boek op
     { when: { flag: 'gotEclipseSpell', notFlag: 'eclipseActive' },       quest: 'q_castEclipse' },   // spreuk binnen -> spreek hem uit
     { when: { flag: 'wizardTripping', notFlag: 'gotEclipseSpell' },      quest: 'q_takespell' },     // tovenaar in trance -> kijk in het gloeiende boek
     { when: { flag: 'secretGateOpen', notFlag: 'gotInvisSpell' },        quest: 'q_library' },       // poort open -> de bibliotheek in, geef de tovenaar de paddenstoelen
@@ -294,10 +294,14 @@ const GAME = {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
       bg: 'assets/art/scene-courtyard.jpg',
       bgVariants: [
-        // eerste passende wint
-        { img: 'assets/art/scene-courtyard-raven-swordgone.jpg', flags: ['ravenInBucket'], notFlags: ['gotNecklace'] },  // raaf in de put -> lege rek
-        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['squireGaveRope'] },                            // zwaard ingeleverd bij de schildknaap -> tentoongesteld
-        { img: 'assets/art/scene-courtyard-swordgone.jpg',       flags: ['squireGaveSword'] }                            // gebroken zwaard gekregen -> rek leeg (smeden verandert dit niet)
+        // eerste passende wint — het zwaard-op-de-standaard en de raaf-in-de-emmer zijn onafhankelijke toestanden, dus alle combinaties:
+        { img: 'assets/art/scene-courtyard-raven-sword.jpg',     flags: ['ravenInBucket', 'squireGaveRope'],  notFlags: ['gotNecklace'] },              // raaf in de emmer + zwaard ingeleverd -> tentoongesteld
+        { img: 'assets/art/scene-courtyard-raven-sword.jpg',     flags: ['ravenInBucket', 'swordForged'],     notFlags: ['gotNecklace', 'gotSword'] },   // raaf in de emmer + gesmeed zwaard wacht bij de tent (nog niet gepakt!)
+        { img: 'assets/art/scene-courtyard-raven-swordgone.jpg', flags: ['ravenInBucket', 'squireGaveSword'], notFlags: ['gotNecklace'] },              // raaf in de emmer + zwaard in je tas -> lege standaard
+        { img: 'assets/art/scene-courtyard-raven.jpg',           flags: ['ravenInBucket'],                    notFlags: ['gotNecklace'] },              // raaf in de emmer, zwaard nog onaangeroerd
+        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['squireGaveRope'] },                                                           // zwaard ingeleverd bij de schildknaap -> tentoongesteld
+        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['swordForged'],                      notFlags: ['gotSword'] },                 // net gesmeed: het zwaard glanst bij de tent tot je het pakt
+        { img: 'assets/art/scene-courtyard-swordgone.jpg',       flags: ['squireGaveSword'] }                                                           // gebroken zwaard gekregen/onderweg -> standaard leeg
       ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
@@ -796,7 +800,7 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 188, y: 260, scale: 0.86, sway: 0.014, aweSwayMul: 2.0, aweSwayMs: 1350, flip: true, filter: 'brightness(0.64) saturate(0.86)', aweSprites: ['librarian-trip1', 'librarian-trip2'], aweFlag: 'wizardTripping' },   // de pixel-tovenaar — donker, zachte wieg; onder hypnose een rustige, iets bredere schommel + zwevende twinkels (engine)
+        { id: 'librarian', sprite: 'librarian', x: 188, y: 260, scale: 0.86, sway: 0.014, aweSwayMul: 3.0, aweSwayMs: 1250, flip: true, filter: 'brightness(0.64) saturate(0.86)', aweSprites: ['librarian-trip1', 'librarian-trip2'], aweFlag: 'wizardTripping' },   // de pixel-tovenaar — donker; onder hypnose duidelijk waggelen + halo en twinkels (engine)
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 155, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter, 5px lager
       ],
       worldItems: [],
@@ -823,17 +827,17 @@ const GAME = {
           name: { nl: 'De Raaf', en: 'The Raven' },
           rect: { x: 338, y: 118, w: 42, h: 58 },
           walkTo: { x: 344, y: 252 },
-          look: (state) => state.flags.gotInvisSpell
-            ? { nl: '\u201CKrra! Goed gedaan, kleine tovenaar. De sterren vergeten jou niet.\u201D De raaf buigt plechtig zijn kopje.', en: '\u201CCaw! Well done, little wizard. The stars will not forget you.\u201D The raven bows his head solemnly.' }
-            : state.flags.sawSigns
-            ? { nl: '\u201CKrra! Je z\u00E1g ze \u2014 de drie blauwe tekens in het boek! Zet ze op het sterren-altaar daar rechts, alle drie in het gouden vakje, en trek aan de hendel.\u201D', en: '\u201CCaw! You SAW them \u2014 the three blue signs in the book! Set them on the star altar to the right, all three in the golden box, and pull the lever.\u201D' }
+          look: (state) => state.flags.altarSolved
+            ? { nl: '\u201CKrra! De geheime deur staat open \u2014 de trap af, de kerker in! En onthoud: wat een wachter niet z\u00EDet, kan hij niet tegenhouden...\u201D', en: '\u201CCaw! The secret door stands open \u2014 down the stairs, into the dungeon! And remember: what a guard cannot SEE, he cannot stop...\u201D' }
+            : state.flags.gotInvisSpell
+            ? { nl: '\u201CKrra! De onzichtbaarheidsspreuk is van jou! Zet nu de drie blauwe tekens op het sterren-altaar daar rechts \u2014 elk in het gouden vakje \u2014 en trek aan de hendel: dan zwaait de geheime deur open.\u201D', en: '\u201CCaw! The invisibility spell is yours! Now set the three blue signs on the star altar to the right \u2014 each in its golden box \u2014 and pull the lever: the secret door will swing open.\u201D' }
             : state.flags.eclipseActive
-            ? { nl: '\u201CKrra! De zon is gedoofd \u2014 lees N\u00DA het gloeiende boek, voordat het licht terugkeert! De blauwe tekens tonen zich alleen in het donker.\u201D', en: '\u201CCaw! The sun is dark \u2014 read the glowing book NOW, before the light returns! The blue signs only show in the dark.\u201D' }
+            ? { nl: '\u201CKrra! De zon is gedoofd \u2014 kijk, er gloeien blauwe tekens op het gloeiende boek! Lees het N\u00DA en los de tekens-puzzel op, voordat het licht terugkeert.\u201D', en: '\u201CCaw! The sun is dark \u2014 look, blue signs glow on the glowing book! Read it NOW and solve the signs puzzle, before the light returns.\u201D' }
             : state.flags.gotEclipseSpell
-            ? { nl: '\u201CKrra! Je hebt de spreuk! Tik hem aan in je tas en spreek hem uit \u2014 dan dooft de zon en tonen de sterren zich.\u201D', en: '\u201CCaw! You have the spell! Tap it in your bag and speak it \u2014 the sun will darken and the stars will show themselves.\u201D' }
+            ? { nl: '\u201CKrra! Je hebt de spreuk! Tik hem aan in je tas en spreek hem uit \u2014 dan dooft de zon en tonen de geheime tekens zich in het boek.\u201D', en: '\u201CCaw! You have the spell! Tap it in your bag and speak it \u2014 the sun will darken and the secret signs will show in the book.\u201D' }
             : state.flags.wizardTripping
-            ? { nl: '\u201CKrra! Moet je hem zien zweven... Sn\u00E9l, kijk nu in het gloeiende boek \u2014 de spreuk van de zonsverduistering wacht op je!\u201D', en: '\u201CCaw! Look at him float... Quick, look in the glowing book now \u2014 the eclipse spell awaits you!\u201D' }
-            : { nl: 'De raaf zit parmantig op de vensterbank. \u201CKrra! Die oude tovenaar wijkt geen duimbreed van dat boek... Maar ik weet w\u00E1t hij niet kan weerstaan: paddenstoelen! Van die glimmende, bij de oude put op de binnenplaats.\u201D', en: 'The raven perches proudly on the windowsill. \u201CCaw! That old wizard will not budge an inch from that book... But I know what he cannot resist: mushrooms! The shiny kind, by the old well in the courtyard.\u201D' }
+            ? { nl: '\u201CKrra! Moet je hem zien zweven... Sn\u00E9l \u2014 kijk naar het ZONNESTELSEL op de sokkel rechts! Draai de hemelschijf tot zon, maan en ster op \u00E9\u00E9n lijn staan \u2014 d\u00E1\u00E1r zit de zonsverduistering-spreuk in.\u201D', en: '\u201CCaw! Look at him float... Quick \u2014 look at the SOLAR SYSTEM on the pedestal to the right! Turn the celestial disc until sun, moon and star line up \u2014 that is where the eclipse spell hides.\u201D' }
+            : { nl: 'De raaf zit parmantig op de vensterbank. \u201CKrra! Die oude tovenaar wijkt geen duimbreed van zijn instrumenten... Maar ik weet w\u00E1t hij niet kan weerstaan: paddenstoelen! Van die glimmende, bij de oude put op de binnenplaats.\u201D', en: 'The raven perches proudly on the windowsill. \u201CCaw! That old wizard will not budge an inch from his instruments... But I know what he cannot resist: mushrooms! The shiny kind, by the old well in the courtyard.\u201D' }
         },
         {
           id: 'shelves',
@@ -863,53 +867,68 @@ const GAME = {
           name: { nl: 'Het Gloeiende Boek', en: 'The Glowing Book' },
           rect: { x: 228, y: 122, w: 92, h: 94 },
           walkTo: { x: 300, y: 256 },
-          look: (state) => (state.flags.gotEclipseSpell && state.flags.sawSigns)
-            ? { nl: 'In het boek gloeien drie blauwe tekens na: \u03a8 \u2643 \u2644. Precies die drie moeten op het sterren-altaar rechts.', en: 'Three blue signs glow in the book: \u03a8 \u2643 \u2644. Those three belong on the star altar to the right.' }
+          look: (state) => state.flags.gotInvisSpell
+            ? { nl: 'In het boek gloeien de drie blauwe tekens na: \u03a8 \u2643 \u2644. Precies die drie moeten op het sterren-altaar rechts \u2014 trek daarna aan de hendel.', en: 'Three blue signs glow in the book: \u03a8 \u2643 \u2644. Those three belong on the star altar to the right \u2014 then pull the lever.' }
             : (state.flags.gotEclipseSpell && state.flags.eclipseActive)
-            ? { nl: 'Nu de zon verduisterd is, lichten er blauwe geheime tekens op tussen de bladzijden \u2014 de sleutel tot de onzichtbaarheidsspreuk. Lees ze!', en: 'Now that the sun is darkened, blue secret signs light up between the pages \u2014 the key to the invisibility spell. Read them!' }
+            ? { nl: 'Nu de zon verduisterd is, gloeien er blauwe geheime tekens op de bladzijden \u2014 de sleutel tot de ONZICHTBAARHEIDSSPREUK. Lees het boek en los de tekens-puzzel op!', en: 'Now that the sun is darkened, blue secret signs glow on the pages \u2014 the key to the INVISIBILITY SPELL. Read the book and solve the signs puzzle!' }
             : state.flags.gotEclipseSpell
-            ? { nl: 'Het grote boek is uitgedoofd. Bij gewoon daglicht zie je alleen vage krabbels \u2014 maar toen de zon verduisterde, leken er tekens op te gloeien... Verduister de zon opnieuw om ze te lezen.', en: 'The great book has gone dark. In plain daylight you see only faint scribbles \u2014 but when the sun was eclipsed, signs seemed to glow... Darken the sun again to read them.' }
+            ? { nl: 'Bij daglicht toont het grote boek alleen vage krabbels \u2014 maar bij een zonsverduistering gloeien er tekens op... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'In daylight the great book shows only faint scribbles \u2014 but during a solar eclipse signs glow up... Cast the eclipse spell at the window, then read the book.' }
             : state.flags.wizardTripping
-            ? { nl: 'Het boek slaat vanzelf open bij een pagina vol sterren: de Spreuk van de Zonsverduistering! Pak hem nu de tovenaar in hogere sferen is.', en: 'The book falls open at a page full of stars: the Spell of the Solar Eclipse! Take it while the wizard is away with the stars.' }
+            ? { nl: 'Het boek gloeit zacht, maar de bladzijden tonen enkel vreemde krabbels. In de kantlijn staat een kleine tekening: het ZONNESTELSEL op de sokkel, met draaiende ringen eromheen... Bekijk dat zonnestelsel eens!', en: 'The book glows softly, but its pages show only strange scribbles. In the margin sits a small drawing: the SOLAR SYSTEM on the pedestal, with turning rings around it... Take a look at that solar system!' }
             : { nl: 'Een groot boek op de lessenaar gloeit zacht. De tovenaar houdt het scherp in de gaten \u2014 je durft het niet aan te raken.', en: 'A great book on the lectern glows softly. The wizard watches it sharply \u2014 you dare not touch it.' },
+          signsBook: {                                     // HET BOEK IS ZELF EEN PUZZEL: alleen leesbaar bij verduistering; oplossen = de onzichtbaarheidsspreuk
+            requiresFlag: 'gotEclipseSpell',
+            blockedText: (state) => state.flags.wizardTripping
+              ? { nl: 'Je bladert door het boek: vreemde krabbels, en \u00e9\u00e9n tekeningetje van het zonnestelsel op de sokkel met draaiende ringen. D\u00e1\u00e1r moet je zijn \u2014 bekijk het zonnestelsel!', en: 'You leaf through the book: strange scribbles, and one little drawing of the solar system on the pedestal with turning rings. That is where to go \u2014 look at the solar system!' }
+              : { nl: '\u201cNiemand raakt de sterrenspreuken aan!\u201d snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201cKrra... paddenstoelen, bij de put!\u201d)', en: '\u201cNo one touches the star spells!\u201d snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201cCaw... mushrooms, by the well!\u201d)' },
+            eclipseFlag: 'eclipseActive',
+            dayText: { nl: 'Bij daglicht zie je alleen vage krabbels. Toen de zon verduisterd was, gloeiden er blauwe tekens op het boek... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'In daylight you see only faint scribbles. When the sun was eclipsed, blue signs glowed on the book... Cast the eclipse spell at the window, then read the book.' },
+            zoomImg: 'assets/art/book-signs.jpg',          // na de puzzel: opnieuw tikken toont de drie tekens nog eens rustig
+            puzzle: {                                      // DE TEKENS-PUZZEL: zes tekens, alleen de drie blauw gloeiende horen bij de spreuk
+              img: 'assets/art/puzzle-booksigns.jpg',
+              title: { nl: 'De Geheime Tekens', en: 'The Secret Signs' },
+              hint: { nl: 'Zes tekens op de pagina \u2014 maar alleen DRIE gloeien blauw. Tik de gloeiende tekens aan van FEL naar ZWAK; de vale tekens horen er niet bij!', en: 'Six signs on the page \u2014 but only THREE glow blue. Tap the glowing signs from BRIGHT to FAINT; the pale signs do not belong!' },
+              zones: [
+                { key: 'omega', left: 10, top: 27, width: 20, height: 26 },
+                { key: 'psi',   left: 40, top: 25, width: 20, height: 26 },
+                { key: 'delta', left: 70, top: 27, width: 20, height: 26 },
+                { key: 'sat',   left: 10, top: 61, width: 20, height: 26 },
+                { key: 'phi',   left: 40, top: 63, width: 20, height: 26 },
+                { key: 'jup',   left: 70, top: 61, width: 20, height: 26 }
+              ],
+              sequence: ['psi', 'jup', 'sat'],
+              resetText: { nl: 'Het teken dooft meteen... dat hoorde er niet bij, of de volgorde klopte niet. Begin opnieuw: van fel naar zwak!', en: 'The sign fades at once... it did not belong, or the order was wrong. Start over: bright to faint!' },
+              setFlag: ['sawSigns', 'gotInvisSpell'],
+              give: 'invisspell',
+              solvedText: { nl: 'De drie tekens vlammen zilverblauw op \u2014 \u03a8 \u2643 \u2644 \u2014 en een zilveren bladzijde schrijft zich over in jouw toverboek: de SPREUK VAN ONZICHTBAARHEID! Onthoud de drie tekens goed: zet ze op het sterren-altaar rechts en trek aan de hendel om de geheime deur te openen.', en: 'The three signs blaze silver-blue \u2014 \u03a8 \u2643 \u2644 \u2014 and a silver page writes itself into your spellbook: the SPELL OF INVISIBILITY! Remember the three signs well: set them on the star altar to the right and pull the lever to open the secret door.' }
+            }
+          }
+        },
+        {
+          id: 'orrery',
+          name: { nl: 'Het Zonnestelsel', en: 'The Solar System' },
+          rect: { x: 436, y: 126, w: 100, h: 56 },
+          walkTo: { x: 404, y: 282 },
+          look: (state) => state.flags.gotEclipseSpell
+            ? { nl: 'Het koperen zonnestelsel rust weer; de ringen staan op \u00e9\u00e9n lijn. De zonsverduistering-spreuk staat in je toverboek.', en: 'The brass solar system rests again; its rings stand aligned. The eclipse spell is in your spellbook.' }
+            : { nl: 'Een prachtig koperen zonnestelsel draait langzaam op de sokkel: een gloeiende zon met ringen van planeten en sterren eromheen. Er zit een draaimechaniek in...', en: 'A beautiful brass solar system slowly turns on the pedestal: a glowing sun with rings of planets and stars around it. There is a turning mechanism inside...' },
           eclipsePuzzle: {
             requiresFlag: 'wizardTripping',
-            blockedText: { nl: '\u201CNiemand raakt de sterrenspreuken aan!\u201D snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201CKrra... paddenstoelen, bij de put!\u201D)', en: '\u201CNo one touches the star spells!\u201D snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201CCaw... mushrooms, by the well!\u201D)' },
-            positions: 8,
+            blockedText: { nl: '\u201cBlijf van mijn instrumenten af!\u201d snauwt de tovenaar zonder zelfs op te kijken. Zolang hij erbij is, mag je nergens aankomen. (De raaf fluistert: \u201cKrra... paddenstoelen, bij de put!\u201d)', en: '\u201cKeep your hands off my instruments!\u201d snaps the wizard without even looking up. While he is around you may touch nothing. (The raven whispers: \u201cCaw... mushrooms, by the well!\u201d)' },
+            positions: 10,
+            linked: true,
             title: { nl: 'De Hemelschijf', en: 'The Celestial Disc' },
-            hint: { nl: 'Het boek toont een draaibare hemelschijf met drie ringen: Zon \u2609, Maan \u263D en Ster \u2726. Draai elke ring (tik links of rechts) tot alle drie de tekens bovenaan onder de gouden wijzer staan en groen oplichten \u2014 zo lijn je zon, maan en aarde uit voor de verduistering.', en: 'The book shows a turnable celestial disc with three rings: Sun \u2609, Moon \u263D and Star \u2726. Turn each ring (tap left or right) until all three marks sit at the top under the golden pointer and glow green \u2014 aligning sun, moon and earth for the eclipse.' },
+            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar pas op: de ringen zitten aan elkaar vast! De zonnering sleept de maanring mee, en de maanring de sterrenring. Alleen de binnenste draait vrij. (Tik links of rechts van een ring.)', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But beware: the rings are linked! The sun ring drags the moon ring along, and the moon ring drags the star ring. Only the innermost turns free. (Tap left or right of a ring.)' },
             rings: [
-              { start: 3 },
-              { start: 6 },
-              { start: 2 }
+              { start: 4 },
+              { start: 7 },
+              { start: 3 }
             ],
             setFlag: 'gotEclipseSpell',
             give: 'eclipsspell',
-            afterSigns: {                                  // ná de eclips-spreuk: het boek is alléén bij verduistering te lezen — dan wacht de tekens-puzzel
-              eclipseFlag: 'eclipseActive',
-              setFlag: 'sawSigns',
-              zoomImg: 'assets/art/book-signs.jpg',        // na de puzzel: opnieuw tikken toont de drie tekens nog eens rustig
-              dayText: { nl: 'Je bladert het gloeiende boek open, maar in het felle daglicht zie je alleen vage krabbels. Toen de zon verduisterd was, gloeiden er tekens op... Spreek de zonsverduistering-spreuk opnieuw uit bij het raam en lees dán het boek.', en: 'You leaf through the glowing book, but in the bright daylight you see only faint scribbles. When the sun was eclipsed, signs glowed up... Cast the eclipse spell again at the window and read the book then.' },
-              puzzle: {                                    // DE TEKENS-PUZZEL: zes tekens op de pagina, maar alleen de drie blauw gloeiende horen bij de spreuk
-                img: 'assets/art/puzzle-booksigns.jpg',
-                title: { nl: 'De Geheime Tekens', en: 'The Secret Signs' },
-                hint: { nl: 'Zes tekens op de pagina — maar alleen DRIE gloeien blauw. Tik de gloeiende tekens aan van FEL naar ZWAK; de vale tekens horen er niet bij!', en: 'Six signs on the page — but only THREE glow blue. Tap the glowing signs from BRIGHT to FAINT; the pale signs do not belong!' },
-                zones: [
-                  { key: 'omega', left: 10, top: 27, width: 20, height: 26 },
-                  { key: 'psi',   left: 40, top: 25, width: 20, height: 26 },
-                  { key: 'delta', left: 70, top: 27, width: 20, height: 26 },
-                  { key: 'sat',   left: 10, top: 61, width: 20, height: 26 },
-                  { key: 'phi',   left: 40, top: 63, width: 20, height: 26 },
-                  { key: 'jup',   left: 70, top: 61, width: 20, height: 26 }
-                ],
-                sequence: ['psi', 'jup', 'sat'],
-                resetText: { nl: 'Het teken dooft meteen... dat hoorde er niet bij, of de volgorde klopte niet. Begin opnieuw: van fel naar zwak!', en: 'The sign fades at once... it did not belong, or the order was wrong. Start over: bright to faint!' },
-                setFlag: 'sawSigns',
-                solvedText: { nl: 'De drie tekens vlammen zilverblauw op en zweven even boven de bladzijde: Ψ ♃ ♄! Dit zijn de tekens van de ONZICHTBAARHEID — zet ze precies zo op het sterren-altaar rechts en trek aan de hendel.', en: 'The three signs blaze silver-blue and hover above the page: Ψ ♃ ♄! These are the signs of INVISIBILITY — set them just so on the star altar to the right and pull the lever.' }
-              }
-            },
-            solvedText: { nl: 'De drie ringen klikken op \u00E9\u00E9n lijn \u2014 de maan schuift langzaam v\u00F3\u00F3r de zon en een gloeiende corona vlamt op. Op de bladzijde schrijft de ZONSVERDUISTERING-SPREUK, \u201CUmbra Solis\u201D, zich in zilveren letters over in jouw toverboek! (Tik de spreuk aan in je tas om hem uit te spreken bij het grote raam.)', en: 'The three rings click into one line \u2014 the moon slides slowly across the sun and a glowing corona flares. On the page the SOLAR ECLIPSE SPELL, \u201CUmbra Solis\u201D, writes itself in silver letters into your spellbook! (Tap the spell in your bag to cast it at the great window.)' },
-            doneText: { nl: 'Het boek is uitgedoofd; de zonsverduistering-spreuk staat al in jouw toverboek.', en: 'The book has gone dark; the eclipse spell is already in your spellbook.' }
+            solvedZoom: 'assets/art/spell-eclipse-page.jpg',
+            solvedText: { nl: 'De drie ringen klikken op \u00e9\u00e9n lijn \u2014 de maan schuift langzaam v\u00f3\u00f3r de zon en een gloeiende corona vlamt op! Boven het zonnestelsel verschijnen tekens en zilveren letters: \u201cUmbra Solis\u201d \u2014 de ZONSVERDUISTERING-SPREUK schrijft zich in je toverboek! (Tik de spreuk aan in je tas om hem uit te spreken bij het grote raam.)', en: 'The three rings click into one line \u2014 the moon slides slowly across the sun and a glowing corona flares! Above the solar system, signs and silver letters appear: \u201cUmbra Solis\u201d \u2014 the SOLAR ECLIPSE SPELL writes itself into your spellbook! (Tap the spell in your bag to cast it at the great window.)' },
+            doneText: { nl: 'Het zonnestelsel rust; de zonsverduistering-spreuk staat al in jouw toverboek.', en: 'The solar system rests; the eclipse spell is already in your spellbook.' }
           }
         },
         {
@@ -926,14 +945,14 @@ const GAME = {
         {
           id: 'altar',
           name: { nl: 'Het Sterren-Altaar', en: 'The Star Altar' },
-          rect: { x: 418, y: 170, w: 114, h: 106 },
+          rect: { x: 418, y: 186, w: 114, h: 90 },
           walkTo: { x: 404, y: 282 },
-          look: (state) => state.flags.gotInvisSpell
+          look: (state) => state.flags.altarSolved
             ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
             : { nl: 'Een stenen altaar met drie schuifrijen vol vreemde tekens, en rechts drie gouden vakjes onder elkaar. Welke drie tekens horen daar? De sterren weten het antwoord...', en: 'A stone altar with three sliding rows of strange signs, and three golden boxes on the right. Which three signs belong there? The stars know the answer...' },
           starPuzzle: {
             requiresFlag: 'sawSigns',
-            blockedText: { nl: 'Drie rijen schuivende tekens en drie gouden vakjes... maar welke tekens horen erin? Je hebt geen idee \u2014 lees eerst de blauwe tekens in het gloeiende boek (dat lukt alleen bij een zonsverduistering).', en: 'Three rows of sliding signs and three golden boxes... but which signs belong there? You have no idea \u2014 first read the blue signs in the glowing book (only possible during a solar eclipse).' },
+            blockedText: { nl: 'Drie rijen schuivende tekens en drie gouden vakjes... maar welke tekens horen erin? Je hebt geen idee \u2014 los eerst de tekens-puzzel in het gloeiende boek op (dat lukt alleen bij een zonsverduistering).', en: 'Three rows of sliding signs and three golden boxes... but which signs belong there? You have no idea \u2014 first solve the signs puzzle in the glowing book (only possible during a solar eclipse).' },
             img: 'assets/art/puzzle-altar.jpg',
             manualCheck: true,
             title: { nl: 'Het Sterren-Altaar', en: 'The Star Altar' },
@@ -944,11 +963,10 @@ const GAME = {
               { symbols: ['\u2644', '\u0394', '\u03A9', '\u2643', '\u03A8'], start: 1 }
             ],
             targets: ['\u03A8', '\u2643', '\u2644'],
-            setFlag: ['altarSolved', 'gotInvisSpell'],
-            give: 'invisspell',
+            setFlag: ['altarSolved'],
             relight: { setFlag: 'libRelit', clearFlag: 'eclipseActive', delay: 2600, text: { nl: 'Achter het raam schuift de zwarte schijf weg van de zon. Het daglicht stroomt terug de zaal in \u2014 en in de muur, waar zojuist een boekenkast stond, gaapt nu een donkere doorgang naar beneden...', en: 'Behind the window the black disc slides off the sun. Daylight floods back into the hall \u2014 and in the wall, where a bookcase stood a moment ago, a dark passage now yawns downward...' } },
             wrongText: { nl: 'Je trekt aan de hendel... maar de tekens doven en het altaar bromt afkeurend. Nog niet juist \u2014 kijk nog eens goed naar de blauwe tekens in het boek en schuif de rijen bij.', en: 'You pull the lever... but the signs go dark and the altar grumbles. Not right yet \u2014 study the blue signs in the book again and adjust the rows.' },
-            solvedText: { nl: 'De drie sterren-tekens staan op \u00E9\u00E9n lijn en gloeien fel op! Met een diep, knarsend gerommel zwaait achter de boekenkast een geheime deur open \u2014 en op het altaar schrijft een zilveren bladzijde zich in je toverboek: de SPREUK VAN ONZICHTBAARHEID! Achter die deur voert een trap omlaag, de duisternis in...', en: 'The three star signs stand in one line and blaze with light! With a deep grinding rumble a secret door swings open behind the bookcase \u2014 and on the altar a silver page writes itself into your spellbook: the SPELL OF INVISIBILITY! Beyond the door a stair leads down, into the dark...' },
+            solvedText: { nl: 'De drie sterren-tekens staan op \u00E9\u00E9n lijn en gloeien fel op! Met een diep, knarsend gerommel zwaait achter de boekenkast een GEHEIME DEUR open. Daarachter voert een trap omlaag, de duisternis in \u2014 naar de kerker...', en: 'The three star signs stand in one line and blaze with light! With a deep grinding rumble a SECRET DOOR swings open behind the bookcase. Beyond it a stair leads down, into the dark \u2014 toward the dungeon...' },
             doneText: { nl: 'Het altaar rust; de tekens gloeien zachtjes na en de geheime deur staat open. Een trap voert omlaag, de kerker in.', en: 'The altar rests; the signs glow faintly and the secret door stands open. A stair leads down, into the dungeon.' }
           }
         }

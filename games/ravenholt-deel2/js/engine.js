@@ -2547,12 +2547,21 @@
           const savedF = fctx.filter; fctx.filter = 'none';
           const spr2 = ready(img) ? img : null;
           const hh = (spr2 ? (spr2.naturalHeight || 300) : 300) * 0.5 * sc2 * 0.62;   // ± hoofd-hoogte
-          for (let i = 0; i < 5; i++) {
-            const sp = 2400 + i * 420;                                    // eigen tempo per ster
-            const tx = rt.x + Math.sin(now / sp + i * 1.9) * (20 + i * 4) * sc2;
-            const ty = rt.y - hh * 1.35 + Math.sin(now / (sp * 0.77) + i * 2.3) * 9 * sc2 - i * 5;
-            const a = 0.18 + 0.4 * (0.5 + 0.5 * Math.sin(now / 520 + i * 2.1));   // zacht in-/uitfaden
-            twinkle(tx, ty, a, '190,215,255');
+          /* zachte, pulserende blauwe halo rond het hoofd — maakt de trance meteen zichtbaar */
+          const hx = rt.x, hy = rt.y - hh * 1.4;
+          const hr = 34 * sc2 * (1 + 0.12 * Math.sin(now / 700));
+          const ha = 0.16 + 0.08 * Math.sin(now / 520);
+          const hg = fctx.createRadialGradient(hx, hy, 2, hx, hy, hr);
+          hg.addColorStop(0, 'rgba(150,190,255,' + ha.toFixed(3) + ')');
+          hg.addColorStop(1, 'rgba(150,190,255,0)');
+          fctx.fillStyle = hg;
+          fctx.fillRect(Math.round(hx - hr), Math.round(hy - hr), Math.round(hr * 2), Math.round(hr * 2));
+          for (let i = 0; i < 8; i++) {                                   // acht zwevende twinkels in eigen trage banen
+            const sp = 2200 + i * 380;
+            const tx = rt.x + Math.sin(now / sp + i * 1.9) * (18 + (i % 4) * 7) * sc2;
+            const ty = rt.y - hh * 1.3 + Math.sin(now / (sp * 0.77) + i * 2.3) * 11 * sc2 - (i % 5) * 6;
+            const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 480 + i * 2.1));   // zacht in-/uitfaden, iets feller
+            twinkle(tx, ty, a, '195,220,255');
           }
           fctx.filter = savedF;
         }
@@ -3829,9 +3838,10 @@
      geef optioneel een voorwerp (pz.give) of verbruik er een (pz.consume). Volledig
      op de hotspot geconfigureerd (hs.symbolPuzzle), net als de boeken-puzzel. */
   let symHs = null, symProg = 0;
+  function symFlagDone(f) { return Array.isArray(f) ? f.every((k) => state.flags[k]) : state.flags[f]; }
   function openSymbolPuzzle(hs) {
     const pz = hs.symbolPuzzle;
-    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    if (symFlagDone(pz.setFlag)) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
     symHs = hs; symProg = 0;
     if (pz.img && elRuneImg) {                         // visuele aanwijzing: toon de afbeelding met de symbool-volgorde
       elRuneImg.src = pz.img + AV;
@@ -3883,7 +3893,7 @@
       symProg++;
       sfx('pickup');
       if (symProg >= pz.sequence.length) {
-        state.flags[pz.setFlag] = true;
+        (Array.isArray(pz.setFlag) ? pz.setFlag : [pz.setFlag]).forEach((f) => { state.flags[f] = true; });
         if (pz.consume) removeItem(pz.consume);
         if (pz.give) addItem(pz.give);
         const spSc = GAME.scenes[state.currentScene];          // achtergrond meteen verversen (bv. hamer uit het beeld -> tuin2)
@@ -4155,7 +4165,7 @@
 
   function openStarPuzzle(hs) {
     const pz = hs.starPuzzle;
-    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    if (symFlagDone(pz.setFlag)) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
     altarHs = hs; altSolved = false;
     altOff = pz.rows.map((r) => r.start || 0);
     if (!altBg) { altBg = new Image(); altBg.src = (pz.img || 'assets/art/puzzle-altar.jpg') + AV; }
@@ -4311,7 +4321,11 @@
   function eclShift(r, dir) {
     if (!eclHs || eclSolved) return;
     const N = eclHs.eclipsePuzzle.positions || 8;
-    eclOff[r] = (eclOff[r] + (dir > 0 ? 1 : N - 1)) % N;
+    const step = dir > 0 ? 1 : N - 1;
+    eclOff[r] = (eclOff[r] + step) % N;
+    /* Gekoppelde ringen (moeilijker): de zonnering sleept de maanring mee, en de
+       maanring sleept de sterrenring mee. Alleen de binnenste draait vrij. */
+    if (eclHs.eclipsePuzzle.linked && r < 2) eclOff[r + 1] = (eclOff[r + 1] + step) % N;
     sfx('tap');
     const pz = eclHs.eclipsePuzzle;
     const aligned = eclOff.every((o) => o === 0);
@@ -4326,7 +4340,12 @@
       sfx('combine');
       const h = eclHs;
       if (elEclStatus) elEclStatus.textContent = lang === 'nl' ? 'Uitgelijnd! De maan schuift voor de zon...' : 'Aligned! The moon slides across the sun...';
-      setTimeout(() => { eclipseClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 1600);
+      setTimeout(() => {
+        eclipseClose();
+        if (pz.solvedZoom) openZoom(pz.solvedZoom);         // toon de tekens + de spreuk 'Umbra Solis' op een eigen pagina
+        if (pz.solvedText) say(pz.solvedText, hsSpeaker(h));
+        updateQuest();
+      }, 1600);
     }
   }
   function eclLoop() {
@@ -5171,6 +5190,26 @@
         return;
       }
       openDialPuzzle(hs);
+      return;
+    }
+    /* Het gloeiende boek: pas leesbaar mét de eclips-spreuk en alléén tijdens de
+       zonsverduistering; dan wacht de tekens-puzzel die de onzichtbaarheidsspreuk geeft. */
+    if (hs.signsBook) {
+      const bs = hs.signsBook;
+      if (bs.requiresFlag && !state.flags[bs.requiresFlag]) {
+        sfx('error');
+        const bt = typeof bs.blockedText === 'function' ? bs.blockedText(state) : bs.blockedText;
+        say(bt || lookText(hs), hsSpeaker(hs)); return;
+      }
+      if (bs.eclipseFlag && !state.flags[bs.eclipseFlag]) {
+        sfx('error'); say(bs.dayText || lookText(hs), hsSpeaker(hs)); return;
+      }
+      if (bs.puzzle && !symFlagDone(bs.puzzle.setFlag)) {
+        openSymbolPuzzle(Object.assign({}, hs, { symbolPuzzle: bs.puzzle }));
+        return;
+      }
+      sfx('tap');
+      if (bs.zoomImg) openZoom(bs.zoomImg);                 // opnieuw lezen: toon de tekens-pagina als geheugensteun
       return;
     }
     if (hs.starPuzzle) {
