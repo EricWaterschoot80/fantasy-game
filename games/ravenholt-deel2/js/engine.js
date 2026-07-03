@@ -3890,7 +3890,12 @@
         if (spSc && spSc.bgVariants) paintBackground();
         sfx('combine');
         const h = symHs; symHs = null;
-        setTimeout(() => { elRune.hidden = true; if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 450);
+        setTimeout(() => {
+          elRune.hidden = true;
+          if (pz.solvedText) say(pz.solvedText, hsSpeaker(h));
+          if (pz.win) { pendingWin = true; sfx('win'); }   // bv. het kerkerslot: cel open -> einde Deel 2
+          updateQuest();
+        }, 450);
       } else {
         if (pz.zones) renderSymbolPuzzle();        // licht het ingedrukte teken op
         const rem = pz.sequence.length - symProg;
@@ -5184,6 +5189,10 @@
       if (epz.afterSigns && state.flags[epz.setFlag]) {
         const bs = epz.afterSigns;
         if (!state.flags[bs.eclipseFlag]) { sfx('error'); say(bs.dayText || lookText(hs), hsSpeaker(hs)); return; }
+        if (bs.puzzle && !state.flags[bs.puzzle.setFlag]) {           // eerst de tekens-puzzel oplossen (tik de gloeiende tekens in de juiste volgorde)
+          openSymbolPuzzle(Object.assign({}, hs, { symbolPuzzle: bs.puzzle }));
+          return;
+        }
         if (!state.flags[bs.setFlag]) { state.flags[bs.setFlag] = true; updateQuest(); }
         sfx('tap');
         openZoom(bs.zoomImg);

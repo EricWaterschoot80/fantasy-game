@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '136',
+  assetVer: '137',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -82,8 +82,8 @@ const GAME = {
   startFlags: ['mapFiled', 'spellWritten', 'gotRecipe', 'dragonSpellLearned'],
 
   winText: {
-    nl: 'Gefeliciteerd — je hebt DEEL 2 van Whispers of Ravenholt uitgespeeld! Je verzamelde drie spreuken, verduisterde de zon en sloop onzichtbaar langs de wachter tot diep in de kerker — waar je eindelijk je vader terugvond. Nu nog de sleutel en de weg naar buiten... maar dat verhaal bewaren we voor DEEL 3. Knap gedaan, held — tot snel!',
-    en: 'Congratulations — you have completed PART 2 of Whispers of Ravenholt! You gathered three spells, eclipsed the sun and slipped invisibly past the guard, deep into the dungeon — where you found your father at last. Now for the key and the way out... but that tale we save for PART 3. Well done, hero — see you soon!'
+    nl: 'Gefeliciteerd — je hebt DEEL 2 van Whispers of Ravenholt uitgespeeld! Je verzamelde drie spreuken, verduisterde de zon, sloop onzichtbaar langs de wachter én kraakte het kerkerslot — je vader is VRIJ! Samen op weg naar buiten... maar dat verhaal bewaren we voor DEEL 3. Knap gedaan, held — tot snel!',
+    en: 'Congratulations — you have completed PART 2 of Whispers of Ravenholt! You gathered three spells, eclipsed the sun, slipped invisibly past the guard AND cracked the dungeon lock — your father is FREE! Together you head for the way out... but that tale we save for PART 3. Well done, hero — see you soon!'
   },
 
   strings: {
@@ -135,6 +135,7 @@ const GAME = {
     q_readbook: { nl: 'De zon is verduisterd! Alléén nu kun je het gloeiende boek lezen — tik het aan en bekijk de drie blauwe geheime tekens van de onzichtbaarheidsspreuk', en: 'The sun is eclipsed! Only now can you read the glowing book — tap it and study the three blue secret signs of the invisibility spell' },
     q_altar:    { nl: 'Je zag drie blauwe tekens in het boek: Ψ ♃ ♄. Zet ze op het sterren-altaar rechts in de bibliotheek — elk teken in het gouden vakje — en trek aan de hendel', en: 'You saw three blue signs in the book: Ψ ♃ ♄. Set them on the star altar at the right of the library — each sign in its golden box — and pull the lever' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
+    q_freefather:{ nl: 'Je bent onzichtbaar langs de wachter! Praat met de gevangene bij de tralies — hij fluistert de volgorde van het kerkerslot: zon, maan, ster... en het teken van zijn staf', en: 'You slipped past the guard unseen! Talk to the prisoner at the bars — he whispers the order of the dungeon lock: sun, moon, star... and the sign of his staff' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
     q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
@@ -254,7 +255,8 @@ const GAME = {
   ],
 
   questRules: [
-    { when: { flag: 'gotInvisSpell', notFlag: 'reachedFather' },         quest: 'q_dungeon' },       // spreuk + open deur -> daal af in de kerker en word onzichtbaar langs de wachter
+    { when: { flag: 'guardPassed', notFlag: 'fatherFreed' },             quest: 'q_freefather' },    // onzichtbaar langs de wachter -> open het kerkerslot bij de cel
+    { when: { flag: 'gotInvisSpell', notFlag: 'fatherFreed' },           quest: 'q_dungeon' },       // spreuk + open deur -> daal af in de kerker en word onzichtbaar langs de wachter
     { when: { flag: 'sawSigns', notFlag: 'gotInvisSpell' },              quest: 'q_altar' },         // blauwe tekens gezien -> zet ze op het sterren-altaar
     { when: { flag: 'eclipseActive', notFlag: 'sawSigns' },              quest: 'q_readbook' },      // eclips actief -> lees nu de blauwe tekens in het gloeiende boek
     { when: { flag: 'gotEclipseSpell', notFlag: 'eclipseActive' },       quest: 'q_castEclipse' },   // spreuk binnen -> spreek hem uit
@@ -883,11 +885,28 @@ const GAME = {
             ],
             setFlag: 'gotEclipseSpell',
             give: 'eclipsspell',
-            afterSigns: {                                  // ná de eclips-spreuk: het boek is alléén bij verduistering te lezen en toont dan de blauwe tekens
+            afterSigns: {                                  // ná de eclips-spreuk: het boek is alléén bij verduistering te lezen — dan wacht de tekens-puzzel
               eclipseFlag: 'eclipseActive',
               setFlag: 'sawSigns',
-              zoomImg: 'assets/art/book-signs.jpg',
-              dayText: { nl: 'Je bladert het gloeiende boek open, maar in het felle daglicht zie je alleen vage krabbels. Toen de zon verduisterd was, gloeiden er tekens op... Spreek de zonsverduistering-spreuk opnieuw uit bij het raam en lees dán het boek.', en: 'You leaf through the glowing book, but in the bright daylight you see only faint scribbles. When the sun was eclipsed, signs glowed up... Cast the eclipse spell again at the window and read the book then.' }
+              zoomImg: 'assets/art/book-signs.jpg',        // na de puzzel: opnieuw tikken toont de drie tekens nog eens rustig
+              dayText: { nl: 'Je bladert het gloeiende boek open, maar in het felle daglicht zie je alleen vage krabbels. Toen de zon verduisterd was, gloeiden er tekens op... Spreek de zonsverduistering-spreuk opnieuw uit bij het raam en lees dán het boek.', en: 'You leaf through the glowing book, but in the bright daylight you see only faint scribbles. When the sun was eclipsed, signs glowed up... Cast the eclipse spell again at the window and read the book then.' },
+              puzzle: {                                    // DE TEKENS-PUZZEL: zes tekens op de pagina, maar alleen de drie blauw gloeiende horen bij de spreuk
+                img: 'assets/art/puzzle-booksigns.jpg',
+                title: { nl: 'De Geheime Tekens', en: 'The Secret Signs' },
+                hint: { nl: 'Zes tekens op de pagina — maar alleen DRIE gloeien blauw. Tik de gloeiende tekens aan van FEL naar ZWAK; de vale tekens horen er niet bij!', en: 'Six signs on the page — but only THREE glow blue. Tap the glowing signs from BRIGHT to FAINT; the pale signs do not belong!' },
+                zones: [
+                  { key: 'omega', left: 10, top: 27, width: 20, height: 26 },
+                  { key: 'psi',   left: 40, top: 25, width: 20, height: 26 },
+                  { key: 'delta', left: 70, top: 27, width: 20, height: 26 },
+                  { key: 'sat',   left: 10, top: 61, width: 20, height: 26 },
+                  { key: 'phi',   left: 40, top: 63, width: 20, height: 26 },
+                  { key: 'jup',   left: 70, top: 61, width: 20, height: 26 }
+                ],
+                sequence: ['psi', 'jup', 'sat'],
+                resetText: { nl: 'Het teken dooft meteen... dat hoorde er niet bij, of de volgorde klopte niet. Begin opnieuw: van fel naar zwak!', en: 'The sign fades at once... it did not belong, or the order was wrong. Start over: bright to faint!' },
+                setFlag: 'sawSigns',
+                solvedText: { nl: 'De drie tekens vlammen zilverblauw op en zweven even boven de bladzijde: Ψ ♃ ♄! Dit zijn de tekens van de ONZICHTBAARHEID — zet ze precies zo op het sterren-altaar rechts en trek aan de hendel.', en: 'The three signs blaze silver-blue and hover above the page: Ψ ♃ ♄! These are the signs of INVISIBILITY — set them just so on the star altar to the right and pull the lever.' }
+              }
             },
             solvedText: { nl: 'De drie ringen klikken op \u00E9\u00E9n lijn \u2014 de maan schuift langzaam v\u00F3\u00F3r de zon en een gloeiende corona vlamt op. Op de bladzijde schrijft de ZONSVERDUISTERING-SPREUK, \u201CUmbra Solis\u201D, zich in zilveren letters over in jouw toverboek! (Tik de spreuk aan in je tas om hem uit te spreken bij het grote raam.)', en: 'The three rings click into one line \u2014 the moon slides slowly across the sun and a glowing corona flares. On the page the SOLAR ECLIPSE SPELL, \u201CUmbra Solis\u201D, writes itself in silver letters into your spellbook! (Tap the spell in your bag to cast it at the great window.)' },
             doneText: { nl: 'Het boek is uitgedoofd; de zonsverduistering-spreuk staat al in jouw toverboek.', en: 'The book has gone dark; the eclipse spell is already in your spellbook.' }
@@ -988,11 +1007,28 @@ const GAME = {
           name: { nl: 'De Gevangene', en: 'The Prisoner' },
           rect: { x: 418, y: 150, w: 118, h: 150 },
           walkTo: { x: 344, y: 262 },
-          endGame: true,
-          requiresFlag: 'guardPassed',
-          setFlag: 'reachedFather',
-          blockedText: { nl: 'Je wilt naar de tralies rennen, maar de reusachtige wachter stapt meteen vóór de cel. “Terug jij!” Zolang hij je ziet, kom je hier niet langs...', en: 'You start toward the bars, but the huge guard instantly steps in front of the cell. “Back, you!” While he can see you, there is no getting past...' },
-          enterText: { nl: 'Onzichtbaar glip je langs de wachter naar de koude tralies. Binnen komt een magere man overeind — vermoeide ogen, rood-bruin haar net als dat van jou. “...Finn?” fluistert hij ongelovig. “Mijn jongen... je bent gekomen.” Zijn hand vindt de jouwe tussen de tralies door. Na al die maanden heb je je vader teruggevonden. Nu nog de sleutel, en de weg naar buiten... (wordt vervolgd in Deel 3)', en: 'Invisible, you slip past the guard to the cold bars. Inside, a thin man rises — tired eyes, red-brown hair just like yours. “...Finn?” he whispers in disbelief. “My boy... you came.” His hand finds yours through the bars. After all these months you have found your father again. Now for the key, and the way out... (to be continued in Part 3)' }
+          look: (state) => state.flags.fatherFreed
+            ? { nl: 'De celdeur staat open. Je vader houdt je hand stevig vast — jullie zijn weer samen.', en: 'The cell door stands open. Your father holds your hand tight — you are together again.' }
+            : { nl: 'Onzichtbaar sluip je naar de tralies. De magere man kijkt op — vermoeide ogen, rood-bruin haar net als dat van jou. “...Finn?” fluistert hij. “Mijn jongen! Snel — het slot heeft vier tekens. Luister goed: éérst de ZON... dan de MAAN... dan de STER... en als laatste het teken van mijn oude staf: Ψ.”', en: 'Invisible, you creep to the bars. The thin man looks up — tired eyes, red-brown hair just like yours. “...Finn?” he whispers. “My boy! Quick — the lock has four signs. Listen well: FIRST the SUN... then the MOON... then the STAR... and last the sign of my old staff: Ψ.”' },
+          symbolPuzzle: {
+            requiresFlag: 'guardPassed',
+            blockedText: { nl: 'Je wilt naar de tralies rennen, maar de reusachtige wachter stapt meteen vóór de cel. “Terug jij!” Zolang hij je ziet, kom je hier niet langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'You start toward the bars, but the huge guard instantly steps in front of the cell. “Back, you!” While he can see you, there is no getting past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
+            img: 'assets/art/puzzle-cellock.jpg',
+            title: { nl: 'Het Kerkerslot', en: 'The Dungeon Lock' },
+            hint: { nl: 'Vader fluistert de volgorde: eerst de ZON ☉, dan de MAAN ☽, dan de STER ✦, en als laatste het teken van zijn staf Ψ. Tik de vier medaillons in precies die volgorde!', en: 'Father whispers the order: first the SUN ☉, then the MOON ☽, then the STAR ✦, and last the sign of his staff Ψ. Tap the four medallions in exactly that order!' },
+            zones: [
+              { key: 'star', left: 13,   top: 32, width: 17, height: 36 },
+              { key: 'sun',  left: 31,   top: 32, width: 17, height: 36 },
+              { key: 'psi',  left: 49,   top: 32, width: 17, height: 36 },
+              { key: 'moon', left: 67,   top: 32, width: 17, height: 36 }
+            ],
+            sequence: ['sun', 'moon', 'star', 'psi'],
+            resetText: { nl: 'Het slot klikt boos en de grendels schieten terug. Verkeerde volgorde — luister naar vader: zon, maan, ster, en dan Ψ.', en: 'The lock clicks angrily and the bolts snap back. Wrong order — listen to father: sun, moon, star, then Ψ.' },
+            setFlag: 'fatherFreed',
+            win: true,
+            solvedText: { nl: 'KLIK — KLIK — KLIK — KLIK! De vier grendels schuiven open en de zware celdeur zwaait piepend los. Je vader stapt naar buiten en tilt je op in een omhelzing die alles goedmaakt. “Mijn jongen... je hebt me gevonden én bevrijd.” Samen sluipen jullie langs de slapende wachter, de trap op, richting het daglicht... (wordt vervolgd in Deel 3)', en: 'CLICK — CLICK — CLICK — CLICK! The four bolts slide open and the heavy cell door creaks loose. Your father steps out and lifts you into a hug that makes up for everything. “My boy... you found me AND freed me.” Together you slip past the drowsy guard, up the stairs, toward the daylight... (to be continued in Part 3)' },
+            doneText: { nl: 'De cel staat open; jullie zijn herenigd.', en: 'The cell stands open; you are reunited.' }
+          }
         }
       ]
     }
