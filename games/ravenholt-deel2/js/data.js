@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '142',
+  assetVer: '143',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -801,7 +801,9 @@ const GAME = {
         { x: 160, y: 238, w: 56, h: 34 }                   // de tovenaar zelf — je loopt niet dwars door hem heen
       ],
       overlays: [],
-      fx: {},
+      fx: {
+        bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' }   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
+      },
       npcs: [
         { id: 'librarian', sprite: 'librarian', x: 188, y: 260, scale: 0.86, sway: 0.014, aweSwayMul: 3.0, aweSwayMs: 1250, flip: true, filter: 'brightness(0.64) saturate(0.86)', aweSprites: ['librarian-trip1', 'librarian-trip2'], aweFlag: 'wizardTripping' },   // de pixel-tovenaar — donker; onder hypnose duidelijk waggelen + halo en twinkels (engine)
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 155, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter, 5px lager
@@ -972,34 +974,37 @@ const GAME = {
         nl: 'De wenteltrap komt uit in een klamme kerker diep onder het kasteel. Fakkels walmen aan de muren, kettingen rammelen zacht. Rechts, achter dikke ijzeren tralies, zit een magere gestalte gevangen — en er tussenin staat een reusachtige wachter, zijn hellebaard in de hand. Hij mag je niet zien.',
         en: 'The spiral stair opens into a clammy dungeon deep beneath the castle. Torches gutter on the walls, chains rattle softly. To the right, behind thick iron bars, a thin figure is imprisoned — and between you and it stands a huge guard, halberd in hand. He must not see you.'
       },
-      playerStart: { x: 150, y: 286 },
-      spawnFrom: { library: { x: 150, y: 286 } },
+      playerStart: { x: 100, y: 286 },
+      spawnFrom: { library: { x: 100, y: 286 } },
       depth: { far: 250, near: 314, sFar: 0.90, sNear: 1.22 },
       walkable: [
-        { x: 56, y: 252, w: 300, h: 56 }                 // de open kerkervloer (tot vlak voor de wachter)
+        { x: 36, y: 246, w: 444, h: 66 }                 // de natte kerkervloer, van de trap links tot vlak voor de cel
       ],
-      obstacles: [],
+      obstacles: [
+        { x: 182, y: 200, w: 94, h: 28 },                // de houten tafel met de fles
+        { x: 276, y: 196, w: 70, h: 28 }                 // de tonnen naast de tafel
+      ],
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 250, scale: 1.42, flip: false, sway: 0.015, filter: 'brightness(0.82) saturate(0.96)', hideFlag: 'guardPassed' },   // de reusachtige wachter; verdwijnt uit beeld als je onzichtbaar langs sluipt
-        { id: 'father', sprite: 'father', x: 474, y: 242, scale: 1.04, flip: false, filter: 'brightness(0.86)' }                                                              // Finn's vader, gevangen achter de tralies
+        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 266, scale: 1.38, flip: true, sway: 0.015, filter: 'brightness(0.82) saturate(0.96)', hideFlag: 'guardPassed' },   // de reusachtige wachter vóór de cel, kijkt naar RECHTS; verdwijnt als je onzichtbaar langs sluipt
+        { id: 'father', sprite: 'father', x: 430, y: 240, scale: 0.98, flip: false, filter: 'brightness(0.80)' }                                                              // Finn's vader, gevangen achter de tralies van de cel rechts
       ],
       worldItems: [],
       hotspots: [
         {
           id: 'toLibraryDungeon',
           name: { nl: 'Terug naar boven', en: 'Back Up' },
-          rect: { x: 6, y: 110, w: 96, h: 190 },
-          walkTo: { x: 96, y: 284 },
-          arrow: { x: 66, y: 150, dir: 'up' },
+          rect: { x: 40, y: 40, w: 110, h: 210 },
+          walkTo: { x: 105, y: 254 },
+          arrow: { x: 95, y: 120, dir: 'up' },
           exit: { to: 'library', travelText: { nl: 'Je klimt de wenteltrap weer op, terug de bibliotheek in.', en: 'You climb back up the spiral stair, into the library.' } }
         },
         {
           id: 'guard',
           name: { nl: 'De Wachter', en: 'The Guard' },
-          rect: { x: 280, y: 128, w: 96, h: 150 },
-          walkTo: { x: 268, y: 262 },
+          rect: { x: 284, y: 140, w: 88, h: 145 },
+          walkTo: { x: 250, y: 268 },
           look: (state) => state.flags.guardPassed
             ? { nl: 'De wachter tuurt met gefronste wenkbrauwen de kerker rond — maar jou ziet hij niet. Sluip snel naar de cel!', en: 'The guard peers around the dungeon with a frown — but he cannot see you. Slip to the cell, quick!' }
             : { nl: 'Een kolossale wachter met een hellebaard verspert de weg naar de cel. “Niemand komt bij de gevangene — niemand die ik zíe, tenminste.” Zolang hij je ziet, kom je er nooit langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'A colossal guard with a halberd blocks the way to the cell. “No one reaches the prisoner — no one I can SEE, at least.” While he can see you, you will never get past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
@@ -1013,8 +1018,8 @@ const GAME = {
         {
           id: 'father',
           name: { nl: 'De Gevangene', en: 'The Prisoner' },
-          rect: { x: 418, y: 150, w: 118, h: 150 },
-          walkTo: { x: 344, y: 262 },
+          rect: { x: 376, y: 96, w: 140, h: 165 },
+          walkTo: { x: 350, y: 270 },
           look: (state) => state.flags.fatherFreed
             ? { nl: 'De celdeur staat open. Je vader houdt je hand stevig vast — jullie zijn weer samen.', en: 'The cell door stands open. Your father holds your hand tight — you are together again.' }
             : { nl: 'Onzichtbaar sluip je naar de tralies. De magere man kijkt op — vermoeide ogen, rood-bruin haar net als dat van jou. “...Finn?” fluistert hij. “Mijn jongen! Snel — het slot heeft vier tekens. Luister goed: éérst de ZON... dan de MAAN... dan de STER... en als laatste het teken van mijn oude staf: Ψ.”', en: 'Invisible, you creep to the bars. The thin man looks up — tired eyes, red-brown hair just like yours. “...Finn?” he whispers. “My boy! Quick — the lock has four signs. Listen well: FIRST the SUN... then the MOON... then the STAR... and last the sign of my old staff: Ψ.”' },

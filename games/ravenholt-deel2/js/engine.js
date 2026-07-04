@@ -1549,6 +1549,25 @@
       fctx.fillStyle = g;
       fctx.fillRect(e.x - (e.r || 18), e.y - (e.r || 18), (e.r || 18) * 2, (e.r || 18) * 2);
     }
+    /* Het gloeiende boek: zachte pulserende blauwe gloed + zwevende sparkles, zodat je
+       ziet dat het boek licht geeft. Dooft zodra doneFlag is gezet (bv. altarSolved). */
+    if (fx.bookSparkle && !(fx.bookSparkle.doneFlag && state.flags[fx.bookSparkle.doneFlag])) {
+      const b = fx.bookSparkle;
+      const pr = (b.r || 22) * (1 + 0.10 * Math.sin(now / 680));
+      const pa = 0.13 + 0.07 * Math.sin(now / 520);
+      const g = fctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, pr);
+      g.addColorStop(0, `rgba(140,185,255,${pa.toFixed(3)})`);
+      g.addColorStop(1, 'rgba(140,185,255,0)');
+      fctx.fillStyle = g;
+      fctx.fillRect(Math.round(b.x - pr), Math.round(b.y - pr), Math.round(pr * 2), Math.round(pr * 2));
+      for (let i = 0; i < 5; i++) {                    // sparkles die traag omhoog dwarrelen
+        const sp = 2000 + i * 340;
+        const tx = b.x + Math.sin(now / sp + i * 2.1) * (10 + (i % 3) * 5);
+        const ty = b.y - 4 - ((now / (26 + i * 5)) + i * 13) % 26;
+        const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 430 + i * 1.7));
+        twinkle(tx, ty, a, '185,215,255');
+      }
+    }
     /* Fontein klatert alléén als de molen weer draait (requiresFlag, bv. millFixed);
        daarvoor staat de bron droog. Meerdere straaltjes mogelijk (links + rechts). */
     if (fx.fountain && (!fx.fountain.requiresFlag || state.flags[fx.fountain.requiresFlag]) && !(fx.fountain.hideFlag && state.flags[fx.fountain.hideFlag])) {
