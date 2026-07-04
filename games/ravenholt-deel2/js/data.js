@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '143',
+  assetVer: '144',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -974,8 +974,8 @@ const GAME = {
         nl: 'De wenteltrap komt uit in een klamme kerker diep onder het kasteel. Fakkels walmen aan de muren, kettingen rammelen zacht. Rechts, achter dikke ijzeren tralies, zit een magere gestalte gevangen — en er tussenin staat een reusachtige wachter, zijn hellebaard in de hand. Hij mag je niet zien.',
         en: 'The spiral stair opens into a clammy dungeon deep beneath the castle. Torches gutter on the walls, chains rattle softly. To the right, behind thick iron bars, a thin figure is imprisoned — and between you and it stands a huge guard, halberd in hand. He must not see you.'
       },
-      playerStart: { x: 100, y: 286 },
-      spawnFrom: { library: { x: 100, y: 286 } },
+      playerStart: { x: 100, y: 246 },
+      spawnFrom: { library: { x: 100, y: 246 } },
       depth: { far: 250, near: 314, sFar: 0.90, sNear: 1.22 },
       walkable: [
         { x: 36, y: 246, w: 444, h: 66 }                 // de natte kerkervloer, van de trap links tot vlak voor de cel
@@ -987,7 +987,7 @@ const GAME = {
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 266, scale: 1.38, flip: true, sway: 0.015, filter: 'brightness(0.82) saturate(0.96)', hideFlag: 'guardPassed' },   // de reusachtige wachter vóór de cel, kijkt naar RECHTS; verdwijnt als je onzichtbaar langs sluipt
+        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.22, flip: true, sway: 0.015, filter: 'brightness(0.82) saturate(0.96)', hideFlag: 'guardPassed' },   // de reusachtige wachter vóór de cel, kijkt naar RECHTS; verdwijnt als je onzichtbaar langs sluipt
         { id: 'father', sprite: 'father', x: 430, y: 240, scale: 0.98, flip: false, filter: 'brightness(0.80)' }                                                              // Finn's vader, gevangen achter de tralies van de cel rechts
       ],
       worldItems: [],
@@ -1003,8 +1003,8 @@ const GAME = {
         {
           id: 'guard',
           name: { nl: 'De Wachter', en: 'The Guard' },
-          rect: { x: 284, y: 140, w: 88, h: 145 },
-          walkTo: { x: 250, y: 268 },
+          rect: { x: 284, y: 118, w: 88, h: 132 },
+          walkTo: { x: 250, y: 262 },
           look: (state) => state.flags.guardPassed
             ? { nl: 'De wachter tuurt met gefronste wenkbrauwen de kerker rond — maar jou ziet hij niet. Sluip snel naar de cel!', en: 'The guard peers around the dungeon with a frown — but he cannot see you. Slip to the cell, quick!' }
             : { nl: 'Een kolossale wachter met een hellebaard verspert de weg naar de cel. “Niemand komt bij de gevangene — niemand die ik zíe, tenminste.” Zolang hij je ziet, kom je er nooit langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'A colossal guard with a halberd blocks the way to the cell. “No one reaches the prisoner — no one I can SEE, at least.” While he can see you, you will never get past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
