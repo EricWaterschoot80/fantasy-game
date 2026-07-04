@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '162',
+  assetVer: '163',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -1008,7 +1008,8 @@ const GAME = {
       overlays: [],
       fx: {
         bookSparkle: { x: 230, y: 206, r: 13, doneFlag: 'gotCellKey' },  // de sleutel glinstert op de wachttafel tot je hem hebt
-        nutPlant:  { x: 88, y: 268 },                                    // wondernoot + dansend plantje in het plasje links
+        nutPlant:  { x: 60, y: 284 },                                    // wondernoot + dansend plantje in het plasje links
+        waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
       },
       npcs: [
@@ -1035,8 +1036,8 @@ const GAME = {
         {
           id: 'puddle',
           name: { nl: 'Plasje Water', en: 'Puddle of Water' },
-          rect: { x: 48, y: 250, w: 78, h: 38 },
-          walkTo: { x: 130, y: 268 },
+          rect: { x: 28, y: 264, w: 68, h: 38 },
+          walkTo: { x: 112, y: 274 },
           look: (state) => state.flags.plantDancing
             ? { nl: 'In het plasje zwiert en huppelt het wondernoot-plantje vrolijk in het rond. De wachter kan er zijn ogen niet vanaf houden.', en: 'In the puddle the wonder-nut plant sways and hops merrily. The guard cannot take his eyes off it.' }
             : state.flags.nutInPuddle

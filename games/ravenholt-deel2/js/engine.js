@@ -1626,27 +1626,81 @@
         fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.6, rr * 0.5, 0, 0, Math.PI * 2); fctx.stroke();
       }
       if (state.flags.plantDancing) {
-        const sway = Math.sin(now / 260) * 5;            // vrolijk heen en weer
-        const bop = Math.abs(Math.sin(now / 260)) * 2;   // huppeltje
-        const H2 = 26;
-        fctx.strokeStyle = '#4f8f3a'; fctx.lineWidth = 2;
+        const sway = Math.sin(now / 300) * 6;            // vrolijk zwieren
+        const bop = Math.abs(Math.sin(now / 300)) * 2.5; // huppeltje
+        const H2 = 34;
+        const hx = p.x + sway, hy = p.y - H2 - bop;      // bloemkop
+        /* zachte toverachtige gloed achter de bloem */
+        const glow = fctx.createRadialGradient(hx, hy, 1, hx, hy, 14);
+        const ga = 0.12 + 0.06 * Math.sin(now / 400);
+        glow.addColorStop(0, `rgba(255,190,230,${ga.toFixed(3)})`);
+        glow.addColorStop(1, 'rgba(255,190,230,0)');
+        fctx.fillStyle = glow; fctx.fillRect(hx - 14, hy - 14, 28, 28);
+        /* stengel als sierlijke boog, iets dikker onderaan */
+        fctx.strokeStyle = '#3f7a2e'; fctx.lineWidth = 3;
         fctx.beginPath(); fctx.moveTo(p.x, p.y);
-        fctx.quadraticCurveTo(p.x + sway * 0.4, p.y - H2 * 0.6, p.x + sway, p.y - H2 - bop);
+        fctx.quadraticCurveTo(p.x + sway * 0.3, p.y - H2 * 0.55, hx, hy + 4);
         fctx.stroke();
-        fctx.fillStyle = '#5da24e';                      // blaadjes
-        fctx.fillRect(Math.round(p.x - 3 + sway * 0.3), p.y - 12, 3, 2);
-        fctx.fillRect(Math.round(p.x + 1 + sway * 0.5), p.y - 17, 3, 2);
-        const hx = p.x + sway, hy = p.y - H2 - bop;      // bloemkop draait vrolijk rond
-        fctx.fillStyle = '#ff9fc2';
-        for (let i = 0; i < 5; i++) {
-          const a = now / 700 + i * (Math.PI * 2 / 5);
-          fctx.fillRect(Math.round(hx + Math.cos(a) * 3.4) - 1, Math.round(hy + Math.sin(a) * 3.4) - 1, 2, 2);
+        fctx.strokeStyle = '#5da24e'; fctx.lineWidth = 1.4;
+        fctx.beginPath(); fctx.moveTo(p.x, p.y - 1);
+        fctx.quadraticCurveTo(p.x + sway * 0.3, p.y - H2 * 0.55, hx, hy + 4);
+        fctx.stroke();
+        /* twee wapperende blaadjes */
+        for (const [ly, dir] of [[12, -1], [20, 1]]) {
+          const flap = Math.sin(now / 300 + dir) * 0.5 + (dir > 0 ? 0.4 : -0.4);
+          const bx = p.x + sway * (ly / H2) * 0.5, by = p.y - ly;
+          fctx.fillStyle = '#5da24e';
+          fctx.beginPath();
+          fctx.ellipse(bx + dir * 4, by, 4.6, 2, flap, 0, Math.PI * 2);
+          fctx.fill();
+          fctx.fillStyle = '#7cc264';
+          fctx.beginPath();
+          fctx.ellipse(bx + dir * 4.5, by - 0.5, 2.4, 1, flap, 0, Math.PI * 2);
+          fctx.fill();
         }
-        fctx.fillStyle = '#ffd36b'; fctx.fillRect(Math.round(hx) - 1, Math.round(hy) - 1, 3, 3);
-        for (let i = 0; i < 3; i++) {
+        /* bloem: buitenste roze blaadjes + binnenring wit + gouden hart, draait mee op de maat */
+        for (let i = 0; i < 6; i++) {
+          const a = now / 650 + i * (Math.PI * 2 / 6);
+          const px3 = hx + Math.cos(a) * 4.6, py3 = hy + Math.sin(a) * 4.6;
+          fctx.fillStyle = '#ff8fb8';
+          fctx.beginPath(); fctx.ellipse(px3, py3, 2.6, 1.7, a, 0, Math.PI * 2); fctx.fill();
+          fctx.fillStyle = '#ffc2d9';
+          fctx.beginPath(); fctx.ellipse(px3, py3, 1.3, 0.8, a, 0, Math.PI * 2); fctx.fill();
+        }
+        for (let i = 0; i < 6; i++) {                    // witte binnenring
+          const a = -now / 650 + i * (Math.PI * 2 / 6) + 0.5;
+          fctx.fillStyle = 'rgba(255,245,255,0.9)';
+          fctx.fillRect(Math.round(hx + Math.cos(a) * 2.2) - 1, Math.round(hy + Math.sin(a) * 2.2) - 1, 1.6, 1.6);
+        }
+        fctx.fillStyle = '#ffd36b'; fctx.beginPath(); fctx.arc(hx, hy, 1.9, 0, Math.PI * 2); fctx.fill();
+        fctx.fillStyle = '#fff0c0'; fctx.fillRect(Math.round(hx) - 1, Math.round(hy) - 1, 1, 1);
+        /* dwarrelende sparkles + een dansend muzieknootje */
+        for (let i = 0; i < 4; i++) {
           const a2 = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(now / 380 + i * 2.2));
-          twinkle(hx + Math.sin(now / (500 + i * 130) + i) * 8, hy - 4 - i * 4, a2, '255,220,150');
+          twinkle(hx + Math.sin(now / (460 + i * 120) + i * 1.7) * 10, hy - 5 - ((now / 40 + i * 9) % 18), a2, i % 2 ? '255,220,150' : '255,190,230');
         }
+        const na = 0.35 + 0.35 * Math.sin(now / 350);
+        fctx.font = '8px Georgia, serif'; fctx.textAlign = 'center'; fctx.textBaseline = 'middle';
+        fctx.fillStyle = `rgba(200,235,255,${Math.max(0, na).toFixed(3)})`;
+        fctx.fillText('\u266a', hx + Math.sin(now / 500) * 12, hy - 14 - ((now / 60) % 10));
+      }
+    }
+    /* Glinsterend water: koele blauwe twinkels + een zachte glans die over het plasje glijdt */
+    if (fx.waterGlint) {
+      const wg = fx.waterGlint, ww = wg.w || 26;
+      const sx = wg.x + Math.sin(now / 1600) * ww * 0.4;             // glans schuift langzaam heen en weer
+      const sa = 0.05 + 0.03 * Math.sin(now / 900);
+      const g3 = fctx.createRadialGradient(sx, wg.y, 1, sx, wg.y, ww * 0.55);
+      g3.addColorStop(0, `rgba(150,210,255,${sa.toFixed(3)})`);
+      g3.addColorStop(1, 'rgba(150,210,255,0)');
+      fctx.fillStyle = g3; fctx.fillRect(wg.x - ww, wg.y - 10, ww * 2, 20);
+      for (let i = 0; i < 3; i++) {                                  // kleine blauwe fonkels
+        const ph = now / (700 + i * 260) + i * 2.4;
+        const a = Math.max(0, Math.sin(ph)) * 0.55;
+        if (a < 0.06) continue;
+        const tx = wg.x + Math.sin(i * 4.1 + ((now / 2200) | 0)) * ww * 0.55;
+        const ty = wg.y - 2 + ((i * 7) % 6);
+        twinkle(tx, ty, a, '175,225,255');
       }
     }
     /* Gouden glinster op het celslot (bv. zodra je de gouden sleutel hebt) */
