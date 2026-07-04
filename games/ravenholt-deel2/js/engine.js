@@ -4687,8 +4687,8 @@
         const cx = elAltarCanvas.width / 2, cy = elAltarCanvas.height / 2;
         const s2 = Math.min(elAltarCanvas.width, elAltarCanvas.height) / 2;
         const rr = Math.hypot(px - cx, py - cy) / s2;
-        if (rr <= 1.04 && rr > 0.18) {
-          const ring = rr > 0.705 ? 0 : rr > 0.45 ? 1 : 2;
+        if (rr <= 1.04 && rr > 0.155) {
+          const ring = rr > 0.59 ? 0 : rr > 0.37 ? 1 : 2;   // banden van het nieuwe deurzegel
           discShift(ring, px < cx ? -1 : 1);
         }
         return;
@@ -5689,9 +5689,16 @@
         openSymbolPuzzle(Object.assign({}, hs, { symbolPuzzle: bs.puzzle }));
         return;
       }
-      if (bs.setFlag && !state.flags[bs.setFlag]) { state.flags[bs.setFlag] = true; updateQuest(); }   // bv. het hemelzegel gezien
-      sfx('tap');
-      if (bs.zoomImg) openZoom(bs.zoomImg);                 // toon het zegel (ook als geheugensteun bij opnieuw lezen)
+      if (bs.setFlag && !symFlagDone(bs.setFlag)) {          // eerste keer lezen: spreuk + vlaggen
+        (Array.isArray(bs.setFlag) ? bs.setFlag : [bs.setFlag]).forEach((f) => { state.flags[f] = true; });
+        if (bs.give) addItem(bs.give);
+        sfx('combine');
+        updateQuest();
+      } else {
+        sfx('tap');
+      }
+      if (bs.zoomImg) openZoom(bs.zoomImg);                 // toon de spreuk-pagina (ook als geheugensteun bij opnieuw lezen)
+      if (bs.firstText && state.flags.__signsBookSaid !== true) { state.flags.__signsBookSaid = true; say(bs.firstText, hsSpeaker(hs)); }
       return;
     }
     if (hs.discPuzzle) {
