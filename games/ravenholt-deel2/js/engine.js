@@ -1615,6 +1615,51 @@
         twinkle(tx, ty, a, '185,215,255');
       }
     }
+    /* Wondernoot in het plasje + het dansende plantje (kerker) */
+    if (fx.nutPlant) {
+      const p = fx.nutPlant;
+      if (state.flags.nutInPuddle && !state.flags.plantDancing) {
+        fctx.fillStyle = '#6b4a26'; fctx.fillRect(p.x - 2, p.y - 2, 4, 3);      // de dobberende noot
+        fctx.fillStyle = '#8a6438'; fctx.fillRect(p.x - 1, p.y - 3, 2, 1);
+        const rr = 4 + ((now / 600) % 3);                                        // kringetje in het water
+        fctx.strokeStyle = 'rgba(180,220,255,0.25)'; fctx.lineWidth = 1;
+        fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.6, rr * 0.5, 0, 0, Math.PI * 2); fctx.stroke();
+      }
+      if (state.flags.plantDancing) {
+        const sway = Math.sin(now / 260) * 5;            // vrolijk heen en weer
+        const bop = Math.abs(Math.sin(now / 260)) * 2;   // huppeltje
+        const H2 = 26;
+        fctx.strokeStyle = '#4f8f3a'; fctx.lineWidth = 2;
+        fctx.beginPath(); fctx.moveTo(p.x, p.y);
+        fctx.quadraticCurveTo(p.x + sway * 0.4, p.y - H2 * 0.6, p.x + sway, p.y - H2 - bop);
+        fctx.stroke();
+        fctx.fillStyle = '#5da24e';                      // blaadjes
+        fctx.fillRect(Math.round(p.x - 3 + sway * 0.3), p.y - 12, 3, 2);
+        fctx.fillRect(Math.round(p.x + 1 + sway * 0.5), p.y - 17, 3, 2);
+        const hx = p.x + sway, hy = p.y - H2 - bop;      // bloemkop draait vrolijk rond
+        fctx.fillStyle = '#ff9fc2';
+        for (let i = 0; i < 5; i++) {
+          const a = now / 700 + i * (Math.PI * 2 / 5);
+          fctx.fillRect(Math.round(hx + Math.cos(a) * 3.4) - 1, Math.round(hy + Math.sin(a) * 3.4) - 1, 2, 2);
+        }
+        fctx.fillStyle = '#ffd36b'; fctx.fillRect(Math.round(hx) - 1, Math.round(hy) - 1, 3, 3);
+        for (let i = 0; i < 3; i++) {
+          const a2 = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(now / 380 + i * 2.2));
+          twinkle(hx + Math.sin(now / (500 + i * 130) + i) * 8, hy - 4 - i * 4, a2, '255,220,150');
+        }
+      }
+    }
+    /* Gouden glinster op het celslot (bv. zodra je de gouden sleutel hebt) */
+    if (fx.lockGlint && (!fx.lockGlint.requiresFlag || state.flags[fx.lockGlint.requiresFlag]) && !(fx.lockGlint.doneFlag && state.flags[fx.lockGlint.doneFlag])) {
+      const l = fx.lockGlint;
+      const a = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(now / 520));
+      const g2 = fctx.createRadialGradient(l.x, l.y, 1, l.x, l.y, 9);
+      g2.addColorStop(0, `rgba(255,215,120,${(a * 0.5).toFixed(3)})`);
+      g2.addColorStop(1, 'rgba(255,215,120,0)');
+      fctx.fillStyle = g2; fctx.fillRect(l.x - 9, l.y - 9, 18, 18);
+      twinkle(l.x, l.y, a, '255,225,140');
+      if (((now / 700) | 0) % 3 === 0) twinkle(l.x + 3, l.y - 3, a * 0.7, '255,240,190');
+    }
     /* Fontein klatert alléén als de molen weer draait (requiresFlag, bv. millFixed);
        daarvoor staat de bron droog. Meerdere straaltjes mogelijk (links + rechts). */
     if (fx.fountain && (!fx.fountain.requiresFlag || state.flags[fx.fountain.requiresFlag]) && !(fx.fountain.hideFlag && state.flags[fx.fountain.hideFlag])) {
@@ -2836,6 +2881,22 @@
     /* niet casten terwijl een popup open is */
     if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
     const scene = GAME.scenes[state.currentScene];
+    /* Kerker: de dans-spreuk laat het wondernoot-plantje groeien en dansen \u2014 de wachter draait zich om! */
+    if (!isDragon && state.currentScene === 'dungeon') {
+      if (state.flags.guardTurned) {
+        sfx('combine'); triggerCastFx();
+        say({ nl: 'Het plantje danst al de sterren van de hemel \u2014 en de wachter kan zijn ogen er niet vanaf houden. Snel, de celdeur!', en: 'The little plant is already dancing its heart out \u2014 and the guard cannot take his eyes off it. Quick, the cell door!' });
+      } else if (state.flags.nutInPuddle) {
+        state.flags.guardTurned = true; state.flags.plantDancing = true;
+        sfx('combine'); triggerCastFx(); updateQuest();
+        burstAt(88, 262, { n: 20, col: '150,230,140', up: 9, life: 1.3, spread: 18 });
+        say({ nl: '\u201cLaat wat stil staat vrolijk dansen!\u201d De wondernoot barst open \u2014 een plantje schiet omhoog uit het plasje en begint te zwieren en te huppelen! De wachter draait zich stomverbaasd om: \u201cWat krijgen we n\u00fa...?!\u201d Zijn rug is naar de cel \u2014 D\u00cdT is je kans: de gouden sleutel in het slot!', en: '\u201cMake what stands still dance!\u201d The wonder-nut bursts open \u2014 a little plant shoots up from the puddle and starts swaying and hopping! The guard spins round, flabbergasted: \u201cWhat in the world...?!\u201d His back is to the cell \u2014 THIS is your chance: the golden key, into the lock!' });
+      } else {
+        sfx('combine'); triggerCastFx();
+        say({ nl: 'Je spreekt de dans-spreuk uit... maar op de kale kerkervloer groeit niets dat kan dansen. Eerst iets planten misschien \u2014 iets dat kan groeien, in een plasje water?', en: 'You speak the dance spell... but nothing grows on the bare dungeon floor to dance for you. Plant something first, perhaps \u2014 something that can grow, in a puddle of water?' });
+      }
+      return;
+    }
     /* Vallei: de dans-spreuk laat de lavendelbloemen rechts dansen en lokt vuurvliegjes. */
     if (!isDragon && state.currentScene === 'valley' && !state.flags.valleyFlowersDancing) {
       state.flags.valleyFlowersDancing = true;
@@ -5716,6 +5777,16 @@
         return;
       }
       openBookPuzzle(hs);
+      return;
+    }
+    /* Eenmalig geschenk bij aantikken (bv. vader geeft de wondernoot) */
+    if (hs.gift && !state.flags[hs.gift.setFlag]
+        && !(hs.gift.requiresFlag && (Array.isArray(hs.gift.requiresFlag) ? hs.gift.requiresFlag.some((f) => !state.flags[f]) : !state.flags[hs.gift.requiresFlag]))
+        && !(hs.gift.notFlag && state.flags[hs.gift.notFlag])) {
+      state.flags[hs.gift.setFlag] = true;
+      (Array.isArray(hs.gift.give) ? hs.gift.give : [hs.gift.give]).forEach(addItem);
+      sfx('pickup'); updateQuest();
+      say(hs.gift.text, hsSpeaker(hs), hsFace(hs));
       return;
     }
     if (hs.symbolPuzzle) {
