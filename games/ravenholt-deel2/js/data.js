@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '149',
+  assetVer: '150',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -554,7 +554,8 @@ const GAME = {
       ],
       fx: {
         // lopend water: de leeuwenkop spuwt een straaltje in het schelpbekken (stopt zodra de geheime poort open is)
-        fountain: { jets: [{ sx: 65, sy: 155 }, { sx: 67, sy: 156 }], len: 25, wx: 66, wy: 182 }   // water blijft altijd stromen (geen hideFlag meer)
+        fountain: { jets: [{ sx: 65, sy: 155 }, { sx: 67, sy: 156 }], len: 25, wx: 66, wy: 182 },  // water blijft altijd stromen (geen hideFlag meer)
+        emberGlow: { x: 370, y: 202, r: 14, doneFlag: 'taken_garden_charcoal' }                       // de rechter vuurkorf gloeit zacht oranje (3 sintel-puntjes) tot de houtskool is gepakt
       },
       hotspots: [
         {
