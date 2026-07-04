@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '139',
+  assetVer: '140',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -776,9 +776,11 @@ const GAME = {
       name: { nl: 'De Kasteelbibliotheek', en: 'The Castle Library' },
       bg: 'assets/art/scene-library.jpg',
       bgVariants: [
-        { img: 'assets/art/scene-library-open.jpg',       flag: 'libRelit' },      // spreuk opgelost én daglicht teruggekeerd: open geheime deur, overdag
-        { img: 'assets/art/scene-library-nacht-deur.jpg',  flag: 'altarSolved' },   // de deur is net open, maar het is nog nacht (de eclips gloeit nog na)
-        { img: 'assets/art/scene-library-night.jpg',       flag: 'eclipseActive' }  // de zonsverduistering-spreuk dooft de zon: nacht + eclips door het raam
+        // de verduistering (tijdelijk, her-castbaar) wint altijd van het daglicht:
+        { img: 'assets/art/scene-library-nacht-deur.jpg',  flags: ['altarSolved', 'eclipseActive'] },  // eclips actief + geheime deur open -> nacht met open deur
+        { img: 'assets/art/scene-library-night.jpg',       flag: 'eclipseActive' },                    // de zonsverduistering-spreuk dooft de zon: nacht + eclips door het raam
+        { img: 'assets/art/scene-library-open.jpg',        flag: 'libRelit' },                         // daglicht teruggekeerd: open geheime deur, overdag
+        { img: 'assets/art/scene-library-nacht-deur.jpg',  flag: 'altarSolved' }                       // vangnet: deur net open, daglicht nog niet terug
       ],
       charFilter: 'saturate(1.02) brightness(0.88) sepia(0.14) contrast(1.04)',   // warm kaarslicht, wat donkerder zodat de figuren in de schemerige zaal opgaan
       heroShade: 0.8,

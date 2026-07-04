@@ -2783,7 +2783,25 @@
     say({ nl: 'Het spreukteken van de dansende bloemen gloeit blauw op je vingertoppen... maar hier is niets levends om te laten dansen.', en: 'The dancing-flowers spell-sign glows blue at your fingertips... but there’s nothing alive here to make dance.' });
   }
   /* De zonsverduistering-spreuk: alleen in de bibliotheek dooft de zon — de zaal wordt
-     nacht (eclips door het raam) en dán kun je door de telescoop de sterren zien. */
+     nacht (eclips door het raam) en dán kun je door de telescoop de sterren zien.
+     De verduistering is tijdelijk: na ~5 minuten keert het daglicht vanzelf terug,
+     en ook zodra je de bibliotheek verlaat. Opnieuw casten kan altijd. */
+  let eclipseTimer = null;
+  const ECLIPSE_MS = 5 * 60 * 1000;
+  function startEclipseTimer() {
+    if (eclipseTimer) clearTimeout(eclipseTimer);
+    eclipseTimer = setTimeout(() => {
+      eclipseTimer = null;
+      if (!state.flags.eclipseActive) return;
+      state.flags.eclipseActive = false;
+      const sc = GAME.scenes[state.currentScene];
+      if (sc && sc.bgVariants) paintBackground();
+      updateQuest();
+      if (state.currentScene === 'library') {
+        say({ nl: 'De zwarte schijf glijdt langzaam van de zon af — het daglicht stroomt de zaal weer in. De zonsverduistering is voorbij. (Je kunt de spreuk gewoon opnieuw uitspreken.)', en: 'The black disc slowly slides off the sun — daylight floods back into the hall. The eclipse has passed. (You can simply cast the spell again.)' });
+      }
+    }, ECLIPSE_MS);
+  }
   function castEclipse() {
     if (!state.flags.gotEclipseSpell) return;
     if (msgOpen()) showNextMsg();
@@ -2793,8 +2811,10 @@
       say({ nl: 'De spreuk gonst in je staf... maar hier buiten voelt hij te zwak. Bij het grote raam van de bibliotheek — dáár moet je hem uitspreken.', en: 'The spell hums in your staff... but out here it feels too weak. At the great library window — that is where you must speak it.' });
       return;
     }
-    if (state.flags.eclipseActive) {
-      say({ nl: 'De zon is al verduisterd — de sterren fonkelen door het grote raam. Kijk door de telescoop!', en: 'The sun is already darkened — the stars sparkle through the great window. Look through the telescope!' });
+    if (state.flags.eclipseActive) {                     // opnieuw casten tijdens de eclips: de duisternis wordt ververst
+      sfx('combine'); triggerCastFx();
+      startEclipseTimer();
+      say({ nl: '“Umbra Solis!” De duisternis diept zich opnieuw uit — de zonsverduistering houdt nog even aan.', en: '“Umbra Solis!” The darkness deepens anew — the eclipse holds a while longer.' });
       return;
     }
     state.flags.eclipseActive = true;
@@ -2802,7 +2822,8 @@
     paintBackground();
     burstAt(300, 120, { n: 26, col: '150,170,255', up: 10, life: 1.4, spread: 40 });
     updateQuest();
-    say({ nl: '“Umbra Solis!” De woorden trillen door de zaal... Buiten schuift langzaam een zwarte schijf voor de zon. Het daglicht dooft, de sterren springen aan de hemel — een zonsverduistering! Nu kun je het gloeiende boek lezen en door de telescoop kijken.', en: '“Umbra Solis!” The words tremble through the hall... Outside, a black disc slides across the sun. Daylight fades, stars leap into the sky — a solar eclipse! Now you can read the glowing book and look through the telescope.' });
+    startEclipseTimer();
+    say({ nl: '“Umbra Solis!” De woorden trillen door de zaal... Buiten schuift langzaam een zwarte schijf voor de zon. Het daglicht dooft, de sterren springen aan de hemel — een zonsverduistering! Nu kun je het gloeiende boek lezen en door de telescoop kijken. (Na een tijdje, of als je de zaal verlaat, keert het daglicht terug — casten kan altijd opnieuw.)', en: '“Umbra Solis!” The words tremble through the hall... Outside, a black disc slides across the sun. Daylight fades, stars leap into the sky — a solar eclipse! Now you can read the glowing book and look through the telescope. (After a while, or when you leave the hall, daylight returns — you can always cast again.)' });
   }
   /* De onzichtbaarheidsspreuk: alleen in de kerker werkt hij — je vervaagt en sluipt
      ongezien langs de wachter naar de cel van je vader. */
@@ -4198,6 +4219,7 @@
          trekt de eclips weg en keert het daglicht terug (open-deur-overdag). */
       if (pz.relight) {
         setTimeout(() => {
+          if (eclipseTimer) { clearTimeout(eclipseTimer); eclipseTimer = null; }   // de eclips-timer hoeft niet meer af te lopen
           if (pz.relight.clearFlag) (Array.isArray(pz.relight.clearFlag) ? pz.relight.clearFlag : [pz.relight.clearFlag]).forEach((f) => { state.flags[f] = false; });
           if (pz.relight.setFlag)   (Array.isArray(pz.relight.setFlag)   ? pz.relight.setFlag   : [pz.relight.setFlag]).forEach((f) => { state.flags[f] = true; });
           const sc2 = GAME.scenes[state.currentScene];
@@ -5456,6 +5478,12 @@
       state.currentScene = sceneId;
       state.selectedItem = null;
       const scene = GAME.scenes[sceneId];
+      /* De zonsverduistering dooft zodra je de bibliotheek verlaat — terugkomen = weer daglicht. */
+      if (fromScene === 'library' && sceneId !== 'library' && state.flags.eclipseActive) {
+        state.flags.eclipseActive = false;
+        if (eclipseTimer) { clearTimeout(eclipseTimer); eclipseTimer = null; }
+        updateQuest();
+      }
       /* "Weggaan en terugkomen": de burgemeester maakt plaats voor de oude schaker — maar
          pas nadat hij de kaart heeft gegeven én de wijn heeft gekregen, en pas zodra je
          het plein opnieuw binnenkomt (dus niet terwijl je er nog staat). */
