@@ -1594,6 +1594,27 @@
     /* Gloeiende vuurkorf: subtiele, langzaam ademende oranje gloed + 3 piepkleine
        sintel-puntjes die vrijwel stil liggen en alleen rustig na-gloeien.
        Dooft zodra doneFlag is gezet (houtskool gepakt). */
+    /* Paars-blauwe gloed van de tovenaarsstaf (klopt zacht) */
+    if (fx.mageGlow && !(fx.mageGlow.hideFlag && state.flags[fx.mageGlow.hideFlag])) {
+      const m = fx.mageGlow;
+      const pulse = 0.5 + 0.5 * Math.sin(now / 620);
+      const r1 = (m.r || 15) * (1 + 0.12 * pulse);
+      const a1 = (m.a || 0.4) * (0.6 + 0.4 * pulse);
+      // buitenste blauwe halo
+      let g = fctx.createRadialGradient(m.x, m.y, 1, m.x, m.y, r1);
+      g.addColorStop(0, `rgba(150,130,255,${a1.toFixed(3)})`);
+      g.addColorStop(0.55, `rgba(120,150,255,${(a1 * 0.5).toFixed(3)})`);
+      g.addColorStop(1, 'rgba(120,150,255,0)');
+      fctx.fillStyle = g; fctx.fillRect(m.x - r1, m.y - r1, r1 * 2, r1 * 2);
+      // heldere paarse kern
+      const rc = (m.r || 15) * 0.42;
+      let gc = fctx.createRadialGradient(m.x, m.y, 0.5, m.x, m.y, rc);
+      gc.addColorStop(0, `rgba(210,190,255,${(0.7 * (0.7 + 0.3 * pulse)).toFixed(3)})`);
+      gc.addColorStop(1, 'rgba(170,140,255,0)');
+      fctx.fillStyle = gc; fctx.fillRect(m.x - rc, m.y - rc, rc * 2, rc * 2);
+      // af en toe een fonkel bij de orb
+      if (((now / 500) | 0) % 2 === 0) twinkle(m.x + 2, m.y - 2, 0.4 + 0.4 * pulse, '200,180,255');
+    }
     if (fx.emberGlow && !(fx.emberGlow.doneFlag && state.flags[fx.emberGlow.doneFlag])) {
       const e = fx.emberGlow;
       const er = (e.r || 11) * (1 + 0.05 * Math.sin(now / 1400));          // kleiner, heel traag ademen
@@ -1648,7 +1669,10 @@
       if (!p._imgNut && p.imgNut) { p._imgNut = new Image(); p._imgNut.src = p.imgNut + AV; }
       if (state.flags.nutInPuddle && !state.flags.plantDancing) {
         const bob = Math.sin(now / 700) * 1.2;                                   // dobberen
-        if (ready(p._imgNut)) {
+        const rr = 4 + ((now / 600) % 3);                                        // kringetje in het water - EERST (onder de noot)
+        fctx.strokeStyle = 'rgba(180,220,255,0.25)'; fctx.lineWidth = 1;
+        fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.8, rr * 0.55, 0, 0, Math.PI * 2); fctx.stroke();
+        if (ready(p._imgNut)) {                                                  // de noot ERBOVENOP
           fctx.save();
           fctx.globalAlpha = 0.85;
           fctx.drawImage(p._imgNut, p.x - 7, p.y - 12 + bob, 14, 14);   // wat donkerder in het schemerige water
@@ -1659,9 +1683,6 @@
         } else {
           fctx.fillStyle = '#6b4a26'; fctx.fillRect(p.x - 2, p.y - 2, 4, 3);
         }
-        const rr = 4 + ((now / 600) % 3);                                        // kringetje in het water
-        fctx.strokeStyle = 'rgba(180,220,255,0.25)'; fctx.lineWidth = 1;
-        fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.8, rr * 0.55, 0, 0, Math.PI * 2); fctx.stroke();
       }
       if (state.flags.plantDancing) {
         const swayA = Math.sin(now / 340) * 0.115;       // iets wilder zwieren (radialen om de voet)
@@ -2374,9 +2395,18 @@
        Met een lichte contrast-demping is het zwart (omlijning/schaduw) wat minder hard. */
     const sf = sceneFilter();
     const sc = GAME.scenes[state.currentScene];
-    const sh = (sc && typeof sc.heroShade === 'number') ? sc.heroShade : 0.9;
-    const soft = ' brightness(' + sh + ') contrast(0.86)';
+    let sh = (sc && typeof sc.heroShade === 'number') ? sc.heroShade : 0.9;
+    const libEclipse = state.currentScene === 'library' && state.flags.eclipseActive;
+    if (libEclipse) sh = Math.min(sh, 0.5);              // tijdens de zonsverduistering is Finn nog donkerder
+    const soft = ' brightness(' + sh + ') contrast(0.86)' + (libEclipse ? ' saturate(0.82) hue-rotate(6deg)' : '');
     const f = (sf === 'none') ? soft.trim() : (sf + soft);
+    if (libEclipse) {                                    // zachte blauwe nachtgloed om Finn heen
+        const gr = 26, ga = 0.10 + 0.05 * Math.sin(now / 700);
+        const gg = fctx.createRadialGradient(player.x, player.y - 24, 3, player.x, player.y - 24, gr);
+        gg.addColorStop(0, 'rgba(120,160,235,' + ga.toFixed(3) + ')');
+        gg.addColorStop(1, 'rgba(120,160,235,0)');
+        fctx.save(); fctx.fillStyle = gg; fctx.fillRect(player.x - gr, player.y - 24 - gr, gr * 2, gr * 2); fctx.restore();
+    }
     /* ONZICHTBAAR: in de kerker is Finn na de spreuk niet meer dan een rimpeling —
        half doorschijnend met een zachte blauwe schittering eromheen. */
     const ghost = state.currentScene === 'dungeon' && state.flags.guardPassed && !state.flags.fatherFreed;
@@ -2733,7 +2763,8 @@
           const a = Math.sin(now / 1700 + ph);
           const b = Math.sin(now / 2900 + ph * 1.7 + 1.3);
           const c = Math.sin(now / 4300 + ph * 0.6 + 2.1);
-          const rock = a * 0.011 + b * 0.006 + c * 0.004;        // vloeiende, niet-repeterende kanteling (~max 1,2°)
+          let rock = a * 0.011 + b * 0.006 + c * 0.004;         // vloeiende, niet-repeterende kanteling
+          if (npcInAwe) rock *= (npc.aweSwayMul || 3.0);        // dromerig sterker wiegen tijdens de trance
           /* Geen horizontale translatie: die wordt op hele pixels afgerond -> hapering.
              Alleen de rotatie (sub-pixel via canvas) -> volledig vloeiend. */
           drawArtSprite(img, rt.x, rt.y, { flip: fl, scale: sc2, rot: rock, bob: 0, squashY: 1 });

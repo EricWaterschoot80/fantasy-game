@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '173',
+  assetVer: '174',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -795,7 +795,7 @@ const GAME = {
         { img: 'assets/art/scene-library-nacht-deur.jpg',  flag: 'altarSolved' }                       // vangnet: deur net open, daglicht nog niet terug
       ],
       charFilter: 'saturate(1.02) brightness(0.88) sepia(0.14) contrast(1.04)',   // warm kaarslicht, wat donkerder zodat de figuren in de schemerige zaal opgaan
-      heroShade: 0.8,
+      heroShade: 0.66,
       entryText: {
         nl: 'De geheime gang komt uit in een stille kasteelbibliotheek. Hoge boekenkasten reiken tot het plafond, bij het grote raam staat een koperen telescoop, en midden in de zaal gloeit een boek op een sierlijke lessenaar. Een oude tovenaar tuurt erin, en op de vensterbank zit... de raaf!',
         en: 'The secret passage opens into a quiet castle library. Tall bookcases rise to the ceiling, a brass telescope stands by the great window, and in the middle of the hall a book glows on an ornate lectern. An old wizard peers into it, and on the windowsill sits... the raven!'
@@ -814,10 +814,11 @@ const GAME = {
       ],
       overlays: [],
       fx: {
-        bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' }   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
+        bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' },   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
+        mageGlow: { x: 150, y: 205, r: 15, a: 0.42, hideFlag: 'wizardTripping' }   // paars-blauwe gloed van de tovenaarsstaf (dooft tijdens de trance)
       },
       npcs: [
-        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', x: 190, y: 262, scale: 0.82, sway: 0.012, aweSwayMul: 2.6, aweSwayMs: 1350, flip: false, filter: 'brightness(0.7) saturate(0.9)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping' },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
+        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 190, y: 263, scale: 0.9, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping' },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 155, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter, 5px lager
       ],
       worldItems: [],
@@ -1012,7 +1013,7 @@ const GAME = {
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
       },
       npcs: [
-        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.22, flip: true, turnFlags: ['gotCellKey', 'guardTurned'], sway: 0.015, filter: 'brightness(0.82) saturate(0.96)' }   // bij binnenkomst kijkt hij naar LINKS (naar de trap); zodra je de gouden sleutel hebt draait hij naar RECHTS (naar de cel); als de bloem danst (guardTurned) draait hij weer weg naar LINKS
+        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.13, flip: true, turnFlags: ['gotCellKey', 'guardTurned'], sway: 0.015, filter: 'brightness(0.82) saturate(0.96)' }   // bij binnenkomst kijkt hij naar LINKS (naar de trap); zodra je de gouden sleutel hebt draait hij naar RECHTS (naar de cel); als de bloem danst (guardTurned) draait hij weer weg naar LINKS
         // Finn's vader zit ín de achtergrond, écht achter de tralies (gevangenis-ravenholt-1)
       ],
       worldItems: [],
