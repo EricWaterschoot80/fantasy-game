@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '144',
+  assetVer: '145',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -982,13 +982,14 @@ const GAME = {
       ],
       obstacles: [
         { x: 182, y: 200, w: 94, h: 28 },                // de houten tafel met de fles
-        { x: 276, y: 196, w: 70, h: 28 }                 // de tonnen naast de tafel
+        { x: 276, y: 196, w: 70, h: 28 },                // de tonnen naast de tafel
+        { x: 288, y: 236, w: 68, h: 76, notFlag: 'guardPassed' }   // de wachter verspert de doorgang — tot je onzichtbaar bent (dan loop je er dwars langs)
       ],
       overlays: [],
       fx: {},
       npcs: [
-        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.22, flip: true, sway: 0.015, filter: 'brightness(0.82) saturate(0.96)', hideFlag: 'guardPassed' },   // de reusachtige wachter vóór de cel, kijkt naar RECHTS; verdwijnt als je onzichtbaar langs sluipt
-        { id: 'father', sprite: 'father', x: 430, y: 240, scale: 0.98, flip: false, filter: 'brightness(0.80)' }                                                              // Finn's vader, gevangen achter de tralies van de cel rechts
+        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.22, flip: true, sway: 0.015, filter: 'brightness(0.82) saturate(0.96)' }   // de wachter vóór de cel, kijkt naar RECHTS; hij blijft gewoon staan — onzichtbaar ziet hij je alleen niet
+        // Finn's vader zit ín de achtergrond, écht achter de tralies (gevangenis-ravenholt-1)
       ],
       worldItems: [],
       hotspots: [
@@ -1018,8 +1019,8 @@ const GAME = {
         {
           id: 'father',
           name: { nl: 'De Gevangene', en: 'The Prisoner' },
-          rect: { x: 376, y: 96, w: 140, h: 165 },
-          walkTo: { x: 350, y: 270 },
+          rect: { x: 408, y: 110, w: 100, h: 130 },
+          walkTo: { x: 408, y: 268 },
           look: (state) => state.flags.fatherFreed
             ? { nl: 'De celdeur staat open. Je vader houdt je hand stevig vast — jullie zijn weer samen.', en: 'The cell door stands open. Your father holds your hand tight — you are together again.' }
             : { nl: 'Onzichtbaar sluip je naar de tralies. De magere man kijkt op — vermoeide ogen, rood-bruin haar net als dat van jou. “...Finn?” fluistert hij. “Mijn jongen! Snel — het slot heeft vier tekens. Luister goed: éérst de ZON... dan de MAAN... dan de STER... en als laatste het teken van mijn oude staf: Ψ.”', en: 'Invisible, you creep to the bars. The thin man looks up — tired eyes, red-brown hair just like yours. “...Finn?” he whispers. “My boy! Quick — the lock has four signs. Listen well: FIRST the SUN... then the MOON... then the STAR... and last the sign of my old staff: Ψ.”' },

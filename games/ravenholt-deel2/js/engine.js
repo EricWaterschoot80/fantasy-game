@@ -2221,8 +2221,30 @@
     const sh = (sc && typeof sc.heroShade === 'number') ? sc.heroShade : 0.9;
     const soft = ' brightness(' + sh + ') contrast(0.86)';
     const f = (sf === 'none') ? soft.trim() : (sf + soft);
+    /* ONZICHTBAAR: in de kerker is Finn na de spreuk niet meer dan een rimpeling —
+       half doorschijnend met een zachte blauwe schittering eromheen. */
+    const ghost = state.currentScene === 'dungeon' && state.flags.guardPassed && !state.flags.fatherFreed;
+    if (ghost) {
+      fctx.globalAlpha = 0.34 + 0.06 * Math.sin(now / 480);          // zachtjes pulserend doorschijnend
+      const gr = 30, ga = 0.10 + 0.05 * Math.sin(now / 600);
+      const gg = fctx.createRadialGradient(player.x, player.y - 26, 3, player.x, player.y - 26, gr);
+      gg.addColorStop(0, 'rgba(150,195,255,' + ga.toFixed(3) + ')');
+      gg.addColorStop(1, 'rgba(150,195,255,0)');
+      fctx.save(); fctx.globalAlpha = 1; fctx.fillStyle = gg;
+      fctx.fillRect(player.x - gr, player.y - 26 - gr, gr * 2, gr * 2); fctx.restore();
+      fctx.globalAlpha = 0.34 + 0.06 * Math.sin(now / 480);
+    }
     if (FILTER_OK) { fctx.filter = f; drawPlayerSprite(now); fctx.filter = 'none'; }
     else { currentTint = f; drawPlayerSprite(now); currentTint = null; }
+    if (ghost) {
+      fctx.globalAlpha = 1;
+      for (let i = 0; i < 4; i++) {                                   // glinsterende 'rimpeling' om hem heen
+        const sp = 1800 + i * 420;
+        const tx = player.x + Math.sin(now / sp + i * 2.2) * 16;
+        const ty = player.y - 20 - Math.abs(Math.sin(now / (sp * 0.8) + i)) * 26;
+        twinkle(tx, ty, 0.2 + 0.4 * (0.5 + 0.5 * Math.sin(now / 460 + i * 1.9)), '175,210,255');
+      }
+    }
   }
 
   function drawPlayerSprite(now) {
@@ -2862,6 +2884,7 @@
     if (fls.some((f) => state.flags[f])) { say(lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }
     fls.forEach((f) => { state.flags[f] = true; });
     sfx('combine'); triggerCastFx(); updateQuest();
+    burstAt(player.x, player.y - 30, { n: 22, col: '160,200,255', up: 8, life: 1.2, spread: 26 });   // Finn vervaagt in een wolkje blauwe vonkjes
     say(c.text, hsSpeaker(hs), hsFace(hs));
     if (scene.bgVariants) paintBackground();
   }
