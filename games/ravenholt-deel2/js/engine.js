@@ -2682,6 +2682,9 @@
            kar tot de bloem danst). */
         let fl = !!npc.flip;
         if (npc.turnFlag && state.flags[npc.turnFlag] && !npcStopped) fl = !fl;
+        if (npc.turnFlags && !npcStopped) {              // meerdere vlaggen: elke gezette vlag draait de kijkrichting om
+          for (const tf of npc.turnFlags) if (state.flags[tf]) fl = !fl;
+        }
         /* Lichte, doorlopende wieg voor wat 'leven' (bv. de wacht). */
         let swayAmp = (typeof npc.sway === 'number') ? npc.sway : (npc.sway ? 0.035 : 0);   // sway:true = 0.035, of een eigen amplitude
         let swayMs = 650;

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '171',
+  assetVer: '172',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -1013,7 +1013,7 @@ const GAME = {
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
       },
       npcs: [
-        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.22, flip: true, turnFlag: 'guardTurned', sway: 0.015, filter: 'brightness(0.82) saturate(0.96)' }   // de wachter vóór de cel, kijkt naar RECHTS; na het kettingen-trucje draait hij zich om (turnFlag)
+        { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.22, flip: true, turnFlags: ['gotCellKey', 'guardTurned'], sway: 0.015, filter: 'brightness(0.82) saturate(0.96)' }   // bij binnenkomst kijkt hij naar LINKS (naar de trap); zodra je de gouden sleutel hebt draait hij naar RECHTS (naar de cel); als de bloem danst (guardTurned) draait hij weer weg naar LINKS
         // Finn's vader zit ín de achtergrond, écht achter de tralies (gevangenis-ravenholt-1)
       ],
       worldItems: [],
