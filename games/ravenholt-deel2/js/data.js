@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '156',
+  assetVer: '157',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -922,7 +922,7 @@ const GAME = {
               [0, 1, 1]                                // BINNENSTE mechaniek: maan +1 én ster +1
             ],
             title: { nl: 'De Hemelschijf', en: 'The Celestial Disc' },
-            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar dit hemelwerk is VERSTRENGELD: elk mechaniek beweegt meerdere hemellichamen tegelijk! Het buitenste draait zon \u00e9n ster, het middelste alle drie, het binnenste maan \u00e9n ster. Vind de juiste combinatie van slagen. (Tik links of rechts van een ring.)', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But this celestial clockwork is ENTANGLED: each mechanism moves several bodies at once! The outer turns sun and star, the middle all three, the inner moon and star. Find the right combination of turns. (Tap left or right of a ring.)' },
+            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar dit hemelwerk is VERSTRENGELD: elk mechaniek beweegt meerdere hemellichamen tegelijk! Het buitenste draait zon \u00e9n ster, het middelste alle drie, het binnenste maan \u00e9n ster. Vind de juiste combinatie van slagen met de hendels onder de schijf: \u25c0 is achteruit, \u25b6 is vooruit. Een groen vinkje = die ring staat goed!', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But this celestial clockwork is ENTANGLED: each mechanism moves several bodies at once! The outer turns sun and star, the middle all three, the inner moon and star. Find the right combination of turns with the levers below the disc: \u25c0 is backward, \u25b6 is forward. A green check = that ring is set!' },
             rings: [
               { start: 11 },
               { start: 10 },

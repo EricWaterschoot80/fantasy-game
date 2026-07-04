@@ -4730,10 +4730,18 @@
     if (elEclHint)   elEclHint.textContent   = L(pz.hint);
     if (elEclStatus) elEclStatus.textContent = '';
     if (elEcl) elEcl.hidden = false;
+    eclUpdateRows();
     sfx('tap');
     if (!eclAnim) eclLoop();
   }
   function eclipseClose() { if (elEcl) elEcl.hidden = true; eclHs = null; if (eclAnim) { cancelAnimationFrame(eclAnim); eclAnim = null; } }
+  function eclUpdateRows() {                            // hendel-rijen: vinkje zodra die ring bovenaan staat
+    const rows = document.querySelectorAll('#eclipse-controls .ecl-row');
+    rows.forEach((row) => {
+      const i = parseInt(row.dataset.ring, 10);
+      row.classList.toggle('ok', !!eclHs && eclOff[i] === 0);
+    });
+  }
   function eclShift(r, dir) {
     if (!eclHs || eclSolved) return;
     const N = eclHs.eclipsePuzzle.positions || 8;
@@ -4755,6 +4763,7 @@
       if (pz0.linked && r < 2) eclOff[r + 1] = (eclOff[r + 1] + (N - step)) % N;
     }
     sfx('tap');
+    eclUpdateRows();
     const pz = eclHs.eclipsePuzzle;
     const aligned = eclOff.every((o) => o === 0);
     if (elEclStatus && !aligned) {
@@ -4886,6 +4895,12 @@
     });
     const exc = document.getElementById('eclipse-close');
     if (exc) exc.addEventListener('click', eclipseClose);
+    document.querySelectorAll('#eclipse-controls .ecl-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (!eclHs || eclSolved) return;
+        eclShift(parseInt(btn.dataset.r, 10), parseInt(btn.dataset.d, 10));
+      });
+    });
     const etip = document.getElementById('eclipse-tip');
     if (etip) etip.addEventListener('click', () => {          // 💡 verklap de slimme draai-volgorde
       if (!eclHs) return;

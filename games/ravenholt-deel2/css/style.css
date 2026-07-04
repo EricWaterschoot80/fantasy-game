@@ -1472,3 +1472,59 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
   .gold-btn:hover { filter: brightness(1.08); }
   .book-hot:hover { outline: 2px solid rgba(231,207,134,.55); outline-offset: -2px; }
 }
+
+/* ---------- Hemelschijf: duidelijke hendels per ring ---------- */
+.ecl-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(340px, 88vw);
+  margin: 8px auto 2px;
+}
+.ecl-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  background: rgba(20, 16, 30, .65);
+  border: 2px solid #4a3c22;
+  box-shadow: 0 0 0 1px #17110d, inset 0 1px 0 rgba(231,207,134,.12);
+}
+.ecl-row.ecl-sun   { border-color: #8a6a2e; }
+.ecl-row.ecl-moon  { border-color: #7c8494; }
+.ecl-row.ecl-star  { border-color: #2e7ea8; }
+.ecl-row.ok        { box-shadow: 0 0 8px rgba(126,230,110,.5), 0 0 0 1px #17110d; border-color: #5da24e; }
+.ecl-lbl {
+  flex: 1 1 auto;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--gold-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ecl-lbl b { font-size: 15px; margin-right: 2px; }
+.ecl-sun  .ecl-lbl b { color: #ffd36b; }
+.ecl-moon .ecl-lbl b { color: #dfe4f0; }
+.ecl-star .ecl-lbl b { color: #8fd0ff; }
+.ecl-lbl em { font-style: normal; opacity: .65; font-size: 11px; }
+.ecl-row.ok .ecl-lbl::after { content: ' ✓'; color: #8fe07e; }
+.ecl-btn {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 36px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--gold-light);
+  background: linear-gradient(180deg, #2c2238, #1a1426);
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 0 1px #17110d, inset 0 2px 0 rgba(231,207,134,.22);
+  cursor: pointer;
+}
+.ecl-btn:active { transform: scale(.92); }
+@media (max-height: 620px) {
+  .ecl-controls { gap: 4px; }
+  .ecl-btn { height: 32px; width: 40px; }
+  .eclipse-canvas { width: min(250px, 72vw, 40dvh); }
+}
