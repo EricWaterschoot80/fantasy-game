@@ -1652,9 +1652,9 @@
         fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.8, rr * 0.55, 0, 0, Math.PI * 2); fctx.stroke();
       }
       if (state.flags.plantDancing) {
-        const swayA = Math.sin(now / 380) * 0.075;       // rustig zwieren (radialen om de voet)
-        const bop = Math.abs(Math.sin(now / 380)) * 1.4; // klein huppeltje
-        const H2 = 34;                                   // hoogte van de bloem in de scene
+        const swayA = Math.sin(now / 340) * 0.115;       // iets wilder zwieren (radialen om de voet)
+        const bop = Math.abs(Math.sin(now / 340)) * 2.1; // iets duidelijker huppeltje
+        const H2 = 30;                                   // hoogte van de bloem in de scene
         if (ready(p._img)) {
           const W2 = H2 * (p._img.width / p._img.height);
           const hx = p.x + Math.sin(swayA) * H2 * 0.5, hy = p.y - H2 * 0.72 - bop;
@@ -1666,7 +1666,7 @@
           fctx.save();
           fctx.translate(p.x, p.y);                      // draai om de voet in het plasje
           fctx.rotate(swayA);
-          fctx.scale(1 + 0.02 * Math.sin(now / 380), 1 - 0.02 * Math.sin(now / 380));   // squash & stretch op de maat
+          fctx.scale(1 + 0.032 * Math.sin(now / 340), 1 - 0.032 * Math.sin(now / 340));   // squash & stretch op de maat
           fctx.drawImage(p._img, -W2 / 2, -H2 - bop, W2, H2);
           fctx.restore();
           /* enkele gedempte violette fonkels + één zacht muzieknootje */
