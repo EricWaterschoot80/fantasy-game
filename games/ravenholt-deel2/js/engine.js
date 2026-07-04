@@ -4492,19 +4492,23 @@
      Drie schijven uit het zegel (buiten/midden/binnen) draaien elk vrij; zet
      alle tekens precies zoals op het zegel dat in het gloeiende boek zweeft en
      trek dan aan de hendel. Gebruikt hetzelfde altaar-scherm (canvas + hendel). */
-  let discHs = null, discOff = [0, 0, 0], discSolved = false, discAnim = null;
-  const discArt = {};                                    // base + 3 ringlagen (lazy geladen)
-  const DISC_N = 12;                                     // 12 klik-stappen per omwenteling
+  let discHs = null, discSel = [], discSolved = false, discAnim = null;
+  const discArt = {};                                    // zegel-afbeelding (lazy geladen)
+  const DISC_GR = 132, DISC_MR = 19;                     // straal van de tekenring + medaillon-straal
+  function discPts(cv) {
+    const cx = cv.width / 2, cy = cv.height / 2, pts = [];
+    const n = discHs.discPuzzle.signs.length;
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (i / n) * Math.PI * 2;    // teken 0 bovenaan, dan met de klok mee
+      pts.push({ x: cx + Math.cos(a) * DISC_GR, y: cy + Math.sin(a) * DISC_GR });
+    }
+    return pts;
+  }
   function openDiscPuzzle(hs) {
     const pz = hs.discPuzzle;
     if (symFlagDone(pz.setFlag)) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
-    discHs = hs; discSolved = false;
-    discOff = pz.rings.map((r) => r.start || 0);
-    if (!discArt.base) {
-      for (const [k, src] of [['base', pz.imgBase], ['outer', pz.imgOuter], ['mid', pz.imgMid], ['inner', pz.imgInner]]) {
-        const im = new Image(); im.src = src + AV; discArt[k] = im;
-      }
-    }
+    discHs = hs; discSolved = false; discSel = [];
+    if (!discArt.base) { const im = new Image(); im.src = pz.imgBase + AV; discArt.base = im; }
     if (elAltarCanvas) { elAltarCanvas.width = 360; elAltarCanvas.height = 360; }
     if (elAltarTitle)  elAltarTitle.textContent  = L(pz.title);
     if (elAltarHint)   elAltarHint.textContent   = L(pz.hint);
@@ -4525,33 +4529,49 @@
     x.fillStyle = '#131110'; x.fillRect(0, 0, W, H);
     const s = Math.min(W, H);
     if (ready(discArt.base)) x.drawImage(discArt.base, cx - s / 2, cy - s / 2, s, s);
-    const layers = [discArt.outer, discArt.mid, discArt.inner];
-    for (let r = 0; r < 3; r++) {
-      const im = layers[r]; if (!ready(im)) continue;
-      const ang = (discOff[r] / DISC_N) * TAU;
-      x.save(); x.translate(cx, cy); x.rotate(ang); x.drawImage(im, -s / 2, -s / 2, s, s); x.restore();
-    }
-    /* gouden wijzer bovenaan (pulserend) */
+    /* donkere band onder de tekenring, zodat de 12 tekens goed leesbaar zijn */
+    x.beginPath(); x.arc(cx, cy, DISC_GR, 0, TAU);
+    x.strokeStyle = 'rgba(14,11,8,.58)'; x.lineWidth = DISC_MR * 2 + 10; x.stroke();
+    const pz = discHs.discPuzzle;
+    const pts = discPts(cv);
     const pgl = 0.5 + 0.5 * Math.sin(now / 420);
-    x.shadowColor = 'rgba(255,211,107,' + (0.4 + 0.4 * pgl) + ')'; x.shadowBlur = 9;
-    x.fillStyle = '#ffd36b';
-    x.beginPath(); x.moveTo(cx, cy - s / 2 + 17); x.lineTo(cx - 8, cy - s / 2 + 2); x.lineTo(cx + 8, cy - s / 2 + 2); x.closePath(); x.fill();
-    x.strokeStyle = '#7a4a12'; x.lineWidth = 2; x.stroke(); x.shadowBlur = 0;
-    /* draai-pijlen */
-    x.font = '15px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.fillStyle = 'rgba(231,207,134,.8)';
-    x.fillText('◀', 12, cy); x.fillText('▶', W - 12, cy);
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i], selIdx = discSel.indexOf(i), sel = selIdx >= 0;
+      x.beginPath(); x.arc(p.x, p.y, DISC_MR, 0, TAU);
+      if (sel) { x.shadowColor = 'rgba(255,211,107,' + (0.5 + 0.4 * pgl) + ')'; x.shadowBlur = 14; }
+      x.fillStyle = sel ? '#3a2c12' : '#221a12'; x.fill(); x.shadowBlur = 0;
+      x.strokeStyle = sel ? '#ffd36b' : '#6b5426'; x.lineWidth = sel ? 2.5 : 1.5; x.stroke();
+      x.font = '19px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillStyle = sel ? '#ffe9ad' : '#c9b47e';
+      x.fillText(pz.signs[i], p.x, p.y + 1);
+      if (sel) {                                       // volgorde-nummer op het gekozen medaillon
+        const bx = p.x + DISC_MR * 0.82, by = p.y - DISC_MR * 0.82;
+        x.beginPath(); x.arc(bx, by, 8, 0, TAU);
+        x.fillStyle = '#ffd36b'; x.fill();
+        x.strokeStyle = '#7a4a12'; x.lineWidth = 1.5; x.stroke();
+        x.font = 'bold 11px Georgia, serif'; x.fillStyle = '#2a1c08';
+        x.fillText(String(selIdx + 1), bx, by + 0.5);
+      }
+    }
   }
-  function discShift(r, dir) {
+  function discToggle(i) {
     if (!discHs || discSolved) return;
-    discOff[r] = (discOff[r] + (dir > 0 ? 1 : DISC_N - 1)) % DISC_N;
-    sfx('tap');
-    if (elAltarStatus) elAltarStatus.textContent = '';
+    const pz = discHs.discPuzzle;
+    const idx = discSel.indexOf(i);
+    if (idx >= 0) { discSel.splice(idx, 1); sfx('tap'); }
+    else if (discSel.length < pz.code.length) { discSel.push(i); sfx('tap'); }
+    else { sfx('error'); }
+    if (elAltarStatus) {
+      elAltarStatus.textContent = discSel.length
+        ? (lang === 'nl' ? 'Gekozen: ' : 'Chosen: ') + discSel.map((j) => pz.signs[j]).join(' → ') + '   (' + discSel.length + '/' + pz.code.length + ')'
+        : '';
+    }
   }
   function discCheck() {                                  // de hendel: klopt het zegel?
     if (!discHs || discSolved) return;
     const pz = discHs.discPuzzle;
-    if (discOff.every((o) => o % DISC_N === 0)) {
+    const chosen = discSel.map((j) => pz.signs[j]);
+    if (chosen.length === pz.code.length && chosen.every((g, i) => g === pz.code[i])) {
       discSolved = true;
       (Array.isArray(pz.setFlag) ? pz.setFlag : [pz.setFlag]).forEach((f) => { state.flags[f] = true; });
       if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
@@ -4578,7 +4598,8 @@
       }, 1100);
     } else {
       sfx('error');
-      if (elAltarStatus) elAltarStatus.textContent = pz.wrongText ? L(pz.wrongText) : (lang === 'nl' ? 'Nog niet juist — vergelijk met het zegel in het boek.' : 'Not right yet — compare with the seal in the book.');
+      discSel = [];                                     // schiet terug: opnieuw kiezen
+      if (elAltarStatus) elAltarStatus.textContent = pz.wrongText ? L(pz.wrongText) : (lang === 'nl' ? 'Het zegel blijft dof — verkeerde tekens of verkeerde volgorde. De keuze schiet terug.' : 'The seal stays dull — wrong signs or wrong order. The choice snaps back.');
     }
   }
   function altShown(r, p) { const row = altarHs.starPuzzle.rows[r]; return row.symbols[(p + altOff[r]) % row.symbols.length]; }
@@ -4682,14 +4703,11 @@
       const rc = elAltarCanvas.getBoundingClientRect();
       const px = (e.clientX - rc.left) * (elAltarCanvas.width / rc.width);
       const py = (e.clientY - rc.top) * (elAltarCanvas.height / rc.height);
-      /* Hemelzegel: radiale band bepaalt de schijf; linker-/rechterhelft de richting */
+      /* Deurzegel: tik een teken-medaillon aan om hem te (de)selecteren */
       if (discHs && !discSolved) {
-        const cx = elAltarCanvas.width / 2, cy = elAltarCanvas.height / 2;
-        const s2 = Math.min(elAltarCanvas.width, elAltarCanvas.height) / 2;
-        const rr = Math.hypot(px - cx, py - cy) / s2;
-        if (rr <= 1.04 && rr > 0.155) {
-          const ring = rr > 0.59 ? 0 : rr > 0.37 ? 1 : 2;   // banden van het nieuwe deurzegel
-          discShift(ring, px < cx ? -1 : 1);
+        const pts = discPts(elAltarCanvas);
+        for (let i = 0; i < pts.length; i++) {
+          if (Math.hypot(px - pts[i].x, py - pts[i].y) <= DISC_MR + 7) { discToggle(i); return; }
         }
         return;
       }

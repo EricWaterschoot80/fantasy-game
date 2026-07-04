@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '157',
+  assetVer: '158',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -133,7 +133,7 @@ const GAME = {
     q_castEclipse:{ nl: 'Je hebt de Zonsverduistering-spreuk! Tik hem aan in je tas en spreek hem uit bij het grote raam van de bibliotheek', en: 'You have the Solar Eclipse spell! Tap it in your bag and speak it at the great library window' },
     q_telescope:{ nl: 'De zon is verduisterd en de sterren fonkelen — kijk snel door de telescoop bij het raam!', en: 'The sun is darkened and the stars sparkle — quick, look through the telescope by the window!' },
     q_readbook: { nl: 'De zon is verduisterd — het gloeiende boek is nu te LEZEN! Tik het aan en ontvang de SPREUK VAN ONZICHTBAARHEID', en: 'The sun is eclipsed — the glowing book can be READ now! Tap it and receive the SPELL OF INVISIBILITY' },
-    q_altar:    { nl: 'De onzichtbaarheidsspreuk is binnen! Open nu de geheime deur: draai de schijven van het DEURZEGEL tot zon ☉, maan ☽ en ster ✦ alle drie bovenaan staan, en trek aan de hendel', en: 'The invisibility spell is yours! Now open the secret door: turn the DOOR SEAL discs until sun ☉, moon ☽ and star ✦ all sit at the top, then pull the lever' },
+    q_altar:    { nl: 'De onzichtbaarheidsspreuk is binnen! Open nu de geheime deur: kijk tijdens de ZONSVERDUISTERING door de telescoop naar de hemelschijf van de Raaf, en tik de drie tekens uit het hart van de hemel — van boven naar beneden — in die volgorde aan op het DEURZEGEL. Trek dan aan de hendel', en: 'The invisibility spell is yours! Now open the secret door: during the ECLIPSE, look through the telescope at the Raven’s sky-wheel, then tap the three signs from the heart of the sky — top to bottom — in that order on the DOOR SEAL. Then pull the lever' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
     q_freefather:{ nl: 'Je bent onzichtbaar langs de wachter! Praat met de gevangene bij de tralies — hij fluistert de volgorde van het kerkerslot: zon, maan, ster... en het teken van zijn staf', en: 'You slipped past the guard unseen! Talk to the prisoner at the bars — he whispers the order of the dungeon lock: sun, moon, star... and the sign of his staff' },
     q_key:      { nl: 'De grendels zijn open! Pak nu MUISSTIL de sleutel van de wachttafel: trek alleen terwijl de wachter neuriet (♪) — hij kan je nog steeds horen', en: 'The bolts are open! Now take the key from the guard’s table SILENTLY: pull only while the guard hums (♪) — he can still hear you' },
@@ -843,7 +843,7 @@ const GAME = {
           look: (state) => state.flags.altarSolved
             ? { nl: '\u201CKrra! De geheime deur staat open \u2014 de trap af, de kerker in! En onthoud: wat een wachter niet z\u00EDet, kan hij niet tegenhouden...\u201D', en: '\u201CCaw! The secret door stands open \u2014 down the stairs, into the dungeon! And remember: what a guard cannot SEE, he cannot stop...\u201D' }
             : state.flags.sawSigns
-            ? { nl: '\u201CKrra! De onzichtbaarheidsspreuk is van jou! Nu de geheime deur: draai de schijven van het altaar \u2014 zon, maan \u00e9n ster B\u00d3VENAAN \u2014 en trek aan de hendel!\u201D', en: '\u201CCaw! The invisibility spell is yours! Now the secret door: turn the altar discs \u2014 sun, moon AND star at the TOP \u2014 and pull the lever!\u201D' }
+            ? { nl: '\u201CKrra! De onzichtbaarheidsspreuk is van jou! Nu de geheime deur: kijk door de TELESCOOP nu de sterren schijnen \u2014 in het hart van de hemelschijf staan drie tekens onder elkaar. Tik ze in die volgorde aan op het Deurzegel en trek aan de hendel!\u201D', en: '\u201CCaw! The invisibility spell is yours! Now the secret door: look through the TELESCOPE while the stars shine \u2014 in the heart of the sky-wheel three signs sit one above the other. Tap them in that order on the Door Seal and pull the lever!\u201D' }
             : state.flags.eclipseActive
             ? { nl: '\u201CKrra! De zon is gedoofd \u2014 het boek is nu te L\u00c9ZEN! Tik het aan: daarin wacht de spreuk van de onzichtbaarheid.\u201D', en: '\u201CCaw! The sun is dark \u2014 the book can be READ now! Tap it: the spell of invisibility waits inside.\u201D' }
             : state.flags.gotEclipseSpell
@@ -900,7 +900,7 @@ const GAME = {
             dayText: { nl: 'Bij daglicht zie je alleen vage krabbels. Alleen bij het licht van een ZONSVERDUISTERING zijn de toverletters te lezen... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'In daylight you see only faint scribbles. Only by the light of a SOLAR ECLIPSE can the magic letters be read... Cast the eclipse spell at the window, then read the book.' },
             setFlag: ['sawSigns', 'gotInvisSpell'],
             give: 'invisspell',
-            firstText: { nl: 'Bij het spookachtige eclipslicht worden de krabbels leesbaar: \u201cUmbra Invisibilis\u201d! Een zilveren bladzijde schrijft zich over in jouw toverboek \u2014 de SPREUK VAN ONZICHTBAARHEID is van jou! (En op de laatste bladzijde staat een tekening van het sterren-altaar: zon, maan en ster bovenaan...)', en: 'In the ghostly eclipse light the scribbles become readable: \u201cUmbra Invisibilis\u201d! A silver page writes itself into your spellbook \u2014 the SPELL OF INVISIBILITY is yours! (And on the last page: a drawing of the star altar \u2014 sun, moon and star at the top...)' },
+            firstText: { nl: 'Bij het spookachtige eclipslicht worden de krabbels leesbaar: \u201cUmbra Invisibilis\u201d! Een zilveren bladzijde schrijft zich over in jouw toverboek \u2014 de SPREUK VAN ONZICHTBAARHEID is van jou! (En op de laatste bladzijde: een tekening van de telescoop en een hemelschijf vol sterrenbeelden \u2014 \u201cals de sterren overdag schijnen, toont het hart van de hemel de volgorde\u201d...)', en: 'In the ghostly eclipse light the scribbles become readable: \u201cUmbra Invisibilis\u201d! A silver page writes itself into your spellbook \u2014 the SPELL OF INVISIBILITY is yours! (And on the last page: a drawing of the telescope and a sky-wheel full of constellations \u2014 \u201cwhen the stars shine by day, the heart of the sky reveals the order\u201d...)' },
             zoomImg: 'assets/art/book-signs.jpg'           // de spreuk-pagina van de onzichtbaarheid
           }
         },
@@ -941,11 +941,11 @@ const GAME = {
           name: { nl: 'De Telescoop', en: 'The Telescope' },
           rect: { x: 382, y: 94, w: 58, h: 74 },
           walkTo: { x: 404, y: 252 },
-          zoomImg: 'assets/art/telescope-view.jpg',
+          zoomImg: 'assets/art/telescope-horoscope.jpg',
           zoomRequiresFlag: 'eclipseActive',
           zoomBlockedText: { nl: 'Je tuurt door de koperen telescoop, maar het felle daglicht verblindt alles \u2014 geen ster te zien. Alleen als de zon zou doven, zouden de sterren zich overdag tonen...', en: 'You peer through the brass telescope, but the bright daylight blinds everything \u2014 not a star in sight. Only if the sun went dark would the stars show themselves by day...' },
           setFlag: 'sawStars',
-          look: { nl: 'Een prachtige koperen telescoop, gericht op de hemel boven het grote raam.', en: 'A beautiful brass telescope, aimed at the sky above the great window.' }
+          look: { nl: 'Een prachtige koperen telescoop, gericht op de hemel boven het grote raam. Op de koperen buis is een kleine raaf gegraveerd.', en: 'A beautiful brass telescope, aimed at the sky above the great window. A little raven is engraved on the brass tube.' }
         },
         {
           id: 'altar',
@@ -954,25 +954,19 @@ const GAME = {
           walkTo: { x: 404, y: 282 },
           look: (state) => state.flags.altarSolved
             ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
-            : { nl: 'Op het altaar ligt een rond stenen DEURZEGEL: drie draaibare schijven vol gegraveerde tekens rond een blauwe steen, met een hendel ernaast. Bovenop de rand is een wijzer gebeiteld — wat moet daaronder komen te staan?', en: 'On the altar lies a round stone DOOR SEAL: three turnable discs full of engraved signs around a blue stone, with a lever beside it. A pointer is chiselled at the top of the rim — what should sit beneath it?' },
+            : { nl: 'Op het altaar ligt een rond stenen DEURZEGEL: twaalf gegraveerde sterren-tekens in een kring rond een blauwe steen, met een hendel ernaast. Drie van de tekens voelen warmer aan dan de rest... maar welke drie, en in welke volgorde?', en: 'On the altar lies a round stone DOOR SEAL: twelve engraved star-signs in a ring around a blue stone, with a lever beside it. Three of the signs feel warmer than the rest... but which three, and in what order?' },
           discPuzzle: {
             requiresFlag: 'gotInvisSpell',
             blockedText: { nl: 'Een rond stenen deurzegel met drie draaibare schijven. Ze zitten muurvast \u2014 er glinstert toverkracht overheen. Misschien komen ze los als je de geheimen van het gloeiende boek kent...', en: 'A round stone door-seal with three turnable discs. They are stuck fast \u2014 magic shimmers across them. Perhaps they will come loose once you know the secrets of the glowing book...' },
             imgBase:  'assets/art/seal-base.jpg',
-            imgOuter: 'assets/art/seal-ring-outer.png',
-            imgMid:   'assets/art/seal-ring-mid.png',
-            imgInner: 'assets/art/seal-ring-inner.png',
             title: { nl: 'Het Deurzegel', en: 'The Door Seal' },
-            hint: { nl: 'Draai de drie schijven \u2014 tik links of rechts van de buitenste, middelste of binnenste schijf \u2014 tot de ZON \u2609 (buitenste), de MAAN \u263d (middelste) en de STER \u2726 (binnenste) alle drie B\u00d3VENAAN onder de wijzer staan. Trek dan aan de HENDEL!', en: 'Turn the three discs \u2014 tap left or right of the outer, middle or inner disc \u2014 until the SUN \u2609 (outer), the MOON \u263d (middle) and the STAR \u2726 (inner) all sit at the TOP under the pointer. Then pull the LEVER!' },
-            rings: [
-              { start: 5 },
-              { start: 8 },
-              { start: 3 }
-            ],
+            signs: ['\u2609','\u2642','\u03a8','\u263d','\u2726','\u2644','\u263f','\u26b9','\u2643','\u2640','\u2736','\u2646'],
+            code:  ['\u03a8','\u2643','\u2644'],
+            hint: { nl: 'Rond de blauwe steen staan TWAALF sterren-tekens gegraveerd. Tik er DRIE aan \u2014 in de juiste volgorde \u2014 en trek dan aan de HENDEL. Maar welke drie...? De hemel zelf wijst de weg: kijk door de TELESCOOP wanneer de sterren overdag schijnen. In het hart van de hemelschijf van de Raaf staan drie tekens onder elkaar \u2014 van boven naar beneden, d\u00e1t is de volgorde!', en: 'Around the blue stone TWELVE star-signs are engraved. Tap THREE of them \u2014 in the right order \u2014 then pull the LEVER. But which three...? The sky itself shows the way: look through the TELESCOPE while the stars shine by day. In the heart of the Raven\u2019s sky-wheel three signs sit one above the other \u2014 top to bottom, TH\u00c1T is the order!' },
             setFlag: ['altarSolved'],
             relight: { setFlag: 'libRelit', clearFlag: 'eclipseActive', delay: 2600, text: { nl: 'Achter het raam schuift de zwarte schijf weg van de zon. Het daglicht stroomt terug de zaal in \u2014 en in de muur, waar zojuist een boekenkast stond, gaapt nu een donkere doorgang naar beneden...', en: 'Behind the window the black disc slides off the sun. Daylight floods back into the hall \u2014 and in the wall, where a bookcase stood a moment ago, a dark passage now yawns downward...' } },
-            wrongText: { nl: 'Je trekt aan de hendel... maar het zegel blijft dof en de schijven schieten terug. Nog niet juist: de zon \u2609, de maan \u263d \u00e9n de ster \u2726 moeten alle drie B\u00d3VENAAN staan.', en: 'You pull the lever... but the seal stays dull and the discs snap back. Not right yet: the sun \u2609, the moon \u263d and the star \u2726 must ALL sit at the TOP.' },
-            solvedText: { nl: 'Zon, maan en ster klikken bovenaan op \u00e9\u00e9n lijn \u2014 het DEURZEGEL vlamt goudkleurig op! Met een diep, knarsend gerommel zwaait achter de boekenkast een GEHEIME DEUR open. Daarachter voert een trap omlaag, de duisternis in \u2014 naar de kerker...', en: 'Sun, moon and star click into line at the top \u2014 the DOOR SEAL blazes golden! With a deep grinding rumble a SECRET DOOR swings open behind the bookcase. Beyond it a stair leads down, into the dark \u2014 toward the dungeon...' },
+            wrongText: { nl: 'Je trekt aan de hendel... maar het zegel blijft dof en de gekozen tekens doven \u00e9\u00e9n voor \u00e9\u00e9n uit. Verkeerde tekens of verkeerde volgorde! (Hint: kijk door de telescoop tijdens de zonsverduistering \u2014 het hart van de hemelschijf toont drie tekens, van boven naar beneden.)', en: 'You pull the lever... but the seal stays dull and the chosen signs fade one by one. Wrong signs or wrong order! (Hint: look through the telescope during the eclipse \u2014 the heart of the sky-wheel shows three signs, top to bottom.)' },
+            solvedText: { nl: 'De drie tekens van de Raaf gloeien \u00e9\u00e9n voor \u00e9\u00e9n op \u2014 het DEURZEGEL vlamt goudkleurig aan! Met een diep, knarsend gerommel zwaait achter de boekenkast een GEHEIME DEUR open. Daarachter voert een trap omlaag, de duisternis in \u2014 naar de kerker...', en: 'The Raven\u2019s three signs glow one by one \u2014 the DOOR SEAL blazes golden! With a deep grinding rumble a SECRET DOOR swings open behind the bookcase. Beyond it a stair leads down, into the dark \u2014 toward the dungeon...' },
             doneText: { nl: 'Het zegel rust; de tekens gloeien zachtjes na en de geheime deur staat open. Een trap voert omlaag, de kerker in.', en: 'The seal rests; the signs glow faintly and the secret door stands open. A stair leads down, into the dungeon.' }
           }
         }
