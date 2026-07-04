@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '163',
+  assetVer: '164',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -994,21 +994,23 @@ const GAME = {
         nl: 'De wenteltrap komt uit in een klamme kerker diep onder het kasteel. Fakkels walmen aan de muren, kettingen rammelen zacht. Rechts, achter dikke ijzeren tralies, zit een magere gestalte gevangen — en er tussenin staat een reusachtige wachter, zijn hellebaard in de hand. Hij mag je niet zien.',
         en: 'The spiral stair opens into a clammy dungeon deep beneath the castle. Torches gutter on the walls, chains rattle softly. To the right, behind thick iron bars, a thin figure is imprisoned — and between you and it stands a huge guard, halberd in hand. He must not see you.'
       },
-      playerStart: { x: 100, y: 246 },
-      spawnFrom: { library: { x: 100, y: 246 } },
+      playerStart: { x: 92, y: 226 },
+      spawnFrom: { library: { x: 92, y: 226 } },
       depth: { far: 250, near: 314, sFar: 1.00, sNear: 1.40 },   // Finn wat groter in de kerker
       walkable: [
+        { x: 44, y: 212, w: 104, h: 40 },                // de onderste treden van de trap (hoger startpunt)
         { x: 36, y: 246, w: 444, h: 66 }                 // de natte kerkervloer, van de trap links tot vlak voor de cel
       ],
       obstacles: [
         { x: 182, y: 200, w: 94, h: 28 },                // de houten tafel met de fles
         { x: 276, y: 196, w: 70, h: 28 },                // de tonnen naast de tafel
+        { x: 152, y: 206, w: 340, h: 110, notFlag: 'guardPassed' },  // zolang de wachter je kan zien kom je de trap niet af — alleen terug, tot je onzichtbaar bent
         { x: 288, y: 236, w: 68, h: 76, notFlag: 'guardPassed' }   // de wachter verspert de doorgang — tot je onzichtbaar bent (dan loop je er dwars langs)
       ],
       overlays: [],
       fx: {
         bookSparkle: { x: 230, y: 206, r: 13, doneFlag: 'gotCellKey' },  // de sleutel glinstert op de wachttafel tot je hem hebt
-        nutPlant:  { x: 60, y: 284 },                                    // wondernoot + dansend plantje in het plasje links
+        nutPlant:  { x: 60, y: 290, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
         waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
       },

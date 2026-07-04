@@ -1618,71 +1618,49 @@
     /* Wondernoot in het plasje + het dansende plantje (kerker) */
     if (fx.nutPlant) {
       const p = fx.nutPlant;
+      if (!p._img && p.img) { p._img = new Image(); p._img.src = p.img + AV; }
+      if (!p._imgNut && p.imgNut) { p._imgNut = new Image(); p._imgNut.src = p.imgNut + AV; }
       if (state.flags.nutInPuddle && !state.flags.plantDancing) {
-        fctx.fillStyle = '#6b4a26'; fctx.fillRect(p.x - 2, p.y - 2, 4, 3);      // de dobberende noot
-        fctx.fillStyle = '#8a6438'; fctx.fillRect(p.x - 1, p.y - 3, 2, 1);
+        const bob = Math.sin(now / 700) * 1.2;                                   // dobberen
+        if (ready(p._imgNut)) {
+          fctx.drawImage(p._imgNut, p.x - 7, p.y - 12 + bob, 14, 14);
+        } else {
+          fctx.fillStyle = '#6b4a26'; fctx.fillRect(p.x - 2, p.y - 2, 4, 3);
+        }
         const rr = 4 + ((now / 600) % 3);                                        // kringetje in het water
         fctx.strokeStyle = 'rgba(180,220,255,0.25)'; fctx.lineWidth = 1;
-        fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.6, rr * 0.5, 0, 0, Math.PI * 2); fctx.stroke();
+        fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.8, rr * 0.55, 0, 0, Math.PI * 2); fctx.stroke();
       }
       if (state.flags.plantDancing) {
-        const sway = Math.sin(now / 300) * 6;            // vrolijk zwieren
-        const bop = Math.abs(Math.sin(now / 300)) * 2.5; // huppeltje
-        const H2 = 34;
-        const hx = p.x + sway, hy = p.y - H2 - bop;      // bloemkop
-        /* zachte toverachtige gloed achter de bloem */
-        const glow = fctx.createRadialGradient(hx, hy, 1, hx, hy, 14);
-        const ga = 0.12 + 0.06 * Math.sin(now / 400);
-        glow.addColorStop(0, `rgba(255,190,230,${ga.toFixed(3)})`);
-        glow.addColorStop(1, 'rgba(255,190,230,0)');
-        fctx.fillStyle = glow; fctx.fillRect(hx - 14, hy - 14, 28, 28);
-        /* stengel als sierlijke boog, iets dikker onderaan */
-        fctx.strokeStyle = '#3f7a2e'; fctx.lineWidth = 3;
-        fctx.beginPath(); fctx.moveTo(p.x, p.y);
-        fctx.quadraticCurveTo(p.x + sway * 0.3, p.y - H2 * 0.55, hx, hy + 4);
-        fctx.stroke();
-        fctx.strokeStyle = '#5da24e'; fctx.lineWidth = 1.4;
-        fctx.beginPath(); fctx.moveTo(p.x, p.y - 1);
-        fctx.quadraticCurveTo(p.x + sway * 0.3, p.y - H2 * 0.55, hx, hy + 4);
-        fctx.stroke();
-        /* twee wapperende blaadjes */
-        for (const [ly, dir] of [[12, -1], [20, 1]]) {
-          const flap = Math.sin(now / 300 + dir) * 0.5 + (dir > 0 ? 0.4 : -0.4);
-          const bx = p.x + sway * (ly / H2) * 0.5, by = p.y - ly;
-          fctx.fillStyle = '#5da24e';
-          fctx.beginPath();
-          fctx.ellipse(bx + dir * 4, by, 4.6, 2, flap, 0, Math.PI * 2);
-          fctx.fill();
-          fctx.fillStyle = '#7cc264';
-          fctx.beginPath();
-          fctx.ellipse(bx + dir * 4.5, by - 0.5, 2.4, 1, flap, 0, Math.PI * 2);
-          fctx.fill();
+        const swayA = Math.sin(now / 320) * 0.11;        // zwieren (radialen om de voet)
+        const bop = Math.abs(Math.sin(now / 320)) * 2.2; // huppeltje
+        const H2 = 56;                                   // hoogte van de bloem in de scene
+        if (ready(p._img)) {
+          const W2 = H2 * (p._img.width / p._img.height);
+          const hx = p.x + Math.sin(swayA) * H2 * 0.5, hy = p.y - H2 * 0.72 - bop;
+          const glow = fctx.createRadialGradient(hx, hy, 2, hx, hy, 18);   // zachte roze gloed achter de bloemkop
+          const ga = 0.12 + 0.06 * Math.sin(now / 400);
+          glow.addColorStop(0, `rgba(255,190,230,${ga.toFixed(3)})`);
+          glow.addColorStop(1, 'rgba(255,190,230,0)');
+          fctx.fillStyle = glow; fctx.fillRect(hx - 18, hy - 18, 36, 36);
+          fctx.save();
+          fctx.translate(p.x, p.y);                      // draai om de voet in het plasje
+          fctx.rotate(swayA);
+          fctx.scale(1 + 0.03 * Math.sin(now / 320), 1 - 0.03 * Math.sin(now / 320));   // squash & stretch op de maat
+          fctx.drawImage(p._img, -W2 / 2, -H2 - bop, W2, H2);
+          fctx.restore();
+          /* dwarrelende sparkles + dansende muzieknootjes */
+          for (let k = 0; k < 4; k++) {
+            const a2 = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(now / 380 + k * 2.2));
+            twinkle(hx + Math.sin(now / (460 + k * 120) + k * 1.7) * 11, hy - 4 - ((now / 40 + k * 9) % 20), a2, k % 2 ? '255,220,150' : '255,190,230');
+          }
+          const na = Math.max(0, 0.35 + 0.35 * Math.sin(now / 350));
+          fctx.font = '8px Georgia, serif'; fctx.textAlign = 'center'; fctx.textBaseline = 'middle';
+          fctx.fillStyle = `rgba(200,235,255,${na.toFixed(3)})`;
+          fctx.fillText('\u266a', hx + Math.sin(now / 500) * 13, hy - 16 - ((now / 60) % 10));
+          fctx.fillStyle = `rgba(255,215,170,${(0.7 - na).toFixed(3)})`;
+          fctx.fillText('\u266b', hx - 10 + Math.cos(now / 620) * 9, hy - 10 - ((now / 75 + 5) % 10));
         }
-        /* bloem: buitenste roze blaadjes + binnenring wit + gouden hart, draait mee op de maat */
-        for (let i = 0; i < 6; i++) {
-          const a = now / 650 + i * (Math.PI * 2 / 6);
-          const px3 = hx + Math.cos(a) * 4.6, py3 = hy + Math.sin(a) * 4.6;
-          fctx.fillStyle = '#ff8fb8';
-          fctx.beginPath(); fctx.ellipse(px3, py3, 2.6, 1.7, a, 0, Math.PI * 2); fctx.fill();
-          fctx.fillStyle = '#ffc2d9';
-          fctx.beginPath(); fctx.ellipse(px3, py3, 1.3, 0.8, a, 0, Math.PI * 2); fctx.fill();
-        }
-        for (let i = 0; i < 6; i++) {                    // witte binnenring
-          const a = -now / 650 + i * (Math.PI * 2 / 6) + 0.5;
-          fctx.fillStyle = 'rgba(255,245,255,0.9)';
-          fctx.fillRect(Math.round(hx + Math.cos(a) * 2.2) - 1, Math.round(hy + Math.sin(a) * 2.2) - 1, 1.6, 1.6);
-        }
-        fctx.fillStyle = '#ffd36b'; fctx.beginPath(); fctx.arc(hx, hy, 1.9, 0, Math.PI * 2); fctx.fill();
-        fctx.fillStyle = '#fff0c0'; fctx.fillRect(Math.round(hx) - 1, Math.round(hy) - 1, 1, 1);
-        /* dwarrelende sparkles + een dansend muzieknootje */
-        for (let i = 0; i < 4; i++) {
-          const a2 = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(now / 380 + i * 2.2));
-          twinkle(hx + Math.sin(now / (460 + i * 120) + i * 1.7) * 10, hy - 5 - ((now / 40 + i * 9) % 18), a2, i % 2 ? '255,220,150' : '255,190,230');
-        }
-        const na = 0.35 + 0.35 * Math.sin(now / 350);
-        fctx.font = '8px Georgia, serif'; fctx.textAlign = 'center'; fctx.textBaseline = 'middle';
-        fctx.fillStyle = `rgba(200,235,255,${Math.max(0, na).toFixed(3)})`;
-        fctx.fillText('\u266a', hx + Math.sin(now / 500) * 12, hy - 14 - ((now / 60) % 10));
       }
     }
     /* Glinsterend water: koele blauwe twinkels + een zachte glans die over het plasje glijdt */
