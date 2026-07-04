@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '161',
+  assetVer: '162',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -791,8 +791,8 @@ const GAME = {
       bg: 'assets/art/scene-library.jpg',
       bgVariants: [
         // de verduistering (tijdelijk, her-castbaar) wint altijd van het daglicht:
-        { img: 'assets/art/scene-library-nacht-deur.jpg',  flags: ['altarSolved', 'eclipseActive'] },  // eclips actief + geheime deur open -> nacht met open deur
-        { img: 'assets/art/scene-library-night.jpg',       flag: 'eclipseActive' },                    // de zonsverduistering-spreuk dooft de zon: nacht + eclips door het raam
+        { img: 'assets/art/scene-library-night-dooropen.jpg',   flags: ['altarSolved', 'eclipseActive'] },  // eclips actief + geheime deur open (na de schijven-puzzel)
+        { img: 'assets/art/scene-library-night-doorclosed.jpg', flag: 'eclipseActive' },                    // eclips actief, geheime deur nog dicht
         { img: 'assets/art/scene-library-open.jpg',        flag: 'libRelit' },                         // daglicht teruggekeerd: open geheime deur, overdag
         { img: 'assets/art/scene-library-nacht-deur.jpg',  flag: 'altarSolved' }                       // vangnet: deur net open, daglicht nog niet terug
       ],
