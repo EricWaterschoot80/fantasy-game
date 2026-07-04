@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '158',
+  assetVer: '159',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -136,7 +136,7 @@ const GAME = {
     q_altar:    { nl: 'De onzichtbaarheidsspreuk is binnen! Open nu de geheime deur: kijk tijdens de ZONSVERDUISTERING door de telescoop naar de hemelschijf van de Raaf, en tik de drie tekens uit het hart van de hemel — van boven naar beneden — in die volgorde aan op het DEURZEGEL. Trek dan aan de hendel', en: 'The invisibility spell is yours! Now open the secret door: during the ECLIPSE, look through the telescope at the Raven’s sky-wheel, then tap the three signs from the heart of the sky — top to bottom — in that order on the DOOR SEAL. Then pull the lever' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
     q_freefather:{ nl: 'Je bent onzichtbaar langs de wachter! Praat met de gevangene bij de tralies — hij fluistert de volgorde van het kerkerslot: zon, maan, ster... en het teken van zijn staf', en: 'You slipped past the guard unseen! Talk to the prisoner at the bars — he whispers the order of the dungeon lock: sun, moon, star... and the sign of his staff' },
-    q_key:      { nl: 'De grendels zijn open! Pak nu MUISSTIL de sleutel van de wachttafel: trek alleen terwijl de wachter neuriet (♪) — hij kan je nog steeds horen', en: 'The bolts are open! Now take the key from the guard’s table SILENTLY: pull only while the guard hums (♪) — he can still hear you' },
+    q_key:      { nl: 'De grendels zijn open! Bevrijd nu MUISSTIL de gouden sleutel van de bos: schuif eerst de stippen-sleutels opzij (•, ••, •••) en beweeg alleen terwijl de wachter neuriet (♪)', en: 'The bolts are open! Now free the golden key from the ring SILENTLY: first slide the dotted keys aside (•, ••, •••) and only move while the guard hums (♪)' },
     q_distract: { nl: 'Je hebt de sleutel! Maar de wachter staart recht naar de cel... Tokkel op de KETTINGEN bij de trap zodat hij zich omdraait', en: 'You have the key! But the guard stares straight at the cell... Pluck the CHAINS by the stairs so he turns around' },
     q_cellopen: { nl: 'De wachter kijkt de andere kant op — gebruik de celsleutel NU op de celdeur en bevrijd je vader!', en: 'The guard looks the other way — use the cell key on the cell door NOW and free your father!' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
@@ -1055,21 +1055,22 @@ const GAME = {
           keyPuzzle: {
             requiresFlag: 'guardPassed',
             blockedText: { nl: 'De wachter staat er met zijn neus bovenop — zolang hij je kan zien, kun je de sleutelbos onmogelijk ongemerkt pakken. Kon je maar onzichtbaar worden...', en: 'The guard stands right over it — while he can see you, you could never take the key ring unnoticed. If only you could turn invisible...' },
-            title: { nl: 'De Sleutelbos — trek de juiste sleutel', en: 'The Key Ring — pull the right key' },
-            hint: { nl: 'Aan de bos hangen VIJF sleutels — alleen de DONKERE met DRIE tanden past op de cel! HOUD een sleutel VAST om hem er langzaam uit te trekken; de andere sleutels rammelen mee. Trek alléén terwijl de wachter NEURIET (♪), en trek je de verkeerde er helemaal uit... RINKEL!', en: 'FIVE keys hang on the ring — only the DARK one with THREE teeth fits the cell! HOLD a key to pull it out slowly; the other keys rattle along. Pull only while the guard HUMS (♪), and if you pull out the wrong one... JINGLE!' },
+            title: { nl: 'De Sleutelbos — bevrijd de gouden sleutel', en: 'The Key Ring — free the golden key' },
+            hint: { nl: 'De GOUDEN sleutel past op de cel — maar hij zit KLEM onder de andere sleutels! Schuif eerst de sleutels met STIPPEN opzij, op volgorde: eerst •, dan ••, dan •••. HOUD een sleutel VAST om hem opzij te schuiven, en beweeg alléén terwijl de wachter NEURIET (♪). Verkeerde volgorde? RINKEL — alles valt terug!', en: 'The GOLDEN key fits the cell — but it is STUCK beneath the other keys! First slide the DOTTED keys aside, in order: • first, then ••, then •••. HOLD a key to slide it aside, and only move while the guard HUMS (♪). Wrong order? JINGLE — everything falls back!' },
             keys: [
-              { col: 'goud',   teeth: 2 },
-              { col: 'donker', teeth: 4 },
-              { col: 'zilver', teeth: 3 },
-              { col: 'donker', teeth: 3 },
-              { col: 'brons',  teeth: 2 }
+              { col: 'donker', teeth: 4, dots: 2 },
+              { col: 'zilver', teeth: 3, dots: 1 },
+              { col: 'goud',   teeth: 3 },
+              { col: 'brons',  teeth: 2, dots: 3 },
+              { col: 'donker', teeth: 3 }
             ],
-            target: 3,
+            target: 2,
+            freeOrder: [1, 0, 3],
             setFlag: 'gotCellKey',
             give: 'cellkey',
             failText: { nl: '“Wat was dat?!” De wachter draait met een ruk zijn hoofd — je verstijft en de sleutel zakt een stuk terug in de bos...', en: '“What was that?!” The guard snaps his head around — you freeze and the key sinks back into the ring...' },
-            failWrongText: { nl: 'Verkeerde sleutel! RINKEL-DE-KINKEL — de hele bos danst aan de ring en je duwt alles haastig terug. Kijk beter: de DONKERE sleutel met DRIE tanden!', en: 'Wrong key! JINGLE-JANGLE — the whole ring dances and you hastily push everything back. Look closer: the DARK key with THREE teeth!' },
-            solvedText: { nl: 'De donkere sleutel met drie tanden glijdt geluidloos van de ring, recht in je onzichtbare hand. De wachter neuriet vrolijk verder — hij heeft níets gemerkt. Nu de celdeur... maar hij staat er pal naast!', en: 'The dark three-toothed key slides soundlessly off the ring, straight into your invisible hand. The guard hums merrily on — he noticed nothing. Now the cell door... but he stands right beside it!' },
+            failWrongText: { nl: 'RINKEL-DE-KINKEL! De hele bos danst en alle sleutels vallen terug aan de ring. Let op de STIPPEN: eerst •, dan ••, dan ••• — en pas dán de gouden!', en: 'JINGLE-JANGLE! The whole ring dances and every key falls back. Watch the DOTS: • first, then ••, then ••• — and only THEN the golden one!' },
+            solvedText: { nl: 'De gouden sleutel glijdt geluidloos van de ring, recht in je onzichtbare hand. De wachter neuriet vrolijk verder — hij heeft níets gemerkt. Nu de celdeur... maar hij staat er pal naast!', en: 'The golden key slides soundlessly off the ring, straight into your invisible hand. The guard hums merrily on — he noticed nothing. Now the cell door... but he stands right beside it!' },
             doneText: { nl: 'De ijzeren celsleutel zit al in je tas.', en: 'The iron cell key is already in your bag.' }
           }
         },

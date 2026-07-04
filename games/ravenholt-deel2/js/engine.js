@@ -4274,7 +4274,8 @@
      om hem langzaam uit de bos te trekken — de andere sleutels rammelen mee!
      Trek alleen terwijl de wachter neuriet; trek je de verkeerde er helemaal uit,
      dan RINKELT de hele bos en moet je opnieuw beginnen. */
-  let keyHs = null, keyProgs = [], keySel = -1, keyNoise = 0, keyAnim = null, keyLastT = 0, keyFailT = 0, keySolvedK = false;
+  let keyHs = null, keyProgs = [], keyAside = [], keySel = -1, keyNoise = 0, keyAnim = null, keyLastT = 0, keyFailT = 0, keySolvedK = false;
+  const KEY_ASIDE_AT = 55;                             // zover uitgetrokken = opzij gehangen (blokkeer-sleutels)
   const KEY_ANGLES = [-46, -23, 0, 23, 46];            // waaier van 5 sleutels (graden)
   const KEY_COLS = { goud: ['#e2b45a', '#8a6420'], donker: ['#5a616e', '#23262d'], zilver: ['#d4dae6', '#7c8494'], brons: ['#b5804a', '#5f3d1d'] };
   function keyHumOn(now) {                             // onregelmatig neuriën: twee sinussen door elkaar
@@ -4285,6 +4286,7 @@
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
     keyHs = hs; keySel = -1; keyNoise = 0; keySolvedK = false; keyLastT = performance.now(); keyFailT = 0;
     keyProgs = (pz.keys || []).map(() => 0);
+    keyAside = (pz.keys || []).map(() => false);
     if (elDialTitle)  elDialTitle.textContent  = L(pz.title);
     if (elDialHint)   elDialHint.textContent   = L(pz.hint);
     if (elDialStatus) elDialStatus.textContent = '';
@@ -4311,28 +4313,49 @@
       }
       if (keyNoise >= 100) {                           // te veel gerammel — de wachter spitst zijn oren
         keyFailT = now;
-        if (keySel >= 0) keyProgs[keySel] = Math.max(0, keyProgs[keySel] - 45);
+        if (keySel >= 0 && !keyAside[keySel]) keyProgs[keySel] = Math.max(0, keyProgs[keySel] - 45);
         keySel = -1; keyNoise = 45;
         sfx('error');
         if (elDialStatus) elDialStatus.textContent = pz.failText ? L(pz.failText) : (lang === 'nl' ? '\u201cWat was dat?!\u201d De wachter draait zijn hoofd \u2014 je verstijft...' : '\u201cWhat was that?!\u201d The guard turns his head \u2014 you freeze...');
       }
+      const order = pz.freeOrder || [];
+      const asideDone = order.filter((k) => keyAside[k]).length;
+      /* de GOUDEN sleutel zit klem zolang niet alle blokkeer-sleutels opzij hangen */
+      if (keySel === pz.target && asideDone < order.length && keyProgs[pz.target] > 16) {
+        keyProgs[pz.target] = 16;
+        keyNoise = Math.min(100, keyNoise + 22 * dt);  // wrikken maakt herrie
+        if (elDialStatus) elDialStatus.textContent = lang === 'nl'
+          ? 'De gouden sleutel zit KLEM \u2014 schuif eerst de stippen-sleutels opzij (\u2022 dan \u2022\u2022 dan \u2022\u2022\u2022)!'
+          : 'The golden key is STUCK \u2014 first slide the dotted keys aside (\u2022 then \u2022\u2022 then \u2022\u2022\u2022)!';
+      }
       for (let i = 0; i < keyProgs.length; i++) {
-        if (keyProgs[i] >= 100) {
-          if (i === pz.target) {                       // de juiste sleutel glijdt geluidloos van de ring
-            keySolvedK = true;
-            state.flags[pz.setFlag] = true;
-            if (pz.give) addItem(pz.give);
-            sfx('combine');
-            const h = keyHs;
-            if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'Hebbes \u2014 muisstil!' : 'Got it \u2014 silent as a mouse!';
-            setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 800);
-          } else {                                     // verkeerde sleutel: RINKEL — de hele bos danst
+        /* blokkeer-sleutels klikken op hun opzij-stand vast, mits in de juiste volgorde */
+        if (i !== pz.target && !keyAside[i] && keyProgs[i] >= KEY_ASIDE_AT) {
+          const next = order.find((k) => !keyAside[k]);
+          if (i === next) {                            // juiste sleutel: hij blijft opzij hangen
+            keyAside[i] = true; keyProgs[i] = KEY_ASIDE_AT; keySel = -1;
+            sfx('tap');
+            const n = order.filter((k) => keyAside[k]).length;
+            if (elDialStatus) elDialStatus.textContent = lang === 'nl'
+              ? 'Voorzichtig opzij gehangen... (' + n + ' van ' + order.length + ')' + (n === order.length ? ' \u2014 de GOUDEN ligt vrij!' : '')
+              : 'Carefully hung aside... (' + n + ' of ' + order.length + ')' + (n === order.length ? ' \u2014 the GOLDEN one is free!' : '');
+          } else {                                     // verkeerde sleutel of verkeerde volgorde: RINKEL
             keyFailT = now; keySel = -1;
-            for (let k = 0; k < keyProgs.length; k++) keyProgs[k] = 0;
+            for (let k = 0; k < keyProgs.length; k++) { keyProgs[k] = 0; keyAside[k] = false; }
             keyNoise = 62;
             sfx('error');
-            if (elDialStatus) elDialStatus.textContent = pz.failWrongText ? L(pz.failWrongText) : (lang === 'nl' ? 'Verkeerde sleutel! RINKEL-DE-KINKEL \u2014 de hele bos danst en je duwt alles haastig terug...' : 'Wrong key! JINGLE-JANGLE \u2014 the whole ring dances and you hastily push everything back...');
+            if (elDialStatus) elDialStatus.textContent = pz.failWrongText ? L(pz.failWrongText) : (lang === 'nl' ? 'Verkeerde sleutel! RINKEL-DE-KINKEL \u2014 alles valt terug aan de ring...' : 'Wrong key! JINGLE-JANGLE \u2014 everything falls back onto the ring...');
           }
+          break;
+        }
+        if (i === pz.target && keyProgs[i] >= 100) {   // de gouden sleutel glijdt geluidloos van de ring
+          keySolvedK = true;
+          state.flags[pz.setFlag] = true;
+          if (pz.give) addItem(pz.give);
+          sfx('combine');
+          const h = keyHs;
+          if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'Hebbes \u2014 muisstil!' : 'Got it \u2014 silent as a mouse!';
+          setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 800);
           break;
         }
       }
@@ -4353,19 +4376,17 @@
     let g = x.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, '#171310'); g.addColorStop(1, '#0d0a08');
     x.fillStyle = g; x.fillRect(0, 0, W, H);
-    /* de neuri\u00ebnde wachter bovenin */
+    /* neurie-indicator bovenin (de wachter staat met zijn rug naar je toe) */
     x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = '26px Georgia, serif';
-    x.fillText('\uD83D\uDC82', W / 2, 28);
     if (hum) {
       const b = 0.55 + 0.45 * Math.sin(now / 180);
       x.font = '16px Georgia, serif'; x.fillStyle = 'rgba(150,240,130,' + b.toFixed(2) + ')';
-      x.fillText('\u266A', W / 2 + 28, 20); x.fillText('\u266B', W / 2 + 44, 32);
+      x.fillText('\u266A', W / 2 - 96, 26); x.fillText('\u266B', W / 2 + 96, 26);
       x.font = 'bold 12px Georgia, serif'; x.fillStyle = '#bff5ad';
-      x.fillText(lang === 'nl' ? 'hij neuriet \u2014 trek nu!' : 'he hums \u2014 pull now!', W / 2, 50);
+      x.fillText(lang === 'nl' ? 'de wachter neuriet \u2014 schuif nu!' : 'the guard hums \u2014 slide now!', W / 2, 26);
     } else {
       x.font = 'bold 12px Georgia, serif'; x.fillStyle = '#ffb3a6';
-      x.fillText(lang === 'nl' ? 'stil... niet trekken!' : 'quiet... don\u2019t pull!', W / 2, 50);
+      x.fillText(lang === 'nl' ? 'stil... niet bewegen!' : 'quiet... don\u2019t move!', W / 2, 26);
     }
     /* spijker + grote ring waaraan de bos hangt */
     x.strokeStyle = '#6f6455'; x.lineWidth = 3;
@@ -4383,9 +4404,10 @@
       /* rammel: de vastgepakte sleutel wiebelt zacht, zijn BUREN rammelen mee; bij een misser danst alles */
       let jig = 0;
       if (keySel === i) jig = Math.sin(now / 55) * 1.6;
-      else if (keySel >= 0 && Math.abs(keySel - i) === 1) jig = Math.sin(now / 48 + i) * 2.6;
+      else if (keySel >= 0 && Math.abs(keySel - i) === 1 && !keyAside[i]) jig = Math.sin(now / 48 + i) * 2.6;
       if (fail > 0) jig += Math.sin(now / 34 + i * 2.1) * 5 * fail;
-      const ang = (KEY_ANGLES[i] + jig) * Math.PI / 180;
+      const asideRot = keyAside[i] ? (KEY_ANGLES[i] >= 0 ? 15 : -15) : 0;   // opzij gehangen: extra naar buiten
+      const ang = (KEY_ANGLES[i] + jig + asideRot) * Math.PI / 180;
       const slide = prog * 0.62;                      // uittrek-afstand langs zijn eigen richting
       x.save();
       x.translate(cx, cy + ringR - 6);
@@ -4409,6 +4431,16 @@
       }
       x.strokeStyle = 'rgba(0,0,0,.35)'; x.lineWidth = 1;
       x.strokeRect(-2.6, 9, 5.2, shaft - 9);
+      if (cfg.dots) {                                  // stippen = volgorde van opzij schuiven
+        x.fillStyle = '#ffe9ad';
+        for (let d2 = 0; d2 < cfg.dots; d2++) {
+          x.beginPath(); x.arc((d2 - (cfg.dots - 1) / 2) * 6, 20, 1.9, 0, Math.PI * 2); x.fill();
+        }
+      }
+      if (keyAside[i]) {                               // vinkje: deze hangt veilig opzij
+        x.font = 'bold 13px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+        x.fillStyle = '#8fe07e'; x.fillText('\u2713', 0, -15);
+      }
       x.restore();
     }
     /* geluidsmeter onderin */
@@ -4429,6 +4461,7 @@
     if (!pz) return -1;
     const { cx, cy, ringR, shaft } = keyGeom(cv);
     for (let i = 0; i < (pz.keys || []).length; i++) {
+      if (keyAside[i]) continue;                       // hangt al veilig opzij
       const ang = KEY_ANGLES[i] * Math.PI / 180;
       const slide = keyProgs[i] * 0.62;
       /* punt naar sleutel-lokale co\u00f6rdinaten (pivot onder de ring) */
