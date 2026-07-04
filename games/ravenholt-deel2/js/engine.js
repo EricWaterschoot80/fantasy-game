@@ -4275,12 +4275,10 @@
      Trek alleen terwijl de wachter neuriet; trek je de verkeerde er helemaal uit,
      dan RINKELT de hele bos en moet je opnieuw beginnen. */
   let keyHs = null, keyProgs = [], keyAside = [], keySel = -1, keyNoise = 0, keyAnim = null, keyLastT = 0, keyFailT = 0, keySolvedK = false;
+  let keyDenyI = -1, keyDenyT = 0;                     // korte wiebel als een sleutel nog vastzit
   const KEY_ASIDE_AT = 55;                             // zover uitgetrokken = opzij gehangen (blokkeer-sleutels)
   const KEY_ANGLES = [-46, -23, 0, 23, 46];            // waaier van 5 sleutels (graden)
   const KEY_COLS = { goud: ['#e2b45a', '#8a6420'], donker: ['#5a616e', '#23262d'], zilver: ['#d4dae6', '#7c8494'], brons: ['#b5804a', '#5f3d1d'] };
-  function keyHumOn(now) {                             // onregelmatig neuriën: twee sinussen door elkaar
-    return (Math.sin(now / 900) + Math.sin(now / 1370)) > 0.25;
-  }
   function openKeyPuzzle(hs) {
     const pz = hs.keyPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
@@ -4304,10 +4302,9 @@
     const dt = Math.min(0.05, (now - keyLastT) / 1000); keyLastT = now;
     const pz = keyHs.keyPuzzle;
     if (!keySolvedK) {
-      const hum = keyHumOn(now);
       if (keySel >= 0) {                               // je trekt aan een sleutel
         keyProgs[keySel] = Math.min(100, keyProgs[keySel] + 16 * dt);
-        keyNoise = Math.min(100, keyNoise + (hum ? 7 : 46) * dt);
+        keyNoise = Math.min(100, keyNoise + 11 * dt);  // schuiven maakt zachtjes geluid: pauzeer af en toe
       } else {
         keyNoise = Math.max(0, keyNoise - 26 * dt);
       }
@@ -4319,15 +4316,6 @@
         if (elDialStatus) elDialStatus.textContent = pz.failText ? L(pz.failText) : (lang === 'nl' ? '\u201cWat was dat?!\u201d De wachter draait zijn hoofd \u2014 je verstijft...' : '\u201cWhat was that?!\u201d The guard turns his head \u2014 you freeze...');
       }
       const order = pz.freeOrder || [];
-      const asideDone = order.filter((k) => keyAside[k]).length;
-      /* de GOUDEN sleutel zit klem zolang niet alle blokkeer-sleutels opzij hangen */
-      if (keySel === pz.target && asideDone < order.length && keyProgs[pz.target] > 16) {
-        keyProgs[pz.target] = 16;
-        keyNoise = Math.min(100, keyNoise + 22 * dt);  // wrikken maakt herrie
-        if (elDialStatus) elDialStatus.textContent = lang === 'nl'
-          ? 'De gouden sleutel zit KLEM \u2014 schuif eerst de stippen-sleutels opzij (\u2022 dan \u2022\u2022 dan \u2022\u2022\u2022)!'
-          : 'The golden key is STUCK \u2014 first slide the dotted keys aside (\u2022 then \u2022\u2022 then \u2022\u2022\u2022)!';
-      }
       for (let i = 0; i < keyProgs.length; i++) {
         /* blokkeer-sleutels klikken op hun opzij-stand vast, mits in de juiste volgorde */
         if (i !== pz.target && !keyAside[i] && keyProgs[i] >= KEY_ASIDE_AT) {
@@ -4371,23 +4359,10 @@
     if (!dctx || !keyHs) return;
     const cv = elDialCanvas, x = dctx, pz = keyHs.keyPuzzle;
     const { cx, cy, ringR, shaft, W, H } = keyGeom(cv);
-    const hum = keyHumOn(now);
     x.clearRect(0, 0, W, H);
     let g = x.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, '#171310'); g.addColorStop(1, '#0d0a08');
     x.fillStyle = g; x.fillRect(0, 0, W, H);
-    /* neurie-indicator bovenin (de wachter staat met zijn rug naar je toe) */
-    x.textAlign = 'center'; x.textBaseline = 'middle';
-    if (hum) {
-      const b = 0.55 + 0.45 * Math.sin(now / 180);
-      x.font = '16px Georgia, serif'; x.fillStyle = 'rgba(150,240,130,' + b.toFixed(2) + ')';
-      x.fillText('\u266A', W / 2 - 96, 26); x.fillText('\u266B', W / 2 + 96, 26);
-      x.font = 'bold 12px Georgia, serif'; x.fillStyle = '#bff5ad';
-      x.fillText(lang === 'nl' ? 'de wachter neuriet \u2014 schuif nu!' : 'the guard hums \u2014 slide now!', W / 2, 26);
-    } else {
-      x.font = 'bold 12px Georgia, serif'; x.fillStyle = '#ffb3a6';
-      x.fillText(lang === 'nl' ? 'stil... niet bewegen!' : 'quiet... don\u2019t move!', W / 2, 26);
-    }
     /* spijker + grote ring waaraan de bos hangt */
     x.strokeStyle = '#6f6455'; x.lineWidth = 3;
     x.beginPath(); x.moveTo(cx, cy - ringR - 18); x.lineTo(cx, cy - ringR); x.stroke();
@@ -4406,6 +4381,10 @@
       if (keySel === i) jig = Math.sin(now / 55) * 1.6;
       else if (keySel >= 0 && Math.abs(keySel - i) === 1 && !keyAside[i]) jig = Math.sin(now / 48 + i) * 2.6;
       if (fail > 0) jig += Math.sin(now / 34 + i * 2.1) * 5 * fail;
+      if (i === keyDenyI) {                            // vastzittende sleutel: korte protest-wiebel
+        const deny = Math.max(0, 1 - (now - keyDenyT) / 450);
+        if (deny > 0) jig += Math.sin(now / 30) * 3.2 * deny; else keyDenyI = -1;
+      }
       const asideRot = keyAside[i] ? (KEY_ANGLES[i] >= 0 ? 15 : -15) : 0;   // opzij gehangen: extra naar buiten
       const ang = (KEY_ANGLES[i] + jig + asideRot) * Math.PI / 180;
       const slide = prog * 0.62;                      // uittrek-afstand langs zijn eigen richting
@@ -4481,7 +4460,27 @@
         const px = (e.clientX - rc.left) * (elDialCanvas.width / rc.width);
         const py = (e.clientY - rc.top) * (elDialCanvas.height / rc.height);
         const hit = keyHitTest(px, py);
-        if (hit >= 0) { keySel = hit; e.preventDefault(); }
+        if (hit < 0) return;
+        const pz = keyHs.keyPuzzle;
+        const order = pz.freeOrder || [];
+        const next = order.find((k) => !keyAside[k]);
+        /* alleen de sleutel die aan de beurt is, laat zich bewegen */
+        if (hit === pz.target && next !== undefined) {
+          keyDenyI = hit; keyDenyT = performance.now(); sfx('error');
+          if (elDialStatus) elDialStatus.textContent = lang === 'nl'
+            ? 'De gouden sleutel zit KLEM onder de andere \u2014 schuif eerst \u2022, dan \u2022\u2022, dan \u2022\u2022\u2022 opzij!'
+            : 'The golden key is STUCK beneath the others \u2014 first slide \u2022, then \u2022\u2022, then \u2022\u2022\u2022 aside!';
+          return;
+        }
+        if (hit !== pz.target && hit !== next) {
+          keyDenyI = hit; keyDenyT = performance.now(); sfx('error');
+          const cfg = pz.keys[hit];
+          if (elDialStatus) elDialStatus.textContent = cfg.dots
+            ? (lang === 'nl' ? 'Die sleutel zit nog klem \u2014 hij is pas later aan de beurt. Volg de stippen: \u2022, \u2022\u2022, \u2022\u2022\u2022!' : 'That key is still stuck \u2014 its turn comes later. Follow the dots: \u2022, \u2022\u2022, \u2022\u2022\u2022!')
+            : (lang === 'nl' ? 'Die sleutel zit muurvast tussen de andere \u2014 die heb je niet nodig.' : 'That key is wedged tight among the others \u2014 you don\u2019t need it.');
+          return;
+        }
+        keySel = hit; e.preventDefault();
       });
       elDialCanvas.addEventListener('pointerup', endHold);
       elDialCanvas.addEventListener('pointerleave', endHold);
@@ -4525,22 +4524,22 @@
      Drie schijven uit het zegel (buiten/midden/binnen) draaien elk vrij; zet
      alle tekens precies zoals op het zegel dat in het gloeiende boek zweeft en
      trek dan aan de hendel. Gebruikt hetzelfde altaar-scherm (canvas + hendel). */
-  let discHs = null, discSel = [], discSolved = false, discAnim = null;
+  let discHs = null, discOff = [0, 0, 0], discSolved = false, discAnim = null;
   const discArt = {};                                    // zegel-afbeelding (lazy geladen)
-  const DISC_GR = 132, DISC_MR = 19;                     // straal van de tekenring + medaillon-straal
-  function discPts(cv) {
-    const cx = cv.width / 2, cy = cv.height / 2, pts = [];
-    const n = discHs.discPuzzle.signs.length;
-    for (let i = 0; i < n; i++) {
-      const a = -Math.PI / 2 + (i / n) * Math.PI * 2;    // teken 0 bovenaan, dan met de klok mee
-      pts.push({ x: cx + Math.cos(a) * DISC_GR, y: cy + Math.sin(a) * DISC_GR });
+  const DISC_R = [132, 96, 60];                          // stralen van de drie teken-schijven
+  const DISC_N = 12;                                     // 12 tekens = 12 klik-stappen per schijf
+  function discTopSign(pz, r) {                          // welk teken staat bovenaan op schijf r?
+    const shift = (pz.ringShift || [0, 0, 0])[r];
+    for (let p = 0; p < DISC_N; p++) {
+      if ((p + shift + discOff[r]) % DISC_N === 0) return pz.signs[p];
     }
-    return pts;
+    return null;
   }
   function openDiscPuzzle(hs) {
     const pz = hs.discPuzzle;
     if (symFlagDone(pz.setFlag)) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
-    discHs = hs; discSolved = false; discSel = [];
+    discHs = hs; discSolved = false;
+    discOff = (pz.rings || [{}, {}, {}]).map((r) => r.start || 0);
     if (!discArt.base) { const im = new Image(); im.src = pz.imgBase + AV; discArt.base = im; }
     if (elAltarCanvas) { elAltarCanvas.width = 360; elAltarCanvas.height = 360; }
     if (elAltarTitle)  elAltarTitle.textContent  = L(pz.title);
@@ -4562,49 +4561,56 @@
     x.fillStyle = '#131110'; x.fillRect(0, 0, W, H);
     const s = Math.min(W, H);
     if (ready(discArt.base)) x.drawImage(discArt.base, cx - s / 2, cy - s / 2, s, s);
-    /* donkere band onder de tekenring, zodat de 12 tekens goed leesbaar zijn */
-    x.beginPath(); x.arc(cx, cy, DISC_GR, 0, TAU);
-    x.strokeStyle = 'rgba(14,11,8,.58)'; x.lineWidth = DISC_MR * 2 + 10; x.stroke();
     const pz = discHs.discPuzzle;
-    const pts = discPts(cv);
-    const pgl = 0.5 + 0.5 * Math.sin(now / 420);
-    for (let i = 0; i < pts.length; i++) {
-      const p = pts[i], selIdx = discSel.indexOf(i), sel = selIdx >= 0;
-      x.beginPath(); x.arc(p.x, p.y, DISC_MR, 0, TAU);
-      if (sel) { x.shadowColor = 'rgba(255,211,107,' + (0.5 + 0.4 * pgl) + ')'; x.shadowBlur = 14; }
-      x.fillStyle = sel ? '#3a2c12' : '#221a12'; x.fill(); x.shadowBlur = 0;
-      x.strokeStyle = sel ? '#ffd36b' : '#6b5426'; x.lineWidth = sel ? 2.5 : 1.5; x.stroke();
-      x.font = '19px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-      x.fillStyle = sel ? '#ffe9ad' : '#c9b47e';
-      x.fillText(pz.signs[i], p.x, p.y + 1);
-      if (sel) {                                       // volgorde-nummer op het gekozen medaillon
-        const bx = p.x + DISC_MR * 0.82, by = p.y - DISC_MR * 0.82;
-        x.beginPath(); x.arc(bx, by, 8, 0, TAU);
-        x.fillStyle = '#ffd36b'; x.fill();
-        x.strokeStyle = '#7a4a12'; x.lineWidth = 1.5; x.stroke();
-        x.font = 'bold 11px Georgia, serif'; x.fillStyle = '#2a1c08';
-        x.fillText(String(selIdx + 1), bx, by + 0.5);
+    const shifts = pz.ringShift || [0, 0, 0];
+    const sizes = [17, 15, 13];
+    for (let r = 0; r < 3; r++) {
+      /* donkere band zodat de tekens goed leesbaar zijn */
+      x.beginPath(); x.arc(cx, cy, DISC_R[r], 0, TAU);
+      x.strokeStyle = 'rgba(14,11,8,.58)'; x.lineWidth = sizes[r] + 13; x.stroke();
+      /* de 12 tekens van deze schijf, gedraaid volgens zijn stand */
+      x.font = sizes[r] + 'px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      for (let p = 0; p < DISC_N; p++) {
+        const slot = (p + shifts[r] + discOff[r]) % DISC_N;
+        const a = -Math.PI / 2 + (slot / DISC_N) * TAU;
+        const gx = cx + Math.cos(a) * DISC_R[r], gy = cy + Math.sin(a) * DISC_R[r];
+        const top = slot === 0;
+        if (top) { x.shadowColor = 'rgba(255,211,107,.8)'; x.shadowBlur = 10; }
+        x.fillStyle = top ? '#ffe9ad' : '#c9b47e';
+        x.fillText(pz.signs[p], gx, gy + 1);
+        x.shadowBlur = 0;
       }
+      /* gouden markering om het bovenste vak van elke schijf */
+      x.beginPath(); x.arc(cx, cy - DISC_R[r], sizes[r] * 0.85 + 4, 0, TAU);
+      x.strokeStyle = 'rgba(255,211,107,.55)'; x.lineWidth = 1.6; x.stroke();
     }
+    /* gouden wijzer bovenaan (pulserend) */
+    const pgl = 0.5 + 0.5 * Math.sin(now / 420);
+    x.shadowColor = 'rgba(255,211,107,' + (0.4 + 0.4 * pgl) + ')'; x.shadowBlur = 9;
+    x.fillStyle = '#ffd36b';
+    x.beginPath(); x.moveTo(cx, cy - s / 2 + 22); x.lineTo(cx - 8, cy - s / 2 + 6); x.lineTo(cx + 8, cy - s / 2 + 6); x.closePath(); x.fill();
+    x.strokeStyle = '#7a4a12'; x.lineWidth = 2; x.stroke(); x.shadowBlur = 0;
+    /* draai-pijlen */
+    x.font = '15px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = 'rgba(231,207,134,.8)';
+    x.fillText('\u25c0', 12, cy); x.fillText('\u25b6', W - 12, cy);
   }
-  function discToggle(i) {
+  function discShift(r, dir) {
     if (!discHs || discSolved) return;
-    const pz = discHs.discPuzzle;
-    const idx = discSel.indexOf(i);
-    if (idx >= 0) { discSel.splice(idx, 1); sfx('tap'); }
-    else if (discSel.length < pz.code.length) { discSel.push(i); sfx('tap'); }
-    else { sfx('error'); }
-    if (elAltarStatus) {
-      elAltarStatus.textContent = discSel.length
-        ? (lang === 'nl' ? 'Gekozen: ' : 'Chosen: ') + discSel.map((j) => pz.signs[j]).join(' → ') + '   (' + discSel.length + '/' + pz.code.length + ')'
-        : '';
+    discOff[r] = (discOff[r] + (dir > 0 ? 1 : DISC_N - 1)) % DISC_N;
+    sfx('tap');
+    if (elAltarStatus && discHs) {
+      const pz = discHs.discPuzzle;
+      if (pz.code) {
+        const good = pz.code.filter((g, k) => discTopSign(pz, k) === g).length;
+        elAltarStatus.textContent = lang === 'nl' ? (good + ' van 3 tekens staan goed...') : (good + ' of 3 signs are set...');
+      }
     }
   }
   function discCheck() {                                  // de hendel: klopt het zegel?
     if (!discHs || discSolved) return;
     const pz = discHs.discPuzzle;
-    const chosen = discSel.map((j) => pz.signs[j]);
-    if (chosen.length === pz.code.length && chosen.every((g, i) => g === pz.code[i])) {
+    if (pz.code.every((g, k) => discTopSign(pz, k) === g)) {
       discSolved = true;
       (Array.isArray(pz.setFlag) ? pz.setFlag : [pz.setFlag]).forEach((f) => { state.flags[f] = true; });
       if (pz.give) (Array.isArray(pz.give) ? pz.give : [pz.give]).forEach(addItem);
@@ -4631,8 +4637,7 @@
       }, 1100);
     } else {
       sfx('error');
-      discSel = [];                                     // schiet terug: opnieuw kiezen
-      if (elAltarStatus) elAltarStatus.textContent = pz.wrongText ? L(pz.wrongText) : (lang === 'nl' ? 'Het zegel blijft dof — verkeerde tekens of verkeerde volgorde. De keuze schiet terug.' : 'The seal stays dull — wrong signs or wrong order. The choice snaps back.');
+      if (elAltarStatus) elAltarStatus.textContent = pz.wrongText ? L(pz.wrongText) : (lang === 'nl' ? 'Het zegel blijft dof — nog niet de juiste combinatie bovenaan.' : 'The seal stays dull — not the right combination at the top yet.');
     }
   }
   function altShown(r, p) { const row = altarHs.starPuzzle.rows[r]; return row.symbols[(p + altOff[r]) % row.symbols.length]; }
@@ -4736,11 +4741,13 @@
       const rc = elAltarCanvas.getBoundingClientRect();
       const px = (e.clientX - rc.left) * (elAltarCanvas.width / rc.width);
       const py = (e.clientY - rc.top) * (elAltarCanvas.height / rc.height);
-      /* Deurzegel: tik een teken-medaillon aan om hem te (de)selecteren */
+      /* Deurzegel: radiale band bepaalt de schijf; linker-/rechterhelft de richting */
       if (discHs && !discSolved) {
-        const pts = discPts(elAltarCanvas);
-        for (let i = 0; i < pts.length; i++) {
-          if (Math.hypot(px - pts[i].x, py - pts[i].y) <= DISC_MR + 7) { discToggle(i); return; }
+        const cx = elAltarCanvas.width / 2, cy = elAltarCanvas.height / 2;
+        const rr = Math.hypot(px - cx, py - cy);
+        if (rr <= 152 && rr > 42) {
+          const ring = rr > 114 ? 0 : rr > 78 ? 1 : 2;
+          discShift(ring, px < cx ? -1 : 1);
         }
         return;
       }
