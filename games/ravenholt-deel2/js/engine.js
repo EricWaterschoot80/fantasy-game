@@ -1648,7 +1648,7 @@
       if (state.flags.plantDancing) {
         const swayA = Math.sin(now / 380) * 0.075;       // rustig zwieren (radialen om de voet)
         const bop = Math.abs(Math.sin(now / 380)) * 1.4; // klein huppeltje
-        const H2 = 46;                                   // hoogte van de bloem in de scene
+        const H2 = 34;                                   // hoogte van de bloem in de scene
         if (ready(p._img)) {
           const W2 = H2 * (p._img.width / p._img.height);
           const hx = p.x + Math.sin(swayA) * H2 * 0.5, hy = p.y - H2 * 0.72 - bop;
