@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '166',
+  assetVer: '167',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -1002,13 +1002,14 @@ const GAME = {
       obstacles: [
         { x: 182, y: 200, w: 94, h: 28 },                // de houten tafel met de fles
         { x: 276, y: 196, w: 70, h: 28 },                // de tonnen naast de tafel
-        { x: 152, y: 206, w: 340, h: 110, notFlag: 'guardPassed' },  // zolang de wachter je kan zien kom je de trap niet af — alleen terug, tot je onzichtbaar bent
+        { x: 152, y: 206, w: 340, h: 110, notFlag: 'guardPassed',
+          msg: { nl: 'De reusachtige wachter verspert de weg — je komt hier niet langs zolang hij je kan zien. Word onzichtbaar!', en: 'The huge guard blocks the way — you cannot pass while he can see you. Turn invisible!' } },  // zolang de wachter je kan zien kom je de trap niet af — alleen terug, tot je onzichtbaar bent
         { x: 288, y: 236, w: 68, h: 76, notFlag: 'guardPassed' }   // de wachter verspert de doorgang — tot je onzichtbaar bent (dan loop je er dwars langs)
       ],
       overlays: [],
       fx: {
-        bookSparkle: { x: 230, y: 196, r: 15, col: '255,208,110', boost: 1.5, doneFlag: 'gotCellKey' },  // de gouden sleutel glinstert op de wachttafel tot je hem hebt
-        nutPlant:  { x: 76, y: 292, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
+        bookSparkle: { x: 230, y: 182, col: '255,208,110', boost: 0.6, noGlow: true, sparkCount: 3, doneFlag: 'gotCellKey' },  // de gouden sleutel glinstert licht op de wachttafel tot je hem hebt
+        nutPlant:  { x: 91, y: 292, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
         waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
       },

@@ -560,6 +560,15 @@
       return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
     });
   }
+  function obstacleMsgAt(scene, x, y) {
+    const r = scene.obstacles && scene.obstacles.find((o) => {
+      if (!o.msg) return false;
+      if (o.requiresFlag && !state.flags[o.requiresFlag]) return false;
+      if (o.notFlag && state.flags[o.notFlag]) return false;
+      return x >= o.x && x <= o.x + o.w && y >= o.y && y <= o.y + o.h;
+    });
+    return r ? r.msg : null;
+  }
   function inWalkableScene(scene, x, y) {
     if (inObstacle(scene, x, y)) return false;
     if (scene.walkPoly) return pointInPoly(scene.walkPoly, x, y);
@@ -1602,18 +1611,21 @@
       const b = fx.bookSparkle;
       const bcol = b.col || '140,185,255';               // standaard blauw; goud voor de sleutel
       const boost = b.boost || 1;
-      const pr = (b.r || 22) * (1 + 0.10 * Math.sin(now / 680));
-      const pa = (0.13 + 0.07 * Math.sin(now / 520)) * boost;
-      const g = fctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, pr);
-      g.addColorStop(0, `rgba(${bcol},${pa.toFixed(3)})`);
-      g.addColorStop(1, `rgba(${bcol},0)`);
-      fctx.fillStyle = g;
-      fctx.fillRect(Math.round(b.x - pr), Math.round(b.y - pr), Math.round(pr * 2), Math.round(pr * 2));
-      for (let i = 0; i < 5; i++) {                    // sparkles die traag omhoog dwarrelen
+      if (!b.noGlow) {                                  // zachte achtergrondgloed (overslaan voor een subtiel glinstertje)
+        const pr = (b.r || 22) * (1 + 0.10 * Math.sin(now / 680));
+        const pa = (0.13 + 0.07 * Math.sin(now / 520)) * boost;
+        const g = fctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, pr);
+        g.addColorStop(0, `rgba(${bcol},${pa.toFixed(3)})`);
+        g.addColorStop(1, `rgba(${bcol},0)`);
+        fctx.fillStyle = g;
+        fctx.fillRect(Math.round(b.x - pr), Math.round(b.y - pr), Math.round(pr * 2), Math.round(pr * 2));
+      }
+      const nSpark = b.sparkCount || 5;
+      for (let i = 0; i < nSpark; i++) {                // sparkles die traag omhoog dwarrelen
         const sp = 2000 + i * 340;
         const tx = b.x + Math.sin(now / sp + i * 2.1) * (10 + (i % 3) * 5);
         const ty = b.y - 4 - ((now / (26 + i * 5)) + i * 13) % 26;
-        const a = (0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 430 + i * 1.7))) * (b.boost ? Math.min(1.6, b.boost) : 1);
+        const a = (0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 430 + i * 1.7))) * boost;
         twinkle(tx, ty, Math.min(1, a), b.col ? '255,232,160' : '185,215,255');
       }
     }
@@ -1636,7 +1648,7 @@
       if (state.flags.plantDancing) {
         const swayA = Math.sin(now / 380) * 0.075;       // rustig zwieren (radialen om de voet)
         const bop = Math.abs(Math.sin(now / 380)) * 1.4; // klein huppeltje
-        const H2 = 54;                                   // hoogte van de bloem in de scene
+        const H2 = 46;                                   // hoogte van de bloem in de scene
         if (ready(p._img)) {
           const W2 = H2 * (p._img.width / p._img.height);
           const hx = p.x + Math.sin(swayA) * H2 * 0.5, hy = p.y - H2 * 0.72 - bop;
@@ -6523,6 +6535,10 @@
       player.pending = null;
       player.target = dest;
       if (darkBlocked(p.x, p.y)) showToast(L(GAME.scenes[state.currentScene].darkWalkText));
+      else {
+        const om = obstacleMsgAt(GAME.scenes[state.currentScene], p.x, p.y);
+        if (om) showToast(L(om));
+      }
     }
   });
 
