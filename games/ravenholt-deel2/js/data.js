@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '145',
+  assetVer: '146',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -136,6 +136,8 @@ const GAME = {
     q_altar:    { nl: 'Je zag het hemelzegel! Draai de drie schijven van het sterren-altaar precies zoals op het zegel (zon ☉ bovenaan) en trek aan de hendel — dan opent de geheime deur én wacht de onzichtbaarheidsspreuk', en: 'You saw the celestial seal! Turn the three discs of the star altar exactly as on the seal (sun ☉ at the top) and pull the lever — the secret door opens and the invisibility spell awaits' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
     q_freefather:{ nl: 'Je bent onzichtbaar langs de wachter! Praat met de gevangene bij de tralies — hij fluistert de volgorde van het kerkerslot: zon, maan, ster... en het teken van zijn staf', en: 'You slipped past the guard unseen! Talk to the prisoner at the bars — he whispers the order of the dungeon lock: sun, moon, star... and the sign of his staff' },
+    q_key:      { nl: 'De grendels zijn open! Pak nu MUISSTIL de sleutel van de wachttafel: trek alleen terwijl de wachter neuriet (♪) — hij kan je nog steeds horen', en: 'The bolts are open! Now take the key from the guard’s table SILENTLY: pull only while the guard hums (♪) — he can still hear you' },
+    q_cellopen: { nl: 'Je hebt de celsleutel! Gebruik hem op de celdeur en bevrijd je vader', en: 'You have the cell key! Use it on the cell door and free your father' },
     q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
     q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
@@ -168,6 +170,8 @@ const GAME = {
              look: { nl: 'Een fijne gouden ketting met een blauwe edelsteen, opgevist uit de oude put. Hij hoort bij de prinses — het was van haar moeder.', en: 'A fine gold necklace with a blue gem, fished from the old well. It belongs to the princess — it was her mother’s.' } },
     key: { name: { nl: 'Sleutel van de Geheime Poort', en: 'Secret Gate Key' }, icon: '🗝️', img: 'assets/art/item-key.png', sparkle: true,
              look: { nl: 'Een zware, oude sleutel die je van de prinses kreeg. Hij past op het slot onder de leeuwenkop van de fontein — de geheime poort.', en: 'A heavy old key the princess gave you. It fits the lock beneath the fountain’s lion head — the secret gate.' } },
+    cellkey: { name: { nl: 'IJzeren Celsleutel', en: 'Iron Cell Key' }, icon: '🗝️', img: 'assets/art/item-cellkey.png', sparkle: true,
+             look: { nl: 'De zware ijzeren sleutel van de wachter — muisstil van de tafel gegrist. Hij past op het sleutelslot van de celdeur.', en: 'The guard’s heavy iron key — snatched from the table without a sound. It fits the keyhole of the cell door.' } },
     charcoal: { name: { nl: 'Houtskool', en: 'Charcoal' }, icon: '⬛', img: 'assets/art/item-coal.png',
              look: { nl: 'Een handvol zwarte houtskool uit de vuurkorf naast het smidsbeeld in de slottuin. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal from the fire basket beside the smith statue in the castle garden. Just what a smith needs to fire up his forge again.' } },
     nut: { name: { nl: 'Pindanoot', en: 'Peanut' }, icon: '🥜', img: 'assets/art/item-nut.png',
@@ -255,7 +259,9 @@ const GAME = {
   ],
 
   questRules: [
-    { when: { flag: 'guardPassed', notFlag: 'fatherFreed' },             quest: 'q_freefather' },    // onzichtbaar langs de wachter -> open het kerkerslot bij de cel
+    { when: { has: 'cellkey', notFlag: 'fatherFreed' },                  quest: 'q_cellopen' },      // sleutel binnen -> open de celdeur
+    { when: { flag: 'boltsOpen', notFlag: 'gotCellKey' },                quest: 'q_key' },           // grendels open -> pak muisstil de sleutel van de tafel
+    { when: { flag: 'guardPassed', notFlag: 'boltsOpen' },               quest: 'q_freefather' },    // onzichtbaar langs de wachter -> open het kerkerslot bij de cel
     { when: { flag: 'altarSolved', notFlag: 'fatherFreed' },             quest: 'q_dungeon' },       // geheime deur open -> daal af in de kerker en word onzichtbaar langs de wachter
     { when: { flag: 'sawSigns', notFlag: 'altarSolved' },                quest: 'q_altar' },         // zegel gezien -> draai de schijven van het altaar + hendel
     { when: { flag: 'eclipseActive', notFlag: 'sawSigns' },              quest: 'q_readbook' },      // eclips actief -> bekijk het hemelzegel boven het boek
@@ -976,7 +982,7 @@ const GAME = {
       },
       playerStart: { x: 100, y: 246 },
       spawnFrom: { library: { x: 100, y: 246 } },
-      depth: { far: 250, near: 314, sFar: 0.90, sNear: 1.22 },
+      depth: { far: 250, near: 314, sFar: 1.00, sNear: 1.40 },   // Finn wat groter in de kerker
       walkable: [
         { x: 36, y: 246, w: 444, h: 66 }                 // de natte kerkervloer, van de trap links tot vlak voor de cel
       ],
@@ -986,7 +992,9 @@ const GAME = {
         { x: 288, y: 236, w: 68, h: 76, notFlag: 'guardPassed' }   // de wachter verspert de doorgang — tot je onzichtbaar bent (dan loop je er dwars langs)
       ],
       overlays: [],
-      fx: {},
+      fx: {
+        bookSparkle: { x: 230, y: 206, r: 13, doneFlag: 'gotCellKey' }   // de sleutel glinstert op de wachttafel tot je hem hebt
+      },
       npcs: [
         { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.22, flip: true, sway: 0.015, filter: 'brightness(0.82) saturate(0.96)' }   // de wachter vóór de cel, kijkt naar RECHTS; hij blijft gewoon staan — onzichtbaar ziet hij je alleen niet
         // Finn's vader zit ín de achtergrond, écht achter de tralies (gevangenis-ravenholt-1)
@@ -1007,7 +1015,7 @@ const GAME = {
           rect: { x: 284, y: 118, w: 88, h: 132 },
           walkTo: { x: 250, y: 262 },
           look: (state) => state.flags.guardPassed
-            ? { nl: 'De wachter tuurt met gefronste wenkbrauwen de kerker rond — maar jou ziet hij niet. Sluip snel naar de cel!', en: 'The guard peers around the dungeon with a frown — but he cannot see you. Slip to the cell, quick!' }
+            ? { nl: 'De wachter tuurt met gefronste wenkbrauwen de kerker rond — jou ziet hij niet. Maar pas op: HOREN kan hij je nog wél... Maak geen geluid.', en: 'The guard peers around the dungeon with a frown — he cannot see you. But beware: he can still HEAR you... Make no sound.' }
             : { nl: 'Een kolossale wachter met een hellebaard verspert de weg naar de cel. “Niemand komt bij de gevangene — niemand die ik zíe, tenminste.” Zolang hij je ziet, kom je er nooit langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'A colossal guard with a halberd blocks the way to the cell. “No one reaches the prisoner — no one I can SEE, at least.” While he can see you, you will never get past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
           castWith: {
             item: 'invisspell',
@@ -1017,13 +1025,45 @@ const GAME = {
           }
         },
         {
+          id: 'keyTable',
+          name: { nl: 'De Sleutel op de Tafel', en: 'The Key on the Table' },
+          rect: { x: 178, y: 186, w: 104, h: 48 },
+          walkTo: { x: 230, y: 258 },
+          look: (state) => state.flags.gotCellKey
+            ? { nl: 'De tafel is leeg — de ijzeren celsleutel zit veilig in je tas.', en: 'The table is bare — the iron cell key sits safely in your bag.' }
+            : { nl: 'Op de wachttafel, naast de kaars en de fles, glinstert een zware ijzeren sleutel. Dé sleutel van de cel! Maar het hout kraakt bij elk geluidje...', en: 'On the guard’s table, beside the candle and the bottle, gleams a heavy iron key. THE key to the cell! But the wood creaks at every little sound...' },
+          keyPuzzle: {
+            requiresFlag: 'guardPassed',
+            blockedText: { nl: 'De wachter staat er met zijn neus bovenop — zolang hij je kan zien, kun je de sleutel onmogelijk ongemerkt pakken. Kon je maar onzichtbaar worden...', en: 'The guard stands right over it — while he can see you, you could never take the key unnoticed. If only you could turn invisible...' },
+            title: { nl: 'Muisstil — pak de sleutel', en: 'Silent as a Mouse — take the key' },
+            hint: { nl: 'HOUD de knop (of het beeld) VAST om de sleutel langzaam naar je toe te trekken — dat schuurt over het hout! Trek alléén terwijl de wachter NEURIET (♪). Stopt het deuntje? LAAT LOS, anders schiet de geluidsmeter vol!', en: 'HOLD the button (or the picture) to slowly pull the key toward you — it scrapes on the wood! Pull only while the guard is HUMMING (♪). When the tune stops, LET GO, or the noise meter fills up!' },
+            setFlag: 'gotCellKey',
+            give: 'cellkey',
+            failText: { nl: '“Wat was dat?!” De wachter draait met een ruk zijn hoofd — je laat de sleutel los en houdt je muisstil. De sleutel schuift een stuk terug...', en: '“What was that?!” The guard snaps his head around — you release the key and freeze. The key slides back a way...' },
+            solvedText: { nl: 'De sleutel glijdt geluidloos over de tafelrand, recht in je onzichtbare hand. De wachter neuriet vrolijk verder — hij heeft níets gemerkt. Nu de celdeur!', en: 'The key slides soundlessly over the table edge, straight into your invisible hand. The guard hums merrily on — he noticed nothing. Now for the cell door!' },
+            doneText: { nl: 'De ijzeren celsleutel zit al in je tas.', en: 'The iron cell key is already in your bag.' }
+          }
+        },
+        {
           id: 'father',
           name: { nl: 'De Gevangene', en: 'The Prisoner' },
           rect: { x: 408, y: 110, w: 100, h: 130 },
           walkTo: { x: 408, y: 268 },
           look: (state) => state.flags.fatherFreed
             ? { nl: 'De celdeur staat open. Je vader houdt je hand stevig vast — jullie zijn weer samen.', en: 'The cell door stands open. Your father holds your hand tight — you are together again.' }
+            : state.flags.boltsOpen
+            ? { nl: 'De grendels staan open, maar het sleutelslot houdt de deur dicht. Vader knikt naar de wachttafel: “De sleutel, jongen — muisstil...”', en: 'The bolts stand open, but the keyhole holds the door shut. Father nods at the guard’s table: “The key, my boy — quiet as a mouse...”' }
             : { nl: 'Onzichtbaar sluip je naar de tralies. De magere man kijkt op — vermoeide ogen, rood-bruin haar net als dat van jou. “...Finn?” fluistert hij. “Mijn jongen! Snel — het slot heeft vier tekens. Luister goed: éérst de ZON... dan de MAAN... dan de STER... en als laatste het teken van mijn oude staf: Ψ.”', en: 'Invisible, you creep to the bars. The thin man looks up — tired eyes, red-brown hair just like yours. “...Finn?” he whispers. “My boy! Quick — the lock has four signs. Listen well: FIRST the SUN... then the MOON... then the STAR... and last the sign of my old staff: Ψ.”' },
+          use: {
+            cellkey: {
+              requiresFlag: 'boltsOpen',
+              requiresText: { nl: 'Je houdt de sleutel al klaar, maar vier zware grendels houden de deur nog dicht. Eerst de vier tekens van het kerkerslot — vraag het je vader.', en: 'You hold the key ready, but four heavy bolts still shut the door. First the four signs of the dungeon lock — ask your father.' },
+              consume: 'cellkey',
+              setFlag: 'fatherFreed',
+              win: true,
+              text: { nl: 'De ijzeren sleutel glijdt in het slot... KLIK. De zware celdeur zwaait piepend open en je vader stapt naar buiten. Hij tilt je op in een omhelzing die alles goedmaakt. “Mijn jongen... je hebt me gevonden én bevrijd.” Samen sluipen jullie muisstil langs de neuriënde wachter, de trap op, richting het daglicht... (wordt vervolgd in Deel 3)', en: 'The iron key slides into the lock... CLICK. The heavy cell door creaks open and your father steps out. He lifts you into a hug that makes up for everything. “My boy... you found me AND freed me.” Together you slip silently past the humming guard, up the stairs, toward the daylight... (to be continued in Part 3)' }
+            }
+          },
           symbolPuzzle: {
             requiresFlag: 'guardPassed',
             blockedText: { nl: 'Je wilt naar de tralies rennen, maar de reusachtige wachter stapt meteen vóór de cel. “Terug jij!” Zolang hij je ziet, kom je hier niet langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'You start toward the bars, but the huge guard instantly steps in front of the cell. “Back, you!” While he can see you, there is no getting past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
@@ -1038,10 +1078,9 @@ const GAME = {
             ],
             sequence: ['sun', 'moon', 'star', 'psi'],
             resetText: { nl: 'Het slot klikt boos en de grendels schieten terug. Verkeerde volgorde — luister naar vader: zon, maan, ster, en dan Ψ.', en: 'The lock clicks angrily and the bolts snap back. Wrong order — listen to father: sun, moon, star, then Ψ.' },
-            setFlag: 'fatherFreed',
-            win: true,
-            solvedText: { nl: 'KLIK — KLIK — KLIK — KLIK! De vier grendels schuiven open en de zware celdeur zwaait piepend los. Je vader stapt naar buiten en tilt je op in een omhelzing die alles goedmaakt. “Mijn jongen... je hebt me gevonden én bevrijd.” Samen sluipen jullie langs de slapende wachter, de trap op, richting het daglicht... (wordt vervolgd in Deel 3)', en: 'CLICK — CLICK — CLICK — CLICK! The four bolts slide open and the heavy cell door creaks loose. Your father steps out and lifts you into a hug that makes up for everything. “My boy... you found me AND freed me.” Together you slip past the drowsy guard, up the stairs, toward the daylight... (to be continued in Part 3)' },
-            doneText: { nl: 'De cel staat open; jullie zijn herenigd.', en: 'The cell stands open; you are reunited.' }
+            setFlag: 'boltsOpen',
+            solvedText: { nl: 'KLIK — KLIK — KLIK — KLIK! De vier grendels schuiven open... maar de deur geeft nog niet mee. Onderaan zit een SLEUTELSLOT. Vader fluistert: “De wachter legt zijn sleutel altijd op de tafel — maar pas op, jongen: onzichtbaar of niet, hij kan je nog steeds HOREN...”', en: 'CLICK — CLICK — CLICK — CLICK! The four bolts slide open... but the door will not give yet. At the bottom sits a KEYHOLE. Father whispers: “The guard always leaves his key on the table — but beware, my boy: invisible or not, he can still HEAR you...”' },
+            doneText: { nl: 'De grendels staan open; alleen het sleutelslot houdt de deur nog dicht. De sleutel ligt op de wachttafel.', en: 'The bolts stand open; only the keyhole still holds the door. The key lies on the guard’s table.' }
           }
         }
       ]

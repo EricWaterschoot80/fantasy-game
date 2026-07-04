@@ -4016,7 +4016,12 @@
     sfx('tap');
     if (!wAnim) wLoop();
   }
-  function dialClose() { if (elDial) elDial.hidden = true; dialHs = null; if (wAnim) { cancelAnimationFrame(wAnim); wAnim = null; } }
+  function dialClose() {
+    if (elDial) elDial.hidden = true;
+    dialHs = null;
+    if (wAnim) { cancelAnimationFrame(wAnim); wAnim = null; }
+    if (typeof keyStop === 'function') keyStop();      // ook de sleutel-puzzel netjes sluiten
+  }
   function winchLower() {
     if (!dialHs || wSolved) return;
     const pz = dialHs.dialPuzzle, DEP = pz.depth || W_DEPTH;
@@ -4212,6 +4217,133 @@
     if (dr) dr.addEventListener('click', winchLower);
     if (dx) dx.addEventListener('click', dialClose);
     elDial.addEventListener('click', (e) => { if (e.target === elDial) dialClose(); });
+  }
+
+  /* ---------- MUISSTIL: pak de sleutel zonder geluid te maken ----------
+     De sleutel ligt op de wachttafel. Houd de knop (of het beeld) ingedrukt om hem
+     langzaam naar je toe te trekken — maar dat schuurt over het hout! Alleen als de
+     wachter NEURIET (♪) hoort hij het niet. Stopt het deuntje: loslaten, anders
+     schiet de geluidsmeter vol en schuift de sleutel terug. */
+  let keyHs = null, keyProg = 0, keyNoise = 0, keyHold = false, keyAnim = null, keyLastT = 0, keyFailT = 0, keySolvedK = false;
+  function keyHumOn(now) {                             // onregelmatig neuriën: twee sinussen door elkaar
+    return (Math.sin(now / 900) + Math.sin(now / 1370)) > 0.25;
+  }
+  function openKeyPuzzle(hs) {
+    const pz = hs.keyPuzzle;
+    if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
+    keyHs = hs; keyProg = 0; keyNoise = 0; keyHold = false; keySolvedK = false; keyLastT = performance.now(); keyFailT = 0;
+    if (elDialTitle)  elDialTitle.textContent  = L(pz.title);
+    if (elDialHint)   elDialHint.textContent   = L(pz.hint);
+    if (elDialStatus) elDialStatus.textContent = '';
+    const bl = document.getElementById('dial-left'), br = document.getElementById('dial-right');
+    if (bl) { bl.hidden = false; bl.textContent = lang === 'nl' ? '🤫 Trek voorzichtig (houd vast)' : '🤫 Pull gently (hold)'; bl.classList.remove('dial-go', 'dial-stop'); }
+    if (br) br.hidden = true;
+    if (elDial) elDial.hidden = false;
+    sfx('tap');
+    if (!keyAnim) keyLoop();
+  }
+  function keyStop() { keyHs = null; keyHold = false; if (keyAnim) { cancelAnimationFrame(keyAnim); keyAnim = null; } const br = document.getElementById('dial-right'); if (br) br.hidden = false; }
+  function keyLoop() {
+    if (!keyHs || !elDial || elDial.hidden) { keyAnim = null; return; }
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - keyLastT) / 1000); keyLastT = now;
+    const pz = keyHs.keyPuzzle;
+    if (!keySolvedK) {
+      const hum = keyHumOn(now);
+      if (keyHold) {
+        keyProg = Math.min(100, keyProg + 15 * dt);
+        keyNoise = Math.min(100, keyNoise + (hum ? 5 : 46) * dt);
+      } else {
+        keyNoise = Math.max(0, keyNoise - 26 * dt);
+      }
+      if (keyNoise >= 100) {                           // KRRRTS — de wachter hoort iets!
+        keyFailT = now; keyHold = false;
+        keyProg = Math.max(0, keyProg - 40); keyNoise = 45;
+        sfx('error');
+        if (elDialStatus) elDialStatus.textContent = pz.failText ? L(pz.failText) : (lang === 'nl' ? '“Wat was dat?!” De wachter draait zijn hoofd — je laat de sleutel los en wacht doodstil...' : '“What was that?!” The guard turns his head — you release the key and freeze...');
+      }
+      if (keyProg >= 100) {                            // de sleutel glijdt geluidloos van de rand in je hand
+        keySolvedK = true;
+        state.flags[pz.setFlag] = true;
+        if (pz.give) addItem(pz.give);
+        sfx('combine');
+        const h = keyHs;
+        if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'Hebbes — muisstil!' : 'Got it — silent as a mouse!';
+        setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 800);
+      }
+    }
+    drawKeyPuzzle(now);
+    keyAnim = requestAnimationFrame(keyLoop);
+  }
+  function drawKeyPuzzle(now) {
+    if (!dctx || !keyHs) return;
+    const cv = elDialCanvas, x = dctx, W = cv.width, H = cv.height;
+    const hum = keyHumOn(now);
+    x.clearRect(0, 0, W, H);
+    /* donkere kerkermuur + tafelblad */
+    let g = x.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#171310'); g.addColorStop(1, '#0d0a08');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    /* de neuriënde wachter bovenin */
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = '34px Georgia, serif';
+    x.fillText('💂', W / 2, 46);
+    if (hum) {                                        // ♪ = veilig trekken
+      const b = 0.55 + 0.45 * Math.sin(now / 180);
+      x.font = '20px Georgia, serif'; x.fillStyle = 'rgba(150,240,130,' + b.toFixed(2) + ')';
+      x.fillText('♪', W / 2 + 34, 34); x.fillText('♫', W / 2 + 52, 48);
+      x.font = 'bold 13px Georgia, serif'; x.fillStyle = '#bff5ad';
+      x.fillText(lang === 'nl' ? 'hij neuriet — trek nu!' : 'he hums — pull now!', W / 2, 76);
+    } else {
+      x.font = 'bold 13px Georgia, serif'; x.fillStyle = '#ffb3a6';
+      x.fillText(lang === 'nl' ? 'stil... niet bewegen!' : 'quiet... don’t move!', W / 2, 76);
+    }
+    /* het tafelblad met de glijdende sleutel */
+    const ty = H * 0.52;
+    x.fillStyle = '#5a4326'; x.fillRect(24, ty, W - 48, 34);
+    x.fillStyle = '#3c2c18'; x.fillRect(24, ty + 34, W - 48, 8);
+    x.strokeStyle = 'rgba(0,0,0,.4)';
+    for (let i = 0; i < 5; i++) { x.beginPath(); x.moveTo(28, ty + 6 + i * 6); x.lineTo(W - 28, ty + 6 + i * 6); x.stroke(); }
+    const kx = 44 + (W - 118) * (keyProg / 100);
+    x.save();
+    x.translate(kx, ty + 16);
+    x.shadowColor = 'rgba(255,225,140,.85)'; x.shadowBlur = 10;
+    x.font = '26px Georgia, serif'; x.fillStyle = '#ffd36b';
+    x.fillText('🗝', 0, 0);
+    x.restore();
+    /* doel: de rand van de tafel (jouw hand) */
+    x.font = '22px Georgia, serif'; x.fillText('🤚', W - 46, ty + 14);
+    /* geluidsmeter onderin */
+    const mx = 34, mw = W - 68, my = H - 52;
+    x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(mx - 2, my - 2, mw + 4, 18);
+    const zones = [[0, 0.62, 'rgba(126,230,110,.25)'], [0.62, 0.85, 'rgba(255,210,110,.25)'], [0.85, 1, 'rgba(255,90,70,.3)']];
+    for (const [a, b2, col] of zones) { x.fillStyle = col; x.fillRect(mx + mw * a, my, mw * (b2 - a), 14); }
+    const nf = keyNoise / 100;
+    x.fillStyle = nf > 0.85 ? '#ff6a55' : nf > 0.62 ? '#ffd36b' : '#8fe07e';
+    x.fillRect(mx, my, mw * nf, 14);
+    x.strokeStyle = '#8a6a3a'; x.lineWidth = 2; x.strokeRect(mx - 2, my - 2, mw + 4, 18);
+    x.font = 'bold 11px Georgia, serif'; x.fillStyle = '#e7cf86';
+    x.fillText(lang === 'nl' ? 'GELUID' : 'NOISE', W / 2, my - 10);
+    /* rode flits bij een misser */
+    const slip = Math.max(0, 1 - (now - keyFailT) / 600);
+    if (keyFailT && slip > 0) { x.fillStyle = 'rgba(255,70,50,' + (0.20 * slip).toFixed(3) + ')'; x.fillRect(0, 0, W, H); }
+  }
+  {
+    const bl = document.getElementById('dial-left');
+    const startHold = (e) => { if (keyHs && !keySolvedK) { keyHold = true; e.preventDefault(); } };
+    const endHold = () => { keyHold = false; };
+    if (bl) {
+      bl.addEventListener('pointerdown', startHold);
+      bl.addEventListener('pointerup', endHold);
+      bl.addEventListener('pointerleave', endHold);
+      bl.addEventListener('pointercancel', endHold);
+    }
+    if (elDialCanvas) {
+      elDialCanvas.addEventListener('pointerdown', startHold);
+      elDialCanvas.addEventListener('pointerup', endHold);
+      elDialCanvas.addEventListener('pointerleave', endHold);
+      elDialCanvas.addEventListener('pointercancel', endHold);
+    }
   }
 
   /* ---------- Sterren-altaar: drie schuifrijen ----------
@@ -5426,6 +5558,15 @@
         return;
       }
       openDiscPuzzle(hs);
+      return;
+    }
+    if (hs.keyPuzzle) {
+      if (hs.keyPuzzle.requiresFlag && !state.flags[hs.keyPuzzle.requiresFlag]) {
+        sfx('error');
+        say(hs.keyPuzzle.blockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      openKeyPuzzle(hs);
       return;
     }
     if (hs.starPuzzle) {
