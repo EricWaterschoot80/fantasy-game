@@ -1246,28 +1246,28 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
 
   #invbar {
     position: fixed;
-    right: max(4px, var(--safe-right, 0px));
+    right: 2px;
     /* ONDER de opslaan-knop beginnen (rechtsboven) zodat er nooit overlap is */
-    top: calc(var(--safe-top) + 60px);
+    top: calc(var(--safe-top) + 58px);
     bottom: auto;
     transform: none;
-    /* vast 2-KOLOMS grid, tegen de rechterrand: minder scène bedekt, alles blijft
-       in beeld (bij 10+ items scrollt de kolom binnen zijn max-hoogte) */
+    /* vast 2-KOLOMS grid strak tegen de rechterrand; 6 rijen = 12 items in beeld
+       (nog meer items scrollen binnen de max-hoogte) */
     display: grid;
-    grid-template-columns: repeat(2, 44px);
-    grid-auto-rows: 44px;
+    grid-template-columns: repeat(2, 40px);
+    grid-auto-rows: 40px;
     width: auto;
     margin: 0;
-    gap: 4px;
-    padding: 4px;
+    gap: 3px;
+    padding: 3px;
     background: rgba(26, 20, 16, .55);
-    max-height: calc(100dvh - var(--safe-top) - 72px);
+    max-height: calc(100dvh - var(--safe-top) - 64px);
     overflow-y: auto;
     scrollbar-width: none;
   }
   #invbar::-webkit-scrollbar { display: none; }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 44px; height: 44px; font-size: 22px; }
+  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
 
   /* tekstwolkje BOVENIN op mobiel (weg van de inventory + scène onderaan); iets compacter,
      grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */
