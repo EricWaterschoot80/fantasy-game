@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '147',
+  assetVer: '148',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -541,9 +541,8 @@ const GAME = {
         { x: 340, y: 236, w: 38, h: 18 }                   // rechter vuurkorf
       ],
       overlays: [
-        { img: 'assets/art/keyhole.png', x: 134, y: 158, base: 240, scale: 0.56, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' },  // sleutelgat in de muur rechts van de fontein — iets hoger + kleiner
-        { img: 'assets/art/brazier-empty.png', x: 194, y: 216, base: 250, shadow: { a: 0.3, w: 15, h: 3.5 } },   // LEGE vuurkorf links van het smidsbeeld
-        { img: 'assets/art/brazier.png', x: 342, y: 216, base: 250, shadow: { a: 0.3, w: 15, h: 3.5 } }    // vuurkorf rechts van het smidsbeeld — hierin ligt de houtskool
+        { img: 'assets/art/keyhole.png', x: 126, y: 158, base: 240, scale: 0.48, appearFlag: 'fountainSolved', hideFlag: 'secretGateOpen' }   // sleutelgat in de muur rechts van de fontein — kleiner + iets naar links
+        // de vuurkorven zitten nu in de achtergrond-afbeeldingen zelf (tuin1/2/3)
       ],
       worldItems: [
         { item: 'charcoal', hotspot: 'charcoal', x: 359, y: 223, scale: 0.72, glowCol: '255,150,60', embers: 0.9 },   // houtskool IN de rechter vuurkorf — duidelijker nagloeiende sintels zodat je 'm kunt pakken
