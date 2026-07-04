@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '164',
+  assetVer: '165',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -1010,7 +1010,7 @@ const GAME = {
       overlays: [],
       fx: {
         bookSparkle: { x: 230, y: 206, r: 13, doneFlag: 'gotCellKey' },  // de sleutel glinstert op de wachttafel tot je hem hebt
-        nutPlant:  { x: 60, y: 290, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
+        nutPlant:  { x: 76, y: 292, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
         waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
       },

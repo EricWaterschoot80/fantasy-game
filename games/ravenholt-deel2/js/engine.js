@@ -1632,34 +1632,32 @@
         fctx.beginPath(); fctx.ellipse(p.x, p.y, rr * 1.8, rr * 0.55, 0, 0, Math.PI * 2); fctx.stroke();
       }
       if (state.flags.plantDancing) {
-        const swayA = Math.sin(now / 320) * 0.11;        // zwieren (radialen om de voet)
-        const bop = Math.abs(Math.sin(now / 320)) * 2.2; // huppeltje
-        const H2 = 56;                                   // hoogte van de bloem in de scene
+        const swayA = Math.sin(now / 380) * 0.075;       // rustig zwieren (radialen om de voet)
+        const bop = Math.abs(Math.sin(now / 380)) * 1.4; // klein huppeltje
+        const H2 = 54;                                   // hoogte van de bloem in de scene
         if (ready(p._img)) {
           const W2 = H2 * (p._img.width / p._img.height);
           const hx = p.x + Math.sin(swayA) * H2 * 0.5, hy = p.y - H2 * 0.72 - bop;
-          const glow = fctx.createRadialGradient(hx, hy, 2, hx, hy, 18);   // zachte roze gloed achter de bloemkop
-          const ga = 0.12 + 0.06 * Math.sin(now / 400);
-          glow.addColorStop(0, `rgba(255,190,230,${ga.toFixed(3)})`);
-          glow.addColorStop(1, 'rgba(255,190,230,0)');
-          fctx.fillStyle = glow; fctx.fillRect(hx - 18, hy - 18, 36, 36);
+          const glow = fctx.createRadialGradient(hx, hy, 2, hx, hy, 15);   // zachte violette gloed achter de bloemkop
+          const ga = 0.08 + 0.04 * Math.sin(now / 460);
+          glow.addColorStop(0, `rgba(190,150,255,${ga.toFixed(3)})`);
+          glow.addColorStop(1, 'rgba(190,150,255,0)');
+          fctx.fillStyle = glow; fctx.fillRect(hx - 15, hy - 15, 30, 30);
           fctx.save();
           fctx.translate(p.x, p.y);                      // draai om de voet in het plasje
           fctx.rotate(swayA);
-          fctx.scale(1 + 0.03 * Math.sin(now / 320), 1 - 0.03 * Math.sin(now / 320));   // squash & stretch op de maat
+          fctx.scale(1 + 0.02 * Math.sin(now / 380), 1 - 0.02 * Math.sin(now / 380));   // squash & stretch op de maat
           fctx.drawImage(p._img, -W2 / 2, -H2 - bop, W2, H2);
           fctx.restore();
-          /* dwarrelende sparkles + dansende muzieknootjes */
-          for (let k = 0; k < 4; k++) {
-            const a2 = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(now / 380 + k * 2.2));
-            twinkle(hx + Math.sin(now / (460 + k * 120) + k * 1.7) * 11, hy - 4 - ((now / 40 + k * 9) % 20), a2, k % 2 ? '255,220,150' : '255,190,230');
+          /* enkele gedempte violette fonkels + één zacht muzieknootje */
+          for (let k = 0; k < 2; k++) {
+            const a2 = 0.15 + 0.3 * (0.5 + 0.5 * Math.sin(now / 520 + k * 2.6));
+            twinkle(hx + Math.sin(now / (620 + k * 160) + k * 1.7) * 9, hy - 4 - ((now / 55 + k * 9) % 16), a2, '200,170,255');
           }
-          const na = Math.max(0, 0.35 + 0.35 * Math.sin(now / 350));
+          const na = Math.max(0, 0.12 + 0.22 * Math.sin(now / 430));
           fctx.font = '8px Georgia, serif'; fctx.textAlign = 'center'; fctx.textBaseline = 'middle';
-          fctx.fillStyle = `rgba(200,235,255,${na.toFixed(3)})`;
-          fctx.fillText('\u266a', hx + Math.sin(now / 500) * 13, hy - 16 - ((now / 60) % 10));
-          fctx.fillStyle = `rgba(255,215,170,${(0.7 - na).toFixed(3)})`;
-          fctx.fillText('\u266b', hx - 10 + Math.cos(now / 620) * 9, hy - 10 - ((now / 75 + 5) % 10));
+          fctx.fillStyle = `rgba(190,200,255,${na.toFixed(3)})`;
+          fctx.fillText('\u266a', hx + Math.sin(now / 640) * 10, hy - 15 - ((now / 80) % 8));
         }
       }
     }
