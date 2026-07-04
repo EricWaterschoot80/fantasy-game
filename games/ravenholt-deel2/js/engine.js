@@ -569,6 +569,11 @@
     });
     return r ? r.msg : null;
   }
+  function walkRectActive(r) {
+    if (r.requiresFlag && !state.flags[r.requiresFlag]) return false;
+    if (r.notFlag && state.flags[r.notFlag]) return false;
+    return true;
+  }
   function inWalkableScene(scene, x, y) {
     if (inObstacle(scene, x, y)) return false;
     if (scene.walkPoly) return pointInPoly(scene.walkPoly, x, y);
@@ -577,7 +582,7 @@
     if (scene.darkWalkable && scene.fx && scene.fx.darkness && !state.flags[scene.fx.darkness.until]) {
       rects = scene.darkWalkable;
     }
-    return rects.some(r =>
+    return rects.some(r => walkRectActive(r) &&
       x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
   }
   function inWalkable(x, y) {
@@ -620,6 +625,7 @@
     }
     let best = null, bestD = Infinity;
     for (const r of scene.walkable) {
+      if (!walkRectActive(r)) continue;
       const cx = Math.max(r.x + 2, Math.min(r.x + r.w - 2, x));
       const cy = Math.max(r.y + 2, Math.min(r.y + r.h - 2, y));
       const d = (cx - x) ** 2 + (cy - y) ** 2;
