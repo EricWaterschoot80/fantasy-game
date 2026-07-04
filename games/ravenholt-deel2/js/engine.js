@@ -1549,24 +1549,24 @@
       fctx.fillStyle = g;
       fctx.fillRect(e.x - (e.r || 18), e.y - (e.r || 18), (e.r || 18) * 2, (e.r || 18) * 2);
     }
-    /* Gloeiende vuurkorf: zachte oranje gloed + 3 kleine oranje sintel-puntjes die
-       zachtjes flikkeren en opstijgen. Dooft zodra doneFlag is gezet (houtskool gepakt). */
+    /* Gloeiende vuurkorf: subtiele, langzaam ademende oranje gloed + 3 piepkleine
+       sintel-puntjes die vrijwel stil liggen en alleen rustig na-gloeien.
+       Dooft zodra doneFlag is gezet (houtskool gepakt). */
     if (fx.emberGlow && !(fx.emberGlow.doneFlag && state.flags[fx.emberGlow.doneFlag])) {
       const e = fx.emberGlow;
-      const er = (e.r || 14) * (1 + 0.12 * Math.sin(now / 540));
-      const ea = 0.16 + 0.08 * Math.sin(now / 380);
+      const er = (e.r || 11) * (1 + 0.05 * Math.sin(now / 1400));          // kleiner, heel traag ademen
+      const ea = 0.09 + 0.04 * Math.sin(now / 1100);                        // zachter
       const g = fctx.createRadialGradient(e.x, e.y, 1, e.x, e.y, er);
       g.addColorStop(0, `rgba(255,160,70,${ea.toFixed(3)})`);
       g.addColorStop(1, 'rgba(255,120,40,0)');
       fctx.fillStyle = g;
       fctx.fillRect(Math.round(e.x - er), Math.round(e.y - er), Math.round(er * 2), Math.round(er * 2));
-      for (let i = 0; i < 3; i++) {                     // 3 kleine oranje puntjes
-        const sp = 1400 + i * 380;
-        const px2 = e.x - 5 + i * 5 + Math.sin(now / sp + i * 2.1) * 1.5;
-        const py2 = e.y - 2 - ((now / (30 + i * 8)) + i * 7) % 9;
-        const a = 0.35 + 0.55 * (0.5 + 0.5 * Math.sin(now / 260 + i * 1.9));
-        fctx.fillStyle = `rgba(255,${150 + i * 20},60,${a.toFixed(3)})`;
-        fctx.fillRect(Math.round(px2), Math.round(py2), 2, 2);
+      for (let i = 0; i < 3; i++) {                     // 3 piepkleine sintels: liggen stil, gloeien traag aan en uit
+        const px2 = e.x - 4 + i * 4;
+        const py2 = e.y - 1 + (i % 2);
+        const a = 0.22 + 0.30 * (0.5 + 0.5 * Math.sin(now / 900 + i * 2.3));
+        fctx.fillStyle = `rgba(255,${145 + i * 15},60,${a.toFixed(3)})`;
+        fctx.fillRect(px2, py2, 1, 1);
       }
     }
     /* Het gloeiende boek: zachte pulserende blauwe gloed + zwevende sparkles, zodat je
