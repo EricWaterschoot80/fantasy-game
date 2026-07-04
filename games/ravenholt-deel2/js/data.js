@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '152',
+  assetVer: '153',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -922,6 +922,7 @@ const GAME = {
               { start: 8 },
               { start: 4 }
             ],
+            tip: { nl: '\ud83d\udca1 Slimme volgorde: zet \u00e9\u00e9rst de ZON \u2609 (buitenste ring) precies bovenaan \u2014 let nog niet op de rest. Draai d\u00e1n de MAAN \u263d goed (dat de ster meedraait geeft niets). En als \u00e1llerlaatste de STER \u2726: die draait vrij. Zo staat alles in \u00e9\u00e9n keer op zijn plek!', en: '\ud83d\udca1 Smart order: first set the SUN \u2609 (outer ring) exactly at the top \u2014 ignore the rest for now. Then set the MOON \u263d (the star turning along is fine). And LAST of all the STAR \u2726: it turns freely. That way everything lands in place in one go!' },
             setFlag: 'gotEclipseSpell',
             give: 'eclipsspell',
             solvedZoom: 'assets/art/spell-eclipse-page.jpg',

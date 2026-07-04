@@ -4846,6 +4846,13 @@
     });
     const exc = document.getElementById('eclipse-close');
     if (exc) exc.addEventListener('click', eclipseClose);
+    const etip = document.getElementById('eclipse-tip');
+    if (etip) etip.addEventListener('click', () => {          // 💡 verklap de slimme draai-volgorde
+      if (!eclHs) return;
+      const pz = eclHs.eclipsePuzzle;
+      sfx('tap');
+      if (elEclStatus) elEclStatus.textContent = pz.tip ? L(pz.tip) : '';
+    });
     elEcl.addEventListener('click', (e) => { if (e.target === elEcl) eclipseClose(); });
   }
 
