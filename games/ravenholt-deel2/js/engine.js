@@ -1621,12 +1621,18 @@
         fctx.fillRect(Math.round(b.x - pr), Math.round(b.y - pr), Math.round(pr * 2), Math.round(pr * 2));
       }
       const nSpark = b.sparkCount || 5;
-      for (let i = 0; i < nSpark; i++) {                // sparkles die traag omhoog dwarrelen
-        const sp = 2000 + i * 340;
-        const tx = b.x + Math.sin(now / sp + i * 2.1) * (10 + (i % 3) * 5);
-        const ty = b.y - 4 - ((now / (26 + i * 5)) + i * 13) % 26;
+      const SPARK_OFF = [[-7, -3], [6, -6], [-3, 5], [8, 3], [0, -8]];   // vaste plekjes rond het glinsterpunt (geen drift)
+      for (let i = 0; i < nSpark; i++) {
         const a = (0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 430 + i * 1.7))) * boost;
-        twinkle(tx, ty, Math.min(1, a), b.col ? '255,232,160' : '185,215,255');
+        if (b.staticSpark) {                            // alleen twinkelen op de plek, niet verschuiven
+          const [ox, oy] = SPARK_OFF[i % SPARK_OFF.length];
+          twinkle(b.x + ox, b.y + oy, Math.min(1, a), b.col ? '255,232,160' : '185,215,255');
+        } else {                                        // (oud gedrag) sparkles die traag omhoog dwarrelen
+          const sp = 2000 + i * 340;
+          const tx = b.x + Math.sin(now / sp + i * 2.1) * (10 + (i % 3) * 5);
+          const ty = b.y - 4 - ((now / (26 + i * 5)) + i * 13) % 26;
+          twinkle(tx, ty, Math.min(1, a), b.col ? '255,232,160' : '185,215,255');
+        }
       }
     }
     /* Wondernoot in het plasje + het dansende plantje (kerker) */
