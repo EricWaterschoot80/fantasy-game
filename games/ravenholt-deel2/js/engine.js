@@ -208,6 +208,7 @@
   let minoWalk = null;        // animatie: minotaur loopt naar de schaal en valt in slaap
   let ravenFly = null;        // animatie: de raaf vliegt weg richting de molen
   let castGlow = null;        // animatie: Finns staf gloeit op wanneer hij de spreuk uitspreekt
+  let castRunes = null;       // zwevende tovertekens bij de zonsverduistering-spreuk
   let dragonShadow = null;    // animatie: voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
   let witchPoof = null;       // animatie: de heks lost op in een wolk groene rook zodra ze verslagen is
   let witchFrog = null;       // animatie: uit de rook springt een vliegende kikker met vleugeltjes die wegfladdert
@@ -1133,6 +1134,32 @@
     }
 
     /* (Het permanente blauwe licht-effect op Finns staf is verwijderd — niet meer nodig.) */
+
+    /* Zwevende TOVERTEKENS bij het uitspreken van de zonsverduistering-spreuk:
+       hemelse glyphen kringelen op rond Finn en vervagen richting het raam. */
+    if (castRunes) {
+      const el = (now - castRunes.t0) / 3600;
+      if (el >= 1) { castRunes = null; }
+      else {
+        const GL = ['☉', '☽', '✦', 'Ψ', '♃', '♄', 'ᛝ', 'ᛟ'];
+        fctx.textAlign = 'center'; fctx.textBaseline = 'middle';
+        for (let k = 0; k < GL.length; k++) {
+          const d = Math.max(0, Math.min(1, el * 1.35 - k * 0.05));       // elk teken start net iets later
+          if (d <= 0 || d >= 1) continue;
+          const ang = k * 0.9 + now / 2400;
+          const rx = castRunes.x + Math.cos(ang) * (14 + d * 30);
+          const ry = castRunes.y - 26 - d * 64 + Math.sin(now / 300 + k) * 2;
+          const a = Math.sin(d * Math.PI);
+          const size = 9 + 5 * (1 - Math.abs(0.5 - d) * 2);
+          fctx.font = 'bold ' + size + 'px Georgia, serif';
+          fctx.shadowColor = 'rgba(150,195,255,' + (0.8 * a).toFixed(3) + ')';
+          fctx.shadowBlur = 8;
+          fctx.fillStyle = 'rgba(' + (k % 2 ? '210,230,255' : '255,230,160') + ',' + a.toFixed(3) + ')';
+          fctx.fillText(GL[k], Math.round(rx), Math.round(ry));
+          fctx.shadowBlur = 0;
+        }
+      }
+    }
 
     drawDragonShadow(now);   // voorbijvliegende drakenschaduw (drakenspreuk op de wachter)
     drawWitchPoof(now);      // de heks lost op in groene rook
@@ -2874,12 +2901,14 @@
     }
     if (state.flags.eclipseActive) {                     // opnieuw casten tijdens de eclips: de duisternis wordt ververst
       sfx('combine'); triggerCastFx();
+      castRunes = { t0: performance.now(), x: player.x, y: player.y };
       startEclipseTimer();
       say({ nl: '“Umbra Solis!” De duisternis diept zich opnieuw uit — de zonsverduistering houdt nog even aan.', en: '“Umbra Solis!” The darkness deepens anew — the eclipse holds a while longer.' });
       return;
     }
     state.flags.eclipseActive = true;
     sfx('combine'); triggerCastFx();
+    castRunes = { t0: performance.now(), x: player.x, y: player.y };
     paintBackground();
     burstAt(300, 120, { n: 26, col: '150,170,255', up: 10, life: 1.4, spread: 40 });
     updateQuest();
@@ -4709,11 +4738,22 @@
     if (!eclHs || eclSolved) return;
     const N = eclHs.eclipsePuzzle.positions || 8;
     const step = dir > 0 ? 1 : N - 1;
-    eclOff[r] = (eclOff[r] + step) % N;
-    /* Gekoppelde ringen (moeilijker): ze grijpen als TANDWIELEN in elkaar — draai je de
-       zonnering, dan draait de maanring de ándere kant op; de maanring drijft zo ook de
-       sterrenring aan. Alleen de binnenste ring draait vrij. */
-    if (eclHs.eclipsePuzzle.linked && r < 2) eclOff[r + 1] = (eclOff[r + 1] + (N - step)) % N;
+    /* Verstrengeld hemelwerk: elk mechaniek (buiten/midden/binnen) draait zijn EIGEN
+       combinatie van ringen mee — per ring een ander ritme (pz.moves[mechaniek][ring],
+       bv. +1/0/-1 per klik). Zo moet je de juiste combinatie van slagen vinden. */
+    const pz0 = eclHs.eclipsePuzzle;
+    if (pz0.moves) {
+      const mv = pz0.moves[r];
+      for (let i = 0; i < eclOff.length; i++) {
+        if (!mv[i]) continue;
+        const d2 = mv[i] > 0 ? step : (N - step);
+        for (let t = 0; t < Math.abs(mv[i]); t++) eclOff[i] = (eclOff[i] + d2) % N;
+      }
+    } else {
+      eclOff[r] = (eclOff[r] + step) % N;
+      /* (oude variant) gekoppelde tandwiel-ringen: buur draait tegengesteld mee */
+      if (pz0.linked && r < 2) eclOff[r + 1] = (eclOff[r + 1] + (N - step)) % N;
+    }
     sfx('tap');
     const pz = eclHs.eclipsePuzzle;
     const aligned = eclOff.every((o) => o === 0);

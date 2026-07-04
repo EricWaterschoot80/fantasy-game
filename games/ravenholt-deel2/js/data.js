@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '153',
+  assetVer: '154',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -914,15 +914,19 @@ const GAME = {
             requiresFlag: 'wizardTripping',
             blockedText: { nl: '\u201cBlijf van mijn instrumenten af!\u201d snauwt de tovenaar zonder zelfs op te kijken. Zolang hij erbij is, mag je nergens aankomen. (De raaf fluistert: \u201cKrra... paddenstoelen, bij de put!\u201d)', en: '\u201cKeep your hands off my instruments!\u201d snaps the wizard without even looking up. While he is around you may touch nothing. (The raven whispers: \u201cCaw... mushrooms, by the well!\u201d)' },
             positions: 12,
-            linked: true,
-            title: { nl: 'De Hemelschijf', en: 'The Celestial Disc' },
-            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar pas op: de ringen grijpen als TANDWIELEN in elkaar! Draai je de zonnering, dan draait de maanring de \u00e1ndere kant op \u2014 en de maanring drijft zo ook de sterrenring aan. Alleen de binnenste ring draait vrij. (Tik links of rechts van een ring.)', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But beware: the rings mesh like GEARS! Turn the sun ring and the moon ring turns the other way \u2014 and the moon ring drives the star ring in turn. Only the innermost ring turns free. (Tap left or right of a ring.)' },
-            rings: [
-              { start: 5 },
-              { start: 8 },
-              { start: 4 }
+            moves: [
+              [1, 0, 1],                               // BUITENSTE mechaniek: zon +1 én ster +1
+              [1, 1, 1],                               // MIDDELSTE mechaniek: alle drie +1
+              [0, 1, 1]                                // BINNENSTE mechaniek: maan +1 én ster +1
             ],
-            tip: { nl: '\ud83d\udca1 Slimme volgorde: zet \u00e9\u00e9rst de ZON \u2609 (buitenste ring) precies bovenaan \u2014 let nog niet op de rest. Draai d\u00e1n de MAAN \u263d goed (dat de ster meedraait geeft niets). En als \u00e1llerlaatste de STER \u2726: die draait vrij. Zo staat alles in \u00e9\u00e9n keer op zijn plek!', en: '\ud83d\udca1 Smart order: first set the SUN \u2609 (outer ring) exactly at the top \u2014 ignore the rest for now. Then set the MOON \u263d (the star turning along is fine). And LAST of all the STAR \u2726: it turns freely. That way everything lands in place in one go!' },
+            title: { nl: 'De Hemelschijf', en: 'The Celestial Disc' },
+            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar dit hemelwerk is VERSTRENGELD: elk mechaniek beweegt meerdere hemellichamen tegelijk! Het buitenste draait zon \u00e9n ster, het middelste alle drie, het binnenste maan \u00e9n ster. Vind de juiste combinatie van slagen. (Tik links of rechts van een ring.)', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But this celestial clockwork is ENTANGLED: each mechanism moves several bodies at once! The outer turns sun and star, the middle all three, the inner moon and star. Find the right combination of turns. (Tap left or right of a ring.)' },
+            rings: [
+              { start: 11 },
+              { start: 10 },
+              { start: 7 }
+            ],
+            tip: { nl: '\ud83d\udca1 Onthoud w\u00e1t elk mechaniek beweegt: BUITENSTE = zon + ster \u00b7 MIDDELSTE = alle drie \u00b7 BINNENSTE = maan + ster. De volgorde maakt niet uit \u2014 het gaat om het juiste A\u00c1NTAL slagen per mechaniek. (Psst... vanaf de beginstand: buitenste 3\u00d7 rechts, middelste 2\u00d7 links, binnenste 4\u00d7 rechts!)', en: '\ud83d\udca1 Remember what each mechanism moves: OUTER = sun + star \u00b7 MIDDLE = all three \u00b7 INNER = moon + star. The order does not matter \u2014 it is about the right NUMBER of turns per mechanism. (Psst... from the starting position: outer 3\u00d7 right, middle 2\u00d7 left, inner 4\u00d7 right!)' },
             setFlag: 'gotEclipseSpell',
             give: 'eclipsspell',
             solvedZoom: 'assets/art/spell-eclipse-page.jpg',
