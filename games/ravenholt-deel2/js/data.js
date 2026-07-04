@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '172',
+  assetVer: '173',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -67,9 +67,8 @@ const GAME = {
     squire:        'assets/art/squire.png',     // jonge schildknaap op de binnenplaats (Deel 2)
     princess:      'assets/art/princess.png',     // de prinses in de slottuin (Deel 2)
     parrot:        'assets/art/parrot.png',        // kleurrijke papagaai in de slottuin (Deel 2)
-    librarian:     'assets/art/librarian.png',    // de warrige oude tovenaar in de kasteelbibliotheek (Deel 2)
-    'librarian-trip1': 'assets/art/librarian-trip1.png',   // tovenaar in trance (paddenstoel-trip), frame 1
-    'librarian-trip2': 'assets/art/librarian-trip2.png',   // tovenaar in trance (paddenstoel-trip), frame 2
+    librarian:     'assets/art/librarian.png',    // de boze tovenaar (mad-wizard) in de kasteelbibliotheek (Deel 2)
+    'librarian-sleep': 'assets/art/librarian-sleep.png',   // dezelfde tovenaar met de ogen dicht (knipperen + paddenstoel-trance)
     dungeonGuard:  'assets/art/dungeon-guard.png',   // de wachter in de kerker (Deel 2)
     father:        'assets/art/father.png'           // Finn's gevangen vader in de kerkercel (Deel 2)
   },
@@ -77,7 +76,7 @@ const GAME = {
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader én — uit Deel 1 — zijn toverboek met de twee spreuken (dansende bloemen + draak). */
-  startItems: ['staff', 'spellbook', 'spell', 'dragonspell'],
+  startItems: ['spellbook', 'spell', 'dragonspell'],
   /* Alle bladzijdes uit Deel 1 staan al in het boek: de kaart, de spreuk van dansende bloemen, het recept en de drakenspreuk. */
   startFlags: ['mapFiled', 'spellWritten', 'gotRecipe', 'dragonSpellLearned'],
 
@@ -591,7 +590,7 @@ const GAME = {
               consume: 'necklace',
               give: 'key',
               setFlag: 'gaveNecklace',
-              text: { nl: 'Je houdt de prinses de gouden ketting voor. Haar hand vliegt naar haar mond. “Mijn moeders ketting — je hebt hem gevonden!” Met tranen in haar ogen doet ze hem om. “Hoe kan ik je ooit bedanken... Hier.” Ze drukt je een oude sleutel in de hand. “Die past op het slot achter de leeuwenfontein — de geheime poort. Bijna niemand weet ervan. Wees dapper, Finn.”', en: 'You hold out the gold necklace to the princess. Her hand flies to her mouth. “My mother’s necklace — you found it!” Tears in her eyes, she fastens it on. “How can I ever thank you... Here.” She presses an old key into your hand. “It fits the lock behind the lion fountain — the secret gate. Almost no one knows of it. Be brave, Finn.”' }
+              text: { nl: 'Je houdt de prinses de gouden ketting voor. Haar hand vliegt naar haar mond. “Mijn moeders ketting — je hebt hem gevonden!” Met tranen in haar ogen doet ze hem om. “Hoe kan ik je ooit bedanken... Hier.” Ze drukt je een oude sleutel in de hand. “Die past op het slot achter de leeuwenfontein — de geheime poort. Bijna niemand weet ervan.” Dan verduistert haar blik. “Maar wees op je hoede, Finn: door die gang kom je uit in de oude bibliotheek, en daar huist een BOZE TOVENAAR. Hij fluistert ’s nachts met de sterren en broedt op duistere plannen — men zegt dat hij de macht over heel Eldoria wil grijpen. Laat hij je vooral niet betrappen. Wees dapper.”', en: 'You hold out the gold necklace to the princess. Her hand flies to her mouth. “My mother’s necklace — you found it!” Tears in her eyes, she fastens it on. “How can I ever thank you... Here.” She presses an old key into your hand. “It fits the lock behind the lion fountain — the secret gate. Almost no one knows of it.” Then her gaze darkens. “But be on your guard, Finn: that passage opens into the old library, and an EVIL WIZARD dwells there. He whispers to the stars at night and broods on dark schemes — they say he means to seize power over all of Eldoria. Whatever you do, don’t let him catch you. Be brave.”' }
             },
             sword: {
               keep: true,                                  // het gesmede zwaard blijft van Finn
@@ -818,7 +817,7 @@ const GAME = {
         bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' }   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
       },
       npcs: [
-        { id: 'librarian', sprite: 'librarian', x: 188, y: 260, scale: 0.86, sway: 0.014, aweSwayMul: 3.0, aweSwayMs: 1250, flip: true, filter: 'brightness(0.64) saturate(0.86)', aweSprites: ['librarian-trip1', 'librarian-trip2'], aweFlag: 'wizardTripping' },   // de pixel-tovenaar — donker; onder hypnose duidelijk waggelen + halo en twinkels (engine)
+        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', x: 190, y: 262, scale: 0.82, sway: 0.012, aweSwayMul: 2.6, aweSwayMs: 1350, flip: false, filter: 'brightness(0.7) saturate(0.9)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping' },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 155, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter, 5px lager
       ],
       worldItems: [],
@@ -871,7 +870,7 @@ const GAME = {
           walkTo: { x: 244, y: 268 },
           look: (state) => state.flags.wizardTripping
             ? { nl: 'De oude tovenaar zweeft bijna. Hij staart met grote ogen naar het plafond en giechelt: \u201CDe sterren... de sterren d\u00E1nsen! Ik zie de hemelwielen draaien...\u201D Het gloeiende boek ziet hij allang niet meer.', en: 'The old wizard is practically floating. He stares wide-eyed at the ceiling and giggles: \u201CThe stars... the stars are DANCING! I can see the heavens turning...\u201D He has long forgotten the glowing book.' }
-            : { nl: 'Een oude tovenaar met een lange grijze baard tuurt in het gloeiende boek. \u201CNiemand raakt de sterrenspreuken aan!\u201D bromt hij. Maar zijn neus snuffelt dromerig... alsof hij ergens naar hunkert. (De raaf op de vensterbank grinnikt: \u201CKrra... paddenstoelen!\u201D)', en: 'An old wizard with a long grey beard peers into the glowing book. \u201CNo one touches the star spells!\u201D he grumbles. But his nose sniffs dreamily... as if he craves something. (The raven on the sill snickers: \u201CCaw... mushrooms!\u201D)' },
+            : { nl: 'De boze tovenaar kijkt op van het gloeiende boek en schatert het uit: \u201CHahá! Een JOCHIE? Kom jíj mij bestelen, ukkie? Ik grijp binnenkort de macht over heel Eldoria \u2014 en jij denkt dat je mijn sterrenspreuken kunt aanraken? Wegwezen, snotaap!\u201D Hij lacht kakelend en buigt zich weer over het boek. Maar zijn neus snuffelt dromerig... alsof hij ergens naar hunkert. (De raaf op de vensterbank grinnikt: \u201CKrra... paddenstoelen!\u201D)', en: 'The evil wizard looks up from the glowing book and bursts out laughing: \u201CHaha! A BOY? You, rob ME, little runt? Soon I shall seize power over all Eldoria \u2014 and you think you can touch my star spells? Get lost, brat!\u201D He cackles and bends back over the book. But his nose sniffs dreamily... as if he craves something. (The raven on the sill snickers: \u201CCaw... mushrooms!\u201D)' },
           use: {
             mushroom: {
               consume: 'mushroom',

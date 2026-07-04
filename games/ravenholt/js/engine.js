@@ -5192,6 +5192,7 @@
     state = newState();
     state.currentScene = s.scene;
     state.inventory = Array.isArray(s.inventory) ? s.inventory.slice() : state.inventory;
+    state.inventory = state.inventory.filter((it) => it !== 'staff');   // de staf zit niet meer in de tas (ook oude saves opschonen)
     state.flags = (s.flags && typeof s.flags === 'object') ? s.flags : {};
     state.selectedItem = null;
     return true;

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '178',
+  assetVer: '179',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -69,7 +69,7 @@ const GAME = {
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
 
   /* Finn begint met de staf van zijn vader in zijn tas. */
-  startItems: ['staff'],
+  startItems: [],
 
   winText: {
     nl: 'Gefeliciteerd — je hebt DEEL 1 van Whispers of Ravenholt uitgespeeld! De drakenschaduw vervaagt, de wacht is gevlucht en Finn stapt door de open poort het kasteel van Eldoria binnen. Híer ergens zit zijn vader gevangen... maar dat verhaal, en wat er achter de poort schuilt, bewaren we voor DEEL 2. Knap gedaan, held — tot snel!',

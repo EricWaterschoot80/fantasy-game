@@ -1649,7 +1649,13 @@
       if (state.flags.nutInPuddle && !state.flags.plantDancing) {
         const bob = Math.sin(now / 700) * 1.2;                                   // dobberen
         if (ready(p._imgNut)) {
-          fctx.drawImage(p._imgNut, p.x - 7, p.y - 12 + bob, 14, 14);
+          fctx.save();
+          fctx.globalAlpha = 0.85;
+          fctx.drawImage(p._imgNut, p.x - 7, p.y - 12 + bob, 14, 14);   // wat donkerder in het schemerige water
+          fctx.globalCompositeOperation = 'source-atop';
+          fctx.fillStyle = 'rgba(10,16,26,0.42)';
+          fctx.fillRect(p.x - 7, p.y - 12 + bob, 14, 14);
+          fctx.restore();
         } else {
           fctx.fillStyle = '#6b4a26'; fctx.fillRect(p.x - 2, p.y - 2, 4, 3);
         }
@@ -1708,13 +1714,15 @@
     /* Gouden glinster op het celslot (bv. zodra je de gouden sleutel hebt) */
     if (fx.lockGlint && (!fx.lockGlint.requiresFlag || state.flags[fx.lockGlint.requiresFlag]) && !(fx.lockGlint.doneFlag && state.flags[fx.lockGlint.doneFlag])) {
       const l = fx.lockGlint;
-      const a = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(now / 520));
-      const g2 = fctx.createRadialGradient(l.x, l.y, 1, l.x, l.y, 9);
-      g2.addColorStop(0, `rgba(255,215,120,${(a * 0.5).toFixed(3)})`);
+      const a = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(now / 460));
+      const g2 = fctx.createRadialGradient(l.x, l.y, 1, l.x, l.y, 13);
+      g2.addColorStop(0, `rgba(255,220,130,${(a * 0.7).toFixed(3)})`);
       g2.addColorStop(1, 'rgba(255,215,120,0)');
-      fctx.fillStyle = g2; fctx.fillRect(l.x - 9, l.y - 9, 18, 18);
-      twinkle(l.x, l.y, a, '255,225,140');
-      if (((now / 700) | 0) % 3 === 0) twinkle(l.x + 3, l.y - 3, a * 0.7, '255,240,190');
+      fctx.fillStyle = g2; fctx.fillRect(l.x - 13, l.y - 13, 26, 26);
+      twinkle(l.x, l.y, a, '255,230,150');
+      const spark = ((now / 380) | 0) % 3;                       // wisselende fonkel-plek rondom het slot
+      const so = [[3, -3], [-3, 2], [2, 3]][spark];
+      twinkle(l.x + so[0], l.y + so[1], a * 0.85, '255,245,200');
     }
     /* Fontein klatert alléén als de molen weer draait (requiresFlag, bv. millFixed);
        daarvoor staat de bron droog. Meerdere straaltjes mogelijk (links + rechts). */
@@ -2610,6 +2618,11 @@
          Heeft de NPC een gestureSprite, dan toont hij die af en toe (bv. de burgemeester
          die wanhopig met zijn handen wringt omdat er geen water is). */
       let img = art.sprites[npc.sprite];
+      /* Af en toe knipperen: kort omschakelen naar de 'ogen dicht'-sprite (mits niet in trance). */
+      if (npc.blinkSprite && ready(art.sprites[npc.blinkSprite]) && !(npc.aweFlag && state.flags[npc.aweFlag])) {
+        const bp = (now + (npc.x || 0) * 17) % 4300;
+        if (bp < 140) img = art.sprites[npc.blinkSprite];
+      }
       /* Blikrichting-sprites: een NPC kan rustig heen en weer 'spieden' (scanSprites,
          bv. de koopman die van zijn kar naar de wacht kijkt) en omschakelen naar een
          verbaasde blik zodra een vlag is gezet (aweSprite, bv. starend naar de dansende bloem). */
@@ -6826,6 +6839,7 @@
     state = newState();
     state.currentScene = s.scene;
     state.inventory = Array.isArray(s.inventory) ? s.inventory.slice() : state.inventory;
+    state.inventory = state.inventory.filter((it) => it !== 'staff');   // de staf zit niet meer in de tas (ook oude saves opschonen)
     state.flags = (s.flags && typeof s.flags === 'object') ? s.flags : {};
     state.selectedItem = null;
     return true;
