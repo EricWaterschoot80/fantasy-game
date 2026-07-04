@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '148',
+  assetVer: '149',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -530,8 +530,8 @@ const GAME = {
       depth: { far: 206, near: 316, sFar: 0.72, sNear: 1.05 },
       walkable: [
         { x: 30,  y: 252, w: 508, h: 62 },                 // voorgrond-pad over de hele breedte
-        { x: 18,  y: 200, w: 198, h: 58 },                 // pad links (richting fontein) — hoger en meer naar links
-        { x: 360, y: 200, w: 178, h: 58 }                  // pad rechts (richting bankje) — hoger
+        { x: 18,  y: 218, w: 198, h: 40 },                 // pad links (richting fontein) — niet te ver omhoog
+        { x: 360, y: 218, w: 178, h: 40 }                  // pad rechts (richting bankje) — niet te ver omhoog
       ],
       obstacles: [
         { x: 198, y: 168, w: 174, h: 92 },                 // de ronde bloemenperk-ring met het ridderbeeld — niet doorheen lopen
@@ -545,7 +545,7 @@ const GAME = {
         // de vuurkorven zitten nu in de achtergrond-afbeeldingen zelf (tuin1/2/3)
       ],
       worldItems: [
-        { item: 'charcoal', hotspot: 'charcoal', x: 359, y: 223, scale: 0.72, glowCol: '255,150,60', embers: 0.9 },   // houtskool IN de rechter vuurkorf — duidelijker nagloeiende sintels zodat je 'm kunt pakken
+        { item: 'charcoal', hotspot: 'charcoal', x: 370, y: 201, scale: 0.6, glowCol: '255,150,60', embers: 0.9 },   // houtskool IN de rechter vuurkorf — duidelijker nagloeiende sintels zodat je 'm kunt pakken
         { item: 'trinket', hotspot: 'trinket', x: 72, y: 182, scale: 0.74, gem: true, glintOnly: true, glintScale: 0.48, glintWide: 1.55, glowCol: '255,210,130' }   // bronzen munt onder water: alleen de glinstering, 2px hoger, iets kleiner maar breder (platter over het water)
       ],
       npcs: [
@@ -730,8 +730,8 @@ const GAME = {
         {
           id: 'charcoal',
           name: { nl: 'De Rechter Vuurkorf', en: 'The Right Fire Basket' },
-          rect: { x: 340, y: 206, w: 26, h: 46 },
-          walkTo: { x: 358, y: 276 },
+          rect: { x: 346, y: 182, w: 46, h: 40 },
+          walkTo: { x: 368, y: 268 },
           hideFlag: 'taken_garden_charcoal',
           gives: {
             item: 'charcoal',
