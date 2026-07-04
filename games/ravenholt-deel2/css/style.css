@@ -1233,36 +1233,41 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
 @media (pointer: coarse) {
   #bottomui { display: contents; }
 
+  /* grotere tik-doelen op touch (min. ~44px) */
+  .round-btn { width: 46px; height: 46px; }
+
   /* alle knoppen links ONDER ELKAAR (geluid, taal, tip); inventory staat rechts */
   .round-btn.sound { left: 12px; right: auto; top: calc(var(--safe-top) + 8px); }
-  .round-btn.lang  { left: 12px; right: auto; top: calc(var(--safe-top) + 56px); }
-  .round-btn.info  { left: 12px; right: auto; top: calc(var(--safe-top) + 104px); }
-  .round-btn.eye   { left: 12px; right: auto; top: calc(var(--safe-top) + 152px); }   /* oogje ook aan de zijkant, onder de tip-knop */
+  .round-btn.lang  { left: 12px; right: auto; top: calc(var(--safe-top) + 60px); }
+  .round-btn.info  { left: 12px; right: auto; top: calc(var(--safe-top) + 112px); }
+  .round-btn.eye   { left: 12px; right: auto; top: calc(var(--safe-top) + 164px); }   /* oogje ook aan de zijkant, onder de tip-knop */
   /* tip-popover onder de icoon-kolom, links */
-  #quest { left: 12px; right: auto; top: calc(var(--safe-top) + 204px); max-width: min(66vw, 280px); }
+  #quest { left: 12px; right: auto; top: calc(var(--safe-top) + 218px); max-width: min(66vw, 280px); }
 
   #invbar {
     position: fixed;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    /* vast 2-koloms grid: ook met 10+ items blijft ALLES in beeld
-       (flex column-wrap vergroot de containerbreedte niet — vandaar grid) */
+    right: max(4px, var(--safe-right, 0px));
+    /* ONDER de opslaan-knop beginnen (rechtsboven) zodat er nooit overlap is */
+    top: calc(var(--safe-top) + 60px);
+    bottom: auto;
+    transform: none;
+    /* vast 2-KOLOMS grid, tegen de rechterrand: minder scène bedekt, alles blijft
+       in beeld (bij 10+ items scrollt de kolom binnen zijn max-hoogte) */
     display: grid;
-    grid-template-columns: repeat(3, 40px);
-    grid-auto-rows: 40px;
+    grid-template-columns: repeat(2, 44px);
+    grid-auto-rows: 44px;
     width: auto;
     margin: 0;
     gap: 4px;
-    padding: 5px;
+    padding: 4px;
     background: rgba(26, 20, 16, .55);
-    max-height: calc(100dvh - 12px);
+    max-height: calc(100dvh - var(--safe-top) - 72px);
     overflow-y: auto;
     scrollbar-width: none;
   }
   #invbar::-webkit-scrollbar { display: none; }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
+  .inv-slot { width: 44px; height: 44px; font-size: 22px; }
 
   /* tekstwolkje BOVENIN op mobiel (weg van de inventory + scène onderaan); iets compacter,
      grotere/scherpere tekst. Verschijnt maar kort; dekt zo nodig even de bovenknoppen af. */
@@ -1455,3 +1460,15 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
   z-index: 3;
 }
 .prologue-skip:hover { background: rgba(40,30,20,.8); }
+
+/* ---------- UX-polish: hover-feedback voor muisgebruikers (desktop) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .inv-slot.filled:hover {
+    border-color: var(--gold-light);
+    box-shadow: 0 0 0 1px #1f1410, 0 0 10px rgba(231,207,134,.45), inset 0 2px 4px rgba(0,0,0,.8);
+    transform: translateY(-1px);
+  }
+  .round-btn:hover { filter: brightness(1.15); }
+  .gold-btn:hover { filter: brightness(1.08); }
+  .book-hot:hover { outline: 2px solid rgba(231,207,134,.55); outline-offset: -2px; }
+}

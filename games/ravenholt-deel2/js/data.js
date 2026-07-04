@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '140',
+  assetVer: '141',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -918,14 +918,14 @@ const GAME = {
           eclipsePuzzle: {
             requiresFlag: 'wizardTripping',
             blockedText: { nl: '\u201cBlijf van mijn instrumenten af!\u201d snauwt de tovenaar zonder zelfs op te kijken. Zolang hij erbij is, mag je nergens aankomen. (De raaf fluistert: \u201cKrra... paddenstoelen, bij de put!\u201d)', en: '\u201cKeep your hands off my instruments!\u201d snaps the wizard without even looking up. While he is around you may touch nothing. (The raven whispers: \u201cCaw... mushrooms, by the well!\u201d)' },
-            positions: 10,
+            positions: 12,
             linked: true,
             title: { nl: 'De Hemelschijf', en: 'The Celestial Disc' },
-            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar pas op: de ringen zitten aan elkaar vast! De zonnering sleept de maanring mee, en de maanring de sterrenring. Alleen de binnenste draait vrij. (Tik links of rechts van een ring.)', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But beware: the rings are linked! The sun ring drags the moon ring along, and the moon ring drags the star ring. Only the innermost turns free. (Tap left or right of a ring.)' },
+            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar pas op: de ringen grijpen als TANDWIELEN in elkaar! Draai je de zonnering, dan draait de maanring de \u00e1ndere kant op \u2014 en de maanring drijft zo ook de sterrenring aan. Alleen de binnenste ring draait vrij. (Tik links of rechts van een ring.)', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But beware: the rings mesh like GEARS! Turn the sun ring and the moon ring turns the other way \u2014 and the moon ring drives the star ring in turn. Only the innermost ring turns free. (Tap left or right of a ring.)' },
             rings: [
-              { start: 4 },
-              { start: 7 },
-              { start: 3 }
+              { start: 5 },
+              { start: 8 },
+              { start: 4 }
             ],
             setFlag: 'gotEclipseSpell',
             give: 'eclipsspell',

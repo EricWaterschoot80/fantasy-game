@@ -4345,9 +4345,10 @@
     const N = eclHs.eclipsePuzzle.positions || 8;
     const step = dir > 0 ? 1 : N - 1;
     eclOff[r] = (eclOff[r] + step) % N;
-    /* Gekoppelde ringen (moeilijker): de zonnering sleept de maanring mee, en de
-       maanring sleept de sterrenring mee. Alleen de binnenste draait vrij. */
-    if (eclHs.eclipsePuzzle.linked && r < 2) eclOff[r + 1] = (eclOff[r + 1] + step) % N;
+    /* Gekoppelde ringen (moeilijker): ze grijpen als TANDWIELEN in elkaar — draai je de
+       zonnering, dan draait de maanring de ándere kant op; de maanring drijft zo ook de
+       sterrenring aan. Alleen de binnenste ring draait vrij. */
+    if (eclHs.eclipsePuzzle.linked && r < 2) eclOff[r + 1] = (eclOff[r + 1] + (N - step)) % N;
     sfx('tap');
     const pz = eclHs.eclipsePuzzle;
     const aligned = eclOff.every((o) => o === 0);
@@ -4379,38 +4380,69 @@
     if (!eclCtx || !eclHs) return;
     const cv = elEclCanvas, x = eclCtx, W = cv.width, H = cv.height, cx = W / 2, cy = H / 2 + 4, TAU = Math.PI * 2;
     const N = eclHs.eclipsePuzzle.positions || 8;
-    /* nachthemel */
+    /* nachthemel met zachte nevels */
     let g = x.createRadialGradient(cx, cy, 20, cx, cy, W * 0.62);
-    g.addColorStop(0, '#131d38'); g.addColorStop(1, '#05060f');
+    g.addColorStop(0, '#141f3d'); g.addColorStop(1, '#04050e');
     x.fillStyle = g; x.fillRect(0, 0, W, H);
-    for (let i = 0; i < 70; i++) {                  // vaste sterren, zacht flikkerend
+    for (const [nx, ny, nr, col] of [[W * 0.24, H * 0.20, W * 0.30, '90,70,160'], [W * 0.78, H * 0.72, W * 0.34, '40,90,150']]) {
+      const ng = x.createRadialGradient(nx, ny, 4, nx, ny, nr);
+      ng.addColorStop(0, 'rgba(' + col + ',0.13)'); ng.addColorStop(1, 'rgba(' + col + ',0)');
+      x.fillStyle = ng; x.fillRect(0, 0, W, H);
+    }
+    for (let i = 0; i < 95; i++) {                  // vaste sterren, zacht flikkerend, hier en daar gekleurd
       const a = i * 2.3999, rr = ((i * 137) % 1000) / 1000 * W * 0.56 + 8;
       const sx = cx + Math.cos(a) * rr, sy = cy + Math.sin(a) * rr;
-      x.globalAlpha = (0.35 + 0.55 * Math.abs(Math.sin(now / 700 + i))) * 0.8;
-      x.fillStyle = '#dfe8ff'; x.fillRect(sx | 0, sy | 0, i % 4 === 0 ? 2 : 1, 1);
+      x.globalAlpha = (0.30 + 0.55 * Math.abs(Math.sin(now / 700 + i))) * 0.8;
+      x.fillStyle = i % 9 === 0 ? '#ffe2b0' : (i % 7 === 0 ? '#b9d9ff' : '#dfe8ff');
+      x.fillRect(sx | 0, sy | 0, i % 4 === 0 ? 2 : 1, i % 5 === 0 ? 2 : 1);
     }
     x.globalAlpha = 1;
     const solveP = eclSolved ? Math.min(1, (now - eclSolveT) / 1000) : 0;
-    /* de drie ringen met hun merktekens */
+    /* de drie ringen als gegraveerde messing banden met tand-streepjes */
     x.textAlign = 'center'; x.textBaseline = 'middle';
     for (let r = 0; r < 3; r++) {
-      x.strokeStyle = 'rgba(120,140,205,.32)'; x.lineWidth = 2;
-      x.beginPath(); x.arc(cx, cy, ECL_R[r], 0, TAU); x.stroke();
+      const R = ECL_R[r];
+      /* messing band */
+      const bg2 = x.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
+      bg2.addColorStop(0, 'rgba(122,96,44,.55)'); bg2.addColorStop(0.5, 'rgba(196,158,84,.5)'); bg2.addColorStop(1, 'rgba(96,72,32,.55)');
+      x.strokeStyle = bg2; x.lineWidth = 13;
+      x.beginPath(); x.arc(cx, cy, R, 0, TAU); x.stroke();
+      x.strokeStyle = 'rgba(240,214,150,.35)'; x.lineWidth = 1;
+      x.beginPath(); x.arc(cx, cy, R + 6.5, 0, TAU); x.stroke();
+      x.beginPath(); x.arc(cx, cy, R - 6.5, 0, TAU); x.stroke();
+      /* tand-streepjes op elke positie (het zijn tandwielen!) */
+      for (let p = 0; p < N; p++) {
+        const pa = (p / N) * TAU;
+        const c1 = Math.sin(pa), s1 = -Math.cos(pa);
+        x.strokeStyle = 'rgba(231,207,134,.30)'; x.lineWidth = p === 0 ? 2 : 1;
+        x.beginPath();
+        x.moveTo(cx + c1 * (R - 5), cy + s1 * (R - 5));
+        x.lineTo(cx + c1 * (R + 5), cy + s1 * (R + 5));
+        x.stroke();
+      }
+      /* merkteken: hemels medaillon */
       const ang = (eclOff[r] / N) * TAU;            // 0 = bovenaan
-      const mx = cx + Math.sin(ang) * ECL_R[r], my = cy - Math.cos(ang) * ECL_R[r];
+      const mx = cx + Math.sin(ang) * R, my = cy - Math.cos(ang) * R;
       const atTop = eclOff[r] === 0;
-      x.beginPath(); x.arc(mx, my, 13, 0, TAU);
-      x.fillStyle = atTop ? '#153a12' : '#1a2036'; x.fill();
-      x.strokeStyle = atTop ? 'rgba(126,230,110,.95)' : 'rgba(180,200,240,.6)'; x.lineWidth = 2; x.stroke();
-      if (atTop) { x.shadowColor = 'rgba(126,230,110,.9)'; x.shadowBlur = 12; }
-      x.font = '17px Georgia, serif'; x.fillStyle = atTop ? '#bff5ad' : ECL_COL[r];
-      x.fillText(ECL_GLYPH[r], mx, my + 1);
+      const MCOL = [['#ffe6a8', '#b07f1e'], ['#f2f4fb', '#8d93a8'], ['#c8ecff', '#2e7ea8']][r];
+      if (atTop) { x.shadowColor = 'rgba(126,230,110,.9)'; x.shadowBlur = 14; }
+      const mg = x.createRadialGradient(mx - 3, my - 4, 2, mx, my, 14);
+      mg.addColorStop(0, atTop ? '#d9ffd0' : MCOL[0]); mg.addColorStop(1, atTop ? '#1d5a18' : MCOL[1]);
+      x.beginPath(); x.arc(mx, my, 14, 0, TAU);
+      x.fillStyle = mg; x.fill();
+      x.strokeStyle = atTop ? 'rgba(150,240,130,.95)' : 'rgba(60,44,20,.9)'; x.lineWidth = 2; x.stroke();
       x.shadowBlur = 0;
+      x.font = 'bold 16px Georgia, serif'; x.fillStyle = atTop ? '#0f3a0c' : '#241a0c';
+      x.fillText(ECL_GLYPH[r], mx, my + 1);
     }
-    /* vaste gouden wijzer bovenaan */
+    /* sierlijke gouden wijzer bovenaan (pulserende gloed) */
+    const pgl = 0.5 + 0.5 * Math.sin(now / 420);
+    x.shadowColor = 'rgba(255,211,107,' + (0.5 + 0.4 * pgl) + ')'; x.shadowBlur = 10;
     x.fillStyle = '#ffd36b';
     x.beginPath(); x.moveTo(cx, cy - ECL_R[0] - 12); x.lineTo(cx - 9, cy - ECL_R[0] - 30); x.lineTo(cx + 9, cy - ECL_R[0] - 30); x.closePath(); x.fill();
     x.strokeStyle = '#7a4a12'; x.lineWidth = 2; x.stroke();
+    x.shadowBlur = 0;
+    x.beginPath(); x.arc(cx, cy - ECL_R[0] - 24, 3, 0, TAU); x.fillStyle = '#fff3cf'; x.fill();
     /* midden: de zon — en tijdens het oplossen schuift de maan ervoor (eclips) */
     const sunR = 24;
     if (solveP < 1) {
