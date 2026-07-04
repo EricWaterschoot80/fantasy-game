@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '175',
+  assetVer: '176',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -1063,6 +1063,7 @@ const GAME = {
             : { nl: 'Een kolossale wachter met een hellebaard verspert de weg naar de cel. “Niemand komt bij de gevangene — niemand die ik zíe, tenminste.” Zolang hij je ziet, kom je er nooit langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'A colossal guard with a halberd blocks the way to the cell. “No one reaches the prisoner — no one I can SEE, at least.” While he can see you, you will never get past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
           castWith: {
             item: 'invisspell',
+            cutscene: 'assets/art/cutscene-invisible.jpg',
             setFlag: 'guardPassed',
             needText: { nl: 'Je hebt iets nodig om ongezien langs die wachter te komen...', en: 'You need some way to get past that guard unseen...' },
             text: { nl: 'Je fluistert de onzichtbaarheidsspreuk — “Nihil Videbis!” — en je lichaam vervaagt tot niet meer dan een rilling in de fakkelgloed. De wachter tuurt dwars door je heen, gromt “...verbeelding” en leunt weer tegen de muur. Nu kun je ongezien langs hem naar de cel sluipen!', en: 'You whisper the invisibility spell — “Nihil Videbis!” — and your body fades to no more than a shimmer in the torchlight. The guard stares straight through you, grunts “...imagining things” and leans back against the wall. Now you can slip past him to the cell, unseen!' }

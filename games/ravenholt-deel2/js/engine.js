@@ -3098,6 +3098,10 @@
     fls.forEach((f) => { state.flags[f] = true; });
     sfx('combine'); triggerCastFx(); updateQuest();
     burstAt(player.x, player.y - 30, { n: 22, col: '160,200,255', up: 8, life: 1.2, spread: 26 });   // Finn vervaagt in een wolkje blauwe vonkjes
+    if (c.cutscene && !state.flags._sawInvisCut) {       // eenmalige prent: onzichtbaar langs de wachter
+      state.flags._sawInvisCut = true;
+      openZoom(c.cutscene);
+    }
     say(c.text, hsSpeaker(hs), hsFace(hs));
     if (scene.bgVariants) paintBackground();
   }
