@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '165',
+  assetVer: '166',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -962,8 +962,6 @@ const GAME = {
             ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
             : { nl: 'Op het altaar ligt een rond stenen DEURZEGEL: drie draaibare schijven vol sterren-tekens rond een blauwe steen, met een hendel ernaast. Bovenaan is een gouden wijzer gebeiteld \u2014 welke drie tekens moeten daar samen onder staan?', en: 'On the altar lies a round stone DOOR SEAL: three turnable discs full of star-signs around a blue stone, with a lever beside it. A golden pointer is chiselled at the top \u2014 which three signs should sit beneath it together?' },
           discPuzzle: {
-            requiresFlag: 'gotInvisSpell',
-            blockedText: { nl: 'Een rond stenen deurzegel met drie draaibare schijven. Ze zitten muurvast \u2014 er glinstert toverkracht overheen. Misschien komen ze los als je de geheimen van het gloeiende boek kent...', en: 'A round stone door-seal with three turnable discs. They are stuck fast \u2014 magic shimmers across them. Perhaps they will come loose once you know the secrets of the glowing book...' },
             imgBase:  'assets/art/seal-base.jpg',
             title: { nl: 'Het Deurzegel', en: 'The Door Seal' },
             signs: ['\u2609','\u2642','\u03a8','\u263d','\u2726','\u2644','\u263f','\u26b9','\u2643','\u2640','\u2736','\u2646'],
@@ -1009,7 +1007,7 @@ const GAME = {
       ],
       overlays: [],
       fx: {
-        bookSparkle: { x: 230, y: 206, r: 13, doneFlag: 'gotCellKey' },  // de sleutel glinstert op de wachttafel tot je hem hebt
+        bookSparkle: { x: 230, y: 196, r: 15, col: '255,208,110', boost: 1.5, doneFlag: 'gotCellKey' },  // de gouden sleutel glinstert op de wachttafel tot je hem hebt
         nutPlant:  { x: 76, y: 292, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
         waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud

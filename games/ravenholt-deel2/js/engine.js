@@ -1600,19 +1600,21 @@
        ziet dat het boek licht geeft. Dooft zodra doneFlag is gezet (bv. altarSolved). */
     if (fx.bookSparkle && !(fx.bookSparkle.doneFlag && state.flags[fx.bookSparkle.doneFlag])) {
       const b = fx.bookSparkle;
+      const bcol = b.col || '140,185,255';               // standaard blauw; goud voor de sleutel
+      const boost = b.boost || 1;
       const pr = (b.r || 22) * (1 + 0.10 * Math.sin(now / 680));
-      const pa = 0.13 + 0.07 * Math.sin(now / 520);
+      const pa = (0.13 + 0.07 * Math.sin(now / 520)) * boost;
       const g = fctx.createRadialGradient(b.x, b.y, 2, b.x, b.y, pr);
-      g.addColorStop(0, `rgba(140,185,255,${pa.toFixed(3)})`);
-      g.addColorStop(1, 'rgba(140,185,255,0)');
+      g.addColorStop(0, `rgba(${bcol},${pa.toFixed(3)})`);
+      g.addColorStop(1, `rgba(${bcol},0)`);
       fctx.fillStyle = g;
       fctx.fillRect(Math.round(b.x - pr), Math.round(b.y - pr), Math.round(pr * 2), Math.round(pr * 2));
       for (let i = 0; i < 5; i++) {                    // sparkles die traag omhoog dwarrelen
         const sp = 2000 + i * 340;
         const tx = b.x + Math.sin(now / sp + i * 2.1) * (10 + (i % 3) * 5);
         const ty = b.y - 4 - ((now / (26 + i * 5)) + i * 13) % 26;
-        const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 430 + i * 1.7));
-        twinkle(tx, ty, a, '185,215,255');
+        const a = (0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 430 + i * 1.7))) * (b.boost ? Math.min(1.6, b.boost) : 1);
+        twinkle(tx, ty, Math.min(1, a), b.col ? '255,232,160' : '185,215,255');
       }
     }
     /* Wondernoot in het plasje + het dansende plantje (kerker) */
@@ -1638,10 +1640,10 @@
         if (ready(p._img)) {
           const W2 = H2 * (p._img.width / p._img.height);
           const hx = p.x + Math.sin(swayA) * H2 * 0.5, hy = p.y - H2 * 0.72 - bop;
-          const glow = fctx.createRadialGradient(hx, hy, 2, hx, hy, 15);   // zachte violette gloed achter de bloemkop
+          const glow = fctx.createRadialGradient(hx, hy, 2, hx, hy, 15);   // zachte ijsblauwe gloed achter de bloemkop
           const ga = 0.08 + 0.04 * Math.sin(now / 460);
-          glow.addColorStop(0, `rgba(190,150,255,${ga.toFixed(3)})`);
-          glow.addColorStop(1, 'rgba(190,150,255,0)');
+          glow.addColorStop(0, `rgba(160,210,255,${ga.toFixed(3)})`);
+          glow.addColorStop(1, 'rgba(160,210,255,0)');
           fctx.fillStyle = glow; fctx.fillRect(hx - 15, hy - 15, 30, 30);
           fctx.save();
           fctx.translate(p.x, p.y);                      // draai om de voet in het plasje
@@ -1652,7 +1654,7 @@
           /* enkele gedempte violette fonkels + één zacht muzieknootje */
           for (let k = 0; k < 2; k++) {
             const a2 = 0.15 + 0.3 * (0.5 + 0.5 * Math.sin(now / 520 + k * 2.6));
-            twinkle(hx + Math.sin(now / (620 + k * 160) + k * 1.7) * 9, hy - 4 - ((now / 55 + k * 9) % 16), a2, '200,170,255');
+            twinkle(hx + Math.sin(now / (620 + k * 160) + k * 1.7) * 9, hy - 4 - ((now / 55 + k * 9) % 16), a2, '175,220,255');
           }
           const na = Math.max(0, 0.12 + 0.22 * Math.sin(now / 430));
           fctx.font = '8px Georgia, serif'; fctx.textAlign = 'center'; fctx.textBaseline = 'middle';
@@ -6141,6 +6143,11 @@
       if (fromScene === 'library' && sceneId !== 'library' && state.flags.eclipseActive) {
         state.flags.eclipseActive = false;
         if (eclipseTimer) { clearTimeout(eclipseTimer); eclipseTimer = null; }
+        updateQuest();
+      }
+      /* De onzichtbaarheid is uitgewerkt zodra je de kerker binnenstapt — cast de spreuk daar opnieuw. */
+      if (sceneId === 'dungeon' && !state.flags.fatherFreed && state.flags.guardPassed) {
+        state.flags.guardPassed = false;
         updateQuest();
       }
       /* "Weggaan en terugkomen": de burgemeester maakt plaats voor de oude schaker — maar
