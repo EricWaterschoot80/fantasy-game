@@ -4219,30 +4219,34 @@
     elDial.addEventListener('click', (e) => { if (e.target === elDial) dialClose(); });
   }
 
-  /* ---------- MUISSTIL: pak de sleutel zonder geluid te maken ----------
-     De sleutel ligt op de wachttafel. Houd de knop (of het beeld) ingedrukt om hem
-     langzaam naar je toe te trekken — maar dat schuurt over het hout! Alleen als de
-     wachter NEURIET (♪) hoort hij het niet. Stopt het deuntje: loslaten, anders
-     schiet de geluidsmeter vol en schuift de sleutel terug. */
-  let keyHs = null, keyProg = 0, keyNoise = 0, keyHold = false, keyAnim = null, keyLastT = 0, keyFailT = 0, keySolvedK = false;
+  /* ---------- DE SLEUTELBOS: trek de juiste sleutel eruit — muisstil ----------
+     Aan de ring van de wachter hangen vijf sleutels. Alleen de juiste (vader
+     fluisterde: de DONKERE met DRIE tanden) past op de cel. Houd een sleutel vast
+     om hem langzaam uit de bos te trekken — de andere sleutels rammelen mee!
+     Trek alleen terwijl de wachter neuriet; trek je de verkeerde er helemaal uit,
+     dan RINKELT de hele bos en moet je opnieuw beginnen. */
+  let keyHs = null, keyProgs = [], keySel = -1, keyNoise = 0, keyAnim = null, keyLastT = 0, keyFailT = 0, keySolvedK = false;
+  const KEY_ANGLES = [-46, -23, 0, 23, 46];            // waaier van 5 sleutels (graden)
+  const KEY_COLS = { goud: ['#e2b45a', '#8a6420'], donker: ['#5a616e', '#23262d'], zilver: ['#d4dae6', '#7c8494'], brons: ['#b5804a', '#5f3d1d'] };
   function keyHumOn(now) {                             // onregelmatig neuriën: twee sinussen door elkaar
     return (Math.sin(now / 900) + Math.sin(now / 1370)) > 0.25;
   }
   function openKeyPuzzle(hs) {
     const pz = hs.keyPuzzle;
     if (state.flags[pz.setFlag]) { say(pz.doneText || lookText(hs), hsSpeaker(hs)); return; }
-    keyHs = hs; keyProg = 0; keyNoise = 0; keyHold = false; keySolvedK = false; keyLastT = performance.now(); keyFailT = 0;
+    keyHs = hs; keySel = -1; keyNoise = 0; keySolvedK = false; keyLastT = performance.now(); keyFailT = 0;
+    keyProgs = (pz.keys || []).map(() => 0);
     if (elDialTitle)  elDialTitle.textContent  = L(pz.title);
     if (elDialHint)   elDialHint.textContent   = L(pz.hint);
     if (elDialStatus) elDialStatus.textContent = '';
     const bl = document.getElementById('dial-left'), br = document.getElementById('dial-right');
-    if (bl) { bl.hidden = false; bl.textContent = lang === 'nl' ? '🤫 Trek voorzichtig (houd vast)' : '🤫 Pull gently (hold)'; bl.classList.remove('dial-go', 'dial-stop'); }
+    if (bl) bl.hidden = true;                          // je pakt de sleutels rechtstreeks vast (houd ingedrukt)
     if (br) br.hidden = true;
     if (elDial) elDial.hidden = false;
     sfx('tap');
     if (!keyAnim) keyLoop();
   }
-  function keyStop() { keyHs = null; keyHold = false; if (keyAnim) { cancelAnimationFrame(keyAnim); keyAnim = null; } const br = document.getElementById('dial-right'); if (br) br.hidden = false; }
+  function keyStop() { keyHs = null; keySel = -1; if (keyAnim) { cancelAnimationFrame(keyAnim); keyAnim = null; } const br = document.getElementById('dial-right'); if (br) br.hidden = false; }
   function keyLoop() {
     if (!keyHs || !elDial || elDial.hidden) { keyAnim = null; return; }
     const now = performance.now();
@@ -4250,71 +4254,116 @@
     const pz = keyHs.keyPuzzle;
     if (!keySolvedK) {
       const hum = keyHumOn(now);
-      if (keyHold) {
-        keyProg = Math.min(100, keyProg + 15 * dt);
-        keyNoise = Math.min(100, keyNoise + (hum ? 5 : 46) * dt);
+      if (keySel >= 0) {                               // je trekt aan een sleutel
+        keyProgs[keySel] = Math.min(100, keyProgs[keySel] + 16 * dt);
+        keyNoise = Math.min(100, keyNoise + (hum ? 7 : 46) * dt);
       } else {
         keyNoise = Math.max(0, keyNoise - 26 * dt);
       }
-      if (keyNoise >= 100) {                           // KRRRTS — de wachter hoort iets!
-        keyFailT = now; keyHold = false;
-        keyProg = Math.max(0, keyProg - 40); keyNoise = 45;
+      if (keyNoise >= 100) {                           // te veel gerammel — de wachter spitst zijn oren
+        keyFailT = now;
+        if (keySel >= 0) keyProgs[keySel] = Math.max(0, keyProgs[keySel] - 45);
+        keySel = -1; keyNoise = 45;
         sfx('error');
-        if (elDialStatus) elDialStatus.textContent = pz.failText ? L(pz.failText) : (lang === 'nl' ? '“Wat was dat?!” De wachter draait zijn hoofd — je laat de sleutel los en wacht doodstil...' : '“What was that?!” The guard turns his head — you release the key and freeze...');
+        if (elDialStatus) elDialStatus.textContent = pz.failText ? L(pz.failText) : (lang === 'nl' ? '\u201cWat was dat?!\u201d De wachter draait zijn hoofd \u2014 je verstijft...' : '\u201cWhat was that?!\u201d The guard turns his head \u2014 you freeze...');
       }
-      if (keyProg >= 100) {                            // de sleutel glijdt geluidloos van de rand in je hand
-        keySolvedK = true;
-        state.flags[pz.setFlag] = true;
-        if (pz.give) addItem(pz.give);
-        sfx('combine');
-        const h = keyHs;
-        if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'Hebbes — muisstil!' : 'Got it — silent as a mouse!';
-        setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 800);
+      for (let i = 0; i < keyProgs.length; i++) {
+        if (keyProgs[i] >= 100) {
+          if (i === pz.target) {                       // de juiste sleutel glijdt geluidloos van de ring
+            keySolvedK = true;
+            state.flags[pz.setFlag] = true;
+            if (pz.give) addItem(pz.give);
+            sfx('combine');
+            const h = keyHs;
+            if (elDialStatus) elDialStatus.textContent = lang === 'nl' ? 'Hebbes \u2014 muisstil!' : 'Got it \u2014 silent as a mouse!';
+            setTimeout(() => { dialClose(); if (pz.solvedText) say(pz.solvedText, hsSpeaker(h)); updateQuest(); }, 800);
+          } else {                                     // verkeerde sleutel: RINKEL — de hele bos danst
+            keyFailT = now; keySel = -1;
+            for (let k = 0; k < keyProgs.length; k++) keyProgs[k] = 0;
+            keyNoise = 62;
+            sfx('error');
+            if (elDialStatus) elDialStatus.textContent = pz.failWrongText ? L(pz.failWrongText) : (lang === 'nl' ? 'Verkeerde sleutel! RINKEL-DE-KINKEL \u2014 de hele bos danst en je duwt alles haastig terug...' : 'Wrong key! JINGLE-JANGLE \u2014 the whole ring dances and you hastily push everything back...');
+          }
+          break;
+        }
       }
     }
     drawKeyPuzzle(now);
     keyAnim = requestAnimationFrame(keyLoop);
   }
+  function keyGeom(cv) {                               // ringmiddelpunt + maat, alles schaalt mee met het canvas
+    const W = cv.width, H = cv.height;
+    return { cx: W / 2, cy: 104, ringR: 24, shaft: 86, W, H };
+  }
   function drawKeyPuzzle(now) {
     if (!dctx || !keyHs) return;
-    const cv = elDialCanvas, x = dctx, W = cv.width, H = cv.height;
+    const cv = elDialCanvas, x = dctx, pz = keyHs.keyPuzzle;
+    const { cx, cy, ringR, shaft, W, H } = keyGeom(cv);
     const hum = keyHumOn(now);
     x.clearRect(0, 0, W, H);
-    /* donkere kerkermuur + tafelblad */
     let g = x.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, '#171310'); g.addColorStop(1, '#0d0a08');
     x.fillStyle = g; x.fillRect(0, 0, W, H);
-    /* de neuriënde wachter bovenin */
+    /* de neuri\u00ebnde wachter bovenin */
     x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = '34px Georgia, serif';
-    x.fillText('💂', W / 2, 46);
-    if (hum) {                                        // ♪ = veilig trekken
+    x.font = '26px Georgia, serif';
+    x.fillText('\uD83D\uDC82', W / 2, 28);
+    if (hum) {
       const b = 0.55 + 0.45 * Math.sin(now / 180);
-      x.font = '20px Georgia, serif'; x.fillStyle = 'rgba(150,240,130,' + b.toFixed(2) + ')';
-      x.fillText('♪', W / 2 + 34, 34); x.fillText('♫', W / 2 + 52, 48);
-      x.font = 'bold 13px Georgia, serif'; x.fillStyle = '#bff5ad';
-      x.fillText(lang === 'nl' ? 'hij neuriet — trek nu!' : 'he hums — pull now!', W / 2, 76);
+      x.font = '16px Georgia, serif'; x.fillStyle = 'rgba(150,240,130,' + b.toFixed(2) + ')';
+      x.fillText('\u266A', W / 2 + 28, 20); x.fillText('\u266B', W / 2 + 44, 32);
+      x.font = 'bold 12px Georgia, serif'; x.fillStyle = '#bff5ad';
+      x.fillText(lang === 'nl' ? 'hij neuriet \u2014 trek nu!' : 'he hums \u2014 pull now!', W / 2, 50);
     } else {
-      x.font = 'bold 13px Georgia, serif'; x.fillStyle = '#ffb3a6';
-      x.fillText(lang === 'nl' ? 'stil... niet bewegen!' : 'quiet... don’t move!', W / 2, 76);
+      x.font = 'bold 12px Georgia, serif'; x.fillStyle = '#ffb3a6';
+      x.fillText(lang === 'nl' ? 'stil... niet trekken!' : 'quiet... don\u2019t pull!', W / 2, 50);
     }
-    /* het tafelblad met de glijdende sleutel */
-    const ty = H * 0.52;
-    x.fillStyle = '#5a4326'; x.fillRect(24, ty, W - 48, 34);
-    x.fillStyle = '#3c2c18'; x.fillRect(24, ty + 34, W - 48, 8);
-    x.strokeStyle = 'rgba(0,0,0,.4)';
-    for (let i = 0; i < 5; i++) { x.beginPath(); x.moveTo(28, ty + 6 + i * 6); x.lineTo(W - 28, ty + 6 + i * 6); x.stroke(); }
-    const kx = 44 + (W - 118) * (keyProg / 100);
-    x.save();
-    x.translate(kx, ty + 16);
-    x.shadowColor = 'rgba(255,225,140,.85)'; x.shadowBlur = 10;
-    x.font = '26px Georgia, serif'; x.fillStyle = '#ffd36b';
-    x.fillText('🗝', 0, 0);
-    x.restore();
-    /* doel: de rand van de tafel (jouw hand) */
-    x.font = '22px Georgia, serif'; x.fillText('🤚', W - 46, ty + 14);
+    /* spijker + grote ring waaraan de bos hangt */
+    x.strokeStyle = '#6f6455'; x.lineWidth = 3;
+    x.beginPath(); x.moveTo(cx, cy - ringR - 18); x.lineTo(cx, cy - ringR); x.stroke();
+    x.beginPath(); x.arc(cx, cy - ringR - 20, 3.5, 0, Math.PI * 2); x.fillStyle = '#8a7d68'; x.fill();
+    const rg = x.createLinearGradient(cx - ringR, cy - ringR, cx + ringR, cy + ringR);
+    rg.addColorStop(0, '#c8a24e'); rg.addColorStop(0.5, '#8a6a2e'); rg.addColorStop(1, '#e2c27a');
+    x.strokeStyle = rg; x.lineWidth = 6;
+    x.beginPath(); x.arc(cx, cy, ringR, 0, Math.PI * 2); x.stroke();
+    /* de vijf sleutels in een waaier */
+    const fail = Math.max(0, 1 - (now - keyFailT) / 600);
+    for (let i = 0; i < (pz.keys || []).length; i++) {
+      const cfg = pz.keys[i];
+      const prog = keyProgs[i];
+      /* rammel: de vastgepakte sleutel wiebelt zacht, zijn BUREN rammelen mee; bij een misser danst alles */
+      let jig = 0;
+      if (keySel === i) jig = Math.sin(now / 55) * 1.6;
+      else if (keySel >= 0 && Math.abs(keySel - i) === 1) jig = Math.sin(now / 48 + i) * 2.6;
+      if (fail > 0) jig += Math.sin(now / 34 + i * 2.1) * 5 * fail;
+      const ang = (KEY_ANGLES[i] + jig) * Math.PI / 180;
+      const slide = prog * 0.62;                      // uittrek-afstand langs zijn eigen richting
+      x.save();
+      x.translate(cx, cy + ringR - 6);
+      x.rotate(ang);
+      x.translate(0, slide);
+      const [c1, c2] = KEY_COLS[cfg.col] || KEY_COLS.goud;
+      /* beugel (oog) om de ring */
+      x.strokeStyle = c2; x.lineWidth = 4.5;
+      x.beginPath(); x.arc(0, 0, 9, 0, Math.PI * 2); x.stroke();
+      x.strokeStyle = c1; x.lineWidth = 2.4;
+      x.beginPath(); x.arc(0, 0, 9, 0, Math.PI * 2); x.stroke();
+      /* steel */
+      const kg = x.createLinearGradient(-3, 0, 3, 0);
+      kg.addColorStop(0, c2); kg.addColorStop(0.5, c1); kg.addColorStop(1, c2);
+      x.fillStyle = kg;
+      x.fillRect(-2.6, 9, 5.2, shaft - 9);
+      /* tanden (rechts van de steel, onderaan) */
+      x.fillStyle = c1;
+      for (let t = 0; t < cfg.teeth; t++) {
+        x.fillRect(2.6, shaft - 8 - t * 9, 8, 5.4);
+      }
+      x.strokeStyle = 'rgba(0,0,0,.35)'; x.lineWidth = 1;
+      x.strokeRect(-2.6, 9, 5.2, shaft - 9);
+      x.restore();
+    }
     /* geluidsmeter onderin */
-    const mx = 34, mw = W - 68, my = H - 52;
+    const mx = 34, mw = W - 68, my = H - 44;
     x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(mx - 2, my - 2, mw + 4, 18);
     const zones = [[0, 0.62, 'rgba(126,230,110,.25)'], [0.62, 0.85, 'rgba(255,210,110,.25)'], [0.85, 1, 'rgba(255,90,70,.3)']];
     for (const [a, b2, col] of zones) { x.fillStyle = col; x.fillRect(mx + mw * a, my, mw * (b2 - a), 14); }
@@ -4324,22 +4373,34 @@
     x.strokeStyle = '#8a6a3a'; x.lineWidth = 2; x.strokeRect(mx - 2, my - 2, mw + 4, 18);
     x.font = 'bold 11px Georgia, serif'; x.fillStyle = '#e7cf86';
     x.fillText(lang === 'nl' ? 'GELUID' : 'NOISE', W / 2, my - 10);
-    /* rode flits bij een misser */
-    const slip = Math.max(0, 1 - (now - keyFailT) / 600);
-    if (keyFailT && slip > 0) { x.fillStyle = 'rgba(255,70,50,' + (0.20 * slip).toFixed(3) + ')'; x.fillRect(0, 0, W, H); }
+    if (keyFailT && fail > 0) { x.fillStyle = 'rgba(255,70,50,' + (0.20 * fail).toFixed(3) + ')'; x.fillRect(0, 0, W, H); }
+  }
+  function keyHitTest(px, py) {                        // welke sleutel pak je vast?
+    const cv = elDialCanvas, pz = keyHs && keyHs.keyPuzzle;
+    if (!pz) return -1;
+    const { cx, cy, ringR, shaft } = keyGeom(cv);
+    for (let i = 0; i < (pz.keys || []).length; i++) {
+      const ang = KEY_ANGLES[i] * Math.PI / 180;
+      const slide = keyProgs[i] * 0.62;
+      /* punt naar sleutel-lokale co\u00f6rdinaten (pivot onder de ring) */
+      const dx = px - cx, dy = py - (cy + ringR - 6);
+      const lx = dx * Math.cos(-ang) - dy * Math.sin(-ang);
+      const ly = dx * Math.sin(-ang) + dy * Math.cos(-ang);
+      if (lx >= -13 && lx <= 15 && ly >= slide - 4 && ly <= slide + shaft + 8) return i;
+    }
+    return -1;
   }
   {
-    const bl = document.getElementById('dial-left');
-    const startHold = (e) => { if (keyHs && !keySolvedK) { keyHold = true; e.preventDefault(); } };
-    const endHold = () => { keyHold = false; };
-    if (bl) {
-      bl.addEventListener('pointerdown', startHold);
-      bl.addEventListener('pointerup', endHold);
-      bl.addEventListener('pointerleave', endHold);
-      bl.addEventListener('pointercancel', endHold);
-    }
+    const endHold = () => { keySel = -1; };
     if (elDialCanvas) {
-      elDialCanvas.addEventListener('pointerdown', startHold);
+      elDialCanvas.addEventListener('pointerdown', (e) => {
+        if (!keyHs || keySolvedK) return;
+        const rc = elDialCanvas.getBoundingClientRect();
+        const px = (e.clientX - rc.left) * (elDialCanvas.width / rc.width);
+        const py = (e.clientY - rc.top) * (elDialCanvas.height / rc.height);
+        const hit = keyHitTest(px, py);
+        if (hit >= 0) { keySel = hit; e.preventDefault(); }
+      });
       elDialCanvas.addEventListener('pointerup', endHold);
       elDialCanvas.addEventListener('pointerleave', endHold);
       elDialCanvas.addEventListener('pointercancel', endHold);
@@ -5345,7 +5406,7 @@
         if (action.needItem && !state.inventory.includes(action.needItem)) {
           sfx('error');
           say(action.needText || GAME.strings.noEffect, hsSpeaker(hs), hsFace(hs));
-        } else if (action.requiresFlag && !state.flags[action.requiresFlag]) {
+        } else if (action.requiresFlag && (Array.isArray(action.requiresFlag) ? action.requiresFlag.some((f) => !state.flags[f]) : !state.flags[action.requiresFlag])) {
           /* Voorwaarde niet gehaald. Heb je een voorwerp vast dat pas ná een puzzel
              werkt (bv. de sleutel op de fontein), open dan tóch de puzzel i.p.v. te
              blokkeren — zo kun je de puzzel altijd doen, ook met de sleutel in de hand. */
@@ -5451,6 +5512,21 @@
       sfx('win');
       say(hs.enterText || GAME.winText);
       pendingWin = true;                                // bij wegtikken van de tekst → fade naar de eindkaart
+      return;
+    }
+    /* Afleiding (bv. tokkelen op de kettingen): zet een vlag zodat een npc zich omdraait. */
+    if (hs.distract) {
+      const d = hs.distract;
+      if (d.requiresFlag && !state.flags[d.requiresFlag]) {
+        sfx('error');
+        say(d.blockedText || lookText(hs), hsSpeaker(hs));
+        return;
+      }
+      if (state.flags[d.setFlag]) { say(d.doneText || lookText(hs), hsSpeaker(hs)); return; }
+      state.flags[d.setFlag] = true;
+      sfx('bark');
+      updateQuest();
+      say(d.text, hsSpeaker(hs));
       return;
     }
     if (hs.exit) {
