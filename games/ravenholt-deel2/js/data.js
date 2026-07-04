@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '176',
+  assetVer: '177',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -81,8 +81,8 @@ const GAME = {
   startFlags: ['mapFiled', 'spellWritten', 'gotRecipe', 'dragonSpellLearned'],
 
   winText: {
-    nl: 'Gefeliciteerd — je hebt DEEL 2 van Whispers of Ravenholt uitgespeeld! Je verzamelde drie spreuken, verduisterde de zon, sloop onzichtbaar langs de wachter én kraakte het kerkerslot — je vader is VRIJ! Samen op weg naar buiten... maar dat verhaal bewaren we voor DEEL 3. Knap gedaan, held — tot snel!',
-    en: 'Congratulations — you have completed PART 2 of Whispers of Ravenholt! You gathered three spells, eclipsed the sun, slipped invisibly past the guard AND cracked the dungeon lock — your father is FREE! Together you head for the way out... but that tale we save for PART 3. Well done, hero — see you soon!'
+    nl: 'Gefeliciteerd — je hebt Whispers of Ravenholt UITGESPEELD! Je verzamelde drie spreuken, verduisterde de zon, sloop onzichtbaar langs de wachter én kraakte het kerkerslot — je vader is VRIJ! Samen lopen jullie de trap op, het daglicht tegemoet. Knap gedaan, held!',
+    en: 'Congratulations — you BEAT Whispers of Ravenholt! You gathered three spells, eclipsed the sun, slipped invisibly past the guard AND cracked the dungeon lock — your father is FREE! Together you climb the stairs toward the daylight. Well done, hero!'
   },
 
   strings: {
@@ -97,7 +97,7 @@ const GAME = {
                   en: 'Finn has slipped through the gate into the castle of Eldoria. A squire keeps watch in the courtyard, and beyond an ivy-clad arch lies a secret garden — where the princess he secretly loves walks among the roses. But Finn did not come for the roses: somewhere deep in the keep his father is held captive, and the only way in is the great castle door, sealed with an ancient lock.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
-    winTitle:   { nl: 'Deel 2 uitgespeeld!', en: 'Part 2 complete!' },
+    winTitle:   { nl: 'Het spel uitgespeeld!', en: 'You beat the game!' },
     replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
     playOther:  { nl: '▸ Speel een ander avontuur', en: '▸ Play another adventure' },
     deathTitle: { nl: 'Verloren in de mist...', en: 'Lost in the fog...' },
@@ -1125,7 +1125,7 @@ const GAME = {
               consume: 'cellkey',
               setFlag: 'fatherFreed',
               win: true,
-              text: { nl: 'De gouden sleutel glijdt in het glinsterende slot... KLIK. De zware celdeur zwaait piepend open en je vader stapt naar buiten. Hij tilt je op in een omhelzing die alles goedmaakt. “Mijn jongen... je hebt me gevonden én bevrijd.” Samen sluipen jullie muisstil langs de neuriënde wachter, de trap op, richting het daglicht... (wordt vervolgd in Deel 3)', en: 'The golden key slides into the glittering lock... CLICK. The heavy cell door creaks open and your father steps out. He lifts you into a hug that makes up for everything. “My boy... you found me AND freed me.” Together you slip silently past the humming guard, up the stairs, toward the daylight... (to be continued in Part 3)' }
+              text: { nl: 'De gouden sleutel glijdt in het glinsterende slot... KLIK. De zware celdeur zwaait piepend open en je vader stapt naar buiten. Hij tilt je op in een omhelzing die alles goedmaakt. “Mijn jongen... je hebt me gevonden én bevrijd.” Samen lopen jullie muisstil langs de wachter, de trap op, richting het daglicht — vrij!', en: 'The golden key slides into the glittering lock... CLICK. The heavy cell door creaks open and your father steps out. He lifts you into a hug that makes up for everything. “My boy... you found me AND freed me.” Together you slip silently past the guard, up the stairs, toward the daylight — free!' }
             }
           },
         }
