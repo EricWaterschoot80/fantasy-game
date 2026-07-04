@@ -2031,9 +2031,9 @@
           const fl = Math.pow(0.5 + 0.5 * Math.sin(now / 170 + e * 1.9), 2);   // onafhankelijk flikkeren
           const ex = Math.round(wi.x + EP[e][0]), ey = Math.round(wi.y + bob + EP[e][1]);
           const a = (0.14 + 0.55 * fl) * ei;
-          if (fl > 0.5) { fctx.fillStyle = `rgba(255,150,60,${0.28 * fl * ei})`; fctx.fillRect(ex - 1, ey - 1, 3, 3); }   // zachte gloed
-          fctx.fillStyle = `rgba(255,${90 + Math.round(90 * fl)},35,${a})`;   // rood->oranje sintel
-          fctx.fillRect(ex, ey, 2, 2);
+          if (fl > 0.6) { fctx.fillStyle = `rgba(255,150,60,${0.20 * fl * ei})`; fctx.fillRect(ex, ey - 1, 1, 2); }   // heel zacht gloedje (1x2)
+          fctx.fillStyle = `rgba(255,${90 + Math.round(90 * fl)},35,${a})`;   // rood->oranje sintel (1px)
+          fctx.fillRect(ex, ey, 1, 1);
         }
       }
     }
