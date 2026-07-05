@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '183',
+  assetVer: '185',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -816,7 +816,7 @@ const GAME = {
       fx: {
         bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' },   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
         mageGlow: { x: 150, y: 205, r: 15, a: 0.42, hideFlag: 'wizardTripping' },   // paars-blauwe gloed van de tovenaarsstaf (dooft tijdens de trance)
-        candleBowl: { x: 108, y: 244, smokeFlag: 'wizardTripping' }   // schaal met kaarsen links van de tovenaar; rook stijgt op zodra de paddenstoelen erin gaan
+        candleBowl: { x: 110, y: 262, w: 46, h: 66, img: 'assets/art/altar-censer.png', smokeFlag: 'wizardTripping' }   // klein altaar met bronzen schaal + kaarsen links van de tovenaar; lichte rook altijd, zwaar zodra de paddenstoelen erin gaan
       },
       npcs: [
         { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 190, y: 263, scale: 0.9, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping' },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
@@ -867,12 +867,12 @@ const GAME = {
         },
         {
           id: 'candleBowl',
-          name: { nl: 'De Schaal met Kaarsen', en: 'The Bowl of Candles' },
-          rect: { x: 84, y: 210, w: 56, h: 52 },
+          name: { nl: 'Het Kaarsen-Altaar', en: 'The Candle Altar' },
+          rect: { x: 86, y: 196, w: 52, h: 66 },
           walkTo: { x: 150, y: 262 },
           look: (state) => state.flags.wizardTripping
-            ? { nl: 'Uit de bronzen schaal kringelt een dikke, zoetige rook omhoog — de paddenstoelen smeulen tussen de kaarsen. De tovenaar staat er middenin te dromen.', en: 'Thick sweet smoke curls up from the bronze bowl — the mushrooms smoulder among the candles. The wizard stands in it, dreaming.' }
-            : { nl: 'Naast de tovenaar staat een bronzen offerschaal op een sokkel, met een paar brandende kaarsen eromheen. Wat je er ook in legt, de vlammetjes doen het smeulen... Zou hier iets in kunnen dat de tovenaar bedwelmt?', en: 'Beside the wizard stands a bronze offering bowl on a pedestal, ringed with a few burning candles. Whatever you place in it, the little flames make it smoulder... Could something go in here to daze the wizard?' },
+            ? { nl: 'Op het altaar smeulen de paddenstoelen tussen de kaarsen; een dikke, zoetige rook kringelt omhoog. De tovenaar staat er middenin dromerig te wankelen.', en: 'On the altar the mushrooms smoulder among the candles; thick sweet smoke curls up. The wizard totters dreamily in the midst of it.' }
+            : { nl: 'Op een klein stenen altaar rust een bronzen offerschaal, omringd door drie flakkerende kaarsen. In de schaal liggen wat verdroogde kruiden en harskorrels die zachtjes smeulen — er hangt een vreemde, zware geur omheen, en een ijl rookslierten kringelt op. Wat je hier ook op gooit, de kaarsen doen het smeulen... iets bedwelmends misschien?', en: 'On a small stone altar rests a bronze offering bowl, ringed by three flickering candles. In the bowl lie some dried herbs and resin grains, softly smouldering — a strange, heavy smell hangs about it and a thin wisp of smoke curls up. Whatever you toss on here, the candles make it smoulder... something intoxicating, perhaps?' },
           use: {
             mushroom: {
               consume: 'mushroom',

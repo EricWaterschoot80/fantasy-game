@@ -1595,57 +1595,52 @@
        sintel-puntjes die vrijwel stil liggen en alleen rustig na-gloeien.
        Dooft zodra doneFlag is gezet (houtskool gepakt). */
     /* Paars-blauwe gloed van de tovenaarsstaf (klopt zacht) */
-    /* Bronzen schaal met kaarsen links van de tovenaar; rook stijgt op zodra de paddenstoelen erin liggen */
+    /* Altaar met bronzen schaal en kaarsen (afbeelding) links van de tovenaar.
+       Lichte rook stijgt altijd op; wordt zwaarder zodra de paddenstoelen erin liggen (smokeFlag). */
     if (fx.candleBowl) {
-      const cb = fx.candleBowl, bx = cb.x, by = cb.y;
-      const smoking = cb.smokeFlag && state.flags[cb.smokeFlag];
-      /* sokkel */
-      fctx.fillStyle = '#3b3026'; fctx.fillRect(bx - 4, by - 2, 8, 10);
-      fctx.fillStyle = '#4a3d2e'; fctx.fillRect(bx - 6, by + 7, 12, 3);
-      /* bronzen schaal (ondiepe kom) */
-      fctx.fillStyle = '#7a5a2c';
-      fctx.beginPath(); fctx.ellipse(bx, by - 3, 10, 4, 0, 0, Math.PI * 2); fctx.fill();
-      fctx.fillStyle = '#9a7638';
-      fctx.beginPath(); fctx.ellipse(bx, by - 4, 9, 3, 0, 0, Math.PI); fctx.fill();
-      fctx.fillStyle = smoking ? '#5a4a26' : '#3a2c18';
-      fctx.beginPath(); fctx.ellipse(bx, by - 4, 7, 2.2, 0, 0, Math.PI * 2); fctx.fill();
-      /* smeulende paddenstoelen in de schaal */
-      if (smoking) {
+      const cb = fx.candleBowl;
+      if (!cb._img && cb.img) { cb._img = new Image(); cb._img.src = cb.img + AV; }
+      const cx = cb.x, baseY = cb.y;                    // cb.x = midden, cb.y = voet op de vloer
+      const W = cb.w || 44, H = cb.h || 64;
+      const topY = baseY - H;
+      if (ready(cb._img)) fctx.drawImage(cb._img, cx - W / 2, topY, W, H);
+      const bowlY = topY + H * 0.30;                    // hoogte van de schaal-rand
+      const heavy = cb.smokeFlag && state.flags[cb.smokeFlag];
+      /* smeulende paddenstoelen-gloed in de schaal (alleen zwaar) */
+      if (heavy) {
         for (let i = 0; i < 3; i++) {
-          const gx = bx - 4 + i * 4, ga = 0.4 + 0.4 * (0.5 + 0.5 * Math.sin(now / 300 + i * 2));
+          const gx = cx - 4 + i * 4, ga = 0.4 + 0.4 * (0.5 + 0.5 * Math.sin(now / 300 + i * 2));
           fctx.fillStyle = `rgba(255,150,60,${ga.toFixed(3)})`;
-          fctx.fillRect(gx, by - 5, 2, 2);
+          fctx.fillRect(gx, bowlY - 1, 2, 2);
         }
       }
-      /* drie kaarsen op de rand met flikkerende vlammetjes */
-      const cands = [[-9, -1], [0, -3], [9, -1]];
+      /* flikkerende vlammetjes-effect op de kaarsen (rond de rand) */
+      const cands = [[-0.28, 0.02], [0, -0.04], [0.28, 0.02]];
       for (let i = 0; i < cands.length; i++) {
-        const cx = bx + cands[i][0], cy = by + cands[i][1];
-        fctx.fillStyle = '#e8e0cf'; fctx.fillRect(cx - 1, cy - 8, 2, 8);        // kaars
-        const fl = 0.6 + 0.4 * Math.sin(now / (110 + i * 37) + i);
-        const fy = cy - 8 - Math.round(2 + fl * 2);
-        const g = fctx.createRadialGradient(cx, fy + 2, 0.5, cx, fy + 2, 5);   // gloed
-        g.addColorStop(0, `rgba(255,200,110,${(0.5 * fl).toFixed(3)})`);
-        g.addColorStop(1, 'rgba(255,160,60,0)');
-        fctx.fillStyle = g; fctx.fillRect(cx - 5, fy - 3, 10, 10);
-        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(cx, fy, 1, cy - 8 - fy);     // vlam
-        fctx.fillStyle = '#fff3c0'; fctx.fillRect(cx, fy + 1, 1, 2);          // hart
+        const fx0 = cx + cands[i][0] * W, fy0 = bowlY + cands[i][1] * H;
+        const fl = 0.6 + 0.4 * Math.sin(now / (110 + i * 41) + i * 2);
+        const gr = fctx.createRadialGradient(fx0, fy0 - 2, 0.5, fx0, fy0 - 2, 6);   // warme gloed
+        gr.addColorStop(0, `rgba(255,205,110,${(0.55 * fl).toFixed(3)})`);
+        gr.addColorStop(1, 'rgba(255,160,60,0)');
+        fctx.fillStyle = gr; fctx.fillRect(fx0 - 6, fy0 - 8, 12, 12);
+        const ftip = fy0 - 4 - Math.round(2 + fl * 2);                              // dansende vlamtong
+        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(Math.round(fx0), ftip, 1, fy0 - 3 - ftip);
+        fctx.fillStyle = '#fff3c0'; fctx.fillRect(Math.round(fx0), ftip + 1, 1, 2);
       }
-      /* dikke, zoetige rook die opstijgt naar de tovenaar */
-      if (smoking) {
-        for (let i = 0; i < 10; i++) {
-          const t = ((now / 1100) + i / 10) % 1;
-          const sy = by - 6 - t * 58;
-          const drift = Math.sin(now / 640 + i * 1.7) * 7 + t * 20;   // dwarrelt en drijft naar rechts (naar de tovenaar)
-          const sx = bx + drift;
-          const a = (1 - t) * 0.5;
-          const r = 4 + t * 10;
-          const g = fctx.createRadialGradient(sx, sy, 0.5, sx, sy, r);
-          g.addColorStop(0, `rgba(200,215,175,${a.toFixed(3)})`);
-          g.addColorStop(0.6, `rgba(190,205,165,${(a*0.5).toFixed(3)})`);
-          g.addColorStop(1, 'rgba(190,205,165,0)');
-          fctx.fillStyle = g; fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
-        }
+      /* rook: altijd een fijn sliertje; dik en zoetig zodra de paddenstoelen smeulen */
+      const nPuff = heavy ? 10 : 4;
+      for (let i = 0; i < nPuff; i++) {
+        const t = ((now / (heavy ? 1100 : 1500)) + i / nPuff) % 1;
+        const sy = bowlY - 4 - t * (heavy ? 60 : 40);
+        const drift = Math.sin(now / (heavy ? 640 : 900) + i * 1.7) * (heavy ? 7 : 3.5) + t * (heavy ? 20 : 7);
+        const sx = cx + drift;
+        const a = (1 - t) * (heavy ? 0.5 : 0.26);
+        const r = (heavy ? 4 : 3) + t * (heavy ? 10 : 6);
+        const g = fctx.createRadialGradient(sx, sy, 0.5, sx, sy, r);
+        g.addColorStop(0, `rgba(200,215,175,${a.toFixed(3)})`);
+        g.addColorStop(0.6, `rgba(190,205,165,${(a * 0.5).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(190,205,165,0)');
+        fctx.fillStyle = g; fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
       }
     }
     if (fx.mageGlow && !(fx.mageGlow.hideFlag && state.flags[fx.mageGlow.hideFlag])) {

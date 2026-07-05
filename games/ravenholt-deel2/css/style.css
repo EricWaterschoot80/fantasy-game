@@ -1547,3 +1547,25 @@ body:has(.overlay:not([hidden]):not(#rotate-hint)) .round-btn.save { display: no
   0%, 100% { box-shadow: 0 0 0 2px #17110d, 0 0 8px rgba(255,211,107,.25), inset 0 2px 0 #ffe9ad, inset 0 -2px 0 #8a6420; }
   50%      { box-shadow: 0 0 0 2px #17110d, 0 0 18px rgba(255,211,107,.55), inset 0 2px 0 #ffe9ad, inset 0 -2px 0 #8a6420; }
 }
+
+/* ---------- Desktop: home + account óók bovenin (rechts naast het oogje) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .round-btn.home {
+    top: calc(var(--safe-top) + 8px);
+    left: 212px;
+    right: auto;
+    bottom: auto;
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+  #ra-acc-btn {
+    top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+    left: 262px !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 0 !important;
+  }
+}
