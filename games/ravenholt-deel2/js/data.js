@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '192',
+  assetVer: '193',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -577,13 +577,19 @@ const GAME = {
               { label: { nl: 'Gaat het wel met je?', en: 'Are you alright?' },
                 text: { nl: 'Haar glimlach verflauwt. “Eerlijk gezegd... niet helemaal. Ik ben iets dierbaars kwijt — de gouden ketting van mijn moeder. Hij gleed van mijn hals, diep de oude put op de binnenplaats in. Ik zou er álles voor geven om hem terug te zien.”', en: 'Her smile fades. “Honestly... not quite. I’ve lost something dear — my mother’s gold necklace. It slipped from my neck, deep down the old well in the courtyard. I’d give anything to see it again.”' } },
               { label: { nl: 'Mijn vader', en: 'My father' },
-                text: { nl: 'Je vertelt zacht dat je vader ergens diep in het kasteel gevangen wordt gehouden. Ze knijpt even in je hand. “Wees voorzichtig, Finn. Ik wou dat ik je kon helpen, maar de burcht zit potdicht — er is geen weg naar binnen die ik ken.”', en: 'You tell her softly that your father is held captive somewhere deep in the castle. She squeezes your hand. “Be careful, Finn. I wish I could help you, but the keep is sealed tight — there’s no way in that I know of.”' } },
+                text: (state) => state.flags.fountainSolved
+                  ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “Het verborgen slot achter de leeuwenfontein is nu onthuld — de sleutel die ik je gaf past erop. Ga erdoorheen, Finn, en wees voorzichtig.”', en: 'You speak softly of your captive father. She squeezes your hand. “The hidden lock behind the lion fountain is revealed now — the key I gave you fits it. Go through it, Finn, and be careful.”' }
+                  : state.flags.gaveNecklace
+                  ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “Ik gaf je de sleutel — los nu de schuifpuzzel bij de leeuwenfontein op. Dan verschijnt het verborgen slot in de muur. Wees voorzichtig, Finn.”', en: 'You speak softly of your captive father. She squeezes your hand. “I gave you the key — now solve the sliding puzzle at the lion fountain. The hidden lock will appear in the wall. Be careful, Finn.”' }
+                  : { nl: 'Je vertelt zacht dat je vader ergens diep in het kasteel gevangen wordt gehouden. Ze knijpt even in je hand en aarzelt. “Wees voorzichtig, Finn. Er ís misschien een verborgen weg naar binnen... maar zo’n geheim kan ik alleen toevertrouwen aan iemand die ik écht ken.” Ze kijkt je peinzend aan.', en: 'You tell her softly that your father is held captive deep in the castle. She squeezes your hand and hesitates. “Be careful, Finn. There may be a hidden way in... but such a secret I can only entrust to someone I truly know.” She gives you a thoughtful look.' } },
               { label: { nl: 'Tot ziens', en: 'Goodbye' },
                 text: { nl: '“Blijf niet te lang weg, Finn,” zegt ze zacht, en ze glimlacht.', en: '“Don’t stay away too long, Finn,” she says softly, and smiles.' } }
             ]
           },
           look: (state) => state.flags.gaveNecklace
-            ? { nl: 'De prinses draagt de ketting van haar moeder weer en straalt. “Dankzij jou, Finn. Wees voorzichtig achter die deur — en kom alsjeblieft weer terug.” Haar glimlach maakt je sprakeloos.', en: 'The princess wears her mother’s necklace again and beams. “Thanks to you, Finn. Be careful beyond that door — and please, come back to me.” Her smile leaves you speechless.' }
+            ? (state.flags.fountainSolved
+                ? { nl: 'De prinses straalt met de ketting van haar moeder om haar hals. “Het verborgen slot achter de leeuwenfontein is onthuld, Finn — jouw sleutel past erop. Wees voorzichtig daarachter, en kom alsjeblieft weer terug.”', en: 'The princess beams, her mother’s necklace around her neck. “The hidden lock behind the lion fountain is revealed now, Finn — your key fits it. Be careful beyond it, and please come back to me.”' }
+                : { nl: 'De prinses draagt de ketting van haar moeder weer en straalt. “Dankzij jou, Finn. Los de schuifpuzzel bij de leeuwenfontein op, dan verschijnt het verborgen slot in de muur — daar past de sleutel die ik je gaf. En kom alsjeblieft weer terug.”', en: 'The princess wears her mother’s necklace again and beams. “Thanks to you, Finn. Solve the sliding puzzle at the lion fountain and the hidden lock will appear in the wall — the key I gave you fits it. And please, come back to me.”' })
             : state.flags.metPrincess
             ? { nl: 'De prinses zucht. “Die ketting was alles wat ik nog van mijn moeder had — hij viel diep in de oude put op de binnenplaats. Kon iemand hem er maar uithalen...”', en: 'The princess sighs. “That necklace was all I had left of my mother — it fell deep down the old well in the courtyard. If only someone could fish it out...”' }
             : { nl: 'Tussen de rozen wandelt de prinses op wie Finn al sinds zijn jeugd stiekem verliefd is. Zijn hart bonkt. Ze kijkt op, een beetje droevig: “Een nieuw gezicht in mijn tuin... vergeef me dat ik geen vrolijk gezelschap ben — ik ben de ketting van mijn moeder verloren, gevallen in de oude put.”', en: 'Among the roses walks the princess Finn has secretly loved since childhood. His heart pounds. She looks up, a little sad: “A new face in my garden... forgive me for being poor company — I’ve lost my mother’s necklace, dropped down the old well.”' },
