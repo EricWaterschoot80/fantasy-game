@@ -1604,7 +1604,7 @@
       const W = cb.w || 44, H = cb.h || 64;
       const topY = baseY - H;
       if (ready(cb._img)) fctx.drawImage(cb._img, cx - W / 2, topY, W, H);
-      const bowlY = topY + H * 0.30;                    // hoogte van de schaal-rand
+      const bowlY = topY + H * 0.24;                    // hoogte van de kaars-vlammen in de schaal
       const heavy = cb.smokeFlag && state.flags[cb.smokeFlag];
       /* smeulende paddenstoelen-gloed in de schaal (alleen zwaar) */
       if (heavy) {
@@ -1614,8 +1614,8 @@
           fctx.fillRect(gx, bowlY - 1, 2, 2);
         }
       }
-      /* flikkerende vlammetjes-effect op de kaarsen (rond de rand) */
-      const cands = [[-0.28, 0.02], [0, -0.04], [0.28, 0.02]];
+      /* flikkerende vlammetjes-effect op de drie kaarsen ín de schaal (geclusterd in het midden) */
+      const cands = [[-0.10, 0.03], [0, -0.03], [0.10, 0.03]];
       for (let i = 0; i < cands.length; i++) {
         const fx0 = cx + cands[i][0] * W, fy0 = bowlY + cands[i][1] * H;
         const fl = 0.6 + 0.4 * Math.sin(now / (110 + i * 41) + i * 2);
@@ -1660,8 +1660,15 @@
       gc.addColorStop(0, `rgba(210,190,255,${(0.7 * (0.7 + 0.3 * pulse)).toFixed(3)})`);
       gc.addColorStop(1, 'rgba(170,140,255,0)');
       fctx.fillStyle = gc; fctx.fillRect(m.x - rc, m.y - rc, rc * 2, rc * 2);
-      // af en toe een fonkel bij de orb
-      if (((now / 500) | 0) % 2 === 0) twinkle(m.x + 2, m.y - 2, 0.4 + 0.4 * pulse, '200,180,255');
+      // glinster-effect: meerdere paars/blauwe fonkels rond de bol, elk in eigen ritme
+      if (m.sparkle) {
+        const SP = [[0, -3], [3, 1], [-3, 1], [1, -1]];
+        for (let i = 0; i < SP.length; i++) {
+          const ta = 0.25 + 0.6 * (0.5 + 0.5 * Math.sin(now / (360 + i * 90) + i * 1.7));
+          if (ta < 0.32) continue;
+          twinkle(m.x + SP[i][0] + Math.sin(now / 700 + i) * 1.5, m.y + SP[i][1] + Math.cos(now / 820 + i) * 1.5, ta, i % 2 ? '190,170,255' : '150,190,255');
+        }
+      } else if (((now / 500) | 0) % 2 === 0) twinkle(m.x + 2, m.y - 2, 0.4 + 0.4 * pulse, '200,180,255');
     }
     if (fx.emberGlow && !(fx.emberGlow.doneFlag && state.flags[fx.emberGlow.doneFlag])) {
       const e = fx.emberGlow;
