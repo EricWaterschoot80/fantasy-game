@@ -1839,15 +1839,20 @@
     /* Gouden glinster op het celslot (bv. zodra je de gouden sleutel hebt) */
     if (fx.lockGlint && (!fx.lockGlint.requiresFlag || state.flags[fx.lockGlint.requiresFlag]) && !(fx.lockGlint.doneFlag && state.flags[fx.lockGlint.doneFlag])) {
       const l = fx.lockGlint;
+      const R = l.r || 13;                                       // straal van de gloed (kleiner = kleiner glinstertje)
+      const col = l.col || '255,220,130';                        // gloed-kleur (bv. zilver)
+      const colOut = l.colOut || '255,215,120';
+      const twCol = l.twCol || '255,230,150';                    // fonkel-kleur
+      const sparkCol = l.sparkCol || '255,245,200';
       const a = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(now / 460));
-      const g2 = fctx.createRadialGradient(l.x, l.y, 1, l.x, l.y, 13);
-      g2.addColorStop(0, `rgba(255,220,130,${(a * 0.7).toFixed(3)})`);
-      g2.addColorStop(1, 'rgba(255,215,120,0)');
-      fctx.fillStyle = g2; fctx.fillRect(l.x - 13, l.y - 13, 26, 26);
-      twinkle(l.x, l.y, a, '255,230,150');
+      const g2 = fctx.createRadialGradient(l.x, l.y, 1, l.x, l.y, R);
+      g2.addColorStop(0, `rgba(${col},${(a * 0.7).toFixed(3)})`);
+      g2.addColorStop(1, `rgba(${colOut},0)`);
+      fctx.fillStyle = g2; fctx.fillRect(l.x - R, l.y - R, R * 2, R * 2);
+      twinkle(l.x, l.y, a, twCol);
       const spark = ((now / 380) | 0) % 3;                       // wisselende fonkel-plek rondom het slot
       const so = [[3, -3], [-3, 2], [2, 3]][spark];
-      twinkle(l.x + so[0], l.y + so[1], a * 0.85, '255,245,200');
+      twinkle(l.x + so[0], l.y + so[1], a * 0.85, sparkCol);
     }
     /* Fontein klatert alléén als de molen weer draait (requiresFlag, bv. millFixed);
        daarvoor staat de bron droog. Meerdere straaltjes mogelijk (links + rechts). */
