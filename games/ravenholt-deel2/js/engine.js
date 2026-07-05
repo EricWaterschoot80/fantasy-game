@@ -50,7 +50,7 @@
   const elCutsceneVid = document.getElementById('cutscene-video');
   const elCutsceneSkip = document.getElementById('cutscene-skip');
 
-  const MIN_SLOTS = 8;
+  const MIN_SLOTS = 12;
   const WALK_SPEED = 80;
   const ARRIVE_DIST = 4;
 
@@ -3191,6 +3191,8 @@
   function showNextMsg() {
     elMsg.hidden = true;
     elBubble.hidden = true;
+    choiceActive = false;                              // keuzemenu is klaar zodra je verder klikt/sluit
+    if (elChoiceOpts) { elChoiceOpts.hidden = true; elChoiceOpts.innerHTML = ''; }
     if (msgQueue.length === 0) {
       if (pendingWin) { pendingWin = false; revive = { t0: performance.now() }; }
       updateQuest();                                   // doel-tip weer tonen (als (i) aan staat) nu de dialoog klaar is
@@ -5751,7 +5753,7 @@
       if (!gwOK && !cwOK) {
         sfx('error');
         const it = GAME.items[sel];
-        say((it && it.noUseText) || GAME.strings.noEffect);
+        showToast(L((it && it.noUseText) || GAME.strings.noEffect));   // korte toast, geen tekstwolk die je moet wegklikken
         return;
       }
       /* anders: val door naar givesWhen / castWith hieronder */
