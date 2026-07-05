@@ -1603,7 +1603,16 @@
       const cx = cb.x, baseY = cb.y;                    // cb.x = midden, cb.y = voet op de vloer
       const W = cb.w || 44, H = cb.h || 64;
       const topY = baseY - H;
-      if (ready(cb._img)) fctx.drawImage(cb._img, cx - W / 2, topY, W, H);
+      const eclNight = state.currentScene === 'library' && state.flags.eclipseActive;   // zonsverduistering: altaar in blauwe nachtschaduw
+      if (ready(cb._img)) {
+        if (eclNight) { fctx.save(); fctx.filter = 'brightness(0.5) saturate(0.7) hue-rotate(8deg)'; }
+        fctx.drawImage(cb._img, cx - W / 2, topY, W, H);
+        if (eclNight) {
+          fctx.restore();
+          fctx.save(); fctx.fillStyle = 'rgba(70,110,200,0.16)';   // zachte blauwe wash (sterrenhemel)
+          fctx.fillRect(cx - W / 2, topY, W, H * 0.62); fctx.restore();
+        }
+      }
       const bowlY = topY + H * 0.24;                    // hoogte van de kaars-vlammen in de schaal
       const heavy = cb.smokeFlag && state.flags[cb.smokeFlag];
       /* smeulende paddenstoelen-gloed in de schaal (alleen zwaar) */
@@ -2464,7 +2473,8 @@
     }
     /* ONZICHTBAAR: in de kerker is Finn na de spreuk niet meer dan een rimpeling —
        half doorschijnend met een zachte blauwe schittering eromheen. */
-    const ghost = state.currentScene === 'dungeon' && state.flags.guardPassed && !state.flags.fatherFreed;
+    const ghost = (state.currentScene === 'dungeon' && state.flags.guardPassed && !state.flags.fatherFreed)
+      || (state.currentScene === 'library' && state.flags.libTestInvis);   // testmodus in de bieb
     if (ghost) {
       fctx.globalAlpha = 0.34 + 0.06 * Math.sin(now / 480);          // zachtjes pulserend doorschijnend
       const gr = 30, ga = 0.10 + 0.05 * Math.sin(now / 600);
@@ -2588,6 +2598,12 @@
     if (npc.sprite === 'minotaur' && state.currentScene === 'temple' && !state.flags.torchLit) f = 'brightness(0.4)';
     /* Eigen NPC-filter erbij (bv. de muis in de schaduw, donkerder). */
     if (npc.filter) f = (f === 'none') ? npc.filter : (f + ' ' + npc.filter);
+    /* Tijdens de zonsverduistering in de bieb worden de figuren (tovenaar, raaf) donkerder
+       met een blauwe nachtgloed — net als Finn. */
+    if (state.currentScene === 'library' && state.flags.eclipseActive) {
+      const ecl = 'brightness(0.55) saturate(0.8) hue-rotate(6deg)';
+      f = (f === 'none') ? ecl : (f + ' ' + ecl);
+    }
     if (f !== 'none') {
       if (FILTER_OK) { fctx.filter = f; drawNpcInner(npc, now); fctx.filter = 'none'; }
       else { currentTint = f; drawNpcInner(npc, now); currentTint = null; }
@@ -2723,6 +2739,7 @@
         npcInAwe = true;
       } else if (!npcStopped && npc.aweSprite && npc.aweFlag && state.flags[npc.aweFlag] && ready(art.sprites[npc.aweSprite])) {
         img = art.sprites[npc.aweSprite];
+        npcInAwe = true;                                  // ook de enkelvoud-aweSprite (tovenaar-slaap) krijgt het hoofd-effect
       } else if (npc.scanSprites && npc.scanSprites.length) {
         const si = Math.floor(now / 1700) % npc.scanSprites.length;
         const ss = art.sprites[npc.scanSprites[si]];
@@ -2838,13 +2855,16 @@
           const savedF = fctx.filter; fctx.filter = 'none';
           const spr2 = ready(img) ? img : null;
           const hh = (spr2 ? (spr2.naturalHeight || 300) : 300) * 0.5 * sc2 * 0.62;   // ± hoofd-hoogte
-          /* zachte, pulserende blauwe halo rond het hoofd — maakt de trance meteen zichtbaar */
+          const trip = !!npc.tripFx;                                       // psychedelische trip/slaap i.p.v. blauwe trance
+          const TRIP_PAL = ['235,120,255', '120,205,255', '160,255,180', '255,210,120', '255,140,195'];
+          /* zachte, pulserende halo rond het hoofd — maakt de trance/trip meteen zichtbaar */
           const hx = rt.x, hy = rt.y - hh * 1.4;
           const hr = 34 * sc2 * (1 + 0.12 * Math.sin(now / 700));
-          const ha = 0.16 + 0.08 * Math.sin(now / 520);
+          const ha = (trip ? 0.20 : 0.16) + 0.08 * Math.sin(now / 520);
+          const halo = trip ? TRIP_PAL[((now / 520) | 0) % TRIP_PAL.length] : '150,190,255';
           const hg = fctx.createRadialGradient(hx, hy, 2, hx, hy, hr);
-          hg.addColorStop(0, 'rgba(150,190,255,' + ha.toFixed(3) + ')');
-          hg.addColorStop(1, 'rgba(150,190,255,0)');
+          hg.addColorStop(0, 'rgba(' + halo + ',' + ha.toFixed(3) + ')');
+          hg.addColorStop(1, 'rgba(' + halo + ',0)');
           fctx.fillStyle = hg;
           fctx.fillRect(Math.round(hx - hr), Math.round(hy - hr), Math.round(hr * 2), Math.round(hr * 2));
           for (let i = 0; i < 8; i++) {                                   // acht zwevende twinkels in eigen trage banen
@@ -2852,7 +2872,16 @@
             const tx = rt.x + Math.sin(now / sp + i * 1.9) * (18 + (i % 4) * 7) * sc2;
             const ty = rt.y - hh * 1.3 + Math.sin(now / (sp * 0.77) + i * 2.3) * 11 * sc2 - (i % 5) * 6;
             const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 480 + i * 2.1));   // zacht in-/uitfaden, iets feller
-            twinkle(tx, ty, a, '195,220,255');
+            const col = trip ? TRIP_PAL[(i + ((now / 300) | 0)) % TRIP_PAL.length] : '195,220,255';   // trip: kleuren draaien door
+            twinkle(tx, ty, a, col);
+          }
+          /* slaap: een sliert 'z z z' stijgt op bij de kop */
+          if (trip) {
+            const zi = ((now / 780) | 0) % 3;
+            for (let z = 0; z <= zi; z++) {
+              drawSprite(fctx, Z_GLYPH, Math.round(rt.x + 12 * sc2 + z * 8 * sc2),
+                Math.round(hy - 12 - z * 11 * sc2), false, z === zi ? 1 : 2);
+            }
           }
           fctx.filter = savedF;
         }
@@ -3014,7 +3043,11 @@
   function spellWorksHere(spellId) {
     const scene = GAME.scenes[state.currentScene];
     if (!scene) return false;
-    if (spellId === 'invisspell') return state.currentScene === 'dungeon' && state.flags.gotInvisSpell && !state.flags.guardPassed;
+    if (spellId === 'invisspell') {
+      if (!state.flags.gotInvisSpell) return false;
+      if (state.currentScene === 'library') return true;                                   // testen in de bieb toegestaan
+      return state.currentScene === 'dungeon' && !state.flags.guardPassed;                 // echte werking alleen in de kerker
+    }
     const isDragon = spellId === 'dragonspell';
     if (isDragon && !state.flags.dragonSpellLearned) return false;
     if (!isDragon && !state.flags.spellWritten) return false;
@@ -3140,6 +3173,16 @@
     if (!state.flags.gotInvisSpell) return;
     if (msgOpen()) showNextMsg();
     if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
+    /* Testmodus in de bieb: schakel de onzichtbaarheid aan/uit zodat je het effect kunt bekijken. */
+    if (state.currentScene === 'library') {
+      state.flags.libTestInvis = !state.flags.libTestInvis;
+      sfx('combine'); triggerCastFx();
+      burstAt(player.x, player.y - 30, { n: 22, col: '160,200,255', up: 8, life: 1.2, spread: 26 });
+      say(state.flags.libTestInvis
+        ? { nl: '(Test) Je fluistert de onzichtbaarheidsspreuk en vervaagt tot een blauwe rimpeling in de lucht. Spreek hem nog eens uit om weer zichtbaar te worden.', en: '(Test) You whisper the invisibility spell and fade to a blue shimmer in the air. Cast it again to become visible once more.' }
+        : { nl: '(Test) De rimpeling stolt weer tot Finn — je bent weer zichtbaar.', en: '(Test) The shimmer settles back into Finn — you are visible again.' });
+      return;
+    }
     const scene = GAME.scenes[state.currentScene];
     const hs = (scene.hotspots || []).find((h) => h.castWith && h.castWith.item === 'invisspell');
     if (!hs) {

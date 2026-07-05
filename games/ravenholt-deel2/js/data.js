@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '189',
+  assetVer: '190',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -822,7 +822,7 @@ const GAME = {
         candleBowl: { x: 94, y: 262, w: 46, h: 66, img: 'assets/art/altar-censer.png', smokeFlag: 'wizardTripping' }   // klein altaar met bronzen schaal + kaarsen links van de tovenaar; lichte rook altijd, zwaar zodra de paddenstoelen erin gaan
       },
       npcs: [
-        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 192, y: 264, scale: 1.02, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping' },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
+        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 192, y: 264, scale: 1.02, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping', tripFx: true },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 155, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter, 5px lager
       ],
       worldItems: [],
@@ -1026,7 +1026,7 @@ const GAME = {
       ],
       overlays: [],
       fx: {
-        bookSparkle: { x: 218, y: 182, col: '255,208,110', boost: 0.6, noGlow: true, sparkCount: 3, staticSpark: true, doneFlag: 'gotCellKey' },  // de gouden sleutel glinstert licht op de wachttafel tot je hem hebt
+        bookSparkle: { x: 216, y: 179, col: '255,208,110', boost: 0.85, noGlow: true, sparkCount: 4, staticSpark: true, doneFlag: 'gotCellKey' },  // de gouden sleutel glinstert (3px hoger, 2px naar links, iets feller) op de wachttafel tot je hem hebt
         nutPlant:  { x: 91, y: 292, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
         waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
         lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
