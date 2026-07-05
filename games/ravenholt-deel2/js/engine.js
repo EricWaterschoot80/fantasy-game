@@ -1781,6 +1781,14 @@
         }
       }
       if (state.flags.plantDancing) {
+        /* uitdijende rimpels in het plasje rond de dansende bloem-voet */
+        for (let k = 0; k < 3; k++) {
+          const t = ((now / 820) + k / 3) % 1;
+          const rw = 3 + t * 13;
+          fctx.strokeStyle = `rgba(190,225,255,${(0.7 * (1 - t)).toFixed(3)})`;
+          fctx.lineWidth = 1.4;
+          fctx.beginPath(); fctx.ellipse(p.x, p.y + 1, rw, rw * 0.42, 0, 0, Math.PI * 2); fctx.stroke();
+        }
         const swayA = Math.sin(now / 340) * 0.115;       // iets wilder zwieren (radialen om de voet)
         const bop = Math.abs(Math.sin(now / 340)) * 2.1; // iets duidelijker huppeltje
         const H2 = 30;                                   // hoogte van de bloem in de scene
