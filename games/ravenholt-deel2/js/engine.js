@@ -1623,25 +1623,40 @@
           fctx.fillRect(gx, bowlY - 1, 2, 2);
         }
       }
-      /* flikkerende vlammetjes-effect op de drie kaarsen ín de schaal (geclusterd, iets groter) */
-      const cands = [[-0.13, 0.03], [0, -0.05], [0.13, 0.03]];
+      /* drie gedetailleerde kaarsen ín de schaal: waskaars-lichaam (met hooglicht/schaduw + pit)
+         en een gelaagde vlam (buiten oranje, binnen geel, hete witte kern). */
+      const cands = [[-0.15, 4], [0, 2], [0.15, 4]];   // [x-fractie, was-hoogte]  — middelste kaars langer
       for (let i = 0; i < cands.length; i++) {
-        const fx0 = cx + cands[i][0] * W, fy0 = bowlY + cands[i][1] * H;
-        const fl = 0.6 + 0.4 * Math.sin(now / (110 + i * 41) + i * 2);
-        const gr = fctx.createRadialGradient(fx0, fy0 - 3, 0.5, fx0, fy0 - 3, 9);   // warme gloed (groter)
-        gr.addColorStop(0, `rgba(255,205,110,${(0.6 * fl).toFixed(3)})`);
+        const fx0 = Math.round(cx + cands[i][0] * W);
+        const footY = Math.round(bowlY + 3);                                        // voet van de kaars in de schaal
+        const waxH = cands[i][1] + 4;                                               // langere middelste kaars
+        const waxTop = footY - waxH;
+        const fl = 0.55 + 0.45 * Math.sin(now / (150 + i * 47) + i * 2);            // iets trager, rustiger flikkeren
+        /* waskaars-lichaam (4px) met hooglicht links + schaduw rechts */
+        fctx.fillStyle = '#ece1c4'; fctx.fillRect(fx0 - 2, waxTop, 4, waxH);        // was
+        fctx.fillStyle = '#fff7e6'; fctx.fillRect(fx0 - 2, waxTop, 1, waxH);        // hooglicht links
+        fctx.fillStyle = '#cdbc94'; fctx.fillRect(fx0 + 1, waxTop, 1, waxH);        // schaduw rechts
+        fctx.fillStyle = '#b7a67c'; fctx.fillRect(fx0 - 2, footY - 1, 4, 1);        // voet-schaduw in de schaal
+        fctx.fillStyle = '#fdf3d6'; fctx.fillRect(fx0 - 2, waxTop, 3, 1);           // gesmolten rand bovenop
+        fctx.fillStyle = '#3a2a1a'; fctx.fillRect(fx0, waxTop - 1, 1, 2);           // pit
+        /* warme gloed rond de vlam (flikkerend) */
+        const gr = fctx.createRadialGradient(fx0, waxTop - 3, 0.5, fx0, waxTop - 3, 8);
+        gr.addColorStop(0, `rgba(255,205,110,${(0.55 * fl).toFixed(3)})`);
         gr.addColorStop(1, 'rgba(255,160,60,0)');
-        fctx.fillStyle = gr; fctx.fillRect(fx0 - 9, fy0 - 12, 18, 18);
-        const ftip = fy0 - 5 - Math.round(3 + fl * 3);                              // dansende vlamtong (hoger)
-        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(Math.round(fx0), ftip, 2, fy0 - 3 - ftip);
-        fctx.fillStyle = '#fff3c0'; fctx.fillRect(Math.round(fx0), ftip + 1, 2, 3);
+        fctx.fillStyle = gr; fctx.fillRect(fx0 - 8, waxTop - 11, 16, 16);
+        /* gelaagde vlam */
+        const flH = 4 + Math.round(fl * 3);
+        const tipY = waxTop - 2 - flH;
+        fctx.fillStyle = 'rgba(255,140,45,0.92)'; fctx.fillRect(fx0 - 1, tipY + 1, 3, flH + 1);   // buitenvlam (oranje)
+        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(fx0, tipY + 1, 1, flH);                          // binnenvlam (geel)
+        fctx.fillStyle = '#fff3c0'; fctx.fillRect(fx0, waxTop - 3, 1, 2);                          // hete kern (wit)
       }
       /* rook: altijd een fijn sliertje; dik en zoetig zodra de paddenstoelen smeulen */
       const nPuff = heavy ? 10 : 4;
       for (let i = 0; i < nPuff; i++) {
-        const t = ((now / (heavy ? 1100 : 1500)) + i / nPuff) % 1;
+        const t = ((now / (heavy ? 1600 : 2200)) + i / nPuff) % 1;                  // iets trager opstijgen
         const sy = bowlY - 4 - t * (heavy ? 60 : 40);
-        const drift = Math.sin(now / (heavy ? 640 : 900) + i * 1.7) * (heavy ? 7 : 3.5) + t * (heavy ? 20 : 7);
+        const drift = Math.sin(now / (heavy ? 900 : 1250) + i * 1.7) * (heavy ? 7 : 3.5) + t * (heavy ? 20 : 7);
         const sx = cx + drift;
         const a = (1 - t) * (heavy ? 0.5 : 0.26);
         const r = (heavy ? 4 : 3) + t * (heavy ? 10 : 6);
@@ -2855,33 +2870,26 @@
           const savedF = fctx.filter; fctx.filter = 'none';
           const spr2 = ready(img) ? img : null;
           const hh = (spr2 ? (spr2.naturalHeight || 300) : 300) * 0.5 * sc2 * 0.62;   // ± hoofd-hoogte
-          const trip = !!npc.tripFx;                                       // psychedelische trip/slaap i.p.v. blauwe trance
-          const TRIP_PAL = ['235,120,255', '120,205,255', '160,255,180', '255,210,120', '255,140,195'];
-          /* zachte, pulserende halo rond het hoofd — maakt de trance/trip meteen zichtbaar */
+          const trip = !!npc.tripFx;                                       // slaap/trip: alleen zwevende blauw-paarse sterretjes
+          const TRIP_PAL = ['150,150,255', '120,175,255', '190,130,255', '128,140,240'];   // uitsluitend blauw + paars
           const hx = rt.x, hy = rt.y - hh * 1.4;
-          const hr = 34 * sc2 * (1 + 0.12 * Math.sin(now / 700));
-          const ha = (trip ? 0.20 : 0.16) + 0.08 * Math.sin(now / 520);
-          const halo = trip ? TRIP_PAL[((now / 520) | 0) % TRIP_PAL.length] : '150,190,255';
-          const hg = fctx.createRadialGradient(hx, hy, 2, hx, hy, hr);
-          hg.addColorStop(0, 'rgba(' + halo + ',' + ha.toFixed(3) + ')');
-          hg.addColorStop(1, 'rgba(' + halo + ',0)');
-          fctx.fillStyle = hg;
-          fctx.fillRect(Math.round(hx - hr), Math.round(hy - hr), Math.round(hr * 2), Math.round(hr * 2));
+          /* halo rond het hoofd — alleen bij de gewone verbazing/hypnose; NIET bij de slapende tovenaar */
+          if (!trip) {
+            const hr = 34 * sc2 * (1 + 0.12 * Math.sin(now / 700));
+            const ha = 0.16 + 0.08 * Math.sin(now / 520);
+            const hg = fctx.createRadialGradient(hx, hy, 2, hx, hy, hr);
+            hg.addColorStop(0, 'rgba(150,190,255,' + ha.toFixed(3) + ')');
+            hg.addColorStop(1, 'rgba(150,190,255,0)');
+            fctx.fillStyle = hg;
+            fctx.fillRect(Math.round(hx - hr), Math.round(hy - hr), Math.round(hr * 2), Math.round(hr * 2));
+          }
           for (let i = 0; i < 8; i++) {                                   // acht zwevende twinkels in eigen trage banen
             const sp = 2200 + i * 380;
             const tx = rt.x + Math.sin(now / sp + i * 1.9) * (18 + (i % 4) * 7) * sc2;
             const ty = rt.y - hh * 1.3 + Math.sin(now / (sp * 0.77) + i * 2.3) * 11 * sc2 - (i % 5) * 6;
-            const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 480 + i * 2.1));   // zacht in-/uitfaden, iets feller
-            const col = trip ? TRIP_PAL[(i + ((now / 300) | 0)) % TRIP_PAL.length] : '195,220,255';   // trip: kleuren draaien door
+            const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(now / 480 + i * 2.1));   // zacht in-/uitfaden
+            const col = trip ? TRIP_PAL[(i + ((now / 300) | 0)) % TRIP_PAL.length] : '195,220,255';   // trip: alleen blauw/paars
             twinkle(tx, ty, a, col);
-          }
-          /* slaap: een sliert 'z z z' stijgt op bij de kop */
-          if (trip) {
-            const zi = ((now / 780) | 0) % 3;
-            for (let z = 0; z <= zi; z++) {
-              drawSprite(fctx, Z_GLYPH, Math.round(rt.x + 12 * sc2 + z * 8 * sc2),
-                Math.round(hy - 12 - z * 11 * sc2), false, z === zi ? 1 : 2);
-            }
           }
           fctx.filter = savedF;
         }
@@ -6034,7 +6042,9 @@
         say(bt || lookText(hs), hsSpeaker(hs)); return;
       }
       if (bs.eclipseFlag && !state.flags[bs.eclipseFlag]) {
-        sfx('error'); say(bs.dayText || lookText(hs), hsSpeaker(hs)); return;
+        if (bs.dayZoomImg) { sfx('tap'); openZoom(bs.dayZoomImg); }   // overdag: toon de spreuk-pagina (nog zonder leesbare tekst)
+        else sfx('error');
+        say(bs.dayText || lookText(hs), hsSpeaker(hs)); return;
       }
       if (bs.puzzle && !symFlagDone(bs.puzzle.setFlag)) {
         openSymbolPuzzle(Object.assign({}, hs, { symbolPuzzle: bs.puzzle }));

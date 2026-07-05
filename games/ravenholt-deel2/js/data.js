@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '190',
+  assetVer: '191',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -921,11 +921,12 @@ const GAME = {
               ? { nl: 'Je bladert door het boek: vreemde krabbels, en \u00e9\u00e9n tekeningetje van het zonnestelsel op de sokkel met draaiende ringen. D\u00e1\u00e1r moet je zijn \u2014 bekijk het zonnestelsel!', en: 'You leaf through the book: strange scribbles, and one little drawing of the solar system on the pedestal with turning rings. That is where to go \u2014 look at the solar system!' }
               : { nl: '\u201cNiemand raakt de sterrenspreuken aan!\u201d snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201cKrra... paddenstoelen, bij de put!\u201d)', en: '\u201cNo one touches the star spells!\u201d snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201cCaw... mushrooms, by the well!\u201d)' },
             eclipseFlag: 'eclipseActive',
-            dayText: { nl: 'Bij daglicht zie je alleen vage krabbels. Alleen bij het licht van een ZONSVERDUISTERING zijn de toverletters te lezen... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'In daylight you see only faint scribbles. Only by the light of a SOLAR ECLIPSE can the magic letters be read... Cast the eclipse spell at the window, then read the book.' },
+            dayText: { nl: 'De bladzijde toont twee tekeningen van een verdwijnende mantel \u2014 maar de toverwoorden zelf blijven onzichtbaar. Alleen bij het licht van een ZONSVERDUISTERING gloeien ze op... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'The page shows two drawings of a vanishing cloak \u2014 but the spell words themselves stay hidden. Only by the light of a SOLAR ECLIPSE do they glow into view... Cast the eclipse spell at the window, then read the book.' },
             setFlag: ['sawSigns', 'gotInvisSpell'],
             give: 'invisspell',
             firstText: { nl: 'Bij het spookachtige eclipslicht worden de krabbels leesbaar: \u201cUmbra Invisibilis\u201d! Een zilveren bladzijde schrijft zich over in jouw toverboek \u2014 de SPREUK VAN ONZICHTBAARHEID is van jou! (En op de laatste bladzijde: een tekening van de telescoop en een hemelschijf vol sterrenbeelden \u2014 \u201cals de sterren overdag schijnen, toont het hart van de hemel de volgorde\u201d...)', en: 'In the ghostly eclipse light the scribbles become readable: \u201cUmbra Invisibilis\u201d! A silver page writes itself into your spellbook \u2014 the SPELL OF INVISIBILITY is yours! (And on the last page: a drawing of the telescope and a sky-wheel full of constellations \u2014 \u201cwhen the stars shine by day, the heart of the sky reveals the order\u201d...)' },
-            zoomImg: 'assets/art/book-signs.jpg'           // de spreuk-pagina van de onzichtbaarheid
+            dayZoomImg: 'assets/art/book-spell.jpg',       // OVERDAG: alleen de mantel-illustraties, nog geen leesbare tekst
+            zoomImg: 'assets/art/book-spell-text.jpg'      // ZONSVERDUISTERING: de blauwe runentekst gloeit op — de spreuk van onzichtbaarheid
           }
         },
         {
