@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '197',
+  assetVer: '198',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -1036,7 +1036,7 @@ const GAME = {
         bookSparkle: { x: 216, y: 179, col: '255,208,110', boost: 0.85, noGlow: true, sparkCount: 4, staticSpark: true, doneFlag: 'gotCellKey' },  // de gouden sleutel glinstert (3px hoger, 2px naar links, iets feller) op de wachttafel tot je hem hebt
         nutPlant:  { x: 91, y: 292, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links
         waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
-        lockGlint: { x: 432, y: 218, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud
+        lockGlint: { x: 420, y: 167, requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert goud — op de metalen slotplaat van de celdeur
       },
       npcs: [
         { id: 'guard', sprite: 'dungeonGuard', x: 322, y: 246, scale: 1.13, flip: false, turnFlags: ['gotCellKey', 'guardTurned'], sway: 0.015, filter: 'brightness(0.82) saturate(0.96)' }   // bij binnenkomst kijkt hij naar LINKS (naar de trap); zodra je de gouden sleutel hebt draait hij naar RECHTS (naar de cel); als de bloem danst (guardTurned) draait hij weer naar LINKS — nu naar de dansende bloem
