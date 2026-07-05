@@ -1603,15 +1603,11 @@
       const cx = cb.x, baseY = cb.y;                    // cb.x = midden, cb.y = voet op de vloer
       const W = cb.w || 44, H = cb.h || 64;
       const topY = baseY - H;
-      const eclNight = state.currentScene === 'library' && state.flags.eclipseActive;   // zonsverduistering: altaar in blauwe nachtschaduw
+      const eclNight = state.currentScene === 'library' && state.flags.eclipseActive;   // zonsverduistering: altaar in donkere nachtschaduw
       if (ready(cb._img)) {
-        if (eclNight) { fctx.save(); fctx.filter = 'brightness(0.5) saturate(0.7) hue-rotate(8deg)'; }
+        if (eclNight) { fctx.save(); fctx.filter = 'brightness(0.55) saturate(0.78)'; }   // alleen donkerder (geen harde blauwe rechthoek meer)
         fctx.drawImage(cb._img, cx - W / 2, topY, W, H);
-        if (eclNight) {
-          fctx.restore();
-          fctx.save(); fctx.fillStyle = 'rgba(70,110,200,0.16)';   // zachte blauwe wash (sterrenhemel)
-          fctx.fillRect(cx - W / 2, topY, W, H * 0.62); fctx.restore();
-        }
+        if (eclNight) fctx.restore();
       }
       const bowlY = topY + H * 0.24;                    // hoogte van de kaars-vlammen in de schaal
       const heavy = cb.smokeFlag && state.flags[cb.smokeFlag];
@@ -6065,7 +6061,8 @@
       if (bs.eclipseFlag && !state.flags[bs.eclipseFlag]) {
         if (bs.dayZoomImg) { sfx('tap'); openZoom(bs.dayZoomImg); }   // overdag: toon de spreuk-pagina (nog zonder leesbare tekst)
         else sfx('error');
-        say(bs.dayText || lookText(hs), hsSpeaker(hs)); return;
+        const dt = typeof bs.dayText === 'function' ? bs.dayText(state) : bs.dayText;
+        say(dt || lookText(hs), hsSpeaker(hs)); return;
       }
       if (bs.puzzle && !symFlagDone(bs.puzzle.setFlag)) {
         openSymbolPuzzle(Object.assign({}, hs, { symbolPuzzle: bs.puzzle }));

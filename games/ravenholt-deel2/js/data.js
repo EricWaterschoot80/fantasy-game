@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '194',
+  assetVer: '195',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -828,7 +828,7 @@ const GAME = {
         candleBowl: { x: 94, y: 262, w: 46, h: 66, img: 'assets/art/altar-censer.png', smokeFlag: 'wizardTripping' }   // klein altaar met bronzen schaal + kaarsen links van de tovenaar; lichte rook altijd, zwaar zodra de paddenstoelen erin gaan
       },
       npcs: [
-        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 192, y: 264, scale: 1.02, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping', tripFx: true },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
+        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 192, y: 264, scale: 0.94, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping', tripFx: true },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 155, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter, 5px lager
       ],
       worldItems: [],
@@ -922,12 +922,12 @@ const GAME = {
             ? { nl: 'Het boek gloeit zacht, maar de bladzijden tonen enkel vreemde krabbels. In de kantlijn staat een kleine tekening: het ZONNESTELSEL op de sokkel, met draaiende ringen eromheen... Bekijk dat zonnestelsel eens!', en: 'The book glows softly, but its pages show only strange scribbles. In the margin sits a small drawing: the SOLAR SYSTEM on the pedestal, with turning rings around it... Take a look at that solar system!' }
             : { nl: 'Een groot boek op de lessenaar gloeit zacht. De tovenaar houdt het scherp in de gaten \u2014 je durft het niet aan te raken.', en: 'A great book on the lectern glows softly. The wizard watches it sharply \u2014 you dare not touch it.' },
           signsBook: {                                     // het boek toont bij verduistering het HEMELZEGEL: de oplossing voor het altaar
-            requiresFlag: 'gotEclipseSpell',
-            blockedText: (state) => state.flags.wizardTripping
-              ? { nl: 'Je bladert door het boek: vreemde krabbels, en \u00e9\u00e9n tekeningetje van het zonnestelsel op de sokkel met draaiende ringen. D\u00e1\u00e1r moet je zijn \u2014 bekijk het zonnestelsel!', en: 'You leaf through the book: strange scribbles, and one little drawing of the solar system on the pedestal with turning rings. That is where to go \u2014 look at the solar system!' }
-              : { nl: '\u201cNiemand raakt de sterrenspreuken aan!\u201d snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201cKrra... paddenstoelen, bij de put!\u201d)', en: '\u201cNo one touches the star spells!\u201d snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201cCaw... mushrooms, by the well!\u201d)' },
+            requiresFlag: 'wizardTripping',                 // zodra de tovenaar slaapt kun je het boek inkijken (overdag = de mantel-tekeningen)
+            blockedText: { nl: '\u201cNiemand raakt de sterrenspreuken aan!\u201d snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201cKrra... paddenstoelen, in de schaal met kaarsen!\u201d)', en: '\u201cNo one touches the star spells!\u201d snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201cCaw... mushrooms, in the bowl of candles!\u201d)' },
             eclipseFlag: 'eclipseActive',
-            dayText: { nl: 'De bladzijde toont twee tekeningen van een verdwijnende mantel \u2014 maar de toverwoorden zelf blijven onzichtbaar. Alleen bij het licht van een ZONSVERDUISTERING gloeien ze op... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'The page shows two drawings of a vanishing cloak \u2014 but the spell words themselves stay hidden. Only by the light of a SOLAR ECLIPSE do they glow into view... Cast the eclipse spell at the window, then read the book.' },
+            dayText: (state) => state.flags.gotEclipseSpell
+              ? { nl: 'De bladzijde toont twee tekeningen van een verdwijnende mantel \u2014 maar de toverwoorden zelf blijven onzichtbaar. Alleen bij het licht van een ZONSVERDUISTERING gloeien ze op... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'The page shows two drawings of a vanishing cloak \u2014 but the spell words themselves stay hidden. Only by the light of a SOLAR ECLIPSE do they glow into view... Cast the eclipse spell at the window, then read the book.' }
+              : { nl: 'De bladzijde toont twee tekeningen van een verdwijnende mantel \u2014 maar de toverwoorden zelf blijven onzichtbaar. Ze gloeien alleen op bij het licht van een ZONSVERDUISTERING. Om de zon te verduisteren heb je een spreuk nodig \u2014 bekijk het koperen ZONNESTELSEL op de sokkel.', en: 'The page shows two drawings of a vanishing cloak \u2014 but the spell words themselves stay hidden. They only glow by the light of a SOLAR ECLIPSE. To darken the sun you need a spell \u2014 examine the brass SOLAR SYSTEM on the pedestal.' },
             setFlag: ['sawSigns', 'gotInvisSpell'],
             give: 'invisspell',
             firstText: { nl: 'Bij het spookachtige eclipslicht worden de krabbels leesbaar: \u201cUmbra Invisibilis\u201d! Een zilveren bladzijde schrijft zich over in jouw toverboek \u2014 de SPREUK VAN ONZICHTBAARHEID is van jou! (En op de laatste bladzijde: een tekening van de telescoop en een hemelschijf vol sterrenbeelden \u2014 \u201cals de sterren overdag schijnen, toont het hart van de hemel de volgorde\u201d...)', en: 'In the ghostly eclipse light the scribbles become readable: \u201cUmbra Invisibilis\u201d! A silver page writes itself into your spellbook \u2014 the SPELL OF INVISIBILITY is yours! (And on the last page: a drawing of the telescope and a sky-wheel full of constellations \u2014 \u201cwhen the stars shine by day, the heart of the sky reveals the order\u201d...)' },
