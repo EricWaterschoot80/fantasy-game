@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '188',
+  assetVer: '189',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -352,6 +352,7 @@ const GAME = {
         {
           id: 'squire',
           name: { nl: 'De Schildknaap', en: 'The Squire' },
+          face: 'assets/art/face-squire.png',   // portret in de tekstwolk
           rect: { x: 456, y: 184, w: 70, h: 104 },
           walkTo: { x: 452, y: 300 },
           look: (state) => state.flags.squireGaveRope
@@ -565,6 +566,7 @@ const GAME = {
         {
           id: 'princess',
           name: { nl: 'De Prinses', en: 'The Princess' },
+          face: 'assets/art/face-princess.png',   // portret in de tekstwolk
           rect: { x: 400, y: 170, w: 60, h: 90 },
           walkTo: { x: 398, y: 296 },
           choice: {
@@ -705,6 +707,7 @@ const GAME = {
         {
           id: 'parrot',
           name: { nl: 'De Papagaai', en: 'The Parrot' },
+          face: 'assets/art/face-parrot.png',   // portret in de tekstwolk
           rect: { x: 482, y: 172, w: 66, h: 66 },
           walkTo: { x: 486, y: 244 },
           choice: {
@@ -815,7 +818,7 @@ const GAME = {
       overlays: [],
       fx: {
         bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' },   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
-        mageGlow: { x: 142, y: 129, r: 10, a: 0.42, sparkle: true, hideFlag: 'wizardTripping' },   // paars-blauwe glinster op de bol van de tovenaarsstaf (dooft tijdens de trance)
+        mageGlow: { x: 142, y: 123, r: 10, a: 0.42, sparkle: true, hideFlag: 'wizardTripping' },   // paars-blauwe glinster op de bol van de tovenaarsstaf (dooft tijdens de trance)
         candleBowl: { x: 94, y: 262, w: 46, h: 66, img: 'assets/art/altar-censer.png', smokeFlag: 'wizardTripping' }   // klein altaar met bronzen schaal + kaarsen links van de tovenaar; lichte rook altijd, zwaar zodra de paddenstoelen erin gaan
       },
       npcs: [
@@ -884,6 +887,7 @@ const GAME = {
         {
           id: 'librarian',
           name: { nl: 'De Tovenaar', en: 'The Wizard' },
+          face: 'assets/art/face-librarian.png',   // portret in de tekstwolk
           rect: { x: 174, y: 140, w: 54, h: 122 },
           walkTo: { x: 244, y: 268 },
           look: (state) => state.flags.wizardTripping
@@ -1117,6 +1121,7 @@ const GAME = {
         {
           id: 'father',
           name: { nl: 'De Gevangene', en: 'The Prisoner' },
+          face: 'assets/art/face-father.png',   // portret in de tekstwolk
           rect: { x: 408, y: 110, w: 100, h: 130 },
           walkTo: { x: 408, y: 268 },
           look: (state) => state.flags.fatherFreed

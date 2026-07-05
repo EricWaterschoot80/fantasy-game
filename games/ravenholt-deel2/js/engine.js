@@ -1614,18 +1614,18 @@
           fctx.fillRect(gx, bowlY - 1, 2, 2);
         }
       }
-      /* flikkerende vlammetjes-effect op de drie kaarsen ín de schaal (geclusterd in het midden) */
-      const cands = [[-0.10, 0.03], [0, -0.03], [0.10, 0.03]];
+      /* flikkerende vlammetjes-effect op de drie kaarsen ín de schaal (geclusterd, iets groter) */
+      const cands = [[-0.13, 0.03], [0, -0.05], [0.13, 0.03]];
       for (let i = 0; i < cands.length; i++) {
         const fx0 = cx + cands[i][0] * W, fy0 = bowlY + cands[i][1] * H;
         const fl = 0.6 + 0.4 * Math.sin(now / (110 + i * 41) + i * 2);
-        const gr = fctx.createRadialGradient(fx0, fy0 - 2, 0.5, fx0, fy0 - 2, 6);   // warme gloed
-        gr.addColorStop(0, `rgba(255,205,110,${(0.55 * fl).toFixed(3)})`);
+        const gr = fctx.createRadialGradient(fx0, fy0 - 3, 0.5, fx0, fy0 - 3, 9);   // warme gloed (groter)
+        gr.addColorStop(0, `rgba(255,205,110,${(0.6 * fl).toFixed(3)})`);
         gr.addColorStop(1, 'rgba(255,160,60,0)');
-        fctx.fillStyle = gr; fctx.fillRect(fx0 - 6, fy0 - 8, 12, 12);
-        const ftip = fy0 - 4 - Math.round(2 + fl * 2);                              // dansende vlamtong
-        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(Math.round(fx0), ftip, 1, fy0 - 3 - ftip);
-        fctx.fillStyle = '#fff3c0'; fctx.fillRect(Math.round(fx0), ftip + 1, 1, 2);
+        fctx.fillStyle = gr; fctx.fillRect(fx0 - 9, fy0 - 12, 18, 18);
+        const ftip = fy0 - 5 - Math.round(3 + fl * 3);                              // dansende vlamtong (hoger)
+        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(Math.round(fx0), ftip, 2, fy0 - 3 - ftip);
+        fctx.fillStyle = '#fff3c0'; fctx.fillRect(Math.round(fx0), ftip + 1, 2, 3);
       }
       /* rook: altijd een fijn sliertje; dik en zoetig zodra de paddenstoelen smeulen */
       const nPuff = heavy ? 10 : 4;
