@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '181',
+  assetVer: '183',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -127,7 +127,7 @@ const GAME = {
     q_fountainpuzzle:{ nl: 'Je kreeg een sleutel van de prinses — los de schuifpuzzel bij de leeuwenfontein op om het slot te onthullen', en: 'The princess gave you a key — solve the sliding puzzle at the lion fountain to reveal the lock' },
     q_usekey:   { nl: 'Gebruik de sleutel op het slot onder de leeuwenkop van de fontein om de geheime poort te openen', en: 'Use the key on the lock beneath the fountain’s lion head to open the secret gate' },
     q_through:  { nl: 'De geheime poort staat open naast de leeuwenfontein — stap erdoorheen, de donkere gang in', en: 'The secret gate stands open beside the lion fountain — step through it, into the dark passage' },
-    q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een oude tovenaar bewaakt het gloeiende boek — de raaf op de vensterbank weet vast raad (psst: hij fluistert iets over paddenstoelen bij de put)', en: 'Through the secret gate you reach the castle library. An old wizard guards the glowing book — the raven on the windowsill surely knows a trick (psst: he whispers something about mushrooms by the well)' },
+    q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een oude tovenaar bewaakt het gloeiende boek — leg de paddenstoelen (van de put) in de schaal met kaarsen náást hem; de rook doet hem inslapen', en: 'Through the secret gate you reach the castle library. An old wizard guards the glowing book — lay the mushrooms (from the well) in the bowl of candles beside him; the smoke will put him to sleep' },
     q_takespell:{ nl: 'De tovenaar zweeft in hogere sferen — bekijk het ZONNESTELSEL op de sokkel rechts en draai de hemelschijf: daar wacht de Zonsverduistering-spreuk', en: 'The wizard floats among the stars — examine the SOLAR SYSTEM on the pedestal to the right and turn the celestial disc: the Solar Eclipse spell awaits' },
     q_castEclipse:{ nl: 'Je hebt de Zonsverduistering-spreuk! Tik hem aan in je tas en spreek hem uit bij het grote raam van de bibliotheek', en: 'You have the Solar Eclipse spell! Tap it in your bag and speak it at the great library window' },
     q_telescope:{ nl: 'De zon is verduisterd en de sterren fonkelen — kijk snel door de telescoop bij het raam!', en: 'The sun is darkened and the stars sparkle — quick, look through the telescope by the window!' },
@@ -815,7 +815,8 @@ const GAME = {
       overlays: [],
       fx: {
         bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' },   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
-        mageGlow: { x: 150, y: 205, r: 15, a: 0.42, hideFlag: 'wizardTripping' }   // paars-blauwe gloed van de tovenaarsstaf (dooft tijdens de trance)
+        mageGlow: { x: 150, y: 205, r: 15, a: 0.42, hideFlag: 'wizardTripping' },   // paars-blauwe gloed van de tovenaarsstaf (dooft tijdens de trance)
+        candleBowl: { x: 108, y: 244, smokeFlag: 'wizardTripping' }   // schaal met kaarsen links van de tovenaar; rook stijgt op zodra de paddenstoelen erin gaan
       },
       npcs: [
         { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 190, y: 263, scale: 0.9, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping' },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
@@ -855,7 +856,7 @@ const GAME = {
             ? { nl: '\u201CKrra! Je hebt de spreuk! Tik hem aan in je tas en spreek hem uit \u2014 dan dooft de zon en kun je het gloeiende boek eindelijk lezen.\u201D', en: '\u201CCaw! You have the spell! Tap it in your bag and speak it \u2014 the sun will darken and you can finally read the glowing book.\u201D' }
             : state.flags.wizardTripping
             ? { nl: '\u201CKrra! Moet je hem zien zweven... Sn\u00E9l \u2014 kijk naar het ZONNESTELSEL op de sokkel rechts! Draai de hemelschijf tot zon, maan en ster op \u00E9\u00E9n lijn staan \u2014 d\u00E1\u00E1r zit de zonsverduistering-spreuk in.\u201D', en: '\u201CCaw! Look at him float... Quick \u2014 look at the SOLAR SYSTEM on the pedestal to the right! Turn the celestial disc until sun, moon and star line up \u2014 that is where the eclipse spell hides.\u201D' }
-            : { nl: 'De raaf zit parmantig op de vensterbank. \u201CKrra! Die oude tovenaar wijkt geen duimbreed van zijn instrumenten... Maar ik weet w\u00E1t hij niet kan weerstaan: paddenstoelen! Van die glimmende, bij de oude put op de binnenplaats.\u201D', en: 'The raven perches proudly on the windowsill. \u201CCaw! That old wizard will not budge an inch from his instruments... But I know what he cannot resist: mushrooms! The shiny kind, by the old well in the courtyard.\u201D' }
+            : { nl: 'De raaf zit parmantig op de vensterbank. \u201CKrra! Die oude tovenaar wijkt geen duimbreed van zijn instrumenten... Maar ik weet w\u00E1t hij niet kan weerstaan: paddenstoelen! Van die glimmende, bij de oude put op de binnenplaats. Leg ze in de schaal met kaarsen n\u00e1\u00e1st hem \u2014 de rook doet de rest!\u201D', en: 'The raven perches proudly on the windowsill. \u201CCaw! That old wizard will not budge an inch from his instruments... But I know what he cannot resist: mushrooms! The shiny kind, by the old well in the courtyard. Lay them in the bowl of candles beside him \u2014 the smoke does the rest!\u201D' }
         },
         {
           id: 'shelves',
@@ -865,18 +866,32 @@ const GAME = {
           look: { nl: 'Rijen op rijen eeuwenoude boeken: kronieken van Eldoria, sterrenkaarten, verboden spreukenboeken. Maar \u00E9\u00E9n boek, op de lessenaar, gloeit zachtjes \u2014 d\u00E1\u00E1r moet je zijn.', en: 'Rows upon rows of ancient tomes: chronicles of Eldoria, star charts, forbidden spellbooks. But one book, on the lectern, glows softly \u2014 that is the one you want.' }
         },
         {
+          id: 'candleBowl',
+          name: { nl: 'De Schaal met Kaarsen', en: 'The Bowl of Candles' },
+          rect: { x: 84, y: 210, w: 56, h: 52 },
+          walkTo: { x: 150, y: 262 },
+          look: (state) => state.flags.wizardTripping
+            ? { nl: 'Uit de bronzen schaal kringelt een dikke, zoetige rook omhoog — de paddenstoelen smeulen tussen de kaarsen. De tovenaar staat er middenin te dromen.', en: 'Thick sweet smoke curls up from the bronze bowl — the mushrooms smoulder among the candles. The wizard stands in it, dreaming.' }
+            : { nl: 'Naast de tovenaar staat een bronzen offerschaal op een sokkel, met een paar brandende kaarsen eromheen. Wat je er ook in legt, de vlammetjes doen het smeulen... Zou hier iets in kunnen dat de tovenaar bedwelmt?', en: 'Beside the wizard stands a bronze offering bowl on a pedestal, ringed with a few burning candles. Whatever you place in it, the little flames make it smoulder... Could something go in here to daze the wizard?' },
+          use: {
+            mushroom: {
+              consume: 'mushroom',
+              setFlag: 'wizardTripping',
+              text: { nl: 'Je legt de glimmende paddenstoelen voorzichtig in de bronzen schaal. De kaarsvlammen likken eraan en ze beginnen te smeulen — een dikke, zoetige rook kringelt omhoog, recht in het gezicht van de tovenaar. Hij snuift, zijn ogen worden glazig... “Ooooh... de sterren dánsen...” mompelt hij, en hij zakt dromerig weg. Het gloeiende boek is nu onbewaakt!', en: 'You gently lay the shiny mushrooms in the bronze bowl. The candle flames lick at them and they start to smoulder — thick sweet smoke curls up, right into the wizard’s face. He sniffs, his eyes glaze over... “Ooooh... the stars are DANCING...” he mumbles, drifting away in a dream. The glowing book is unguarded now!' }
+            }
+          }
+        },
+        {
           id: 'librarian',
           name: { nl: 'De Tovenaar', en: 'The Wizard' },
           rect: { x: 174, y: 140, w: 54, h: 122 },
           walkTo: { x: 244, y: 268 },
           look: (state) => state.flags.wizardTripping
             ? { nl: 'De oude tovenaar zweeft bijna. Hij staart met grote ogen naar het plafond en giechelt: \u201CDe sterren... de sterren d\u00E1nsen! Ik zie de hemelwielen draaien...\u201D Het gloeiende boek ziet hij allang niet meer.', en: 'The old wizard is practically floating. He stares wide-eyed at the ceiling and giggles: \u201CThe stars... the stars are DANCING! I can see the heavens turning...\u201D He has long forgotten the glowing book.' }
-            : { nl: 'De boze tovenaar kijkt op van het gloeiende boek en schatert het uit: \u201CHahá! Een JOCHIE? Kom jíj mij bestelen, ukkie? Ik grijp binnenkort de macht over heel Eldoria \u2014 en jij denkt dat je mijn sterrenspreuken kunt aanraken? Wegwezen, snotaap!\u201D Hij lacht kakelend en buigt zich weer over het boek. Maar zijn neus snuffelt dromerig... alsof hij ergens naar hunkert. (De raaf op de vensterbank grinnikt: \u201CKrra... paddenstoelen!\u201D)', en: 'The evil wizard looks up from the glowing book and bursts out laughing: \u201CHaha! A BOY? You, rob ME, little runt? Soon I shall seize power over all Eldoria \u2014 and you think you can touch my star spells? Get lost, brat!\u201D He cackles and bends back over the book. But his nose sniffs dreamily... as if he craves something. (The raven on the sill snickers: \u201CCaw... mushrooms!\u201D)' },
+            : { nl: 'De boze tovenaar kijkt op van het gloeiende boek en schatert het uit: \u201CHahá! Een JOCHIE? Kom jíj mij bestelen, ukkie? Ik grijp binnenkort de macht over heel Eldoria \u2014 en jij denkt dat je mijn sterrenspreuken kunt aanraken? Wegwezen, snotaap!\u201D Hij lacht kakelend en buigt zich weer over het boek. Maar zijn neus snuffelt dromerig... alsof hij ergens naar hunkert. (De raaf op de vensterbank grinnikt: \u201CKrra... paddenstoelen, in de schaal met kaarsen!\u201D)', en: 'The evil wizard looks up from the glowing book and bursts out laughing: \u201CHaha! A BOY? You, rob ME, little runt? Soon I shall seize power over all Eldoria \u2014 and you think you can touch my star spells? Get lost, brat!\u201D He cackles and bends back over the book. But his nose sniffs dreamily... as if he craves something. (The raven on the sill snickers: \u201CCaw... mushrooms, in the bowl of candles!\u201D)' },
           use: {
             mushroom: {
-              consume: 'mushroom',
-              setFlag: 'wizardTripping',
-              text: { nl: 'Je geeft de tovenaar de glimmende paddenstoelen. Zijn ogen lichten op \u2014 h\u00F3p, in \u00E9\u00E9n keer naar binnen! Even is het stil... dan beginnen zijn pupillen te draaien als sterrenwielen. \u201COoooh... ik zie het hele heelal...\u201D giechelt hij, en hij danst wankelend tussen de boekenkasten. Het gloeiende boek is nu onbewaakt!', en: 'You hand the wizard the shiny mushrooms. His eyes light up \u2014 gulp, down in one! For a moment all is still... then his pupils start spinning like star-wheels. \u201COoooh... I can see the whole universe...\u201D he giggles, tottering off in a dance between the bookcases. The glowing book is unguarded!' }
+              needText: { nl: '\u201cAfblijven, jochie!\u201d De tovenaar slaat je hand weg \u2014 zomaar iets aanpakken doet hij niet. Maar kijk, naast hem staat een schaal met kaarsen... leg de paddenstoelen d\u00e1\u00e1rin, dan doet de rook het werk.', en: '\u201cHands off, boy!\u201d The wizard swats your hand away \u2014 he won\u2019t take anything from you. But look, beside him stands a bowl of candles... place the mushrooms in THERE, and the smoke will do the work.' }
             }
           }
         },

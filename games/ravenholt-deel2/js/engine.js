@@ -1595,6 +1595,59 @@
        sintel-puntjes die vrijwel stil liggen en alleen rustig na-gloeien.
        Dooft zodra doneFlag is gezet (houtskool gepakt). */
     /* Paars-blauwe gloed van de tovenaarsstaf (klopt zacht) */
+    /* Bronzen schaal met kaarsen links van de tovenaar; rook stijgt op zodra de paddenstoelen erin liggen */
+    if (fx.candleBowl) {
+      const cb = fx.candleBowl, bx = cb.x, by = cb.y;
+      const smoking = cb.smokeFlag && state.flags[cb.smokeFlag];
+      /* sokkel */
+      fctx.fillStyle = '#3b3026'; fctx.fillRect(bx - 4, by - 2, 8, 10);
+      fctx.fillStyle = '#4a3d2e'; fctx.fillRect(bx - 6, by + 7, 12, 3);
+      /* bronzen schaal (ondiepe kom) */
+      fctx.fillStyle = '#7a5a2c';
+      fctx.beginPath(); fctx.ellipse(bx, by - 3, 10, 4, 0, 0, Math.PI * 2); fctx.fill();
+      fctx.fillStyle = '#9a7638';
+      fctx.beginPath(); fctx.ellipse(bx, by - 4, 9, 3, 0, 0, Math.PI); fctx.fill();
+      fctx.fillStyle = smoking ? '#5a4a26' : '#3a2c18';
+      fctx.beginPath(); fctx.ellipse(bx, by - 4, 7, 2.2, 0, 0, Math.PI * 2); fctx.fill();
+      /* smeulende paddenstoelen in de schaal */
+      if (smoking) {
+        for (let i = 0; i < 3; i++) {
+          const gx = bx - 4 + i * 4, ga = 0.4 + 0.4 * (0.5 + 0.5 * Math.sin(now / 300 + i * 2));
+          fctx.fillStyle = `rgba(255,150,60,${ga.toFixed(3)})`;
+          fctx.fillRect(gx, by - 5, 2, 2);
+        }
+      }
+      /* drie kaarsen op de rand met flikkerende vlammetjes */
+      const cands = [[-9, -1], [0, -3], [9, -1]];
+      for (let i = 0; i < cands.length; i++) {
+        const cx = bx + cands[i][0], cy = by + cands[i][1];
+        fctx.fillStyle = '#e8e0cf'; fctx.fillRect(cx - 1, cy - 8, 2, 8);        // kaars
+        const fl = 0.6 + 0.4 * Math.sin(now / (110 + i * 37) + i);
+        const fy = cy - 8 - Math.round(2 + fl * 2);
+        const g = fctx.createRadialGradient(cx, fy + 2, 0.5, cx, fy + 2, 5);   // gloed
+        g.addColorStop(0, `rgba(255,200,110,${(0.5 * fl).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(255,160,60,0)');
+        fctx.fillStyle = g; fctx.fillRect(cx - 5, fy - 3, 10, 10);
+        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(cx, fy, 1, cy - 8 - fy);     // vlam
+        fctx.fillStyle = '#fff3c0'; fctx.fillRect(cx, fy + 1, 1, 2);          // hart
+      }
+      /* dikke, zoetige rook die opstijgt naar de tovenaar */
+      if (smoking) {
+        for (let i = 0; i < 10; i++) {
+          const t = ((now / 1100) + i / 10) % 1;
+          const sy = by - 6 - t * 58;
+          const drift = Math.sin(now / 640 + i * 1.7) * 7 + t * 20;   // dwarrelt en drijft naar rechts (naar de tovenaar)
+          const sx = bx + drift;
+          const a = (1 - t) * 0.5;
+          const r = 4 + t * 10;
+          const g = fctx.createRadialGradient(sx, sy, 0.5, sx, sy, r);
+          g.addColorStop(0, `rgba(200,215,175,${a.toFixed(3)})`);
+          g.addColorStop(0.6, `rgba(190,205,165,${(a*0.5).toFixed(3)})`);
+          g.addColorStop(1, 'rgba(190,205,165,0)');
+          fctx.fillStyle = g; fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
+        }
+      }
+    }
     if (fx.mageGlow && !(fx.mageGlow.hideFlag && state.flags[fx.mageGlow.hideFlag])) {
       const m = fx.mageGlow;
       const pulse = 0.5 + 0.5 * Math.sin(now / 620);
