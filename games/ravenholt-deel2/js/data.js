@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '191',
+  assetVer: '192',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -183,7 +183,7 @@ const GAME = {
     trinket: { name: { nl: 'Bronzen Munt', en: 'Bronze Coin' }, icon: '🪙', img: 'assets/art/item-trinket.png', sparkle: true,
              look: { nl: 'Een glanzende bronzen munt die je uit de leeuwenfontein opviste. Hij blinkt schitterend in het licht — precies het soort glimmend ding waar een raaf geen weerstand aan kan bieden.', en: 'A gleaming bronze coin you fished from the lion fountain. It shines brilliantly in the light — exactly the kind of bright thing a raven cannot resist.' } },
     mushroom: { name: { nl: 'Magische Paddenstoel', en: 'Magic Mushroom' }, icon: '🍄', img: 'assets/art/item-mushroom.png', sparkle: true,
-             look: { nl: 'Een trosje warm gloeiende paddenstoelen met bruin-oranje hoedjes, geplukt bij de put. Ze tintelen van de magie — vast ergens goed voor.', en: 'A cluster of warmly glowing mushrooms with brown-orange caps, picked by the well. They tingle with magic — surely useful for something.' } },
+             look: { nl: 'Een trosje magisch gloeiende paddenstoelen met blauw-paarse hoedjes, geplukt bij de put. Ze tintelen van de magie — vast ergens goed voor.', en: 'A cluster of magically glowing mushrooms with blue-purple caps, picked by the well. They tingle with magic — surely useful for something.' } },
     sword: { name: { nl: 'Zwaard van Sir Aldric', en: 'Sir Aldric’s Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
              look: { nl: 'Het zwaard van Sir Aldric, dat je zelf bij de smidse weer heel hebt gesmeed. Het lemmet glanst als nieuw — een waardig wapen voor een held.', en: 'Sir Aldric’s sword, which you forged whole again yourself at the smithy. The blade gleams like new — a weapon worthy of a hero.' } },
     coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
@@ -342,7 +342,7 @@ const GAME = {
       },
       worldItems: [
         { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.5)' },         // pindanoot bij het aambeeld/ijzer — op de grond flink donker (het icoon in de tas blijft licht)
-        { item: 'mushroom', hotspot: 'mushroom', x: 230, y: 222, scale: 0.82, glowCol: '255,170,80' }   // bruin/oranje paddenstoelen bij de put — nog iets hoger + iets meer naar rechts
+        { item: 'mushroom', hotspot: 'mushroom', x: 230, y: 222, scale: 0.82, glowCol: '150,110,240' }   // blauw-paarse paddenstoelen bij de put — nog iets hoger + iets meer naar rechts
       ],
       npcs: [
         { id: 'squire', sprite: 'squire', sway: true, filter: 'brightness(0.78) saturate(0.92)', x: 486, y: 284, scale: 1.18, flip: true },   // schildknaap iets groter; beweegt net als de poortwacht uit Deel 1 (rustige doorlopende wieg + lichte ademhaling)
@@ -498,7 +498,7 @@ const GAME = {
           hideFlag: 'taken_courtyard_mushroom',
           gives: {
             item: 'mushroom',
-            giveText: { nl: 'Tegen de voet van de put groeit een trosje warm gloeiende paddenstoelen met bruin-oranje hoedjes. Je plukt ze voorzichtig — ze tintelen van de magie.', en: 'Against the foot of the well grows a cluster of warmly glowing mushrooms with brown-orange caps. You pick them carefully — they tingle with magic.' },
+            giveText: { nl: 'Tegen de voet van de put groeit een trosje magisch gloeiende paddenstoelen met blauw-paarse hoedjes. Je plukt ze voorzichtig — ze tintelen van de magie.', en: 'Against the foot of the well grows a cluster of magically glowing mushrooms with blue-purple caps. You pick them carefully — they tingle with magic.' },
             emptyText: { nl: 'De paddenstoelen bij de put heb je al geplukt.', en: 'You’ve already picked the mushrooms by the well.' }
           }
         },

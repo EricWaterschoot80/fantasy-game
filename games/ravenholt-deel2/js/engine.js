@@ -1619,37 +1619,56 @@
       if (heavy) {
         for (let i = 0; i < 3; i++) {
           const gx = cx - 4 + i * 4, ga = 0.4 + 0.4 * (0.5 + 0.5 * Math.sin(now / 300 + i * 2));
-          fctx.fillStyle = `rgba(255,150,60,${ga.toFixed(3)})`;
+          fctx.fillStyle = `rgba(160,110,240,${ga.toFixed(3)})`;   // smeulende paddenstoelen gloeien blauw-paars
           fctx.fillRect(gx, bowlY - 1, 2, 2);
         }
       }
-      /* drie gedetailleerde kaarsen ín de schaal: waskaars-lichaam (met hooglicht/schaduw + pit)
-         en een gelaagde vlam (buiten oranje, binnen geel, hete witte kern). */
+      /* drie gedetailleerde, slanke kaarsen ín de schaal — met gradiënt-lichaam (schaduw
+         LINKS, hooglicht rechts), afgeronde gesmolten top en een zachte teardrop-vlam.
+         Gradiënten i.p.v. platte pixelblokjes = veel minder 'lomp'. */
       const cands = [[-0.15, 4], [0, 2], [0.15, 4]];   // [x-fractie, was-hoogte]  — middelste kaars langer
       for (let i = 0; i < cands.length; i++) {
-        const fx0 = Math.round(cx + cands[i][0] * W);
-        const footY = Math.round(bowlY + 3);                                        // voet van de kaars in de schaal
-        const waxH = cands[i][1] + 4;                                               // langere middelste kaars
+        const fx0 = cx + cands[i][0] * W;                                           // sub-pixel (vloeiender)
+        const footY = bowlY;                                                        // 3px hoger dan voorheen (voet op de schaalrand)
+        const waxH = cands[i][1] + 3;                                               // iets kleiner
+        const cw = 2.6;                                                             // smaller lichaam
         const waxTop = footY - waxH;
-        const fl = 0.55 + 0.45 * Math.sin(now / (150 + i * 47) + i * 2);            // iets trager, rustiger flikkeren
-        /* waskaars-lichaam (4px) met hooglicht links + schaduw rechts */
-        fctx.fillStyle = '#ece1c4'; fctx.fillRect(fx0 - 2, waxTop, 4, waxH);        // was
-        fctx.fillStyle = '#fff7e6'; fctx.fillRect(fx0 - 2, waxTop, 1, waxH);        // hooglicht links
-        fctx.fillStyle = '#cdbc94'; fctx.fillRect(fx0 + 1, waxTop, 1, waxH);        // schaduw rechts
-        fctx.fillStyle = '#b7a67c'; fctx.fillRect(fx0 - 2, footY - 1, 4, 1);        // voet-schaduw in de schaal
-        fctx.fillStyle = '#fdf3d6'; fctx.fillRect(fx0 - 2, waxTop, 3, 1);           // gesmolten rand bovenop
-        fctx.fillStyle = '#3a2a1a'; fctx.fillRect(fx0, waxTop - 1, 1, 2);           // pit
+        const fl = 0.55 + 0.45 * Math.sin(now / (150 + i * 47) + i * 2);            // rustig flikkeren
+        const bx = fx0 - cw / 2;
+        /* waskaars-lichaam: horizontale gradiënt, donkerder, schaduw links -> hooglicht rechts */
+        const bg = fctx.createLinearGradient(bx, 0, bx + cw, 0);
+        bg.addColorStop(0.0, '#544a33');                                            // schaduw links (donker)
+        bg.addColorStop(0.5, '#9c8c66');
+        bg.addColorStop(1.0, '#c6b791');                                            // hooglicht rechts
+        fctx.fillStyle = bg;
+        fctx.beginPath();
+        fctx.moveTo(bx, waxTop + 1.2);
+        fctx.quadraticCurveTo(fx0, waxTop - 1.2, bx + cw, waxTop + 1.2);            // afgeronde bovenkant
+        fctx.lineTo(bx + cw, footY);
+        fctx.lineTo(bx, footY);
+        fctx.closePath(); fctx.fill();
+        fctx.fillStyle = 'rgba(30,22,12,0.55)'; fctx.fillRect(bx - 0.3, footY - 0.4, cw + 0.6, 1);   // voet-schaduw in de schaal
+        fctx.fillStyle = 'rgba(255,240,205,0.8)'; fctx.fillRect(fx0 - 0.9, waxTop - 0.4, 1.8, 0.9);  // gesmolten was-rand bovenop
+        fctx.fillStyle = '#241a0e'; fctx.fillRect(fx0 - 0.4, waxTop - 1.8, 0.9, 1.8);                // pit
         /* warme gloed rond de vlam (flikkerend) */
-        const gr = fctx.createRadialGradient(fx0, waxTop - 3, 0.5, fx0, waxTop - 3, 8);
-        gr.addColorStop(0, `rgba(255,205,110,${(0.55 * fl).toFixed(3)})`);
+        const gr = fctx.createRadialGradient(fx0, waxTop - 4, 0.5, fx0, waxTop - 4, 7);
+        gr.addColorStop(0, `rgba(255,205,110,${(0.5 * fl).toFixed(3)})`);
         gr.addColorStop(1, 'rgba(255,160,60,0)');
-        fctx.fillStyle = gr; fctx.fillRect(fx0 - 8, waxTop - 11, 16, 16);
-        /* gelaagde vlam */
-        const flH = 4 + Math.round(fl * 3);
-        const tipY = waxTop - 2 - flH;
-        fctx.fillStyle = 'rgba(255,140,45,0.92)'; fctx.fillRect(fx0 - 1, tipY + 1, 3, flH + 1);   // buitenvlam (oranje)
-        fctx.fillStyle = '#ffcf6b'; fctx.fillRect(fx0, tipY + 1, 1, flH);                          // binnenvlam (geel)
-        fctx.fillStyle = '#fff3c0'; fctx.fillRect(fx0, waxTop - 3, 1, 2);                          // hete kern (wit)
+        fctx.fillStyle = gr; fctx.fillRect(fx0 - 7, waxTop - 11, 14, 14);
+        /* zachte teardrop-vlam met verticale gradiënt (oranje -> geel -> witte kern) */
+        const flH = 3.5 + fl * 2.5;
+        const tipY = waxTop - 2.2 - flH;
+        const fg = fctx.createLinearGradient(0, tipY, 0, waxTop - 1);
+        fg.addColorStop(0, 'rgba(255,140,45,0.95)');
+        fg.addColorStop(0.5, '#ffcf6b');
+        fg.addColorStop(1, '#fff3c0');
+        fctx.fillStyle = fg;
+        fctx.beginPath();
+        fctx.moveTo(fx0, tipY);
+        fctx.quadraticCurveTo(fx0 + 1.4, tipY + flH * 0.62, fx0, waxTop - 1);
+        fctx.quadraticCurveTo(fx0 - 1.4, tipY + flH * 0.62, fx0, tipY);
+        fctx.closePath(); fctx.fill();
+        fctx.fillStyle = 'rgba(255,250,228,0.95)'; fctx.fillRect(fx0 - 0.4, waxTop - 3, 0.9, 1.5);   // hete witte kern
       }
       /* rook: altijd een fijn sliertje; dik en zoetig zodra de paddenstoelen smeulen */
       const nPuff = heavy ? 10 : 4;
@@ -1660,10 +1679,12 @@
         const sx = cx + drift;
         const a = (1 - t) * (heavy ? 0.5 : 0.26);
         const r = (heavy ? 4 : 3) + t * (heavy ? 10 : 6);
+        const sc0 = heavy ? '175,150,240' : '200,215,175';   // paddenstoelen-rook = blauw-paars; gewone kaarsrook neutraal
+        const sc1 = heavy ? '150,125,225' : '190,205,165';
         const g = fctx.createRadialGradient(sx, sy, 0.5, sx, sy, r);
-        g.addColorStop(0, `rgba(200,215,175,${a.toFixed(3)})`);
-        g.addColorStop(0.6, `rgba(190,205,165,${(a * 0.5).toFixed(3)})`);
-        g.addColorStop(1, 'rgba(190,205,165,0)');
+        g.addColorStop(0, `rgba(${sc0},${a.toFixed(3)})`);
+        g.addColorStop(0.6, `rgba(${sc1},${(a * 0.5).toFixed(3)})`);
+        g.addColorStop(1, `rgba(${sc1},0)`);
         fctx.fillStyle = g; fctx.fillRect(sx - r, sy - r, r * 2, r * 2);
       }
     }
