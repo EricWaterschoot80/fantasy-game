@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '195',
+  assetVer: '196',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -824,11 +824,11 @@ const GAME = {
       overlays: [],
       fx: {
         bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' },   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
-        mageGlow: { x: 142, y: 123, r: 10, a: 0.42, sparkle: true, hideFlag: 'wizardTripping' },   // paars-blauwe glinster op de bol van de tovenaarsstaf (dooft tijdens de trance)
+        mageGlow: { x: 153, y: 138, r: 10, a: 0.42, sparkle: true, hideFlag: 'wizardTripping' },   // paars-blauwe glinster op de bol van de tovenaarsstaf (dooft tijdens de trance)
         candleBowl: { x: 94, y: 262, w: 46, h: 66, img: 'assets/art/altar-censer.png', smokeFlag: 'wizardTripping' }   // klein altaar met bronzen schaal + kaarsen links van de tovenaar; lichte rook altijd, zwaar zodra de paddenstoelen erin gaan
       },
       npcs: [
-        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 192, y: 264, scale: 0.94, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping', tripFx: true },   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
+        { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 192, y: 256, scale: 0.85, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping', tripFx: true },   // de boze tovenaar (mad-wizard) — iets kleiner + iets naar achter (hoger, kleiner)   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
         { id: 'libRaven', sprite: 'ravenPerch', x: 366, y: 155, scale: 1.02, flip: false, peck: true, peckAmt: 0.3 }                               // de raaf op de vensterbank — flink groter, 5px lager
       ],
       worldItems: [],
