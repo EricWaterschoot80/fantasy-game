@@ -4,16 +4,16 @@
    offline beschikbaar wilt hebben (optioneel — niet-vermelde bestanden worden bij
    eerste gebruik alsnog gecachet). */
 
-const CACHE = 'ravenholt2-v201';
+const CACHE = 'ravenholt2-v202';
 
 const PRECACHE = [
   './',
   './index.html',
   './css/style.css',
-  './js/sprites.js',
-  './js/scenes.js',
-  './js/data.js',
-  './js/engine.js',
+  './js/sprites.min.js',
+  './js/scenes.min.js',
+  './js/data.min.js',
+  './js/engine.min.js',
   './manifest.webmanifest',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png'
