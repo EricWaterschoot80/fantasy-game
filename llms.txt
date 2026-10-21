@@ -1,0 +1,25 @@
+# RetroAdventureWorld
+
+> Free retro point-and-click adventure games in 16-bit pixel art, playable in any web browser on phone, tablet or desktop. No download and no sign-up needed. Every game is available in English and Dutch. Made by Eric Waterschoot.
+
+The homepage is a pixel-art world map: each place on the map is one adventure, and each adventure has its own hero. The games suit children and families as well as fans of classic 80s and 90s adventure games.
+
+## Games
+
+- [Maanhoef](https://www.retroadventureworld.com/games/maanhoef/): Loïs sets out to rescue her horse Moonhoof. Easy, about 20 minutes, good for beginners and children.
+- [The Amulet of Emberfall](https://www.retroadventureworld.com/games/emberfall/): eternal autumn, a stolen amulet and a sleeping minotaur. Easy puzzle adventure, about 15 minutes.
+- [Whispers of Ravenholt — Part 1](https://www.retroadventureworld.com/games/ravenholt/): young Finn investigates a dried-up village fountain and a silent water mill in the kingdom of Eldoria. Mystery, about 15 to 20 minutes, a little more challenging.
+- [Whispers of Ravenholt — Part 2](https://www.retroadventureworld.com/games/ravenholt-deel2/): the sequel; Finn slips into the castle of Eldoria to free his captive father. Play Part 1 first.
+
+## Facts
+
+- Price: free
+- Platform: web browser (phone, tablet, desktop); can be added to the home screen as an app
+- Languages: English and Dutch
+- Account: optional, only for saving Whispers of Ravenholt progress in the cloud; no ads, no in-app purchases, no chat
+
+## More
+
+- [Nederlandse versie: gratis spelletjes voor kinderen](https://www.retroadventureworld.com/nl/)
+- [Point-and-click games for kids: a parents' guide](https://www.retroadventureworld.com/point-and-click-games-for-kids/)
+- [All point-and-click adventure games](https://www.retroadventureworld.com/point-and-click-adventure-games/)
