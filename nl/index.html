@@ -182,17 +182,29 @@
     .beacon.soon { display: none; }
 
     /* living water: the river flows, the falls fall, the fountain sprays, windows flicker, a raven passes */
-    .water { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: screen; overflow: visible; }
-    .water .flow path { fill: none; stroke: #bfeaff; stroke-width: 1.6; stroke-linecap: square; stroke-dasharray: 3 22; opacity: .5; animation: flow 3.4s linear infinite; }
-    .water .flow .f2 { stroke-dasharray: 5 31; stroke-width: 1.3; animation-duration: 4.6s; opacity: .45; }
-    .water .flow .f3 { stroke-dasharray: 2 17; stroke: #8fd8ff; animation-duration: 5.2s; animation-delay: -2s; opacity: .4; }
-    @keyframes flow { to { stroke-dashoffset: -100; } }
-    .water .falls path { fill: none; stroke: #e9fbff; stroke-width: 1.6; stroke-dasharray: 5 7; opacity: .7; animation: fall .55s linear infinite; }
-    .water .falls .b { stroke: #9fe3ff; stroke-dasharray: 3 9; animation-duration: .8s; opacity: .55; }
-    @keyframes fall { to { stroke-dashoffset: -24; } }
-    .water .foam ellipse { fill: #eafaff; opacity: .35; transform-box: fill-box; transform-origin: center; animation: foam 1.3s ease-in-out infinite; }
-    .water .foam .b { animation-delay: -.6s; }
-    @keyframes foam { 0%, 100% { opacity: .2; transform: scale(.8); } 50% { opacity: .55; transform: scale(1.15); } }
+    .water { position: absolute; inset: 0; pointer-events: none; }
+    .water > i { position: absolute; inset: 0; image-rendering: pixelated; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+    .water .flow { background: url(/assets/plates/water/ripple.png) 0 0 / calc(48 * var(--s)) calc(48 * var(--s)) repeat; mix-blend-mode: screen; opacity: .75; }
+    .fl-L { -webkit-mask-image: url(/assets/plates/water/flow-L.png); mask-image: url(/assets/plates/water/flow-L.png); animation: fl-se 4s linear infinite; }
+    .fl-S { -webkit-mask-image: url(/assets/plates/water/flow-S.png); mask-image: url(/assets/plates/water/flow-S.png); animation: fl-w 5s linear infinite; }
+    .fl-B { -webkit-mask-image: url(/assets/plates/water/flow-B.png); mask-image: url(/assets/plates/water/flow-B.png); animation: fl-w 4.6s linear infinite; }
+    .fl-R { -webkit-mask-image: url(/assets/plates/water/flow-R.png); mask-image: url(/assets/plates/water/flow-R.png); animation: fl-s 4.2s linear infinite; }
+    @keyframes fl-se { to { background-position: calc(48 * var(--s)) calc(48 * var(--s)); } }
+    @keyframes fl-w { to { background-position: calc(-48 * var(--s)) 0; } }
+    @keyframes fl-s { to { background-position: calc(-12 * var(--s)) calc(48 * var(--s)); } }
+    .water .sparkle { background: url(/assets/plates/water/sparkle.png) 0 0 / calc(48 * var(--s)) calc(48 * var(--s)) repeat;
+      -webkit-mask-image: url(/assets/plates/water/flow-L.png), url(/assets/plates/water/flow-S.png), url(/assets/plates/water/flow-B.png), url(/assets/plates/water/flow-R.png);
+              mask-image: url(/assets/plates/water/flow-L.png), url(/assets/plates/water/flow-S.png), url(/assets/plates/water/flow-B.png), url(/assets/plates/water/flow-R.png);
+      animation: twinkle 1.8s steps(3) infinite; }
+    @keyframes twinkle { 0% { opacity: .2; background-position: 0 0; } 50% { opacity: .9; } 100% { opacity: .2; background-position: calc(14 * var(--s)) calc(6 * var(--s)); } }
+    .water .falls { background: url(/assets/plates/water/fall.png) 0 0 / calc(24 * var(--s)) calc(32 * var(--s)) repeat;
+      -webkit-mask-image: url(/assets/plates/water/falls.png); mask-image: url(/assets/plates/water/falls.png); animation: falling .45s linear infinite; }
+    @keyframes falling { to { background-position: 0 calc(32 * var(--s)); } }
+    .water .foam { inset: auto; width: calc(26 * var(--s)); height: calc(8 * var(--s)); translate: -50% -50%; border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(234, 250, 255, .6), rgba(234, 250, 255, 0)); animation: foam 1.2s ease-in-out infinite; }
+    .water .foam.b { width: calc(18 * var(--s)); animation-delay: -.5s; }
+    @keyframes foam { 0%, 100% { opacity: .35; scale: .8; } 50% { opacity: .9; scale: 1.15; } }
+    .water svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
     .water .spray rect { fill: #dff7ff; transform-box: fill-box; animation: spray 1.4s ease-out infinite; }
     .water .spray .b { animation-delay: -.45s; } .water .spray .c { animation-delay: -.9s; }
     @keyframes spray { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 1; } 55% { transform: translate(0, -9px); } 100% { transform: translate(0, 1px); opacity: 0; } }
@@ -200,7 +212,7 @@
     .water .windows .b { animation-duration: 3.7s; } .water .windows .c { animation-duration: 2.2s; animation-delay: -1s; }
     @keyframes flicker { 0%, 100% { opacity: .2; } 33% { opacity: .55; } 66% { opacity: .35; } }
     .raven { position: absolute; left: -6%; top: 9%; width: calc(26 * var(--s)); height: calc(28 * var(--s)); image-rendering: pixelated;
-      background: url(/assets/heroes/raven-fly.png) 0 0 / 400% 100% no-repeat; filter: brightness(2.3) saturate(.7); z-index: 2;
+      background: url(/assets/heroes/map/raven-fly.png) 0 0 / 400% 100% no-repeat; filter: brightness(1.8) saturate(.7); z-index: 2;
       animation: wings .5s steps(4) infinite, fly-over 26s linear infinite; }
     @keyframes wings { to { background-position: 133.33% 0; } }
     @keyframes fly-over { 0% { left: -6%; top: 7%; } 15% { top: 3%; } 30% { left: 104%; top: 5%; } 30.01%, 100% { left: 104%; top: 5%; } }
@@ -467,35 +479,15 @@
       <div class="stage" id="stage">
         <img class="map" src="/assets/plates/map.webp" width="2048" height="1376" fetchpriority="high"
              alt="Pixel-art nachtkaart van RetroAdventureWorld: een boerderij met windmolens, een herfstbos met een grot, een blauw kasteel op een heuvel en een dorp met een fontein, verbonden door zandpaden en een rivier.">
-        <svg class="water" viewBox="0 0 1024 688" preserveAspectRatio="none" aria-hidden="true">
-          <g class="flow">
-            <path class="f1" d="M210 328 C225 336 240 345 258 356"/>
-            <path class="f2" d="M262 412 C290 430 320 455 350 470 S400 492 430 497 S500 525 560 532 S640 530 700 520"/>
-            <path class="f3" d="M262 412 C290 430 320 455 350 470 S400 492 430 497 S500 525 560 532 S640 530 700 520" transform="translate(4 10)"/>
-            <path class="f1" d="M690 238 C715 246 740 250 765 244"/>
-            <path class="f2" d="M770 280 C782 305 792 340 792 380 S785 440 760 465 S700 505 640 522"/>
-            <path class="f3" d="M770 280 C782 305 792 340 792 380 S785 440 760 465 S700 505 640 522" transform="translate(-9 2)"/>
-            <path class="f2" d="M470 548 C560 552 650 550 740 548 S840 556 900 566"/>
-            <path class="f3" d="M330 548 C290 556 250 562 210 566 S120 570 60 565"/>
-          </g>
-          <g class="falls">
-            <path d="M260 357V401M264 359V402M268 357V403M272 360V401"/>
-            <path class="b" d="M262 358V402M266 357V403M270 359V402"/>
-            <path d="M768 246V272M772 245V274M776 247V273M780 246V271"/>
-            <path class="b" d="M770 246V273M774 245V274M778 247V272"/>
-          </g>
-          <g class="foam">
-            <ellipse cx="268" cy="406" rx="11" ry="4"/><ellipse class="b" cx="262" cy="410" rx="7" ry="3"/>
-            <ellipse cx="775" cy="276" rx="8" ry="3"/><ellipse class="b" cx="770" cy="279" rx="5" ry="2"/>
-          </g>
-          <g class="spray">
-            <rect x="610" y="366" width="2" height="2"/><rect class="b" x="607" y="367" width="2" height="2"/><rect class="c" x="613" y="367" width="2" height="2"/>
-          </g>
-          <g class="windows">
-            <rect x="561" y="342" width="4" height="4"/><rect class="b" x="611" y="336" width="4" height="4"/><rect class="c" x="662" y="348" width="4" height="4"/>
-            <rect class="b" x="701" y="371" width="4" height="4"/><rect x="723" y="403" width="4" height="4"/><rect class="c" x="131" y="181" width="4" height="4"/>
-          </g>
-        </svg>
+        <div class="water" aria-hidden="true">
+          <i class="flow fl-L"></i><i class="flow fl-S"></i><i class="flow fl-B"></i><i class="flow fl-R"></i>
+          <i class="sparkle"></i><i class="falls"></i>
+          <i class="foam" style="left:25.9%;top:59.4%"></i><i class="foam b" style="left:75.6%;top:42.3%"></i>
+          <svg viewBox="0 0 1024 688" preserveAspectRatio="none">
+            <g class="spray"><rect x="610" y="366" width="2" height="2"/><rect class="b" x="607" y="367" width="2" height="2"/><rect class="c" x="613" y="367" width="2" height="2"/></g>
+            <g class="windows"><rect x="561" y="342" width="4" height="4"/><rect class="b" x="611" y="336" width="4" height="4"/><rect class="c" x="662" y="348" width="4" height="4"/><rect class="b" x="701" y="371" width="4" height="4"/><rect x="723" y="403" width="4" height="4"/><rect class="c" x="131" y="181" width="4" height="4"/></g>
+          </svg>
+        </div>
         <div id="ambient" aria-hidden="true"><i class="raven"></i></div>
         <div class="fog" aria-hidden="true"><i></i><i></i><i></i></div>
         <div id="beacons" aria-hidden="true"></div>
@@ -683,13 +675,13 @@
     var W = 1024, H = 688;
     /* Real in-game sprites. stride = map px walked per animation frame, so the feet never slide. */
     var HEROES = {
-      lois:  { idle: ['/assets/heroes/maanhoef.png', 29, 62], wave: [['/assets/heroes/maanhoef-wave.png', 36, 62], ['/assets/heroes/maanhoef.png', 29, 62]],
-               walk: '/assets/heroes/maanhoef-walk.png', fw: 33, fh: 62, frames: 4, stride: 7, h: 46, home: [300, 281] },
-      ember: { idle: ['/assets/heroes/emberfall.png', 34, 56], wave: [['/assets/heroes/emberfall-wave.png', 38, 56], ['/assets/heroes/emberfall.png', 34, 56]],
-               walk: '/assets/heroes/emberfall-walk.png', fw: 34, fh: 60, frames: 8, stride: 4.2, h: 44, home: [393, 268] },
-      finn:  { idle: ['/assets/heroes/finn-map.png', 54, 84], wave: [['/assets/heroes/finn-wave.png', 59, 84], ['/assets/heroes/finn-wave2.png', 54, 84]],
-               blink: ['/assets/heroes/finn-blink.png', 54, 84],
-               walk: '/assets/heroes/finn-walk.png', fw: 60, fh: 84, frames: 16, stride: 2.6, h: 50, home: [434, 334] }
+      lois:  { idle: ['/assets/heroes/map/lois.png', 13, 26], wave: [['/assets/heroes/map/lois-wave0.png', 16, 26], ['/assets/heroes/map/lois-wave1.png', 13, 26]],
+               walk: '/assets/heroes/map/lois-walk.png', fw: 15, fh: 26, frames: 4, stride: 7, h: 52, home: [300, 281] },
+      ember: { idle: ['/assets/heroes/map/ember.png', 16, 25], wave: [['/assets/heroes/map/ember-wave0.png', 18, 25], ['/assets/heroes/map/ember-wave1.png', 16, 25]],
+               walk: '/assets/heroes/map/ember-walk.png', fw: 15, fh: 25, frames: 8, stride: 4.2, h: 50, home: [393, 268] },
+      finn:  { idle: ['/assets/heroes/map/finn.png', 21, 32], wave: [['/assets/heroes/map/finn-wave0.png', 23, 32], ['/assets/heroes/map/finn-wave1.png', 21, 32]],
+               blink: ['/assets/heroes/map/finn-blink.png', 21, 32],
+               walk: '/assets/heroes/map/finn-walk.png', fw: 24, fh: 32, frames: 16, stride: 2.6, h: 64, home: [434, 334] }
     };
     var GAMES = [
       { id: 'maanhoef', hero: 'lois', href: '/games/maanhoef/', portrait: '/assets/heroes/portrait-maanhoef.png',
@@ -803,10 +795,8 @@
       sp.style.width = 'calc(' + (h.h * h.fw / h.fh) + ' * var(--s))'; sp.style.height = 'calc(' + h.h + ' * var(--s))';
     }
     function place(h) {
-      /* a touch of depth: further up the map is further away */
-      var d = 0.9 + 0.16 * (h.pos[1] / H);
       h.el.style.left = pct(h.pos[0], W); h.el.style.top = pct(h.pos[1], H);
-      h.el.style.transform = 'translate(-50%, -100%) scale(' + d.toFixed(3) + ')';
+      h.el.style.transform = 'translate(-50%, -100%)';
       h.spr.style.transform = h.flip ? 'scaleX(-1)' : '';
       h.el.style.zIndex = Math.round(h.pos[1]);
     }
@@ -980,8 +970,6 @@
     }
     [[150, 330], [250, 380], [90, 470], [330, 440], [210, 560], [480, 520], [700, 560], [760, 230], [520, 170], [300, 140], [60, 300], [640, 470], [820, 380], [180, 620]]
       .forEach(function (p, i) { dot('firefly', p[0], p[1], -i * 0.7); });
-    [[300, 432], [360, 470], [455, 505], [540, 530], [620, 512], [700, 470], [760, 380], [790, 300], [40, 560], [250, 400]]
-      .forEach(function (p, i) { dot('glint', p[0], p[1], -i * 0.45); });
     [[60, 16], [140, 34], [250, 12], [330, 30], [480, 18], [520, 40], [700, 14], [760, 34], [880, 20], [980, 40]]
       .forEach(function (p, i) { dot('star', p[0], p[1], -i * 0.5); });
     [[106, 128, 0], [106, 128, -1.2], [106, 128, -2.4], [572, 290, -0.6], [572, 290, -1.8], [688, 318, -1.1], [688, 318, -2.9]]
