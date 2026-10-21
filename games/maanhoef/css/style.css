@@ -131,6 +131,33 @@ html, body {
   font-weight: 600;
 }
 
+/* Hintknop (oog): rechtsboven op desktop */
+.round-btn.hint { right: 12px; }
+
+/* Zolang er een popup open staat: geen zwevende knoppen over de popup heen */
+body.popup-open #langBtn,
+body.popup-open #hintBtn { display: none; }
+
+/* Titelscherm: Verder spelen + Nieuw spel */
+.title-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 22px;
+  justify-content: center;
+  align-items: center;
+}
+.gold-btn.secondary {
+  font-size: 15px;
+  padding: 9px 20px;
+  background: var(--panel-2);
+  color: var(--gold-light);
+  box-shadow:
+    0 0 0 2px #1f1410,
+    0 0 0 4px var(--gold),
+    0 0 0 6px #1f1410,
+    inset 0 2px 0 rgba(231,207,134,.25);
+}
+
 /* Tekstballon boven een personage */
 .speech {
   position: fixed;
@@ -300,7 +327,7 @@ html, body {
   margin-top: 3px;
   text-align: right;
   font-family: var(--font-pixel);
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--sand);
   opacity: .85;
   animation: pulse 1.6s ease-in-out infinite;
@@ -602,12 +629,16 @@ html, body {
 }
 
 .puz-hint-btn {
-  display: block;
-  width: 100%;
+  display: inline-block;
+  width: auto;
+  min-width: 140px;
   font-size: 14px;
-  padding: 9px 10px;
+  padding: 9px 22px;
   margin-bottom: 10px;
+  position: relative;      /* boven losse scherven van de legpuzzel */
+  z-index: 3;
 }
+#puzzle-tip { position: relative; z-index: 3; text-shadow: 1px 1px 0 #1f1410, 0 0 4px #1f1410; }
 
 /* Tegel die uitgelicht wordt als schuiftip */
 .puz-tile.suggest {
@@ -717,8 +748,24 @@ html, body {
   overflow: visible;
 }
 .jig-inner { position: absolute; left: 0; top: 0; }
-/* Op desktop mag de legpuzzel-kaart breder zijn zodat de puzzel groter is */
-@media (min-width: 720px) { .puzzle-card.jig-wide { max-width: 680px; } }
+/* Legpuzzel-kaart: breed (kader + bak naast elkaar), Voorbeeld-knop in de kopregel
+   zodat het speelveld de volle hoogte krijgt (ook op een liggende telefoon). */
+.puzzle-card.jig-wide { max-width: 860px; padding-top: 12px; }
+.puzzle-card.jig-wide h2 { padding: 0 150px; min-height: 44px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+.puzzle-card.jig-wide .puz-hint-btn {
+  position: absolute; left: 12px; top: 12px; z-index: 2;
+  width: auto; min-width: 0; min-height: 44px; margin: 0; padding: 8px 14px; font-size: 14px;
+}
+.puzzle-card.jig-wide .puz-tip { max-width: none; text-align: center; margin-top: 8px; font-size: 12px; }
+/* De scherven zijn 'grote' vlakken met een clip-path: geen schuifbalken door hun lege randen */
+.puzzle-card.jig-wide { overflow: hidden; }
+.jig-tray {
+  position: absolute;
+  background: rgba(20, 16, 11, .55);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(201,162,75,.35), inset 0 0 14px rgba(0,0,0,.6);
+  pointer-events: none;
+}
 .jig-frame {
   position: absolute;
   left: 0; top: 0;
@@ -850,11 +897,17 @@ html, body {
 @media (pointer: coarse) {
   #bottomui { display: contents; }
 
-  /* knoppen allemaal links: geluid, taal, oog — inventory staat rechts */
+  /* knoppen allemaal links: geluid, taal, oog — inventory staat rechts.
+     Alle tikdoelen minstens 44px (vingervriendelijk). */
+  .round-btn { width: 44px; height: 44px; }
   .round-btn.sound { left: 12px; }
-  .round-btn.lang  { left: 60px; }
-  #hintBtn { left: 108px; right: auto; }
-  #homeBtn { left: 10px; right: auto; }
+  .round-btn.lang  { left: 64px; }
+  #hintBtn { left: 116px; right: auto; }
+  #homeBtn { left: 10px; right: auto; width: 44px; height: 44px; font-size: 22px; }
+  #topcenter { max-width: calc(100vw - 340px); }
+  .gold-btn.riddle-ans { min-height: 44px; }
+  .round-btn.puz-x { width: 44px; height: 44px; }
+  .puz-hint-btn { min-height: 44px; }
 
   #invbar {
     position: fixed;
@@ -869,12 +922,12 @@ html, body {
     background: rgba(26, 20, 16, .55);
   }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
+  .inv-slot { width: 44px; height: 44px; font-size: 22px; }
 
   /* tekst links onderaan, weg van de inventory en de home-knop (linksonder) */
   #msg {
     position: fixed;
-    left: 52px;
+    left: 62px;
     right: auto;
     bottom: 8px;
     max-width: 58vw;
@@ -916,4 +969,8 @@ html, body {
   #riddle-face { width: 36px; height: 36px; }
   .ornament { font-size: 30px; }
   .win-banner { max-height: 34vh; }
+  .puzzle-card.jig-wide { padding: 8px 14px 10px; }
+  .puzzle-card.jig-wide h2 { margin-bottom: 4px; }
+  .puzzle-card.jig-wide .puz-hint-btn, .puzzle-card.jig-wide .puz-x { top: 8px; }
+  .puzzle-card.jig-wide .puz-tip { margin-top: 4px; font-size: 11px; }
 }

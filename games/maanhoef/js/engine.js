@@ -65,6 +65,15 @@
     document.getElementById('rotate-h1').textContent = L(GAME.ui.rotateTitle);
     document.getElementById('rotate-text').textContent = L(GAME.ui.rotateText);
     elMsgMore.textContent = L(GAME.ui.tapContinue);
+    /* knoppen/labels volgen de taal (schermlezers + tooltips) */
+    const setLabel = (el, key) => { if (el && GAME.ui[key]) { el.setAttribute('aria-label', L(GAME.ui[key])); el.title = L(GAME.ui[key]); } };
+    setLabel(elSoundBtn, 'soundBtn');
+    setLabel(elLangBtn, 'langBtn');
+    setLabel(elHintBtn, 'hintBtn');
+    setLabel(document.getElementById('homeBtn'), 'homeBtn');
+    if (GAME.ui.invLabel) elInvbar.setAttribute('aria-label', L(GAME.ui.invLabel));
+    document.querySelectorAll('.puz-x').forEach((b) => setLabel(b, 'closeBtn'));
+    updateTitleButtons();
     updateQuest(true);
     renderInventory();
   }
@@ -82,7 +91,20 @@
     if (sc.bg) ART.scenes[id] = sc.bg;
   }
   const art = { scenes: {}, sprites: {}, items: {}, overlays: {}, variants: {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
+  /* Scene-art wordt per scene geladen: eerst de scene waar je bent (titel blijft snel),
+     de rest pas na Start op de achtergrond (loadAllSceneArt). */
+  const sceneArtLoaded = {};
+  function loadSceneArt(id) {
+    if (sceneArtLoaded[id]) return;
+    sceneArtLoaded[id] = true;
+    const sc = GAME.scenes[id];
+    if (!sc) return;
+    if (sc.bg) {
+      const img = new Image();
+      img.onload = () => { if (id === state.currentScene) paintBackground(); };
+      img.src = sc.bg + AV;
+      art.scenes[id] = img;
+    }
     (sc.bgVariants || []).forEach((v) => {
       if (!v.img || art.variants[v.img]) return;
       const im = new Image();
@@ -90,6 +112,21 @@
       im.src = v.img + AV;
       art.variants[v.img] = im;
     });
+    (sc.overlays || []).forEach((o) => { if (o.img) overlayImg(o.img); });
+  }
+  const extraArt = [];
+  function loadAllSceneArt() {
+    loadSceneArt(state.currentScene);
+    Object.keys(GAME.scenes).forEach(loadSceneArt);
+    /* puzzel- en winstbeelden alvast in de cache, zodat ze meteen klaarstaan */
+    for (const sc of Object.values(GAME.scenes)) {
+      for (const hs of (sc.hotspots || [])) {
+        const src = (hs.slidePuzzle && hs.slidePuzzle.img) || (hs.jigsaw && hs.jigsaw.img);
+        if (src) { const im = new Image(); im.src = src + AV; extraArt.push(im); }
+      }
+    }
+    const win = document.querySelector('.win-banner[data-src]');
+    if (win) { win.src = win.getAttribute('data-src'); win.removeAttribute('data-src'); }
   }
   function overlayImg(src) {
     if (!art.overlays[src]) {
@@ -98,12 +135,6 @@
       art.overlays[src] = img;
     }
     return art.overlays[src];
-  }
-  for (const [id, src] of Object.entries(ART.scenes)) {
-    const img = new Image();
-    img.onload = () => { if (id === state.currentScene) paintBackground(); };
-    img.src = src + AV;
-    art.scenes[id] = img;
   }
   for (const [id, src] of Object.entries(ART.sprites)) {
     const img = new Image();
@@ -124,6 +155,31 @@
     return { currentScene: GAME.startScene, inventory: [], flags: {}, selectedItem: null };
   }
   let state = newState();
+
+  /* ---------- Opslaan: voortgang blijft bewaard (localStorage) ---------- */
+  const SAVE_KEY = 'maanhoef_save_v1';
+  function readSave() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      const d = JSON.parse(raw);
+      if (!d || !GAME.scenes[d.scene] || !Array.isArray(d.inventory) || typeof d.flags !== 'object') return null;
+      return d;
+    } catch (e) { return null; }
+  }
+  function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* prima */ } }
+  let lastSaved = '';
+  function saveGame() {
+    if (!started || !elWin.hidden) return;
+    const d = { scene: state.currentScene, inventory: state.inventory.filter((i) => GAME.items[i]),
+                flags: state.flags, x: Math.round(player.x), y: Math.round(player.y) };
+    const json = JSON.stringify(d);
+    if (json === lastSaved) return;
+    lastSaved = json;
+    try { localStorage.setItem(SAVE_KEY, json); } catch (e) { /* prima */ }
+  }
+  /* startscene meteen laden; bij een opgeslagen spel ook die scene */
+  const bootSave = readSave();
 
   const start0 = GAME.scenes[GAME.startScene].playerStart;
   const player = {
@@ -158,6 +214,17 @@
   let soundOn = true;
 
   const fade = { mode: null, t0: 0, dur: 280 };
+
+  /* Taalknop (en hintknop) verbergen zolang er een popup open staat. */
+  const POPUP_IDS = ['win-screen', 'death-screen', 'puzzle-screen', 'riddle-screen', 'rune-screen', 'maze-screen'];
+  function syncPopupState() {
+    const open = POPUP_IDS.some((id) => { const el = document.getElementById(id); return el && !el.hidden; });
+    document.body.classList.toggle('popup-open', open);
+  }
+  if (window.MutationObserver) {
+    const mo = new MutationObserver(syncPopupState);
+    POPUP_IDS.forEach((id) => { const el = document.getElementById(id); if (el) mo.observe(el, { attributes: true, attributeFilter: ['hidden'] }); });
+  }
   const dust = [];
   const embers = [];
   let fireflies = [];
@@ -1725,10 +1792,11 @@
 
   function drawHints(now, scale) {
     if (now > hintUntil) return;
-    const remain = (hintUntil - now) / 1800;
+    const remain = (hintUntil - now) / 2600;
     const pulse = 0.5 + 0.5 * Math.sin(now / 130);
     const alpha = Math.min(1, remain * 2) * (0.55 + 0.35 * pulse);
     for (const hs of GAME.scenes[state.currentScene].hotspots) {
+      if (!hsVisible(hs)) continue;
       const r = hsRect(hs);
       const x = view.ox + r.x * scale, y = view.oy + r.y * scale;
       ctx.save();
@@ -1785,7 +1853,9 @@
 
   /* ---------- Narratie: paneel + tekstballonnen ---------- */
   function say(text, anchor, face) {
+    if (typeof text === 'function') text = text(state);
     if (!text) return;
+    if (Array.isArray(text)) { text.forEach((t) => say(t, anchor, face)); return; }
     msgQueue.push({ text, anchor: anchor || null, face: face || null });
     if (!msgOpen()) showNextMsg();
   }
@@ -2041,13 +2111,23 @@
     sfx('tap');
   }
 
+  /* Rooster-maat past zich aan de schermhoogte aan (liggende telefoon: niets valt eraf). */
+  function slideBoardSize() {
+    const short = window.innerHeight <= 540;
+    const chrome = short ? 128 : 190;           // titel + hintknop + randen + marges
+    return Math.max(150, Math.min(240, Math.floor(window.innerHeight - chrome)));
+  }
   function renderSlide() {
     const { hs, n, tiles } = slide;
     const cfg = hs.slidePuzzle;
-    const px = 240 / n;
+    const B = slideBoardSize();
+    slide.board = B;
+    const px = B / n;
     if (elPuzTip) elPuzTip.hidden = true;   // strategie-tip vervalt na elke zet
     elPuzGrid.className = '';                // reset eventuele legpuzzel-layout
-    elPuzGrid.style.width = ''; elPuzGrid.style.height = '';
+    elPuzGrid.style.width = B + 'px'; elPuzGrid.style.height = B + 'px';
+    const card = document.getElementById('puzzle-card');
+    if (card) card.style.setProperty('--board', B + 'px');
     elPuzGrid.innerHTML = '';
     tiles.forEach((tile, pos) => {
       if (tile === n * n - 1) return;            // leeg vak
@@ -2057,7 +2137,7 @@
       d.style.left = (pos % n) * px + 'px';
       d.style.top = ((pos / n) | 0) * px + 'px';
       d.style.backgroundImage = `url(${cfg.img}${AV})`;
-      d.style.backgroundSize = '240px 240px';
+      d.style.backgroundSize = B + 'px ' + B + 'px';
       d.style.backgroundPosition = `-${(tile % n) * px}px -${((tile / n) | 0) * px}px`;
       d.dataset.pos = pos;
       /* touchend met preventDefault zodat Safari niet de 300ms click-delay heeft */
@@ -2094,14 +2174,22 @@
     }
   }
 
-  function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; const c = document.getElementById('puzzle-card'); if (c) c.classList.remove('jig-wide'); }
+  function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; const c = document.getElementById('puzzle-card'); if (c) { c.classList.remove('jig-wide'); c.style.removeProperty('--board'); } }
+  window.addEventListener('resize', () => { if (slide && !elPuzzle.hidden) renderSlide(); });
 
-  /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader (bak rechts) ---------- */
+  /* ---------- Legpuzzel: sleep 10 scherven van de bak (rechts) naar het kader (links) ----------
+     Zelfde opzet als Emberfall: elke scherf heeft een eigen vakje in de bak (4×3 raster)
+     en ligt daar verkleind, zodat niets overlapt of buiten de kaart valt.
+     Oppakken = op ware grootte en recht. */
   let jig = null;   // { hs, n, frameW, frameH, stageW, stageH, scale, locked[], drag, pieces[] }
   const JIG_FW = 320, JIG_FH = 240;          // kader (4:3), links
-  const JIG_GAP = 18, JIG_TRW = 272;         // bak met scherven, rechts
+  const JIG_GAP = 18;                        // ruimte tussen kader en bak
+  const JIG_COLS = 4, JIG_ROWS = 3;          // vakjes in de bak
+  const JIG_CELL_W = 92, JIG_CELL_H = 84;
+  const JIG_TRW = JIG_COLS * JIG_CELL_W;
   const JIG_STAGE_W = JIG_FW + JIG_GAP + JIG_TRW;
-  const JIG_STAGE_H = 250;
+  const JIG_STAGE_H = Math.max(JIG_FH, JIG_ROWS * JIG_CELL_H) + 4;
+  const JIG_SNAP = 36;                       // hoe dicht bij de goede plek telt als 'goed' (ruim voor kinderen)
   const JIG_TIP = { nl: 'Sleep elke scherf naar de juiste plek in het kader.', en: 'Drag each shard into its place in the frame.' };
   const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
   const JIG_PERIM = [[0,0],[0.37,0],[0.71,0],[1,0],[1,0.57],[1,1],[0.59,1],[0.25,1],[0,1],[0,0.43]];
@@ -2116,11 +2204,21 @@
   }
   function fitJigsaw() {
     if (!jig || !jig.innerEl) return;
-    const avail = elPuzGrid.clientWidth || jig.stageW;
-    const sc = Math.min(1, avail / jig.stageW);
+    /* Eerst op ware grootte zetten en meten, anders meten we de al-geschaalde maat (krimp-lus). */
+    elPuzGrid.style.width = '100%';
+    elPuzGrid.style.height = jig.stageH + 'px';
+    const availW = elPuzGrid.clientWidth || jig.stageW;
+    /* Beschikbare hoogte = echte viewport minus alles van de kaart behalve het speelveld
+       (titel, tip, randen) en de marges van de overlay. */
+    const card = document.getElementById('puzzle-card');
+    const chrome = card ? Math.max(0, card.scrollHeight - elPuzGrid.offsetHeight) : 120;   // scrollHeight: ook als de kaart al begrensd is
+    const vh = window.innerHeight || 480;
+    const availH = Math.max(110, vh - chrome - 26);
+    const sc = Math.min(1.3, availW / jig.stageW, availH / jig.stageH);
     jig.scale = sc;
     jig.innerEl.style.transform = 'scale(' + sc + ')';
     jig.innerEl.style.transformOrigin = 'top left';
+    elPuzGrid.style.width = (jig.stageW * sc) + 'px';
     elPuzGrid.style.height = (jig.stageH * sc) + 'px';
   }
   function openJigsaw(hs) {
@@ -2133,8 +2231,16 @@
     const card = document.getElementById('puzzle-card'); if (card) card.classList.add('jig-wide');
     buildJigsaw();
     elPuzzle.hidden = false;
+    fitJigsaw();
     requestAnimationFrame(fitJigsaw);
     sfx('tap');
+  }
+  /* Scherf terug in zijn eigen vakje in de bak (verkleind, licht gedraaid). */
+  function jigToTray(el) {
+    const t = el._tray;
+    el.style.left = t.x + 'px'; el.style.top = t.y + 'px';
+    el.style.transform = 'rotate(' + t.rot + 'deg) scale(' + t.s + ')';
+    el.style.zIndex = 2;
   }
   function buildJigsaw() {
     const j = jig, cfg = j.hs.jigsaw;
@@ -2149,40 +2255,58 @@
     inner.style.width = SW + 'px'; inner.style.height = SH + 'px';
     elPuzGrid.appendChild(inner);
     j.innerEl = inner;
-    // Kader links, met verborgen voorbeeld-laag (alleen bij Hint)
+    // Kader links (verticaal gecentreerd), met verborgen voorbeeld-laag (alleen bij Hint)
+    const frameY = Math.round((SH - FH) / 2);
+    j.frameY = frameY;
     const frame = document.createElement('div');
     frame.className = 'jig-frame';
-    frame.style.width = FW + 'px'; frame.style.height = FH + 'px';
+    frame.style.width = FW + 'px'; frame.style.height = FH + 'px'; frame.style.top = frameY + 'px';
     const ghost = document.createElement('div');
     ghost.className = 'jig-ghost';
     ghost.style.backgroundImage = img; ghost.style.backgroundSize = '100% 100%';
     frame.appendChild(ghost);
     j.frameEl = frame; j.ghostEl = ghost;
     inner.appendChild(frame);
-    // Scherven jumbled in de bak rechts van het kader
+    // Bak rechts: zacht vlak met één vakje per scherf
+    const trayX = FW + JIG_GAP;
+    const trayY = Math.round((SH - JIG_ROWS * JIG_CELL_H) / 2);
+    const tray = document.createElement('div');
+    tray.className = 'jig-tray';
+    tray.style.left = (trayX - 6) + 'px'; tray.style.top = (trayY - 2) + 'px';
+    tray.style.width = (JIG_TRW + 8) + 'px'; tray.style.height = (JIG_ROWS * JIG_CELL_H + 4) + 'px';
+    inner.appendChild(tray);
+    // Vakjes: rij voor rij; de laatste (onvolledige) rij wordt gecentreerd
+    const cells = [];
+    for (let k = 0; k < n; k++) {
+      const row = (k / JIG_COLS) | 0;
+      const inRow = Math.min(JIG_COLS, n - row * JIG_COLS);
+      const col = k % JIG_COLS + (JIG_COLS - inRow) / 2;
+      cells.push({ x: trayX + (col + 0.5) * JIG_CELL_W, y: trayY + (row + 0.5) * JIG_CELL_H });
+    }
     const order = Array.from({ length: n }, (_, k) => k);
     for (let k = n - 1; k > 0; k--) { const m = (Math.random() * (k + 1)) | 0; const t = order[k]; order[k] = order[m]; order[m] = t; }
-    const cols = 2, rows = Math.ceil(n / cols);
-    const trayX = FW + JIG_GAP, trayW = SW - trayX;
     j.pieces = [];
     order.forEach((sh, slot) => {
       const tri = JIG_SHARDS[sh].map(([fx, fy]) => [fx * FW, fy * FH]);
-      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+      const xs = tri.map(p => p[0]), ys = tri.map(p => p[1]);
+      const bx0 = Math.min(...xs), bx1 = Math.max(...xs), by0 = Math.min(...ys), by1 = Math.max(...ys);
+      const ocx = (bx0 + bx1) / 2, ocy = (by0 + by1) / 2;          // midden van de scherf
       const el = document.createElement('div');
       el.className = 'jig-shard';
       el.style.width = FW + 'px'; el.style.height = FH + 'px';
       el.style.backgroundImage = img;
       el.style.backgroundSize = FW + 'px ' + FH + 'px';
       el.style.clipPath = 'polygon(' + tri.map(p => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')';
-      el.style.transformOrigin = cx.toFixed(1) + 'px ' + cy.toFixed(1) + 'px';
-      const col = slot % cols, row = (slot / cols) | 0;
-      const sx = trayX + (col + 0.5) * (trayW / cols), sy = (row + 0.5) * (SH / rows);
-      const tx = sx - cx + ((sh * 53) % 18) - 9, ty = sy - cy + ((sh * 31) % 14) - 7;
-      const rot = ((sh * 47) % 27) - 13;
-      el._tray = { x: tx, y: ty, rot };
+      el.style.transformOrigin = ocx.toFixed(1) + 'px ' + ocy.toFixed(1) + 'px';
+      const rot = ((sh * 47) % 17) - 8;                              // licht scheef: voelt als losse scherf
+      const s = Math.min(1, (JIG_CELL_W - 10) / (bx1 - bx0), (JIG_CELL_H - 10) / (by1 - by0)) * 0.98;
+      const c = cells[slot];
+      el._tray = { x: c.x - ocx, y: c.y - ocy, rot, s };
       el._shard = sh;
-      el.style.left = tx + 'px'; el.style.top = ty + 'px';
-      el.style.transform = 'rotate(' + rot + 'deg)';
+      el._oc = { x: ocx, y: ocy };
+      el.dataset.cx = ((tri[0][0] + tri[1][0] + tri[2][0]) / 3).toFixed(1);   // zwaartepunt (voor tests)
+      el.dataset.cy = ((tri[0][1] + tri[1][1] + tri[2][1]) / 3).toFixed(1);
+      jigToTray(el);
       el.addEventListener('pointerdown', (e) => jigDown(e, el));
       inner.appendChild(el);
       j.pieces.push(el);
@@ -2196,14 +2320,19 @@
       y: (e.clientY - rect.top) / rect.height * jig.stageH
     };
   }
+  /* Positie (left/top) zodat het midden van de scherf onder de vinger ligt. */
+  function jigPlace(el, p) {
+    el.style.left = (p.x - el._oc.x) + 'px';
+    el.style.top = (p.y - el._oc.y) + 'px';
+  }
   function jigDown(e, el) {
-    const j = jig; if (!j || j.locked[el._shard]) return;
+    const j = jig; if (!j || j.locked[el._shard] || j.drag) return;
     e.preventDefault();
-    const p = jigLocalXY(e);
-    j.drag = { el, grabX: p.x - parseFloat(el.style.left), grabY: p.y - parseFloat(el.style.top) };
+    j.drag = { el };
     el.classList.add('jig-drag');
-    el.style.transform = 'rotate(0deg)';     // recht tijdens slepen
+    el.style.transform = 'none';             // op ware grootte en recht tijdens slepen
     el.style.zIndex = 60;
+    jigPlace(el, jigLocalXY(e));
     try { el.setPointerCapture(e.pointerId); } catch (_) {}
     el.addEventListener('pointermove', jigMove);
     el.addEventListener('pointerup', jigUp);
@@ -2211,9 +2340,7 @@
   }
   function jigMove(e) {
     const d = jig && jig.drag; if (!d) return;
-    const p = jigLocalXY(e);
-    d.el.style.left = (p.x - d.grabX) + 'px';
-    d.el.style.top = (p.y - d.grabY) + 'px';
+    jigPlace(d.el, jigLocalXY(e));
   }
   function jigUp(e) {
     const j = jig, d = j && j.drag; if (!d) return;
@@ -2223,15 +2350,14 @@
     el.removeEventListener('pointercancel', jigUp);
     j.drag = null;
     el.classList.remove('jig-drag');
-    const lx = parseFloat(el.style.left), ly = parseFloat(el.style.top);
-    if (Math.abs(lx) < 30 && Math.abs(ly) < 30) {          // dicht bij thuis (offset 0) -> vastklikken
-      el.style.left = '0px'; el.style.top = '0px'; el.style.transform = 'rotate(0deg)'; el.style.zIndex = 1;
+    const lx = parseFloat(el.style.left), ly = parseFloat(el.style.top) - j.frameY;
+    if (Math.abs(lx) < JIG_SNAP && Math.abs(ly) < JIG_SNAP) {     // dicht bij de goede plek -> vastklikken
+      el.style.left = '0px'; el.style.top = j.frameY + 'px'; el.style.transform = 'none'; el.style.zIndex = 1;
       el.classList.add('jig-locked');
       j.locked[el._shard] = true; sfx('tap');
       if (j.locked.every(Boolean)) solveJigsaw();
     } else {
-      el.style.left = el._tray.x + 'px'; el.style.top = el._tray.y + 'px';
-      el.style.transform = 'rotate(' + el._tray.rot + 'deg)'; el.style.zIndex = '';
+      jigToTray(el);
     }
   }
   function solveJigsaw() {
@@ -2262,7 +2388,7 @@
     const flash = document.createElement('div');
     flash.style.cssText =
       'position:absolute;inset:0;z-index:6;' +
-      'background-image:url(' + cfg.img + AV + ');background-size:240px 240px;' +
+      'background-image:url(' + cfg.img + AV + ');background-size:100% 100%;' +
       'image-rendering:pixelated;opacity:0;transition:opacity .2s;pointer-events:none;' +
       'box-shadow:inset 0 0 0 3px rgba(231,207,134,.7)';
     elPuzGrid.appendChild(flash);
@@ -2285,7 +2411,7 @@
     const target = nextTargetCell(tiles);
     if (target < 0) return;
     const tilePos = tiles.indexOf(target);          // waar die tegel nu ligt
-    const px = 240 / n;
+    const px = (slide.board || 240) / n;
     const row = (target / n | 0) + 1, col = (target % n) + 1;
 
     elPuzGrid.querySelectorAll('.puz-tile.suggest').forEach(el => el.classList.remove('suggest'));
@@ -2374,7 +2500,7 @@
           sfx('error');
           elRiddleQ.textContent = L(r.wrongText);
           elRiddleAns.innerHTML = '';
-          setTimeout(() => showRiddleQuestion(hs, 0), 1500);
+          setTimeout(() => { if (!elRiddle.hidden) showRiddleQuestion(hs, idx); }, 1500);
         }
       });
       elRiddleAns.appendChild(btn);
@@ -2398,12 +2524,20 @@
     elRiddleQ.textContent = L(c.question);
     elRiddleAns.innerHTML = '';
     for (const opt of c.options) {
+      if (opt.has && !state.inventory.includes(opt.has)) continue;   // optie alleen met dat voorwerp
       const btn = document.createElement('button');
       btn.className = 'gold-btn riddle-ans';
       btn.textContent = L(opt.t);
       btn.addEventListener('click', () => {
         elRiddle.hidden = true;
         if (opt.die) { die(opt.deathText); return; }
+        if (opt.useItem && hs.use && hs.use[opt.useItem]) {
+          state.selectedItem = null;
+          if (opt.useItem === 'flute') flutePartyUntil = performance.now() + (hs.use.flute.animDur || 1800);
+          runAction(hs.use[opt.useItem], hsSpeaker(hs), hsFace(hs));
+          renderInventory();
+          return;
+        }
         if (opt.setFlag) { state.flags[opt.setFlag] = true; updateQuest(); }
         sfx('tap');
         if (opt.text) say(opt.text, hsSpeaker(hs), hsFace(hs));
@@ -2914,6 +3048,7 @@
         follower.x = fp.x; follower.y = fp.y; follower.scared = false;
       }
       exitArm = {};
+      loadSceneArt(sceneId);
       updateSceneMusic();
       initNpcs();
       initFireflies((scene.fx && scene.fx.fireflies) || 0);
@@ -2941,11 +3076,17 @@
     player.target = { x: wt.x, y: wt.y };
   }
 
+  /* notFlag: hotspot verdwijnt zodra de flag staat; showFlag: verschijnt pas als de flag staat */
+  function hsVisible(hs) {
+    if (hs.notFlag && state.flags[hs.notFlag]) return false;
+    if (hs.showFlag && !state.flags[hs.showFlag]) return false;
+    return true;
+  }
   function hotspotAt(sx, sy) {
     const scene = GAME.scenes[state.currentScene];
     let best = null, bestArea = Infinity;
     for (const hs of scene.hotspots) {
-      if (hs.notFlag && state.flags[hs.notFlag]) continue;   // bv. muis-hotspot weg na mouseFed
+      if (!hsVisible(hs)) continue;   // bv. muis-hotspot weg na mouseFed
       const r = hsRect(hs);
       if (sx >= r.x && sx <= r.x + r.w && sy >= r.y && sy <= r.y + r.h) {
         const area = r.w * r.h;
@@ -3024,8 +3165,9 @@
   });
 
   if (elHintBtn) elHintBtn.addEventListener('click', () => {
+    if (!started) return;
     sfx('tap');
-    hintUntil = performance.now() + 1800;
+    hintUntil = performance.now() + 2600;
   });
 
   /* ---------- Winst & herstart ---------- */
@@ -3033,9 +3175,13 @@
     elWinText.textContent = L(GAME.winText);
     elWin.hidden = false;
     elQuest.hidden = true;
+    clearSave();
+    lastSaved = '';
   }
 
   function resetGame() {
+    clearSave();
+    lastSaved = '';
     state = newState();
     msgQueue = [];
     pendingWin = false;
@@ -3066,20 +3212,70 @@
     const el = document.documentElement;
     const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
     if (fn) { try { fn.call(el, { navigationUI: 'hide' }); } catch (e) { try { fn.call(el); } catch (e2) {} } }
-    if (screen.orientation && screen.orientation.lock) { try { screen.orientation.lock('landscape'); } catch (e) {} }
+    if (screen.orientation && screen.orientation.lock) {
+      try { const pr = screen.orientation.lock('landscape'); if (pr && pr.catch) pr.catch(() => {}); } catch (e) { /* niet ondersteund */ }
+    }
   }
 
-  elStartBtn.addEventListener('click', () => {
+  const elContinueBtn = document.getElementById('continueBtn');
+  function updateTitleButtons() {
+    const hasSave = !started && !!readSave();
+    if (elContinueBtn) {
+      elContinueBtn.hidden = !hasSave;
+      elContinueBtn.textContent = L(GAME.ui.continueBtn);
+    }
+    elStartBtn.textContent = L(hasSave && GAME.ui.newGameBtn ? GAME.ui.newGameBtn : GAME.ui.startBtn);
+    elStartBtn.classList.toggle('secondary', hasSave);
+  }
+  function beginPlay() {
     ac();
     goFullscreen();
-    startMusic();
-    sfx('tap');
     elTitle.hidden = true;
     started = true;
+    startMusic();
+    sfx('tap');
+    loadAllSceneArt();
+  }
+  elStartBtn.addEventListener('click', () => {
+    if (started) return;
+    clearSave();
+    state = newState();
+    initNpcs();
+    paintBackground();
+    renderInventory();
+    beginPlay();
     state.flags['visited_' + state.currentScene] = true;
     updateQuest();
     say(GAME.scenes[state.currentScene].entryText);
   });
+  if (elContinueBtn) elContinueBtn.addEventListener('click', () => {
+    if (started) return;
+    const d = readSave();
+    if (!d) { elStartBtn.click(); return; }
+    state = newState();
+    state.currentScene = d.scene;
+    state.flags = d.flags || {};
+    state.inventory = d.inventory.filter((i) => GAME.items[i]);
+    const sc = GAME.scenes[d.scene];
+    const p0 = (d.x != null && d.y != null) ? clampToWalkable(d.x, d.y) : sc.playerStart;
+    player.x = p0.x; player.y = p0.y;
+    player.target = null; player.pending = null;
+    player.flip = player.x >= SCENE_W / 2;
+    exitArm = {};
+    initNpcs();
+    initFireflies((sc.fx && sc.fx.fireflies) || 0);
+    loadSceneArt(d.scene);
+    paintBackground();
+    beginPlay();
+    renderInventory();
+    updateQuest(true);
+    fade.mode = 'in';
+    fade.t0 = performance.now();
+  });
+  /* elke seconde (alleen bij verandering) opslaan, en bij wegklikken van de pagina */
+  setInterval(saveGame, 1000);
+  window.addEventListener('pagehide', saveGame);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
 
   elReplayBtn.addEventListener('click', resetGame);
 
@@ -3115,10 +3311,16 @@
     questKey,
     getMaze: () => maze && { g: maze.g.map(r => r.slice()), n: maze.n, cur: maze.cur.slice(), exit: maze.exit.slice() },
     mazeMove: (dr, dc) => mazeMove(dr, dc),
-    reset: resetGame
+    reset: resetGame,
+    save: saveGame,
+    hasSave: () => !!readSave(),
+    showHints: () => { hintUntil = performance.now() + 2600; },
+    hotspotAt: (x, y) => { const h = hotspotAt(x, y); return h ? { id: h.id, name: L(h.name) } : null; }
   };
 
   /* ---------- Start ---------- */
+  loadSceneArt(state.currentScene);
+  if (bootSave) loadSceneArt(bootSave.scene);
   resize();
   initLeaves();
   initNpcs();

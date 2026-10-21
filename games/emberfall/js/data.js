@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '49',
+  assetVer: '50',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -43,12 +43,12 @@ const GAME = {
   },
 
   winText: {
-    nl: 'Met de Amulet van Emberfall veilig om je hals breekt warm gouden licht ' +
-        'door het wolkendek. De eeuwige herfst laat haar greep los — het rijk ' +
-        'zal weer seizoenen kennen. Jouw naam wordt gefluisterd tussen de bladeren.',
-    en: 'With the Amulet of Emberfall safe around your neck, warm golden light ' +
-        'breaks through the clouds. The endless autumn loosens its grip — the ' +
-        'realm will know seasons again. Your name is whispered among the leaves.'
+    nl: 'De Amulet van Emberfall hangt veilig om je hals. Warm gouden licht breekt ' +
+        'door de wolken. De eeuwige herfst is voorbij: de seizoenen komen terug. ' +
+        'Iedereen in Emberfall zal jouw naam onthouden!',
+    en: 'The Amulet of Emberfall hangs safely around your neck. Warm golden light ' +
+        'breaks through the clouds. The endless autumn is over: the seasons can return. ' +
+        'Everyone in Emberfall will remember your name!'
   },
 
   strings: {
@@ -60,28 +60,39 @@ const GAME = {
   /* UI-teksten voor de engine */
   ui: {
     subtitle:    { nl: 'Een point-and-click avontuur', en: 'A point-and-click adventure' },
-    intro:       { nl: 'Het is voor altijd herfst geworden in het rijk Emberfall. De amulet is gestolen en wordt bewaakt door een minotaur. Geen zwaard velt hem. Enkel list.',
-                   en: 'Autumn has become eternal in the realm of Emberfall. The amulet was stolen and is guarded by a minotaur. No sword can fell him. Only cunning.' },
+    intro:       { nl: 'In het rijk Emberfall is het altijd herfst. De amulet is gestolen en een minotaur bewaakt hem. Vechten lukt niet. Je hebt een slimme list nodig.',
+                   en: 'In the realm of Emberfall it is always autumn. The amulet was stolen, and a minotaur guards it. Fighting won’t work. You need a clever trick.' },
     credit:      { nl: 'Gemaakt voor Sandra', en: 'Made for Sandra' },
     startBtn:    { nl: 'Begin het avontuur', en: 'Begin the adventure' },
     winTitle:    { nl: 'Emberfall is Gered', en: 'Emberfall is Saved' },
     replayBtn:   { nl: 'Opnieuw spelen', en: 'Play again' },
-    playOther:   { nl: '▸ Speel nu Maanhoef', en: '▸ Now play Moonhoof' },
-    deathTitle:  { nl: 'Verslagen...', en: 'Defeated...' },
-    deathText:   { nl: 'De minotaur verloor zijn geduld. Met één machtige zwaai word je de tempel uit geslingerd. Gelukkig krabbel je buiten weer overeind.',
-                   en: 'The minotaur lost his patience. With one mighty swing you are hurled out of the temple. Luckily, you scramble back to your feet outside.' },
-    retryBtn:    { nl: 'Probeer opnieuw', en: 'Try again' },
+    playOther:   { nl: '▸ Speel nu Maanhoef', en: '▸ Now play Maanhoef' },
+    deathTitle:  { nl: 'Oei, te dichtbij!', en: 'Whoa, too close!' },
+    deathText:   { nl: 'De minotaur snuift en stampt met zijn hoef. Met bonzend hart krabbel je terug naar de deur. Zoek een slimmere manier!',
+                   en: 'The minotaur snorts and stamps his hoof. Heart pounding, you scramble back to the door. Find a sneakier way!' },
+    retryBtn:    { nl: 'Verder spelen', en: 'Keep playing' },
     rotateTitle: { nl: 'Draai je telefoon', en: 'Rotate your phone' },
     rotateText:  { nl: 'Dit avontuur speelt liggend. Draai je scherm een kwartslag.',
                    en: 'This adventure plays in landscape. Turn your screen sideways.' },
     tapContinue: { nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
     selected:    { nl: 'geselecteerd', en: 'selected' },
     homeConfirm: { nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
+    /* Knop-labels voor schermlezers (applyLang zet ze in de gekozen taal) */
+    aSound:      { nl: 'Geluid aan of uit', en: 'Sound on or off' },
+    aLang:       { nl: 'Switch to English', en: 'Wissel naar Nederlands' },
+    aHome:       { nl: 'Terug naar de homepagina', en: 'Back to the homepage' },
+    aInv:        { nl: 'Inventaris', en: 'Inventory' },
+    aClose:      { nl: 'Sluiten', en: 'Close' },
+    aHint:       { nl: 'Laat zien waar je kunt tikken', en: 'Show what you can tap' },
+    aUp:         { nl: 'Omhoog', en: 'Up' },
+    aDown:       { nl: 'Omlaag', en: 'Down' },
+    aLeft:       { nl: 'Links', en: 'Left' },
+    aRight:      { nl: 'Rechts', en: 'Right' },
     q_explore:   { nl: 'Verken de binnenplaats', en: 'Explore the courtyard' },
-    q_water:     { nl: 'Zoek iets om water mee te scheppen — volg het westpad', en: 'Find something to scoop water — follow the west path' },
+    q_water:     { nl: 'Zoek iets om water in te doen — volg het westpad naar het bos', en: 'Find something to hold water — follow the west path to the grove' },
     q_runes:     { nl: 'Tik de runenstenen in de juiste volgorde aan', en: 'Tap the rune stones in the right order' },
     q_chest:     { nl: 'Open de stenen kist in het bos', en: 'Open the stone chest in the grove' },
-    q_fill:      { nl: 'Vul het flesje bij het altaar', en: 'Fill the vial at the altar' },
+    q_fill:      { nl: 'Vul het flesje bij de oude fontein', en: 'Fill the vial at the old fountain' },
     q_berries:   { nl: 'Pluk rode bessen tussen de struiken', en: 'Pick red berries from the bushes' },
     q_flower:    { nl: 'Pluk de slaapbloem bij de runenstenen in het bos', en: 'Pick the slumber flower by the rune stones in the grove' },
     q_combine:   { nl: 'Combineer de bessen met het water in je tas', en: 'Combine the berries with the water in your bag' },
@@ -89,12 +100,12 @@ const GAME = {
     q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal', en: 'Pour the sleeping draught into the stone bowl' },
     q_torch:     { nl: 'Het is aardedonker — verzamel een vuursteen (binnenplaats) en droog hout (bos)', en: 'It’s pitch dark — gather a flint (courtyard) and dry wood (grove)' },
     q_makeTorch: { nl: 'Combineer de vuursteen en het hout in je tas tot een fakkel', en: 'Combine the flint and the wood in your bag into a torch' },
-    q_lightTorch:{ nl: 'Steek met je fakkel de muurfakkel bij de deur aan — dan ontvlammen alle toortsen', en: 'Light the wall torch by the door with your torch — all the braziers will catch' },
-    q_ward:      { nl: 'Klik op de tegels vóór het altaar en druk de juiste volgorde in (de aanwijzing staat op de muur rechts van het altaar)', en: 'Click the tiles in front of the altar and press the right order (the clue is on the wall right of the altar)' },
-    q_gate:      { nl: 'Los het embleem-raadsel op om de poort te openen', en: 'Solve the emblem riddle to open the gate' },
+    q_lightTorch:{ nl: 'Steek met je fakkel de muurfakkel bij de deur aan — dan ontvlammen alle toortsen', en: 'Light the wall torch by the door with your torch — all the torches will catch' },
+    q_ward:      { nl: 'Tik de vloertegels bij het altaar in de goede volgorde aan — de aanwijzing staat op de muur rechts', en: 'Tap the floor tiles by the altar in the right order — the clue is on the wall to the right' },
+    q_gate:      { nl: 'Tik op het gouden embleem en schuif de puzzel goed om de poort te openen', en: 'Tap the golden emblem and solve the sliding puzzle to open the gate' },
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
-    q_powder:    { nl: 'Strooi het magische poeder op het mossige tablet', en: 'Sprinkle the magic powder on the mossy tablet' },
+    q_powder:    { nl: 'Strooi het magische poeder op het mossige stenen tablet in het bos', en: 'Sprinkle the magic powder on the mossy stone tablet in the grove' },
     q_amulet:    { nl: 'Pak de amulet van het altaar', en: 'Take the amulet from the altar' }
   },
 
@@ -127,7 +138,7 @@ const GAME = {
   items: {
     berries:   { name: { nl: 'Rode Bessen', en: 'Red Berries' },     icon: '🍒', img: 'assets/art/item-berries.png' },
     flower:    { name: { nl: 'Slaapbloem', en: 'Slumber Flower' },   icon: '🌸', img: 'assets/art/item-flower.png' },
-    recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/item-recipe-large.png' },
+    recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/item-recipe-large.webp' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
     berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-berry-brew.png' },
@@ -147,15 +158,15 @@ const GAME = {
     {
       a: 'berries', b: 'vialWater', result: 'berryBrew',
       text: {
-        nl: 'Je kneust de Rode Bessen in het flesje water. Het water in het flesje kleurt diep rood — maar het mist nog iets dat het beest écht in slaap wiegt: een Slaapbloem.',
-        en: 'You crush the Red Berries into the vial of water. The water in the vial turns deep red — but it still lacks the one thing that truly lulls the beast to sleep: a Slumber Flower.'
+        nl: 'Je kneust de Rode Bessen in het flesje water. Het water kleurt diep rood.\nMaar er mist nog iets om het beest écht te laten slapen: een Slaapbloem.',
+        en: 'You crush the Red Berries into the vial of water. The water turns deep red.\nBut it still needs one more thing to make the beast sleep: a Slumber Flower.'
       }
     },
     {
       a: 'berryBrew', b: 'flower', result: 'potion',
       text: {
-        nl: 'Je doet de Slaapbloem in het flesje. Het brouwsel begint helder te fonkelen met magische sparkles en wordt loom en zwaar — nu is het een echte Slaapdrank.',
-        en: 'You drop the Slumber Flower into the vial. The brew bursts into bright magical sparkles and grows heavy and drowsy — now it is a true Sleeping Draught.'
+        nl: 'Je doet de Slaapbloem in het flesje. Het brouwsel begint magisch te fonkelen en wordt loom en zwaar.\nNu is het een echte Slaapdrank!',
+        en: 'You drop the Slumber Flower into the vial. The brew starts to sparkle with magic and grows heavy and drowsy.\nNow it is a real Sleeping Draught!'
       }
     },
     {
@@ -172,9 +183,9 @@ const GAME = {
     /* ---------- Scene 1: De Verlaten Binnenplaats ---------- */
     courtyard: {
       name: { nl: 'De Verlaten Binnenplaats', en: 'The Forsaken Courtyard' },
-      bg: 'assets/art/scene-courtyard.png',
+      bg: 'assets/art/scene-courtyard.webp',
       bgVariants: [
-        { img: 'assets/art/scene-courtyard-closed.png', notFlag: 'gateOpen' }
+        { img: 'assets/art/scene-courtyard-closed.webp', notFlag: 'gateOpen' }
       ],
       entryText: {
         nl: 'Een binnenplaats van zandsteen, overwoekerd door rode herfststruiken.',
@@ -213,18 +224,18 @@ const GAME = {
       hotspots: [
         {
           id: 'altar',
-          name: { nl: 'Verweerd Altaar', en: 'Weathered Altar' },
+          name: { nl: 'Oude Fontein', en: 'Old Fountain' },
           rect: { x: 162, y: 84, w: 106, h: 76 },
           walkTo: { x: 233, y: 202 },
           look: {
-            nl: 'Een verweerd altaar. In de uitgesleten trog heeft zich regenwater verzameld. Inscriptie: “Wat de woede van het beest sust, groeit rood tussen de stenen.”',
-            en: 'A weathered altar. Rainwater has gathered in its worn trough. An inscription reads: “What soothes the beast’s fury grows red among the stones.”'
+            nl: 'Een oude fontein vol helder water. Op de rand staan woorden gekrast:\n“Wat het boze beest kalmeert, groeit rood tussen de stenen.”',
+            en: 'An old fountain full of clear water. Words are carved on its rim:\n“What calms the angry beast grows red among the stones.”'
           },
           use: {
             vialEmpty: {
               consume: 'vialEmpty',
               give: 'vialWater',
-              text: { nl: 'Je schept helder regenwater in het flesje.', en: 'You scoop clear rainwater into the vial.' }
+              text: { nl: 'Je vult het flesje met helder water uit de fontein.', en: 'You fill the vial with clear water from the fountain.' }
             },
             vialWater: { text: { nl: 'Je flesje is al vol.', en: 'Your vial is already full.' } }
           }
@@ -235,7 +246,7 @@ const GAME = {
           rect: { x: 300, y: 48, w: 66, h: 68 },
           walkTo: { x: 332, y: 176 },
           slidePuzzle: {
-            img: 'assets/art/emblem-puzzle.png',
+            img: 'assets/art/emblem-puzzle.webp',
             size: 3,
             setFlag: 'gateOpen',
             title: { nl: 'Het Embleem van de Orde', en: 'The Emblem of the Order' },
@@ -262,8 +273,8 @@ const GAME = {
             reward: 'vest',
             title: { nl: 'De Proef van de Ziener', en: 'The Seer’s Trial' },
             intro: {
-              nl: '“Het bibberende hondje, zeg je? Drie raadsels stel ik je. Eén fout, en we beginnen opnieuw...”',
-              en: '“The shivering puppy, you say? Three riddles I shall pose. One mistake, and we start anew...”'
+              nl: '“Het bibberende hondje, zeg je? Los mijn drie raadsels op, dan help ik je.”',
+              en: '“The shivering puppy, you say? Solve my three riddles, and I will help you.”'
             },
             questions: [
               {
@@ -301,8 +312,8 @@ const GAME = {
               }
             ],
             wrongText: {
-              nl: '“Nee. Eén fout is genoeg — de proef begint opnieuw. Luister beter...”',
-              en: '“No. One mistake is enough — the trial begins anew. Listen more closely...”'
+              nl: '“Hmm, dat is het niet. Denk nog eens goed na en probeer opnieuw.”',
+              en: '“Hmm, that’s not it. Think again and have another try.”'
             },
             solvedText: {
               nl: '“Drie van drie. Wijs geantwoord.” De ziener haalt een klein rood vestje uit zijn gewaad. “Voor de kleine bibberaar bij de kist.”',
@@ -310,8 +321,8 @@ const GAME = {
             }
           },
           look: {
-            nl: 'De gehulde ziener fluistert: “Voorbij de poort waakt de minotaur. Geen zwaard velt hem — enkel slaap. Hij drinkt uit de stenen schaal in de tempel wanneer niemand kijkt.”',
-            en: 'The hooded seer whispers: “Beyond the gate the minotaur keeps watch. No sword can fell him — only sleep. He drinks from the stone bowl in the temple when no one is looking.”'
+            nl: 'De ziener in zijn kap fluistert: “Achter de poort waakt de minotaur. Geen zwaard verslaat hem, alleen slaap.”\n“Hij drinkt uit de stenen schaal in de tempel als niemand kijkt.”',
+            en: 'The hooded seer whispers: “Beyond the gate, the minotaur keeps watch. No sword can beat him, only sleep.”\n“He drinks from the stone bowl in the temple when no one is looking.”'
           }
         },
         {
@@ -333,8 +344,8 @@ const GAME = {
           gives: {
             item: 'recipeCard',
             giveText: {
-              nl: 'Tussen de stenen, net boven het puin, vind je een vergeeld receptenblaadje. Je stopt het in je tas — tik er later op om het oude recept groot te bekijken.',
-              en: 'Among the stones, just above the rubble, you find a yellowed recipe note. You tuck it into your bag — tap it later to view the old recipe up close.'
+              nl: 'Tussen de stenen, net boven het puin, vind je een vergeeld receptenblaadje.\nJe stopt het in je tas. Tik er later op om het recept groot te bekijken.',
+              en: 'Among the stones, just above the rubble, you find a yellowed recipe note.\nYou tuck it into your bag. Tap it later to see the recipe up close.'
             },
             emptyText: { nl: 'Het receptenblaadje zit al veilig in je tas.', en: 'The recipe note is already safe in your bag.' }
           },
@@ -351,12 +362,12 @@ const GAME = {
           gives: {
             item: 'flint',
             giveText: {
-              nl: 'Tussen de stenen vind je een scherpe Vuursteen — daar maak je vonken mee. Een gebroken wegwijzer wijst: “De Bron van de Orde — via het westpad.”',
-              en: 'Among the stones you find a sharp Flint — good for striking sparks. A broken signpost points: “The Well of the Order — by the west path.”'
+              nl: 'Tussen de stenen vind je een scherpe Vuursteen. Daar kun je vonken mee slaan.\nEen gebroken wegwijzer wijst naar het westen: “Naar het Runenbos.”',
+              en: 'Among the stones you find a sharp Flint. It’s good for striking sparks.\nA broken signpost points west: “To the Rune Grove.”'
             },
             emptyText: {
-              nl: 'Alleen nog puin en de gebroken wegwijzer: “De Bron van de Orde — via het westpad.”',
-              en: 'Only rubble now, and the broken signpost: “The Well of the Order — by the west path.”'
+              nl: 'Alleen nog puin en de gebroken wegwijzer: “Naar het Runenbos” (westpad).',
+              en: 'Only rubble now, and the broken signpost: “To the Rune Grove” (west path).'
             }
           }
         },
@@ -379,8 +390,8 @@ const GAME = {
           arrow: { x: 430, y: 132, dir: 'up' },
           requiresFlag: 'gateOpen',
           blockedText: {
-            nl: 'De stenen poortdeur zit muurvast. Het gouden embleem ernaast gloeit veelbetekenend...',
-            en: 'The stone gate is sealed shut. The golden emblem beside it glows meaningfully...'
+            nl: 'De stenen poortdeur zit muurvast. Het gouden embleem ernaast gloeit, alsof het je iets wil vertellen...',
+            en: 'The stone gate is sealed shut. The golden emblem beside it glows, as if it wants your attention...'
           },
           exit: {
             to: 'temple',
@@ -393,9 +404,9 @@ const GAME = {
     /* ---------- Scene 2: Het Runenbos (puzzel) ---------- */
     grove: {
       name: { nl: 'Het Runenbos', en: 'The Rune Grove' },
-      bg: 'assets/art/scene-grove.png',
+      bg: 'assets/art/scene-grove.webp',
       bgVariants: [
-        { img: 'assets/art/scene-grove-lit.png', flag: 'runesRevealed' }
+        { img: 'assets/art/scene-grove-lit.webp', flag: 'runesRevealed' }
       ],
       entryText: {
         nl: 'Een verborgen open plek. Drie runenstenen zoemen zacht tussen de herfstbomen.',
@@ -455,8 +466,8 @@ const GAME = {
           sendRequiresFlag: 'dogWarm',
           look: (state) => state.flags.dogWarm
             ? {
-                nl: 'Woef woef! Het hondje kwispelt wild in zijn rode vestje, rent naar de steen met het Blad en blaft er enthousiast naar. Zou het iets willen vertellen?',
-                en: 'Woof woof! The puppy wags wildly in its red vest, runs to the Leaf stone and barks at it eagerly. Is it trying to tell you something?'
+                nl: 'Woef woef! Het hondje kwispelt wild in zijn rode vestje.\nHet rent naar de steen met het Blad en blaft er blij naar. Zou het iets willen vertellen?',
+                en: 'Woof woof! The puppy wags wildly in its red vest.\nIt runs to the Leaf stone and barks at it happily. Is it trying to tell you something?'
               }
             : {
                 nl: 'Het hondje zit te rillen tussen de runenstenen en jankt zachtjes. Het heeft het ijskoud... Wie zou het warm kunnen krijgen?',
@@ -468,29 +479,29 @@ const GAME = {
               setFlag: 'dogWarm',
               give: 'powder',
               text: {
-                nl: 'Je trekt het hondje het rode vestje aan. Dolblij springt het op, en uit zijn vacht dwarrelt een buideltje Magisch Poeder in je hand — misschien onthult het wat verborgen is.',
-                en: 'You slip the red vest onto the puppy. Overjoyed, it leaps up, and from its fur a pouch of Magic Powder tumbles into your hand — perhaps it reveals what is hidden.'
+                nl: 'Je trekt het hondje het rode vestje aan. Dolblij springt het op!\nUit zijn vacht valt een buideltje Magisch Poeder in je hand. Misschien laat het zien wat verborgen is.',
+                en: 'You slip the red vest onto the puppy. Overjoyed, it leaps up!\nA pouch of Magic Powder tumbles from its fur into your hand. Maybe it can show what is hidden.'
               }
             }
           }
         },
         {
           id: 'tablet',
-          name: { nl: 'Mossig Kleitablet', en: 'Mossy Stone Tablet' },
+          name: { nl: 'Mossig Stenen Tablet', en: 'Mossy Stone Tablet' },
           rect: { x: 80, y: 222, w: 108, h: 82 },
           walkTo: { x: 205, y: 252 },
           look: (state) => state.flags.runesRevealed
-            ? { nl: 'De onthulde inscriptie gloeit zacht: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.”',
-                en: 'The revealed inscription glows softly: “First falls the Leaf, then sinks the Sun, then rises the Moon.”' }
-            : { nl: 'Een kleitablet, volledig overwoekerd met mos en aanslag. De inscriptie is onleesbaar... was er maar iets om het te onthullen.',
-                en: 'A stone tablet, completely overgrown with moss and grime. The inscription is unreadable... if only there were something to reveal it.' },
+            ? { nl: 'De tekst op het tablet gloeit zacht: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.”',
+                en: 'The words on the tablet glow softly: “First falls the Leaf, then sinks the Sun, then rises the Moon.”' }
+            : { nl: 'Een stenen tablet, helemaal begroeid met mos. Je kunt de tekst niet lezen... was er maar iets om het mos weg te krijgen.',
+                en: 'A stone tablet, completely covered in moss. You can’t read the words... if only there were something to clear the moss away.' },
           use: {
             powder: {
               consume: 'powder',
               setFlag: 'runesRevealed',
               text: {
-                nl: 'Je blaast het Magische Poeder over het tablet. Het mos licht goudgeel op en verdampt — de inscriptie verschijnt: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.” In de verte gloeien de drie runenstenen zacht op.',
-                en: 'You blow the Magic Powder over the tablet. The moss flares gold and evaporates — the inscription appears: “First falls the Leaf, then sinks the Sun, then rises the Moon.” In the distance the three rune stones glow softly.'
+                nl: 'Je blaast het Magische Poeder over het tablet. Het mos licht goud op en verdwijnt.\nDe tekst wordt zichtbaar: “Eerst valt het Blad, dan zinkt de Zon, dan rijst de Maan.”\nDe drie runenstenen gloeien zacht op.',
+                en: 'You blow the Magic Powder over the tablet. The moss glows gold and vanishes.\nWords appear: “First falls the Leaf, then sinks the Sun, then rises the Moon.”\nThe three rune stones begin to glow softly.'
               }
             }
           }
@@ -598,9 +609,9 @@ const GAME = {
     /* ---------- Scene 3: De Tempel van de Minotaur ---------- */
     temple: {
       name: { nl: 'De Tempel van de Minotaur', en: 'The Minotaur’s Temple' },
-      bg: 'assets/art/scene-temple.png',
+      bg: 'assets/art/scene-temple.webp',
       bgVariants: [
-        { img: 'assets/art/scene-temple-lit.png', flag: 'torchLit' }   // verlichte tempel zodra de toortsen branden
+        { img: 'assets/art/scene-temple-lit.webp', flag: 'torchLit' }   // verlichte tempel zodra de toortsen branden
       ],
       entryText: {
         nl: 'Verweerde zuilen torenen boven je uit. Iets groots beweegt in de schaduw.',
@@ -666,7 +677,7 @@ const GAME = {
           requiresFlag: 'minotaurAsleep',
           blockedText: { nl: 'De tegels blijven koud en dof zolang het beest waakt.', en: 'The tiles stay cold and dull while the beast is awake.' },
           stepText: { nl: 'De tegel gloeit goud op...', en: 'The tile glows gold...' },
-          resetText: { nl: 'Met een diep gerommel doven de tegels weer. Dat was niet de juiste volgorde — kijk nog eens naar de fries.', en: 'With a deep rumble the tiles go dark again. That wasn’t the right order — look again at the frieze.' },
+          resetText: { nl: 'Met een diep gerommel doven de tegels weer. Dat was niet de goede volgorde. Kijk nog eens naar de aanwijzing op de muur.', en: 'With a deep rumble the tiles go dark again. That wasn’t the right order. Look again at the clue on the wall.' },
           solvedText: { nl: 'De vier tegels lichten samen goudgeel op! Met een diep gerommel schuift de Amulet van Emberfall omhoog uit het altaar.', en: 'All four tiles blaze gold together! With a deep rumble the Amulet of Emberfall rises up out of the altar.' },
           doneText: { nl: 'De tegels gloeien tevreden na.', en: 'The tiles glow contentedly.' },
           burst: { x: 332, y: 122 }
@@ -675,14 +686,14 @@ const GAME = {
       hotspots: [
         {
           id: 'frieze',
-          name: { nl: 'Fries met Glyphen', en: 'Glyph Frieze' },
+          name: { nl: 'Muurtekeningen', en: 'Wall Carvings' },
           rect: { x: 100, y: 6, w: 460, h: 68 },
           walkTo: { x: 300, y: 212 },
           look: (state) => state.flags.minotaurAsleep
-            ? { nl: 'Tussen de glyphen lichten vier merktekens op in een vaste volgorde — de sleutel voor de tegels vóór het altaar: ●●● · ● · ●●●● · ●● (drie, één, vier, twee stippen).',
-                en: 'Among the glyphs four marks glow in a fixed order — the key for the tiles before the altar: ●●● · ● · ●●●● · ●● (three, one, four, two pips).' }
-            : { nl: 'Gehouwen glyphen tonen een geknield beest dat uit een schaal drinkt en in slaap valt.',
-                en: 'Carved glyphs show a kneeling beast drinking from a bowl and falling asleep.' }
+            ? { nl: 'Tussen de tekeningen lichten vier tekens op. Dat is de volgorde voor de vloertegels bij het altaar:\n●●● · ● · ●●●● · ●● (drie, één, vier, twee stippen).',
+                en: 'Among the carvings, four marks light up. They show the order for the floor tiles by the altar:\n●●● · ● · ●●●● · ●● (three, one, four, two dots).' }
+            : { nl: 'De tekeningen in de muur tonen een beest dat uit een schaal drinkt en in slaap valt.',
+                en: 'The carvings in the wall show a beast drinking from a bowl and falling asleep.' }
         },
         { id: 'tile1', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 290, y: 238, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't1' }, tile: true, pips: 1 },
         { id: 'tile2', name: { nl: 'Tegel', en: 'Tile' }, rect: { x: 360, y: 238, w: 62, h: 26 }, puzzleKey: { puzzle: 'altarTiles', key: 't2' }, tile: true, pips: 2 },
@@ -694,9 +705,9 @@ const GAME = {
           rect: { x: 446, y: 146, w: 44, h: 26 },
           walkTo: { x: 430, y: 230 },
           look: (state) => state.flags.amuletRisen
-            ? { nl: 'De gegraveerde tegel-merktekens gloeien rustig na.', en: 'The carved tile-marks glow softly.' }
-            : { nl: 'In de muur rechts van het altaar zijn vier merktekens gekrast — de volgorde voor de tegels: ●●● · ● · ●●●● · ●● (drie, één, vier, twee stippen).',
-                en: 'Carved into the wall right of the altar are four marks — the order for the tiles: ●●● · ● · ●●●● · ●● (three, one, four, two pips).' }
+            ? { nl: 'De gekraste tekens gloeien rustig na.', en: 'The carved marks glow softly.' }
+            : { nl: 'In de muur rechts van het altaar zijn vier tekens gekrast. Dat is de volgorde voor de tegels:\n●●● · ● · ●●●● · ●● (drie, één, vier, twee stippen).',
+                en: 'Four marks are carved into the wall right of the altar. They show the order for the tiles:\n●●● · ● · ●●●● · ●● (three, one, four, two dots).' }
         },
         {
           id: 'doorTorch',
@@ -704,32 +715,34 @@ const GAME = {
           rect: { x: 100, y: 86, w: 52, h: 70 },
           walkTo: { x: 128, y: 210 },
           look: (state) => state.flags.torchLit
-            ? { nl: 'De muurfakkel naast de deur brandt hoog; haar vlam heeft de hele tempel doen ontvlammen.', en: 'The wall torch beside the door burns high; its flame set the whole temple alight.' }
+            ? { nl: 'De muurfakkel naast de deur brandt hoog. Haar vuur heeft de hele tempel verlicht.', en: 'The wall torch beside the door burns high. Its fire lit up the whole temple.' }
             : state.inventory.includes('torch')
-              ? { nl: 'De muurfakkel naast de deur brandt laag na. Houd je brandende fakkel erbij — dan slaat het vuur over op alle toortsen in de tempel. (Gebruik je fakkel op de muurfakkel.)',
-                  en: 'The wall torch beside the door flickers low. Hold your lit torch to it — the fire will leap to every torch in the temple. (Use your torch on the wall torch.)' }
-              : { nl: 'Naast de deur brandt één muurfakkel laag na. Met een eigen brandende fakkel zou ik hiermee de hele tempel kunnen verlichten.',
-                  en: 'Beside the door one wall torch still flickers low. With a lit torch of my own I could set the whole temple ablaze from here.' },
+              ? { nl: 'De muurfakkel naast de deur is bijna uit. Houd je brandende fakkel erbij, dan springt het vuur over op alle toortsen.\n(Kies je fakkel in je tas en tik dan op de muurfakkel.)',
+                  en: 'The wall torch beside the door has almost gone out. Hold your lit torch to it, and the fire will jump to every torch.\n(Pick your torch in your bag, then tap the wall torch.)' }
+              : { nl: 'Naast de deur is één muurfakkel bijna uit. Met een eigen brandende fakkel kan ik de hele tempel verlichten.',
+                  en: 'Beside the door, one wall torch has almost gone out. With a lit torch of my own, I could light up the whole temple.' },
           use: {
             torch: {
               consume: 'torch',
               setFlag: 'torchLit',
               text: {
-                nl: 'Je houdt je brandende fakkel bij de muurfakkel naast de deur. Het vuur springt over en raast langs de muren — de grote toortsen bij het altaar laaien op en warm licht overspoelt de hele tempel.',
-                en: 'You hold your lit torch to the wall torch beside the door. The fire leaps across and races along the walls — the great braziers by the altar blaze up and warm light floods the whole temple.'
+                nl: 'Je houdt je brandende fakkel bij de muurfakkel. Het vuur springt over en raast langs de muren!\nDe grote toortsen bij het altaar laaien op. Warm licht vult de hele tempel.',
+                en: 'You hold your lit torch to the wall torch. The fire leaps across and races along the walls!\nThe great torches by the altar blaze up. Warm light fills the whole temple.'
               }
             }
           }
         },
         {
           id: 'braziers',
-          name: { nl: 'Gedoofde Toortsen', en: 'Cold Braziers' },
+          name: (state) => state.flags.torchLit
+            ? { nl: 'Brandende Toortsen', en: 'Burning Torches' }
+            : { nl: 'Gedoofde Toortsen', en: 'Unlit Torches' },
           rect: { x: 286, y: 114, w: 50, h: 46 },
           walkTo: { x: 300, y: 214 },
           look: (state) => state.flags.torchLit
-            ? { nl: 'De grote toortsen bij het altaar branden hoog; hun licht vult de hele tempel.', en: 'The great braziers by the altar burn high; their light fills the whole temple.' }
-            : { nl: 'Twee grote toortsen flankeren het altaar, nog gedoofd. Ze ontvlammen vanzelf zodra je de muurfakkel bij de deur aansteekt.',
-                en: 'Two great braziers flank the altar, still cold. They will catch by themselves once you light the wall torch by the door.' }
+            ? { nl: 'De grote toortsen bij het altaar branden hoog. Hun licht vult de hele tempel.', en: 'The great torches by the altar burn high. Their light fills the whole temple.' }
+            : { nl: 'Naast het altaar staan twee grote toortsen, nog uit. Ze gaan vanzelf branden als je de muurfakkel bij de deur aansteekt.',
+                en: 'Two great torches stand beside the altar, still unlit. They will catch by themselves once you light the wall torch by the door.' }
         },
         {
           id: 'minotaur',
@@ -740,10 +753,10 @@ const GAME = {
           danger: true,
           look: (state) => state.flags.minotaurAsleep
             ? { nl: 'De minotaur ligt in diepe slaap en snurkt als een onweer.', en: 'The minotaur lies fast asleep, snoring like a thunderstorm.' }
-            : { nl: 'De minotaur gromt en heft zijn zwaard. Veel te sterk om te bevechten.', en: 'The minotaur growls and raises his sword. Far too strong to fight.' },
+            : { nl: 'De minotaur gromt en zwaait met zijn zwaard. Hij is veel te sterk om mee te vechten.', en: 'The minotaur growls and waves his sword. He is far too strong to fight.' },
           angerTexts: [
-            { nl: 'De minotaur stampt waarschuwend op de grond. Niet dichterbij komen.', en: 'The minotaur stamps the ground in warning. Don’t come closer.' },
-            { nl: 'Zijn ogen gloeien rood op. Nóg één stap en het is voorbij...', en: 'His eyes flare red. One more step and it’s over...' }
+            { nl: 'De minotaur stampt waarschuwend op de grond. Kom maar niet dichterbij.', en: 'The minotaur stamps the ground in warning. Better not come closer.' },
+            { nl: 'Zijn ogen gloeien rood op en hij snuift luid. Laat hem nu maar met rust...', en: 'His eyes flare red and he snorts loudly. Best leave him alone now...' }
           ],
           use: {
             potion: {
@@ -760,18 +773,18 @@ const GAME = {
           rect: { x: 55, y: 226, w: 82, h: 58 },
           walkTo: { x: 152, y: 258 },
           requiresFlag: 'torchLit',
-          blockedText: { nl: 'Het is veel te donker om de schaal te vinden — steek eerst de toortsen aan.',
-                         en: 'It’s far too dark to find the bowl — light the braziers first.' },
+          blockedText: { nl: 'Het is veel te donker om de schaal te vinden. Steek eerst de muurfakkel bij de deur aan, dan gaan alle toortsen branden.',
+                         en: 'It’s far too dark to find the bowl. First light the wall torch by the door, and all the torches will catch.' },
           look: (state) => state.flags.minotaurAsleep
-            ? { nl: 'De schaal is leeggedronken. Het beest heeft zoet geslurpt.', en: 'The bowl has been drained. The beast slurped it sweetly.' }
+            ? { nl: 'De schaal is leeg. Het beest heeft alles opgeslurpt.', en: 'The bowl is empty. The beast drank every last drop.' }
             : { nl: 'Een uit de vloer gehouwen drinkschaal, half gevuld met water.', en: 'A drinking bowl carved into the floor, half filled with water.' },
           use: {
             potion: {
               consume: 'potion',
               setFlag: 'minotaurAsleep',
               text: {
-                nl: 'Je giet de Slaapdrank ongezien in de schaal — het water vonkt en glinstert op. De minotaur sjokt nieuwsgierig naar de schaal, drinkt gulzig... en zakt loom in slaap. De weg naar het altaar is vrij.',
-                en: 'You pour the Sleeping Draught unseen into the bowl — the water sparkles and glints. The minotaur shuffles over to the bowl, drinks greedily... and sinks into slumber. The way to the altar is clear.'
+                nl: 'Je giet de Slaapdrank stiekem in de schaal. Het water fonkelt en glinstert.\nDe minotaur sjokt nieuwsgierig naar de schaal, drinkt gulzig... en valt in slaap. De weg naar het altaar is vrij!',
+                en: 'You secretly pour the Sleeping Draught into the bowl. The water sparkles and glints.\nThe minotaur shuffles over, drinks greedily... and falls fast asleep. The way to the altar is clear!'
               }
             }
           }
@@ -783,21 +796,21 @@ const GAME = {
           walkTo: { x: 352, y: 232 },
           requiresFlag: 'amuletRisen',
           blockedText: (state) => !state.flags.torchLit
-            ? { nl: 'Het is veel te donker bij het altaar — steek eerst de toortsen aan.', en: 'It’s far too dark at the altar — light the braziers first.' }
+            ? { nl: 'Het is veel te donker bij het altaar. Steek eerst de toortsen aan.', en: 'It’s far too dark at the altar. Light the torches first.' }
             : !state.flags.minotaurAsleep
               ? { nl: 'De minotaur verspert de weg naar het altaar.', en: 'The minotaur blocks the way to the altar.' }
-              : { nl: 'De amulet zit nog diep in het altaar verzegeld. Druk eerst de tegels vóór het altaar in de juiste volgorde in (de fries verraadt de code).',
-                  en: 'The amulet is still sealed deep in the altar. First press the tiles in front of the altar in the right order (the frieze reveals the code).' },
+              : { nl: 'De amulet zit nog diep in het altaar. Tik eerst de vloertegels in de goede volgorde aan. De aanwijzing staat op de muur.',
+                  en: 'The amulet is still locked inside the altar. First tap the floor tiles in the right order. The clue is on the wall.' },
           jigsaw: {
             requiresFlag: 'amuletRisen',
             setFlag: 'wardLifted',
             give: 'amulet', win: true,
             cols: 4, rows: 3,
-            img: 'assets/art/amulet-seal.png',
+            img: 'assets/art/amulet-seal.webp',
             title: { nl: 'Het Zegel van de Amulet', en: 'The Amulet Seal' },
             solvedText: {
-              nl: 'De scherven klikken samen tot één geheel. Het laatste zegel breekt en de Amulet van Emberfall is eindelijk van jou — je grijpt hem. Warm licht stroomt door je heen.',
-              en: 'The shards click together into one. The final seal breaks and the Amulet of Emberfall is finally yours — you seize it. Warm light flows through you.'
+              nl: 'De scherven klikken samen tot één geheel. Het laatste zegel breekt!\nDe Amulet van Emberfall is eindelijk van jou. Warm licht stroomt door je heen.',
+              en: 'The shards click together into one. The final seal breaks!\nThe Amulet of Emberfall is finally yours. Warm light flows through you.'
             }
           },
           look: { nl: 'Het altaar is leeg; de amulet is van jou.', en: 'The altar is empty; the amulet is yours.' }

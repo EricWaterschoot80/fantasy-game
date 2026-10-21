@@ -72,7 +72,25 @@
     document.getElementById('win-h1').textContent = L(GAME.ui.winTitle);
     elWinText.textContent = L(GAME.winText);
     elReplayBtn.textContent = L(GAME.ui.replayBtn);
-    if (elWinNext && GAME.ui.playOther) elWinNext.textContent = L(GAME.ui.playOther);
+    if (elWinNext) {                                  // eindkaart: altijd door naar Deel 2
+      if (GAME.ui.playPart2) elWinNext.textContent = L(GAME.ui.playPart2);
+      elWinNext.setAttribute('href', '../ravenholt-deel2/');
+    }
+    /* vaste HTML-teksten en knop-labels in de gekozen taal */
+    const setTxt = (id, key) => { const el = document.getElementById(id); if (el && GAME.ui[key]) el.textContent = L(GAME.ui[key]); };
+    setTxt('chess-title', 'chessTitle');
+    setTxt('gear-lever', 'leverBtn');
+    setTxt('cutscene-skip', 'skipBtn');
+    setTxt('prologue-skip', 'skipBtn');
+    setTxt('continueBtn', 'continueBtn');
+    setTxt('prologue-tap', 'tapContinue');
+    const setLbl = (sel, key) => document.querySelectorAll(sel).forEach((el) => { if (!GAME.ui[key]) return; el.setAttribute('aria-label', L(GAME.ui[key])); if (el.hasAttribute('title')) el.setAttribute('title', L(GAME.ui[key])); });
+    setLbl('.puz-x, .bubble-x', 'closeLbl');
+    setLbl('#soundBtn', 'soundLbl');
+    setLbl('#homeBtn', 'homeLbl');
+    setLbl('#saveBtn', 'saveLbl');
+    setLbl('#infoBtn', 'hintLbl');
+    if (elLangBtn) elLangBtn.setAttribute('aria-label', L(GAME.ui.langLbl));
     document.getElementById('death-h1').textContent = L(GAME.ui.deathTitle);
     elDeathText.textContent = L(GAME.ui.deathText);
     elRetryBtn.textContent = L(GAME.ui.retryBtn);
@@ -91,40 +109,94 @@
      Sprites: GAME.sprites = { key: 'pad.png' }; een NPC verwijst via zijn
        sprite-naam naar zo'n key. */
   const AV = GAME.assetVer ? ('?v=' + GAME.assetVer) : '';
-  const ART = { scenes: {}, sprites: GAME.sprites || {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
-    if (sc.bg) ART.scenes[id] = sc.bg;
-  }
-  const art = { scenes: {}, sprites: {}, items: {}, overlays: {}, variants: {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
-    (sc.bgVariants || []).forEach((v) => {
-      if (!v.img || art.variants[v.img]) return;
-      const im = new Image();
-      im.onload = () => { if (id === state.currentScene) paintBackground(); };
-      im.src = v.img + AV;
-      art.variants[v.img] = im;
-    });
+  const art = { scenes: {}, sprites: {}, items: {}, overlays: {}, variants: {}, frames: {} };
+  function loadImg(src, onload) {
+    const im = new Image();
+    if (onload) im.onload = onload;
+    im.src = src + AV;
+    return im;
   }
   function overlayImg(src) {
-    if (!art.overlays[src]) {
-      const img = new Image();
-      img.src = src + AV;
-      art.overlays[src] = img;
-    }
+    if (!art.overlays[src]) art.overlays[src] = loadImg(src);
     return art.overlays[src];
   }
-  for (const [id, src] of Object.entries(ART.scenes)) {
-    const img = new Image();
-    img.onload = () => { if (id === state.currentScene) paintBackground(); };
-    img.src = src + AV;
-    art.scenes[id] = img;
+  /* Achtergronden van één scène (basis + wissel-varianten) direct ophalen — bij binnenkomst
+     van een scène of bij 'verder spelen', zodat de juiste plaat er meteen is. */
+  function ensureSceneArt(id) {
+    const sc = GAME.scenes[id];
+    if (!sc) return [];
+    const repaint = () => { if (typeof state !== 'undefined' && state && id === state.currentScene) paintBackground(); };
+    const list = [];
+    if (sc.bg) { if (!art.scenes[id]) art.scenes[id] = loadImg(sc.bg, repaint); list.push(art.scenes[id]); }
+    (sc.bgVariants || []).forEach((v) => {
+      if (!v.img) return;
+      if (!art.variants[v.img]) art.variants[v.img] = loadImg(v.img, repaint);
+      list.push(art.variants[v.img]);
+    });
+    /* figuren van deze scène (en de heks-animaties) ook meteen */
+    (sc.npcs || []).forEach((n) => {
+      [n.sprite, n.gestureSprite, n.lure].concat(n.scanSprites || [], n.aweSprites || []).forEach((k) => { if (k) ensureSprite(k); });
+      if (n.idleFrames) ensureFrames(n.idleFrames);
+      if (n.battleFrames) ensureFrames(n.battleFrames);
+    });
+    return list;
   }
-  /* Laadscherm: wacht tot alle scène-achtergronden (incl. wissel-varianten) geladen zijn,
-     zodat ze op mobiel niet halverwege ontbreken. Met een progressiebalk en een veiligheids-timeout. */
+  function ensureSprite(key) {
+    const src = (GAME.sprites || {})[key];
+    if (src && !art.sprites[key]) art.sprites[key] = loadImg(src);
+  }
+  /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.webp). */
+  const FRAME_SEQS = { 'heks-idle': 8, 'heks-spreuk': 17 };
+  function ensureFrames(name) {
+    if (art.frames[name]) return;
+    art.frames[name] = [];
+    for (let i = 1; i <= FRAME_SEQS[name]; i++) art.frames[name].push(loadImg('assets/art/' + name + '/' + String(i).padStart(2, '0') + '.webp'));
+  }
+
+  /* Fase 1 (vóór Start): alleen de basis-achtergrond van de eerste scène + Finn en de figuren
+     op die scène. Fase 2 (na Start): de rest stap voor stap op de achtergrond (loadDeferred). */
+  const startSc = GAME.scenes[GAME.startScene];
+  const firstImgs = [];
+  if (startSc.bg) { art.scenes[GAME.startScene] = loadImg(startSc.bg, () => { if (typeof state !== 'undefined' && state && state.currentScene === GAME.startScene) paintBackground(); }); firstImgs.push(art.scenes[GAME.startScene]); }
+  (function firstSprites() {
+    const keys = new Set(Object.keys(GAME.sprites || {}).filter((k) => /^hero|^ravenFly/.test(k)));
+    (startSc.npcs || []).forEach((n) => {
+      [n.sprite, n.gestureSprite, n.lure].concat(n.scanSprites || [], n.aweSprites || []).forEach((k) => { if (k) keys.add(k); });
+    });
+    keys.forEach(ensureSprite);
+  })();
+  let deferredStarted = false;
+  function loadDeferred() {
+    if (deferredStarted) return;
+    deferredStarted = true;
+    const jobs = [];
+    const order = [GAME.startScene].concat(Object.keys(GAME.scenes).filter((id) => id !== GAME.startScene));
+    order.forEach((id) => jobs.push(() => ensureSceneArt(id)));
+    Object.keys(GAME.sprites || {}).forEach((k) => jobs.push(() => { ensureSprite(k); return [art.sprites[k]]; }));
+    for (const [id, item] of Object.entries(GAME.items)) {
+      if (item.img && typeof item.img === 'string') jobs.push(() => { if (!art.items[id]) art.items[id] = loadImg(item.img); return [art.items[id]]; });
+    }
+    Object.keys(FRAME_SEQS).forEach((n) => jobs.push(() => { ensureFrames(n); return art.frames[n]; }));
+    /* rustig na elkaar laden (max. ~4 tegelijk), zodat de plaat van de huidige scène voorgaat */
+    let busy = 0;
+    const pump = () => {
+      while (busy < 4 && jobs.length) {
+        const imgs = (jobs.shift()() || []).filter((im) => im && !im.complete);
+        if (!imgs.length) continue;
+        busy++;
+        let left = imgs.length;
+        const done = () => { if (--left === 0) { busy--; pump(); } };
+        imgs.forEach((im) => { im.addEventListener('load', done, { once: true }); im.addEventListener('error', done, { once: true }); });
+      }
+    };
+    pump();
+  }
+  /* Laadscherm: wacht alleen op de eerste scène (en de titelplaat), met een veiligheids-timeout. */
   (function preloadGate() {
     const elLoad = document.getElementById('loading-screen');
     if (!elLoad) return;
-    const bgImgs = [...Object.values(art.scenes), ...Object.values(art.variants)];
+    const titleImg = document.querySelector('.title-bg');
+    const bgImgs = firstImgs.concat(titleImg ? [titleImg] : []);
     const total = bgImgs.length || 1;
     const elFill = document.getElementById('loading-fill');
     const elPct = document.getElementById('loading-pct');
@@ -135,7 +207,7 @@
       const n = bgImgs.filter((im) => im.complete).length;   // 'complete' = geladen óf mislukt (mislukt valt terug op de painter)
       const pct = Math.min(100, Math.round(n / total * 100));
       if (elFill) elFill.style.width = pct + '%';
-      if (elPct) elPct.textContent = 'Laden… ' + pct + '%';
+      if (elPct) elPct.textContent = L(GAME.ui.loading) + ' ' + pct + '%';
       if (n >= total || performance.now() - t0 > 9000) {
         done = true;
         if (elFill) elFill.style.width = '100%';
@@ -146,29 +218,6 @@
     }
     requestAnimationFrame(tick);
   })();
-  for (const [id, src] of Object.entries(ART.sprites)) {
-    const img = new Image();
-    img.src = src + AV;
-    art.sprites[id] = img;
-  }
-  /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
-  art.frames = {};
-  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17 };
-  for (const [name, count] of Object.entries(FRAME_SEQS)) {
-    art.frames[name] = [];
-    for (let i = 1; i <= count; i++) {
-      const img = new Image();
-      img.src = 'assets/art/' + name + '/' + String(i).padStart(2, '0') + '.png' + AV;
-      art.frames[name].push(img);
-    }
-  }
-  for (const [id, item] of Object.entries(GAME.items)) {
-    if (item.img && typeof item.img === 'string') {
-      const img = new Image();
-      img.src = item.img + AV;
-      art.items[id] = img;
-    }
-  }
   const ready = (img) => img && img.complete && img.naturalWidth > 0;
 
   /* ---------- State ---------- */
@@ -2559,6 +2608,8 @@
     if (arr(c.notFlag).some((x) => f[x])) return false;
     if (!arr(c.has).every((x) => inv.includes(x))) return false;
     if (arr(c.notHas).some((x) => inv.includes(x))) return false;
+    if (c.scene && !arr(c.scene).includes(state.currentScene)) return false;
+    if (c.notScene && arr(c.notScene).includes(state.currentScene)) return false;
     return true;
   }
   function questKey() {
@@ -2688,16 +2739,26 @@
     fctx.globalAlpha = 1;
   }
 
-  /* Hints per ruimte (scene.hints, 1-2 stuks). Geen scene-hints → val terug op het doel. */
+  /* Hints volgen je voortgang (GAME.hints: de eerste 2 regels waarvan de voorwaarde klopt).
+     Oude stijl (scene.hints) blijft werken; geen match → val terug op het doel. */
   function hintLines() {
     if (!started) return [];
-    const sc = GAME.scenes[state.currentScene];
     const lines = [];
-    if (sc && sc.hints) sc.hints.forEach((h) => {
-      if (h.flag && !state.flags[h.flag]) return;        // hint pas tonen vanaf een vlag
-      if (h.notFlag && state.flags[h.notFlag]) return;   // hint verbergen zodra een vlag gezet is
-      lines.push(L(h));
-    });
+    if (GAME.hints) {
+      for (const h of GAME.hints) {
+        if (lines.length >= 2) break;
+        if (!condMet(h.when)) continue;
+        const t = L(h);
+        if (t && !lines.includes(t)) lines.push(t);
+      }
+    } else {
+      const sc = GAME.scenes[state.currentScene];
+      if (sc && sc.hints) sc.hints.forEach((h) => {
+        if (h.flag && !state.flags[h.flag]) return;        // hint pas tonen vanaf een vlag
+        if (h.notFlag && state.flags[h.notFlag]) return;   // hint verbergen zodra een vlag gezet is
+        lines.push(L(h));
+      });
+    }
     if (!lines.length) { const k = questKey(); if (k) lines.push(L(GAME.ui[k])); }
     return lines;
   }
@@ -2748,9 +2809,44 @@
   });
 
   /* ---------- Narratie: paneel + tekstballonnen ---------- */
+  /* Lange teksten in hapklare stukken: ' || ' in de tekst is een vaste bladzijde-grens;
+     zonder grens wordt een tekst van meer dan ~45 woorden op een zinseinde (buiten
+     aanhalingstekens) gesplitst. Gedichten (met regelovergangen) blijven heel. */
+  const PAGE_WORDS = 45;
+  function splitPages(str) {
+    const pages = String(str).split(/\s*\|\|\s*/).filter(Boolean);
+    const out = [];
+    pages.forEach((pg) => {
+      const words = pg.split(/\s+/).length;
+      if (words <= PAGE_WORDS || pg.indexOf('\n') >= 0) { out.push(pg); return; }
+      /* zinsgrenzen buiten “...” zoeken */
+      const cuts = [];
+      let depth = 0;
+      for (let i = 0; i < pg.length - 1; i++) {
+        const ch = pg[i];
+        if (ch === '“') depth++;
+        else if (ch === '”') depth = Math.max(0, depth - 1);
+        if (depth === 0 && /[.!?…”)]/.test(ch) && pg[i + 1] === ' ' && /[.!?…]/.test(ch === '”' || ch === ')' ? pg[i - 1] : ch)) cuts.push(i + 1);
+      }
+      const target = Math.ceil(words / Math.ceil(words / PAGE_WORDS));
+      let from = 0, best = -1;
+      for (const c of cuts) {
+        const w = pg.slice(from, c).trim().split(/\s+/).length;
+        if (w <= target + 6) best = c;
+        else break;
+      }
+      if (best > 0 && pg.slice(best).trim().split(/\s+/).length >= 6) {
+        out.push(pg.slice(0, best).trim());
+        splitPages(pg.slice(best).trim()).forEach((x) => out.push(x));
+      } else out.push(pg);
+    });
+    return out;
+  }
   function say(text, anchor, face) {
     if (!text) return;
-    msgQueue.push({ text, anchor: anchor || null, face: face || null });
+    const str = L(text);
+    if (!str) return;
+    splitPages(str).forEach((pg) => msgQueue.push({ text: pg, anchor: anchor || null, face: face || null }));
     if (!msgOpen()) showNextMsg();
   }
   function msgOpen() { return !elMsg.hidden || !elBubble.hidden; }
@@ -4251,7 +4347,11 @@
       if (!gwOK && !cwOK) {
         sfx('error');
         const it = GAME.items[sel];
-        say((it && it.noUseText) || GAME.strings.noEffect);
+        /* Per hotspot een passend antwoord op een verkeerde poging (noUse: { item: tekst, '*': tekst }). */
+        let nu = hs.noUse && (hs.noUse[sel] || hs.noUse['*']);
+        if (typeof nu === 'function') nu = nu(state);
+        if (nu) say(nu, hsSpeaker(hs), hsFace(hs));
+        else say((it && it.noUseText) || GAME.strings.noEffect);
         return;
       }
       /* anders: val door naar givesWhen / castWith hieronder */
@@ -4542,6 +4642,7 @@
   function travelTo(sceneId, travelText) {
     if (travelText) say(travelText);
     sfx('travel');
+    ensureSceneArt(sceneId);                     // plaat van de volgende scène alvast ophalen (tijdens de fade)
     fade.mode = 'out';
     fade.t0 = performance.now();
     setTimeout(() => {
@@ -4970,7 +5071,7 @@
   function openBook() {
     if (!elZoom || !elZoomImg) return;
     const pages = [];
-    if (state.flags.mapFiled) pages.push({ img: 'assets/art/map-valley.png', label: { nl: 'De Kaart', en: 'The Map' } });          // altijd de eerste bladzijde
+    if (state.flags.mapFiled) pages.push({ img: 'assets/art/map-valley.webp', label: { nl: 'De Kaart', en: 'The Map' } });          // altijd de eerste bladzijde
     if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
     if (state.flags.gotRecipe) pages.push({ img: 'assets/art/recipe.jpg', label: { nl: 'Het Recept', en: 'The Recipe' } });
     if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.jpg', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
@@ -5199,6 +5300,8 @@
   }
   function resumeSavedGame() {
     if (!loadSavedState()) return false;
+    ensureSceneArt(state.currentScene);
+    loadDeferred();
     msgQueue = [];
     pendingWin = false; minoWalk = null; amuletRiseT0 = 0; revive = null;
     elMsg.hidden = true; elBubble.hidden = true; elWin.hidden = true; elDeath.hidden = true;
@@ -5243,6 +5346,7 @@
   }
   elStartBtn.addEventListener('click', () => {
     ac();
+    loadDeferred();                                 // de rest van de platen op de achtergrond laden (tijdens de openingsfilm)
     startMusic();
     sfx('tap');
     elTitle.hidden = true;
@@ -5280,6 +5384,8 @@
     select: (itemId) => onInventoryTap(itemId),
     dismissAll: () => { let n = 0; while (msgOpen() && n++ < 50) showNextMsg(); },
     isWinShown: () => !elWin.hidden,
+    duelInfo: () => duel && duel.rounds && duel.rounds[duel.round] ? { round: duel.round, sym: duel.rounds[duel.round].sym } : null,
+    hints: () => hintLines(),
     isDeathShown: () => !elDeath.hidden,
     setLang: (l) => { lang = l; applyLang(); },
     questKey,
@@ -5293,7 +5399,7 @@
     paint: () => paintBackground(),
     frogTest: () => { witchPoof = { t0: performance.now(), x: 198, y: 196 }; witchFrog = { t0: performance.now(), x: 198, y: 196, dir: 1 }; },   // toon de heks-verdwijnt-als-kikker animatie
     dragonTest: () => { dragonShadow = { t0: performance.now() }; },   // toon alleen de drakenschaduw-flyby
-    enterScene: (id) => { if (GAME.scenes[id]) { state.currentScene = id; const sc = GAME.scenes[id]; if (sc.fx && sc.fx.fireflies) initFireflies(sc.fx.fireflies); paintBackground(); } },
+    enterScene: (id) => { if (GAME.scenes[id]) { ensureSceneArt(id); state.currentScene = id; const sc = GAME.scenes[id]; if (sc.fx && sc.fx.fireflies) initFireflies(sc.fx.fireflies); paintBackground(); } },
     reset: resetGame
   };
 

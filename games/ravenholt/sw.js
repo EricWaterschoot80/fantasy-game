@@ -1,23 +1,27 @@
 /* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet.
-   Verhoog CACHE ('ravenholt-vN') bij ELKE release zodat spelers verse bestanden krijgen.
-   Voeg je eigen assets/art/*.png en assets/icons/*.png toe aan PRECACHE als je ze
-   offline beschikbaar wilt hebben (optioneel — niet-vermelde bestanden worden bij
-   eerste gebruik alsnog gecachet). */
+   Verhoog V (en dus CACHE) bij ELKE release, gelijk aan de ?v= in index.html en assetVer
+   in data.js, zodat spelers verse bestanden krijgen.
+   - PRECACHE gebruikt dezelfde ?v= als de pagina, zodat elk bestand maar één keer in de cache staat.
+   - Video en muziek (mp4/mp3, vaak range-verzoeken) gaan rechtstreeks naar het netwerk en
+     worden NIET gecachet — dat scheelt tientallen MB opslag op de telefoon. */
 
-const CACHE = 'ravenholt-v202';
+const V = '203';
+const CACHE = 'ravenholt-v' + V;
 
 const PRECACHE = [
   './',
   './index.html',
-  './css/style.css',
-  './js/sprites.min.js',
-  './js/scenes.min.js',
-  './js/data.min.js',
-  './js/engine.min.js',
+  './css/style.css?v=' + V,
+  './js/sprites.min.js?v=' + V,
+  './js/scenes.min.js?v=' + V,
+  './js/data.min.js?v=' + V,
+  './js/engine.min.js?v=' + V,
   './manifest.webmanifest',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png'
 ];
+
+const isMedia = (url) => /\.(mp4|mp3|m4a|webm|ogg)$/i.test(url.pathname);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,26 +32,30 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.indexOf('ravenholt-') === 0 && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (isMedia(url) || req.headers.has('range')) return;   // video/muziek: gewoon het netwerk, niet cachen
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then((response) => {
-        if (response && response.ok &&
+        if (response && response.ok && response.status === 200 &&
             (response.type === 'basic' || response.type === 'cors')) {
           const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          caches.open(CACHE).then((cache) => cache.put(req, copy));
         }
         return response;
       })
       .catch(() =>
-        caches.match(event.request, { ignoreSearch: true })
-          .then((cached) => cached || caches.match('./index.html'))
+        caches.match(req)
+          .then((hit) => hit || caches.match(req, { ignoreSearch: true }))
+          .then((cached) => cached || (req.mode === 'navigate' ? caches.match('./index.html') : Response.error()))
       )
   );
 });

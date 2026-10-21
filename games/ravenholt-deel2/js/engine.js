@@ -36,11 +36,6 @@
   const elDeath     = document.getElementById('death-screen');
   const elDeathText = document.getElementById('deathText');
   const elStartBtn  = document.getElementById('startBtn');
-  const elPrologue     = document.getElementById('prologue-screen');
-  const elPrologueImg  = document.getElementById('prologue-img');
-  const elPrologueText = document.getElementById('prologue-text');
-  const elPrologueTap  = document.getElementById('prologue-tap');
-  const elPrologueSkip = document.getElementById('prologue-skip');
   const elReplayBtn = document.getElementById('replayBtn');
   const elWinNext   = document.getElementById('winNextBtn');
   const elRetryBtn  = document.getElementById('retryBtn');
@@ -79,6 +74,10 @@
     document.getElementById('rotate-h1').textContent = L(GAME.ui.rotateTitle);
     document.getElementById('rotate-text').textContent = L(GAME.ui.rotateText);
     elMsgMore.textContent = L(GAME.ui.tapContinue);
+    /* Vaste labels in de HTML: data-i18n (tekst), data-i18n-aria (aria-label), data-i18n-title (title). */
+    document.querySelectorAll('[data-i18n]').forEach((el) => { const v = GAME.ui[el.dataset.i18n]; if (v) el.textContent = L(v); });
+    document.querySelectorAll('[data-i18n-aria]').forEach((el) => { const v = GAME.ui[el.dataset.i18nAria]; if (v) el.setAttribute('aria-label', L(v)); });
+    document.querySelectorAll('[data-i18n-title]').forEach((el) => { const v = GAME.ui[el.dataset.i18nTitle]; if (v) el.title = L(v); });
     updateQuest(true);
     renderInventory();
   }
@@ -96,79 +95,110 @@
     if (sc.bg) ART.scenes[id] = sc.bg;
   }
   const art = { scenes: {}, sprites: {}, items: {}, overlays: {}, variants: {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
-    (sc.bgVariants || []).forEach((v) => {
-      if (!v.img || art.variants[v.img]) return;
-      const im = new Image();
-      im.onload = () => { if (id === state.currentScene) paintBackground(); };
-      im.src = v.img + AV;
-      art.variants[v.img] = im;
+  /* Snel laden: er wordt niets meer in bulk vooraf geladen. Een plaatje wordt pas opgehaald
+     zodra de engine het voor het eerst opvraagt (lazyMap), en na het titelscherm haalt
+     prefetchRest() de rest van Deel 2 rustig op de achtergrond binnen. */
+  function makeImg(src, onload) {
+    const im = new Image();
+    im.decoding = 'async';
+    if (onload) im.onload = onload;
+    im.src = src + AV;
+    return im;
+  }
+  function lazyMap(srcOf, onload) {
+    return new Proxy({}, {
+      get(t, k) {
+        if (typeof k !== 'string') return t[k];
+        if (!Object.prototype.hasOwnProperty.call(t, k)) {
+          const src = srcOf(k);
+          if (!src) return undefined;
+          t[k] = makeImg(src, onload ? () => onload(k) : null);
+        }
+        return t[k];
+      }
     });
   }
   function overlayImg(src) {
-    if (!art.overlays[src]) {
-      const img = new Image();
-      img.src = src + AV;
-      art.overlays[src] = img;
-    }
+    if (!art.overlays[src]) art.overlays[src] = makeImg(src);
     return art.overlays[src];
   }
-  for (const [id, src] of Object.entries(ART.scenes)) {
-    const img = new Image();
-    img.onload = () => { if (id === state.currentScene) paintBackground(); };
-    img.src = src + AV;
-    art.scenes[id] = img;
+  const variantScene = {};
+  for (const [id, sc] of Object.entries(GAME.scenes)) {
+    (sc.bgVariants || []).forEach((v) => { if (v.img && !variantScene[v.img]) variantScene[v.img] = id; });
   }
-  /* Laadscherm: wacht tot alle scène-achtergronden (incl. wissel-varianten) geladen zijn,
-     zodat ze op mobiel niet halverwege ontbreken. Met een progressiebalk en een veiligheids-timeout. */
+  art.scenes   = lazyMap((id) => ART.scenes[id], (id) => { if (id === state.currentScene) paintBackground(); });
+  art.variants = lazyMap((src) => variantScene[src] ? src : null, (src) => { if (variantScene[src] === state.currentScene) paintBackground(); });
+  art.sprites  = lazyMap((k) => ART.sprites[k]);
+  art.items    = lazyMap((k) => { const it = GAME.items[k]; return (it && typeof it.img === 'string') ? it.img : null; });
+  /* Frame-reeksen voor geanimeerde npcs: map -> aantal frames (01..NN.png), ook pas bij gebruik. */
+  const FRAME_SEQS = { 'squire-idle': 7, 'princess-idle': 8 };
+  art.frames = new Proxy({}, {
+    get(t, name) {
+      if (typeof name !== 'string') return t[name];
+      if (!Object.prototype.hasOwnProperty.call(t, name)) {
+        const count = FRAME_SEQS[name];
+        if (!count) return undefined;
+        t[name] = [];
+        for (let i = 1; i <= count; i++) t[name].push(makeImg('assets/art/' + name + '/' + String(i).padStart(2, '0') + '.png'));
+      }
+      return t[name];
+    }
+  });
+  /* Achtergrond-voorlader: na de start de overige scènes (+ hun varianten), de NPC's en de
+     voorwerpen ophalen, twee tegelijk, zodat ze klaarstaan als je erheen loopt. */
+  function waitImg(im) {
+    return new Promise((res) => {
+      if (!im || im.complete) return res();
+      im.addEventListener('load', res, { once: true });
+      im.addEventListener('error', res, { once: true });
+    });
+  }
+  let prefetchStarted = false;
+  function prefetchRest() {
+    if (prefetchStarted) return;
+    prefetchStarted = true;
+    const jobs = [];
+    const order = [state.currentScene, ...Object.keys(GAME.scenes).filter((id) => id !== state.currentScene)];
+    order.forEach((id) => {
+      const sc = GAME.scenes[id];
+      jobs.push(() => art.scenes[id]);
+      (sc.bgVariants || []).forEach((v) => { if (v.img) jobs.push(() => art.variants[v.img]); });
+      (sc.npcs || []).forEach((n) => ['sprite', 'blinkSprite', 'aweSprite', 'gestureSprite'].forEach((f) => { if (n[f]) jobs.push(() => art.sprites[n[f]]); }));
+      (sc.overlays || []).forEach((o) => { if (o.img) jobs.push(() => overlayImg(o.img)); });
+    });
+    Object.keys(GAME.items).forEach((k) => jobs.push(() => art.items[k]));
+    let i = 0;
+    const next = () => { if (i >= jobs.length) return; const job = jobs[i++]; waitImg(job()).then(() => setTimeout(next, 30)); };
+    next(); next();
+  }
+  /* Laadscherm: wacht alleen op wat het titelscherm en de eerste scène nodig hebben
+     (titelplaat, achtergrond van de startscène en Finn zelf). Met een veiligheids-timeout. */
   (function preloadGate() {
     const elLoad = document.getElementById('loading-screen');
-    if (!elLoad) return;
-    const bgImgs = [...Object.values(art.scenes), ...Object.values(art.variants)];
-    const total = bgImgs.length || 1;
+    const titleImg = document.querySelector('#title-screen .title-bg');
+    const need = [titleImg, art.scenes[GAME.startScene], art.sprites.hero].filter(Boolean);
+    const total = need.length || 1;
     const elFill = document.getElementById('loading-fill');
     const elPct = document.getElementById('loading-pct');
     const t0 = performance.now();
     let done = false;
     function tick() {
       if (done) return;
-      const n = bgImgs.filter((im) => im.complete).length;   // 'complete' = geladen óf mislukt (mislukt valt terug op de painter)
+      const n = need.filter((im) => im.complete).length;   // 'complete' = geladen óf mislukt (mislukt valt terug op de painter)
       const pct = Math.min(100, Math.round(n / total * 100));
       if (elFill) elFill.style.width = pct + '%';
-      if (elPct) elPct.textContent = 'Laden… ' + pct + '%';
-      if (n >= total || performance.now() - t0 > 9000) {
+      if (elPct) elPct.textContent = L({ nl: 'Laden… ', en: 'Loading… ' }) + pct + '%';
+      if (n >= total || performance.now() - t0 > 8000) {
         done = true;
         if (elFill) elFill.style.width = '100%';
-        setTimeout(() => { elLoad.hidden = true; }, 220);
+        setTimeout(() => { if (elLoad) elLoad.hidden = true; }, 160);
+        setTimeout(prefetchRest, 400);
         return;
       }
       requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
   })();
-  for (const [id, src] of Object.entries(ART.sprites)) {
-    const img = new Image();
-    img.src = src + AV;
-    art.sprites[id] = img;
-  }
-  /* Frame-reeksen voor geanimeerde npcs (de heks): map -> aantal frames (01..NN.png). */
-  art.frames = {};
-  const FRAME_SEQS = { 'heks': 17, 'heks-idle': 8, 'heks-spreuk': 17, 'squire-idle': 7, 'princess-idle': 8 };
-  for (const [name, count] of Object.entries(FRAME_SEQS)) {
-    art.frames[name] = [];
-    for (let i = 1; i <= count; i++) {
-      const img = new Image();
-      img.src = 'assets/art/' + name + '/' + String(i).padStart(2, '0') + '.png' + AV;
-      art.frames[name].push(img);
-    }
-  }
-  for (const [id, item] of Object.entries(GAME.items)) {
-    if (item.img && typeof item.img === 'string') {
-      const img = new Image();
-      img.src = item.img + AV;
-      art.items[id] = img;
-    }
-  }
   const ready = (img) => img && img.complete && img.naturalWidth > 0;
 
   /* ---------- State ---------- */
@@ -362,7 +392,6 @@
   if (elDevValley) elDevValley.addEventListener('click', () => {
     sfx('tap');
     if (!started) { if (elTitle) elTitle.hidden = true; started = true; }
-    if (elPrologue) elPrologue.hidden = true;
     Object.assign(state.flags, {
       metMayor: true, millFixed: true, gotMayorCoin: true, gotMap: true, mayorGone: true,
       spellWritten: true, recipeRevealed: true, poemRead: true, wonChess: true,
@@ -2518,8 +2547,7 @@
     }
     /* ONZICHTBAAR: in de kerker is Finn na de spreuk niet meer dan een rimpeling —
        half doorschijnend met een zachte blauwe schittering eromheen. */
-    const ghost = (state.currentScene === 'dungeon' && state.flags.guardPassed && !state.flags.fatherFreed)
-      || (state.currentScene === 'library' && state.flags.libTestInvis);   // testmodus in de bieb
+    const ghost = state.currentScene === 'dungeon' && state.flags.guardPassed && !state.flags.fatherFreed;
     if (ghost) {
       fctx.globalAlpha = 0.34 + 0.06 * Math.sin(now / 480);          // zachtjes pulserend doorschijnend
       const gr = 30, ga = 0.10 + 0.05 * Math.sin(now / 600);
@@ -3211,16 +3239,6 @@
     if (!state.flags.gotInvisSpell) return;
     if (msgOpen()) showNextMsg();
     if (!elPuzzle.hidden || !elRiddle.hidden || !elRune.hidden || !elMaze.hidden || (elGear && !elGear.hidden) || (elChess && !elChess.hidden)) return;
-    /* Testmodus in de bieb: schakel de onzichtbaarheid aan/uit zodat je het effect kunt bekijken. */
-    if (state.currentScene === 'library') {
-      state.flags.libTestInvis = !state.flags.libTestInvis;
-      sfx('combine'); triggerCastFx();
-      burstAt(player.x, player.y - 30, { n: 22, col: '160,200,255', up: 8, life: 1.2, spread: 26 });
-      say(state.flags.libTestInvis
-        ? { nl: '(Test) Je fluistert de onzichtbaarheidsspreuk en vervaagt tot een blauwe rimpeling in de lucht. Spreek hem nog eens uit om weer zichtbaar te worden.', en: '(Test) You whisper the invisibility spell and fade to a blue shimmer in the air. Cast it again to become visible once more.' }
-        : { nl: '(Test) De rimpeling stolt weer tot Finn — je bent weer zichtbaar.', en: '(Test) The shimmer settles back into Finn — you are visible again.' });
-      return;
-    }
     const scene = GAME.scenes[state.currentScene];
     const hs = (scene.hotspots || []).find((h) => h.castWith && h.castWith.item === 'invisspell');
     if (!hs) {
@@ -3324,6 +3342,44 @@
   }
   function msgOpen() { return !elMsg.hidden || !elBubble.hidden; }
 
+  /* Knip een lange tekst op zinsgrenzen in stukken van hooguit ~55 woorden. Bij voorkeur
+     niet midden in een citaat, zodat een stuk niet met een open aanhalingsteken eindigt. */
+  const MSG_MAX_WORDS = 55;
+  function splitLongText(txt) {
+    const wc = (s) => s.split(/\s+/).filter(Boolean).length;
+    if (!txt || wc(txt) <= MSG_MAX_WORDS + 5) return [txt];
+    const sents = [];                                  // { s, depth } — depth = open citaat na deze zin
+    let cur = '', depth = 0;
+    for (let i = 0; i < txt.length; i++) {
+      const ch = txt[i];
+      cur += ch;
+      if (ch === '“') depth++;
+      else if (ch === '”') depth = Math.max(0, depth - 1);
+      const nxt = txt[i + 2] || '';
+      if (txt[i + 1] === ' ' && /[.!?…”)]/.test(ch) && /[.!?…]/.test(ch + (txt[i - 1] || '')) && /[A-ZÀ-Ý“(0-9]/.test(nxt)) {
+        sents.push({ s: cur, depth }); cur = ''; i++;
+      }
+    }
+    if (cur.trim()) sents.push({ s: cur, depth });
+    const out = [];
+    let buf = [];
+    const flush = () => { if (buf.length) { out.push(buf.map((x) => x.s).join(' ').trim()); buf = []; } };
+    for (let k = 0; k < sents.length; k++) {
+      buf.push(sents[k]);
+      const words = wc(buf.map((x) => x.s).join(' '));
+      const restWords = wc(sents.slice(k + 1).map((x) => x.s).join(' '));
+      if (!restWords) break;
+      const nextWords = wc(sents[k + 1].s);
+      const atQuoteEnd = sents[k].depth === 0;
+      if ((words + nextWords > MSG_MAX_WORDS && (atQuoteEnd || words > MSG_MAX_WORDS - 10) && restWords >= 6) || words >= MSG_MAX_WORDS + 10) flush();
+    }
+    flush();
+    if (out.length > 1 && wc(out[out.length - 1]) < 12 && wc(out[out.length - 2]) + wc(out[out.length - 1]) <= 75) {
+      out.splice(-2, 2, out[out.length - 2] + ' ' + out[out.length - 1]);   // geen piepklein restje als laatste stuk
+    }
+    return out.length ? out : [txt];
+  }
+
   function showNextMsg() {
     elMsg.hidden = true;
     elBubble.hidden = true;
@@ -3335,9 +3391,16 @@
       return;
     }
     const m = msgQueue.shift();
+    /* Lange teksten (meer dan ~60 woorden) in hapklare stukken: de rest komt na een tik. */
+    let txt = L(m.text);
+    const parts = splitLongText(txt);
+    if (parts.length > 1) {
+      txt = parts[0];
+      msgQueue.unshift(...parts.slice(1).map((s) => ({ text: s, anchor: m.anchor, face: m.face })));
+    }
     const mobile = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     if (m.anchor && view.scale && !mobile) {
-      elBubbleTxt.textContent = L(m.text);
+      elBubbleTxt.textContent = txt;
       if (m.face) { elBubbleFace.src = m.face; elBubbleFace.hidden = false; }
       else elBubbleFace.hidden = true;
       const bx = view.ox + m.anchor.x * view.scale;
@@ -3349,7 +3412,7 @@
       elBubble.hidden = false;
     } else {
       /* paneel (op mobiel ook voor personages — met gezicht) */
-      elMsgText.textContent = L(m.text);
+      elMsgText.textContent = txt;
       if (m.face) { elMsgFace.src = m.face; elMsgFace.hidden = false; }
       else elMsgFace.hidden = true;
       elMsg.hidden = false;
@@ -5270,7 +5333,9 @@
       if (!eclHs) return;
       const pz = eclHs.eclipsePuzzle;
       sfx('tap');
-      if (elEclStatus) elEclStatus.textContent = pz.tip ? L(pz.tip) : '';
+      const eh = document.getElementById('eclipse-hint');   // de tip vervangt de uitleg (blijft zo binnen beeld op een telefoon)
+      if (eh && pz.tip) eh.textContent = L(pz.tip);
+      if (elEclStatus) elEclStatus.textContent = '';
     });
     elEcl.addEventListener('click', (e) => { if (e.target === elEcl) eclipseClose(); });
   }
@@ -6518,7 +6583,7 @@
     paintBackground();   // achtergrond wisselt naar de rustige vallei (witchDefeated)
     /* Speel eerst de filmische heksengevecht-cinematic; daarná lost de heks op in rook,
        fladdert de kikker weg en valt de ring (met de wintekst). */
-    playCutscene('assets/video/witch-cinematic.mp4', () => {
+    (cfg.cutscene ? (cb, o) => playCutscene(cfg.cutscene, cb, o) : (cb) => cb())(() => {
       const wsc = GAME.scenes[state.currentScene];
       const wn = wsc && (wsc.npcs || []).find((n) => n.id === 'witch');
       witchPoof = { t0: performance.now(), x: wn ? wn.x : 198, y: wn ? wn.y - 34 : 196 };
@@ -6773,7 +6838,7 @@
   function openZoom(img) {
     if (!elZoom || !elZoomImg) return;
     bookPages = null; setBookNav(false);
-    elZoomImg.src = img + AV;
+    elZoomImg.src = L(img) + AV;   // img mag ook {nl, en} zijn (pagina's met tekst erin)
     elZoom.hidden = false;
     sfx('tap');
   }
@@ -6791,11 +6856,12 @@
   function openBook() {
     if (!elZoom || !elZoomImg) return;
     const pages = [];
-    if (state.flags.mapFiled) pages.push({ img: 'assets/art/map-valley.png', label: { nl: 'De Kaart', en: 'The Map' } });          // altijd de eerste bladzijde
-    if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.jpg', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
-    if (state.flags.gotRecipe) pages.push({ img: 'assets/art/recipe.jpg', label: { nl: 'Het Recept', en: 'The Recipe' } });
-    if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.jpg', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
-    if (state.flags.gotInvisSpell) pages.push({ img: 'assets/art/spell-invis.jpg', label: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' } });
+    if (state.flags.mapFiled) pages.push({ img: 'assets/art/map-valley.webp', label: { nl: 'De Kaart', en: 'The Map' } });          // altijd de eerste bladzijde
+    if (state.flags.spellWritten) pages.push({ img: 'assets/art/spell-dance.webp', label: { nl: 'Dans-spreuk', en: 'Dance Spell' } });
+    if (state.flags.gotRecipe) pages.push({ img: 'assets/art/recipe.webp', label: { nl: 'Het Recept', en: 'The Recipe' } });
+    if (state.flags.dragonSpellLearned) pages.push({ img: 'assets/art/spell-dragon.webp', label: { nl: 'Drakenspreuk', en: 'Dragon Spell' } });
+    if (state.flags.gotEclipseSpell) pages.push({ img: { nl: 'assets/art/spell-eclipse-page.webp', en: 'assets/art/spell-eclipse-page-en.webp' }, label: { nl: 'Zonsverduistering', en: 'Solar Eclipse' } });
+    if (state.flags.gotInvisSpell) pages.push({ img: { nl: 'assets/art/spell-invis.webp', en: 'assets/art/spell-invis-en.webp' }, label: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' } });
     if (!pages.length) return;
     bookPages = pages; bookIdx = pages.length - 1;   // open op de nieuwste spreuk
     showBookPage();
@@ -6807,7 +6873,7 @@
   function showBookPage() {
     if (!bookPages) return;
     const p = bookPages[bookIdx];
-    elZoomImg.src = p.img + AV;
+    elZoomImg.src = L(p.img) + AV;
     const multi = bookPages.length > 1;
     setBookNav(multi);
     if (elZoomPrev) elZoomPrev.classList.toggle('dim', bookIdx === 0);
@@ -6944,53 +7010,6 @@
     say(GAME.scenes[state.currentScene].entryText);
   }
 
-  /* ---------- Opening / proloog ---------- */
-  const PROLOGUE = [
-    { img: 'assets/art/prologue-1.jpg', text: {
-      nl: 'In het koninkrijk Eldoria, waar de ochtendmist over de heuvels hangt, ligt het dorpje Ravenholt. Eeuwenlang dreef de oude watermolen de bron aan die het dorp van vers water voorzag.',
-      en: 'In the kingdom of Eldoria, where the morning mist lies over the hills, sits the little village of Ravenholt. For centuries the old water mill drove the spring that gave the village fresh water.' } },
-    { img: 'assets/art/prologue-2.jpg', text: {
-      nl: 'Maar op een stille ochtend klatert de fontein niet meer. Het waterrad van de molen staat stokstijf stil en het water zakt met de dag. In de verte gloeien vreemde blauwe lichten boven de vallei...',
-      en: 'But one quiet morning the fountain falls silent. The mill’s water wheel stands dead still and the water drops by the day. Far off, strange blue lights glow above the valley...' } },
-    { img: 'assets/art/prologue-3.jpg', text: {
-      nl: 'Burgemeester Bram roept de jonge Finn erbij. “Onderzoek de molen, jongen — en let op die lichten.” Met zijn vaders staf in de hand zet Finn de eerste stap. Zo begint het avontuur.',
-      en: 'Mayor Bram calls for young Finn. “Go and inspect the mill, lad — and mind those lights.” With his father’s staff in hand, Finn takes his first step. And so the adventure begins.' } }
-  ];
-  let prologueIdx = 0, prologueLock = false;
-  function showProloguePanel(i) {
-    const p = PROLOGUE[i];
-    if (!p) { endPrologue(); return; }
-    prologueLock = true;
-    elPrologueImg.classList.remove('show');
-    elPrologueText.classList.remove('show');
-    elPrologueText.textContent = L(p.text);
-    const reveal = () => { elPrologueImg.classList.add('show'); setTimeout(() => { elPrologueText.classList.add('show'); prologueLock = false; }, 350); };
-    elPrologueImg.onload = reveal;
-    elPrologueImg.onerror = reveal;
-    elPrologueImg.src = p.img + AV;
-    if (elPrologueImg.complete && elPrologueImg.naturalWidth) reveal();
-  }
-  function advancePrologue() {
-    if (prologueLock) { elPrologueImg.classList.add('show'); elPrologueText.classList.add('show'); prologueLock = false; return; }
-    prologueIdx++;
-    if (prologueIdx >= PROLOGUE.length) endPrologue();
-    else { if (soundOn) sfx('tap'); showProloguePanel(prologueIdx); }
-  }
-  function startPrologue() {
-    prologueIdx = 0;
-    elPrologue.hidden = false;
-    showProloguePanel(0);
-  }
-  function endPrologue() {
-    elPrologue.hidden = true;
-    started = true;
-    state.flags['visited_' + state.currentScene] = true;
-    updateQuest();
-    say(GAME.scenes[state.currentScene].entryText);
-  }
-  if (elPrologue) elPrologue.addEventListener('click', advancePrologue);
-  if (elPrologueSkip) elPrologueSkip.addEventListener('click', (e) => { e.stopPropagation(); if (soundOn) sfx('tap'); endPrologue(); });
-
   /* ---------- Opslaan & verder spelen (browser-cache / localStorage) ---------- */
   const SAVE_KEY = 'ravenholt-deel2-save-v1';
   const elSaveBtn = document.getElementById('saveBtn');
@@ -7088,7 +7107,7 @@
     getState: () => state,
     getPlayer: () => ({ x: player.x, y: player.y, walking: !!player.target }),
     getNpc: (id) => npcRt[id] ? { x: npcRt[id].x, y: npcRt[id].y } : null,
-    start: () => { if (!started) { elStartBtn.click(); if (elPrologue && !elPrologue.hidden) endPrologue(); } },
+    start: () => { if (!started) elStartBtn.click(); },
     tap: (hotspotId) => {
       const scene = GAME.scenes[state.currentScene];
       const hs = scene.hotspots.find(h => h.id === hotspotId);

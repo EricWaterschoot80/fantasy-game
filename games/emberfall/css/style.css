@@ -747,8 +747,22 @@ html, body {
   overflow: visible;
 }
 .jig-inner { position: absolute; left: 0; top: 0; }
-/* Op desktop mag de legpuzzel-kaart breder zijn zodat de puzzel groter is */
-@media (min-width: 720px) { .puzzle-card.jig-wide { max-width: 680px; } }
+/* Legpuzzel-kaart: breed (kader + bak naast elkaar), Voorbeeld-knop in de kopregel
+   zodat het speelveld de volle hoogte krijgt (ook op een liggende telefoon). */
+.puzzle-card.jig-wide { max-width: 860px; padding-top: 12px; }
+.puzzle-card.jig-wide h2 { padding: 0 150px; min-height: 44px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+.puzzle-card.jig-wide .puz-hint-btn {
+  position: absolute; left: 12px; top: 12px; z-index: 2;
+  width: auto; min-height: 44px; margin: 0; padding: 8px 14px; font-size: 14px;
+}
+.puzzle-card.jig-wide .puz-tip { max-width: none; text-align: center; margin-top: 8px; font-size: 12px; }
+.jig-tray {
+  position: absolute;
+  background: rgba(20, 16, 11, .55);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(201,162,75,.35), inset 0 0 14px rgba(0,0,0,.6);
+  pointer-events: none;
+}
 .jig-frame {
   position: absolute;
   left: 0; top: 0;
@@ -811,6 +825,15 @@ html, body {
   box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #1f1410;
 }
 
+.riddle-intro {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  line-height: 1.4;
+  font-style: italic;
+  color: var(--sand);
+  margin: -4px 0 10px;
+}
+.riddle-q.wrong { color: #f0b49a; }
 .riddle-q {
   font-family: var(--font-pixel);
   font-size: 15px;
@@ -910,6 +933,9 @@ html, body {
 
 [hidden] { display: none !important; }
 
+/* Taalknop weg zolang er een popup open is (lag anders over de kaart heen) */
+body.popup-open #langBtn { display: none; }
+
 /* Draai-hint: het spel speelt liggend */
 #rotate-hint { display: none; z-index: 40; }
 @media (orientation: portrait) {
@@ -921,10 +947,15 @@ html, body {
 @media (pointer: coarse) {
   #bottomui { display: contents; }
 
-  /* knoppen allemaal links: geluid, taal, oog — inventory staat rechts */
+  /* knoppen allemaal links: geluid, taal, oog — inventory staat rechts.
+     Alle tikdoelen minstens 44×44 px. */
+  .round-btn { width: 44px; height: 44px; }
   .round-btn.sound { left: 12px; }
-  .round-btn.lang  { left: 60px; }
-  #hintBtn { left: 108px; right: auto; }
+  .round-btn.lang  { left: 64px; }
+  #hintBtn { left: 116px; right: auto; }
+  #topcenter { max-width: calc(100vw - 340px); min-width: 200px; }
+  .round-btn.puz-x { width: 44px; height: 44px; }
+  .maze-btn { width: 52px; height: 46px; }
 
   #invbar {
     position: fixed;
@@ -939,7 +970,9 @@ html, body {
     background: rgba(26, 20, 16, .55);
   }
   #invbar::before, #invbar::after { display: none; }
-  .inv-slot { width: 40px; height: 40px; font-size: 20px; }
+  .inv-slot { width: 44px; height: 44px; font-size: 22px; }
+  /* te veel items voor de schermhoogte: twee kolommen */
+  #invbar.two-col { display: grid; grid-template-columns: 44px 44px; gap: 5px; }
 
   /* tekst links onderaan, weg van de inventory en de home-knop (linksonder) */
   #msg {
@@ -952,7 +985,7 @@ html, body {
     margin: 0;
     padding: 7px 12px 5px;
   }
-  #homeBtn { left: 10px; right: auto; }
+  #homeBtn { left: 10px; right: auto; width: 44px; height: 44px; }
   #msgText { font-size: 13.5px; }
   #msgFace { width: 34px; height: 34px; }
 
@@ -968,9 +1001,17 @@ html, body {
   .puzzle-card { padding: 12px 16px 14px; }
   .puzzle-card h2, #riddle-title, #rune-title, #maze-title { font-size: 14px; margin-bottom: 6px; }
   .riddle-q { font-size: 13px; min-height: 0; margin-bottom: 10px; }
+  .riddle-intro { font-size: 12px; margin-bottom: 6px; }
+  .puzzle-card.jig-wide { padding: 8px 14px 10px; }
+  .puzzle-card.jig-wide h2 { margin-bottom: 4px; }
+  .puzzle-card.jig-wide .puz-hint-btn, .puzzle-card.jig-wide .puz-x { top: 8px; }
+  .puzzle-card.jig-wide .puz-tip { margin-top: 4px; font-size: 11px; }
   #riddle-answers { gap: 7px; }
   .gold-btn.riddle-ans { font-size: 13px; padding: 7px 14px; }
   #riddle-face { width: 36px; height: 36px; }
   .ornament { font-size: 30px; }
-  .win-banner { max-height: 32vh; width: auto; max-width: min(100%, 56vh); margin: 0 auto 8px; }
+  .win-banner { max-height: 26vh; width: auto; max-width: min(100%, 46vh); margin: 0 auto 6px; }
+  /* win-knoppen naast elkaar, zodat 'Speel nu Maanhoef' zonder scrollen zichtbaar is */
+  #win-screen .intro { margin-bottom: 8px; }
+  #replayBtn, #win-screen .win-next { display: inline-block; vertical-align: middle; margin: 6px 8px 4px; font-size: 15px; padding: 9px 18px; }
 }

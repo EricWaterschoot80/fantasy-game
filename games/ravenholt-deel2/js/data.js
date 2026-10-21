@@ -14,63 +14,35 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '202',
+  assetVer: '204',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
      heroWalk/heroWalk2 blijven als terugval voor de 2-frame cyclus. */
   sprites: {
-    hero:          'assets/art/hero.png',
-    heroIdle2:     'assets/art/hero-idle2.png',     // 2e stilstaan-frame (zacht gewicht verplaatsen)
-    heroBlink:     'assets/art/hero-blink.png',     // knipper-frame 1 (ogen dicht), /lopen 19
-    heroBlink2:    'assets/art/hero-blink2.png',    // knipper-frame 2 (ogen weer open), /lopen 20
-    heroWalk:      'assets/art/hero-walk.png',
-    heroWalk2:     'assets/art/hero-walk2.png',
-    heroWave:      'assets/art/hero-wave.png',
-    heroWave2:     'assets/art/hero-wave2.png',     // 2e zwaai-frame (hand op/neer)
-    heroWalkSheet: 'assets/art/hero-walk-sheet.png',
-    mayor:         'assets/art/mayor.png',
-    mayorGesture:  'assets/art/mayor-gesture.png',  // bezorgd gebaar (af en toe)
-    mayorHappy:    'assets/art/mayor-happy.png',    // opgelucht zodra het water terug is (molen gemaakt) — met de geheime kaart
-    mayorMap:      'assets/art/mayor-map.png',       // nadat hij de kaart heeft weggegeven (lege hand)
+    hero:          'assets/art/hero.webp',
+    heroIdle2:     'assets/art/hero-idle2.webp',     // 2e stilstaan-frame (zacht gewicht verplaatsen)
+    heroBlink:     'assets/art/hero-blink.webp',     // knipper-frame 1 (ogen dicht), /lopen 19
+    heroBlink2:    'assets/art/hero-blink2.webp',    // knipper-frame 2 (ogen weer open), /lopen 20
+    heroWalk:      'assets/art/hero-walk.webp',
+    heroWalk2:     'assets/art/hero-walk2.webp',
+    heroWave:      'assets/art/hero-wave.webp',
+    heroWave2:     'assets/art/hero-wave2.webp',     // 2e zwaai-frame (hand op/neer)
+    heroWalkSheet: 'assets/art/hero-walk-sheet.webp',
     ravenPerch:    'assets/art/raven-perch.png',   // raaf op de ton (gevouwen vleugels)
     ravenFly:      'assets/art/raven-fly.png',      // raaf in vlucht (oud, fallback)
-    ravenFlyUp:    'assets/art/raven-fly-up.png',   // wiekslag: vleugels hoog
+    ravenFlyUp:    'assets/art/raven-fly-up.webp',   // wiekslag: vleugels hoog
     ravenFlyMid:   'assets/art/raven-fly-mid.png',  // wiekslag: vleugels gespreid
     ravenFlyDown:  'assets/art/raven-fly-down.png', // wiekslag: vleugels omlaag
-    mouse:         'assets/art/mouse.png',          // bruine muis in de molen (praten)
-    cogBrass:      'assets/art/cog-brass.png',      // radwerk-puzzel: messing tandwiel
-    cogIron:       'assets/art/cog-iron.png',       // radwerk-puzzel: ijzeren tandwiel
-    guard:         'assets/art/guard.png',          // poortwacht bij het kasteel
-    guardGesture:  'assets/art/guard-gesture.png',  // wacht verzet zijn hellebaard (af en toe)
-    merchant:      'assets/art/merchant-left.png',   // handelsman (kap op) — kijkt naar de kar (links)
-    merchantLeft:  'assets/art/merchant-left.png',   // kijkt naar links (zijn kar)
-    merchantFwd:   'assets/art/merchant-fwd.png',    // kijkt vooruit
-    merchantRight: 'assets/art/merchant-right.png',  // kijkt naar rechts (de wacht)
-    merchantSly:   'assets/art/merchant-sly.png',    // sluwe blik omhoog (4e spied-stand)
-    merchantSurprised: 'assets/art/merchant-surprised.png', // verbaasd (1)
-    merchantAwe:   'assets/art/merchant-awe.png',    // verbaasd/betoverd starend naar de dansende bloem (2)
-    heroWalkDiag:  'assets/art/hero-walk-diag.png',  // schuin lopen (3/4 naar de speler toe)
-    flower:        'assets/art/flower.png',          // bloem (oranje accent)
-    flowerWhite:   'assets/art/flower-white.png',    // witte bloem (dansende bloem + cluster)
-    flowerLavender:'assets/art/flower-lavender.png', // lichtgevende lavendelbloem (blauw licht) in de vallei
-    witch:         'assets/art/npc-witch.png',       // de heks bij de ketel (rust-frame)
-    witchBeckon:   'assets/art/npc-witch-beckon.png',// heks wenkt de jongen ('kom hier'-gebaar)
-    dragonstone:   'assets/art/item-dragonstone.png',// (oud) blauwe steen
-    ring:          'assets/art/item-ring.png',       // drakenring die de heks achterlaat na het gevecht
-    dragonShadow:  'assets/art/dragon-shadow.png',   // voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
-    frogFly:       'assets/art/frog-fly.png',        // de heks veranderd in een vliegende kikker MET vleugels (pixel-art sprite-sheet, 4 wiek-frames)
-    runeWolf:      'assets/art/runeWolf.png',         // dier-rune-tekens die boven de stenen verschijnen tijdens het heksengevecht
-    runeOwl:       'assets/art/runeOwl.png',
-    runeSnake:     'assets/art/runeSnake.png',
-    runeDragon:    'assets/art/runeDragon.png',
+    heroWalkDiag:  'assets/art/hero-walk-diag.webp',  // schuin lopen (3/4 naar de speler toe)
+    dragonShadow:  'assets/art/dragon-shadow.webp',   // voorbijvliegende drakenschaduw bij de drakenspreuk op de wachter
     squire:        'assets/art/squire.png',     // jonge schildknaap op de binnenplaats (Deel 2)
     princess:      'assets/art/princess.png',     // de prinses in de slottuin (Deel 2)
-    parrot:        'assets/art/parrot.png',        // kleurrijke papagaai in de slottuin (Deel 2)
-    librarian:     'assets/art/librarian.png',    // de boze tovenaar (mad-wizard) in de kasteelbibliotheek (Deel 2)
-    'librarian-sleep': 'assets/art/librarian-sleep.png',   // dezelfde tovenaar met de ogen dicht (knipperen + paddenstoel-trance)
-    dungeonGuard:  'assets/art/dungeon-guard.png',   // de wachter in de kerker (Deel 2)
-    father:        'assets/art/father.png'           // Finn's gevangen vader in de kerkercel (Deel 2)
+    parrot:        'assets/art/parrot.webp',        // kleurrijke papagaai in de slottuin (Deel 2)
+    librarian:     'assets/art/librarian.webp',    // de boze tovenaar (mad-wizard) in de kasteelbibliotheek (Deel 2)
+    'librarian-sleep': 'assets/art/librarian-sleep.webp',   // dezelfde tovenaar met de ogen dicht (knipperen + paddenstoel-trance)
+    dungeonGuard:  'assets/art/dungeon-guard.webp',   // de wachter in de kerker (Deel 2)
+    father:        'assets/art/father.webp'           // Finn's gevangen vader in de kerkercel (Deel 2)
   },
   heroWalkFrames: 16,           // loopanimatie uit /lopen 01-16 (alleen de écht-lopende frames)
   spriteDetail: 2,              // sprites zijn op 2x resolutie opgeslagen; engine tekent ze op halve maat = fijnere details
@@ -81,8 +53,8 @@ const GAME = {
   startFlags: ['mapFiled', 'spellWritten', 'gotRecipe', 'dragonSpellLearned'],
 
   winText: {
-    nl: 'Gefeliciteerd — je hebt Whispers of Ravenholt UITGESPEELD! Je verzamelde drie spreuken, verduisterde de zon, sloop onzichtbaar langs de wachter én kraakte het kerkerslot — je vader is VRIJ! Samen lopen jullie de trap op, het daglicht tegemoet. Knap gedaan, held!',
-    en: 'Congratulations — you BEAT Whispers of Ravenholt! You gathered three spells, eclipsed the sun, slipped invisibly past the guard AND cracked the dungeon lock — your father is FREE! Together you climb the stairs toward the daylight. Well done, hero!'
+    nl: 'Gefeliciteerd — je hebt Whispers of Ravenholt Deel 2 uitgespeeld! Je leerde twee nieuwe spreuken, verduisterde de zon, sloop onzichtbaar langs de wachter en leidde hem af met een dansend plantje. Je vader is VRIJ! Samen lopen jullie de trap op, het daglicht tegemoet. Knap gedaan, held!',
+    en: 'Congratulations — you beat Whispers of Ravenholt Part 2! You learned two new spells, darkened the sun, slipped past the guard unseen and distracted him with a dancing little plant. Your father is FREE! Together you climb the stairs toward the daylight. Well done, hero!'
   },
 
   strings: {
@@ -93,11 +65,11 @@ const GAME = {
 
   ui: {
     subtitle:   { nl: 'Deel 2 — Het Kasteel van Eldoria', en: 'Part 2 — The Castle of Eldoria' },
-    intro:      { nl: 'Finn is door de poort het kasteel van Eldoria binnengeglipt. Op de binnenplaats houdt een schildknaap de wacht, en achter een begroeide boog ligt een geheime slottuin — waar de prinses op wie hij stiekem verliefd is tussen de rozen wandelt. Maar Finn kwam niet voor de rozen: ergens diep in de burcht wordt zijn vader gevangen gehouden, en de enige weg naar binnen is de grote kasteeldeur, die op een eeuwenoud slot zit.',
-                  en: 'Finn has slipped through the gate into the castle of Eldoria. A squire keeps watch in the courtyard, and beyond an ivy-clad arch lies a secret garden — where the princess he secretly loves walks among the roses. But Finn did not come for the roses: somewhere deep in the keep his father is held captive, and the only way in is the great castle door, sealed with an ancient lock.' },
+    intro:      { nl: 'Het verhaal tot nu toe: in Deel 1 bracht Finn het water terug naar Ravenholt en leerde hij de dans-spreuk en de drakenspreuk. Nu is hij het kasteel van Eldoria binnengeglipt, want daar zit zijn vader gevangen.',
+                  en: 'The story so far: in Part 1, Finn brought the water back to Ravenholt and learned the dance spell and the dragon spell. Now he has slipped into the castle of Eldoria, where his father is held captive.' },
     credit:     { nl: 'Een RetroAdventureWorld-avontuur', en: 'A RetroAdventureWorld adventure' },
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
-    winTitle:   { nl: 'Het spel uitgespeeld!', en: 'You beat the game!' },
+    winTitle:   { nl: 'Deel 2 uitgespeeld!', en: 'Part 2 complete!' },
     replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
     playOther:  { nl: '▸ Speel een ander avontuur', en: '▸ Play another adventure' },
     deathTitle: { nl: 'Verloren in de mist...', en: 'Lost in the fog...' },
@@ -110,157 +82,108 @@ const GAME = {
     selected:   { nl: 'geselecteerd', en: 'selected' },
     homeConfirm:{ nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
 
+    /* Vaste knoppen/labels in index.html (data-i18n, data-i18n-aria, data-i18n-title) */
+    continueBtn:{ nl: 'Verder spelen', en: 'Continue' },
+    skipBtn:    { nl: 'Overslaan ▸', en: 'Skip ▸' },
+    hintBtn:    { nl: '💡 Hint', en: '💡 Hint' },
+    eclTipBtn:  { nl: '💡 Geef me een hint', en: '💡 Give me a hint' },
+    leverBtn:   { nl: 'TREK AAN DE HENDEL', en: 'PULL THE LEVER' },
+    eclOuter:   { nl: 'buitenste', en: 'outer' },
+    eclMiddle:  { nl: 'middelste', en: 'middle' },
+    eclInner:   { nl: 'binnenste', en: 'inner' },
+    eclTurns:   { nl: 'draait', en: 'turns' },
+    eclOuterBack:{ nl: 'Buitenring terug', en: 'Outer ring back' },
+    eclOuterFwd: { nl: 'Buitenring vooruit', en: 'Outer ring forward' },
+    eclMidBack:  { nl: 'Middenring terug', en: 'Middle ring back' },
+    eclMidFwd:   { nl: 'Middenring vooruit', en: 'Middle ring forward' },
+    eclInBack:   { nl: 'Binnenring terug', en: 'Inner ring back' },
+    eclInFwd:    { nl: 'Binnenring vooruit', en: 'Inner ring forward' },
+    close:      { nl: 'Sluiten', en: 'Close' },
+    sound:      { nl: 'Geluid aan of uit', en: 'Sound on or off' },
+    home:       { nl: 'Terug naar de homepagina', en: 'Back to the homepage' },
+    inventory:  { nl: 'Inventaris', en: 'Inventory' },
+    saveGame:   { nl: 'Spel opslaan', en: 'Save game' },
+    showTip:    { nl: 'Toon de tip', en: 'Show the hint' },
+    showSpots:  { nl: 'Toon waar je kunt tikken', en: 'Show what you can tap' },
+    switchLang: { nl: 'Wissel taal (English)', en: 'Switch language (Nederlands)' },
+    prevPage:   { nl: 'Vorige bladzijde', en: 'Previous page' },
+    nextPage:   { nl: 'Volgende bladzijde', en: 'Next page' },
+    hold:       { nl: '✋ Vasthouden', en: '✋ Hold' },
+    lower:      { nl: '⟳ Laten zakken', en: '⟳ Lower' },
+
     q_explore:  { nl: 'Verken de binnenplaats van het kasteel — en zoek de weg naar de slottuin', en: 'Explore the castle courtyard — and find the way to the garden' },
-    q_garden:   { nl: 'Loop de slottuin in en ontdek wie daar tussen de rozen wandelt', en: 'Enter the castle garden and discover who walks among the roses' },
-    q_getsword: { nl: 'De schildknaap gaf je het gebroken zwaard van Sir Aldric. Smeed het weer heel bij de smidse: je hebt de hamer en houtskool nodig. De hamer zit in het smidsbeeld in de tuin — dat vraagt de geheime woorden van de smid. Geef de papagaai de pindanoot (ligt op het plein) en hij verklapt ze.', en: 'The squire gave you Sir Aldric’s broken sword. Forge it whole at the smithy: you need the hammer and charcoal. The hammer is in the smith statue in the garden — it asks for the smith’s secret words. Give the parrot the peanut (it lies in the courtyard) and he’ll reveal them.' },
-    q_gethammer:{ nl: 'Voor de hamer: bij het smidsbeeld in de tuin moet je de geheime woorden van de smid aanklikken. Geef de papagaai de pindanoot (bij het aambeeld op het plein) — hij verklapt welke woorden, en in welke volgorde', en: 'For the hammer: at the smith statue in the garden you must click the smith’s secret words. Give the parrot the peanut (by the anvil in the courtyard) — he reveals which words, and in what order' },
-    q_giveparrot:{ nl: 'Je hebt een pindanoot — geef hem aan de papagaai in de slottuin; hij verklapt de geheime woorden van de smid', en: 'You have a peanut — give it to the parrot in the garden; he reveals the smith’s secret words' },
-    q_typephrase:{ nl: 'De papagaai verklapte de spreuk van de smid: ONLY · FIRE · FORGES · TRUE · STEEL. Klik die woorden in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s saying: ONLY · FIRE · FORGES · TRUE · STEEL. Click those words in that order at the smith statue in the garden to get the hammer' },
+    q_getsword: { nl: 'De schildknaap gaf je het gebroken zwaard van Sir Aldric. Smeed het weer heel bij de smidse: je hebt de hamer en houtskool nodig. De hamer zit in het smidsbeeld in de tuin — dat vraagt de geheime woorden van de smid. Geef de papagaai de pinda (ligt op het plein) en hij verklapt ze.', en: 'The squire gave you Sir Aldric’s broken sword. Forge it whole at the smithy: you need the hammer and charcoal. The hammer is in the smith statue in the garden — it asks for the smith’s secret words. Give the parrot the peanut (it lies in the courtyard) and he’ll reveal them.' },
+    q_gethammer:{ nl: 'Voor de hamer: bij het smidsbeeld in de tuin moet je de geheime woorden van de smid aantikken. Geef de papagaai de pinda (bij het aambeeld op het plein) — hij verklapt welke woorden, en in welke volgorde', en: 'For the hammer: at the smith statue in the garden you must tap the smith’s secret words. Give the parrot the peanut (by the anvil in the courtyard) — he reveals which words, and in what order' },
+    q_giveparrot:{ nl: 'Je hebt een pinda — geef hem aan de papagaai in de slottuin; hij verklapt de geheime woorden van de smid', en: 'You have a peanut — give it to the parrot in the garden; he reveals the smith’s secret words' },
+    q_typephrase:{ nl: 'De papagaai verklapte de spreuk van de smid: ONLY · FIRE · FORGES · TRUE · STEEL (Engels voor “alleen vuur smeedt echt staal”). Tik die woorden in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s saying: ONLY · FIRE · FORGES · TRUE · STEEL. Tap those words in that order at the smith statue in the garden to get the hammer' },
     q_getcoal:  { nl: 'Schep houtskool uit de rechter vuurkorf naast het smidsbeeld in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Scoop charcoal from the right fire basket beside the smith statue in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
     q_takesword:{ nl: 'Het zwaard is weer heel! Het ligt te glanzen bij de markttent rechts — pak het op', en: 'The sword is whole again! It gleams by the market tent on the right — go and take it' },
     q_getrope:  { nl: 'Het zwaard is gesmeed! Praat met de schildknaap — nu geeft hij je het touw dat je bij de put nodig hebt', en: 'The sword is forged! Talk to the squire — now he’ll give you the rope you need at the well' },
-    q_getcoin:  { nl: 'Voor de put heb je hulp van de raaf nodig. Vis eerst de glinsterende bronzen munt uit de leeuwenfontein in de tuin (klik op het bekken, niet op de leeuwenkop)', en: 'For the well you need the raven’s help. First fish the gleaming bronze coin from the lion fountain in the garden (click the basin, not the lion’s head)' },
+    q_getcoin:  { nl: 'Voor de put heb je hulp van de raaf nodig. Vis eerst de glinsterende bronzen munt uit de leeuwenfontein in de tuin (tik op het bekken, niet op de leeuwenkop)', en: 'For the well you need the raven’s help. First fish the gleaming bronze coin from the lion fountain in the garden (tap the basin, not the lion’s head)' },
     q_giveraven:{ nl: 'Geef de bronzen munt aan de glanzende raaf op de put — hij springt er dan mee de emmer in, de diepte in', en: 'Give the bronze coin to the glossy raven on the well — he’ll hop into the bucket with it and dive down' },
     q_haulwell: { nl: 'De raaf zit met de ketting in de emmer onderin de put. Gebruik het touw (van de schildknaap) op het windwerk om de emmer omhoog te hijsen', en: 'The raven sits with the necklace in the bucket deep in the well. Use the rope (from the squire) on the winch to haul the bucket up' },
     q_givenecklace:{ nl: 'Je viste de ketting van de prinses op — breng hem naar de prinses in de slottuin', en: 'You fished up the princess’s necklace — bring it to the princess in the garden' },
     q_fountainpuzzle:{ nl: 'Je kreeg een sleutel van de prinses — los de schuifpuzzel bij de leeuwenfontein op om het slot te onthullen', en: 'The princess gave you a key — solve the sliding puzzle at the lion fountain to reveal the lock' },
-    q_usekey:   { nl: 'Gebruik de sleutel op het slot onder de leeuwenkop van de fontein om de geheime poort te openen', en: 'Use the key on the lock beneath the fountain’s lion head to open the secret gate' },
-    q_through:  { nl: 'De geheime poort staat open naast de leeuwenfontein — stap erdoorheen, de donkere gang in', en: 'The secret gate stands open beside the lion fountain — step through it, into the dark passage' },
-    q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een oude tovenaar bewaakt het gloeiende boek — leg de paddenstoelen (van de put) in de schaal met kaarsen náást hem; de rook doet hem inslapen', en: 'Through the secret gate you reach the castle library. An old wizard guards the glowing book — lay the mushrooms (from the well) in the bowl of candles beside him; the smoke will put him to sleep' },
-    q_takespell:{ nl: 'De tovenaar zweeft in hogere sferen — bekijk het ZONNESTELSEL op de sokkel rechts en draai de hemelschijf: daar wacht de Zonsverduistering-spreuk', en: 'The wizard floats among the stars — examine the SOLAR SYSTEM on the pedestal to the right and turn the celestial disc: the Solar Eclipse spell awaits' },
+    q_usekey:   { nl: 'Gebruik de sleutel op het sleutelgat in de muur naast de leeuwenfontein om de geheime poort te openen', en: 'Use the key on the keyhole in the wall beside the lion fountain to open the secret gate' },
+    q_library:  { nl: 'Door de geheime poort kom je in de kasteelbibliotheek. Een oude tovenaar bewaakt het gloeiende boek — leg de gloeizwammen (van de put) in de schaal met kaarsen náást hem; van de rook wordt hij slaperig', en: 'Through the secret gate you reach the castle library. An old wizard guards the glowing book — lay the glow-caps (from the well) in the bowl of candles beside him; the smoke will make him sleepy' },
+    q_takespell:{ nl: 'De tovenaar is staand in slaap gesukkeld — bekijk het ZONNESTELSEL op de sokkel rechts en draai de hemelschijf: daar wacht de Zonsverduistering-spreuk', en: 'The wizard has dozed off on his feet — examine the SOLAR SYSTEM on the pedestal to the right and turn the celestial disc: the Solar Eclipse spell awaits' },
     q_castEclipse:{ nl: 'Je hebt de Zonsverduistering-spreuk! Tik hem aan in je tas en spreek hem uit bij het grote raam van de bibliotheek', en: 'You have the Solar Eclipse spell! Tap it in your bag and speak it at the great library window' },
-    q_telescope:{ nl: 'De zon is verduisterd en de sterren fonkelen — kijk snel door de telescoop bij het raam!', en: 'The sun is darkened and the stars sparkle — quick, look through the telescope by the window!' },
     q_readbook: { nl: 'De zon is verduisterd — het gloeiende boek is nu te LEZEN! Tik het aan en ontvang de SPREUK VAN ONZICHTBAARHEID', en: 'The sun is eclipsed — the glowing book can be READ now! Tap it and receive the SPELL OF INVISIBILITY' },
     q_altar:    { nl: 'De onzichtbaarheidsspreuk is binnen! Open nu de geheime deur: kijk tijdens de ZONSVERDUISTERING door de telescoop naar de hemelschijf van de Raaf, en draai de schijven van het DEURZEGEL tot die drie tekens bovenaan staan (1 = buitenste, 2 = middelste, 3 = binnenste). Trek dan aan de hendel', en: 'The invisibility spell is yours! Now open the secret door: during the ECLIPSE, look through the telescope at the Raven’s sky-wheel, then turn the DOOR SEAL discs until those three signs sit at the top (1 = outer, 2 = middle, 3 = inner). Then pull the lever' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
-    q_freefather:{ nl: 'Je bent onzichtbaar langs de wachter! Praat met de gevangene bij de tralies — hij fluistert de volgorde van het kerkerslot: zon, maan, ster... en het teken van zijn staf', en: 'You slipped past the guard unseen! Talk to the prisoner at the bars — he whispers the order of the dungeon lock: sun, moon, star... and the sign of his staff' },
     q_key:      { nl: 'Je bent onzichtbaar langs de wachter! Pak nu MUISSTIL de gouden sleutel van de wachttafel: schuif de stippen-sleutels één voor één opzij (•, ••, •••) en pauzeer zodat de geluidsmeter niet volloopt', en: 'You slipped past the guard unseen! Now take the golden key from the guard’s table SILENTLY: slide the dotted keys aside one by one (•, ••, •••) and pause so the noise meter doesn’t fill up' },
     q_distract: { nl: 'Je hebt de gouden sleutel! Maar de wachter staart recht naar de cel... Vraag je VADER om raad', en: 'You have the golden key! But the guard stares straight at the cell... Ask your FATHER for advice' },
     q_throwNut: { nl: 'Vader gaf je een WONDERNOOT! Gooi hem in het plasje water links bij de trap', en: 'Father gave you a WONDER-NUT! Toss it into the puddle of water by the stairs, on the left' },
     q_dance:    { nl: 'De wondernoot dobbert in het plasje... Spreek nu de DANS-SPREUK uit (tik hem aan in je tas) en kijk wat er groeit!', en: 'The wonder-nut bobs in the puddle... Now cast the DANCE SPELL (tap it in your bag) and watch what grows!' },
     q_cellopen: { nl: 'De wachter kijkt de andere kant op — gebruik de celsleutel NU op de celdeur en bevrijd je vader!', en: 'The guard looks the other way — use the cell key on the cell door NOW and free your father!' },
-    q_done:     { nl: 'De prinses herkende het wapen van het medaillon... (wordt vervolgd in Deel 2)', en: 'The princess recognised the medallion’s crest... (to be continued in Part 2)' },
-    q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },
-    q_mill:     { nl: 'Bekijk de oude molen aan de rand van het plein', en: 'Inspect the old mill at the edge of the square' },
-    q_inside:   { nl: 'Zoek binnen in de molen wat het water tegenhoudt', en: 'Search inside the mill for what blocks the water' },
-    q_book:     { nl: 'Bevrijd het toverboek in de molen (trek de boeken in de juiste volgorde)', en: 'Free the spellbook in the mill (pull the books in the right order)' },
-    q_writespell:{ nl: 'Het toverboek is leeg — pak de ravenveer, maak inkt (zwarte bessen + flesje) en schrijf de spreuk in het boek', en: 'The spellbook is blank — take the raven feather, make ink (black berries + vial) and write the spell into the book' },
-    q_flower:   { nl: 'Bij het kasteel: laat met de spreuk de grote bloem dansen', en: 'At the castle: use the spell to make the big flower dance' },
-    q_tomayor:  { nl: 'De molen draait weer en de fontein stroomt! Ga terug naar het plein, naar burgemeester Bram', en: 'The mill turns again and the fountain flows! Head back to the square, to Mayor Bram' },
-    q_valley:   { nl: 'Verzamel de 3 ingrediënten voor de ketel (zie het recept): het licht van een vuurvliegje (vang er een in de vallei), een traan van een onschuldige (lees het gedicht voor aan het meisje) en een drakenschub (versla de oude schaker) — gooi ze dan in de ketel', en: 'Gather the 3 ingredients for the cauldron (see the recipe): the light of a firefly (catch one in the valley), a tear of an innocent (read the poem to the girl) and a dragon scale (beat the old chess player) — then throw them in the cauldron' },
-    q_takewheel:{ nl: 'De handelsman kijkt naar de bloem — pak nu het molenrad uit zijn kar', en: 'The merchant is watching the flower — grab the mill wheel from his cart now' },
-    q_fixmill:  { nl: 'Breng het molenrad naar het tandrad in de molen en maak het radwerk', en: 'Take the mill wheel to the gear inside the mill and fix the gearworks' }
   },
 
   items: {
     staff: { name: { nl: 'Vaders Staf', en: 'Father’s Staff' }, icon: '🪄', img: 'assets/art/item-staff.png',
              look: { nl: 'De houten staf van mijn vader. Hij voelt vertrouwd in je hand — met de juiste spreuk in je boek kun je hem laten werken.', en: 'My father’s wooden staff. It feels familiar in your hand — with the right spell in your book you can make it work.' } },
-    invisspell: { name: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' }, icon: '👻', img: 'assets/art/item-invisspell.png', sparkle: true, border: 'blue',
+    invisspell: { name: { nl: 'Onzichtbaarheidsspreuk', en: 'Invisibility Spell' }, icon: '👻', img: 'assets/art/item-invisspell.webp', sparkle: true, border: 'blue',
              look: { nl: 'De onzichtbaarheidsspreuk uit het gloeiende boek — gelezen bij het licht van de zonsverduistering. De letters lijken weg te vagen terwijl je kijkt... Spreek hem uit waar een bewaker je níet mag zien. (Tik de spreuk aan om hem uit te spreken.)', en: 'The invisibility spell from the glowing book — read by the light of the solar eclipse. Its letters seem to fade away as you watch... Speak it where a guard must not see you. (Tap the spell to cast it.)' } },
     eclipsspell: { name: { nl: 'Zonsverduistering-spreuk', en: 'Solar Eclipse Spell' }, icon: '🌑', img: 'assets/art/item-eclipsspell.png', border: 'blue',
-             look: { nl: 'De Spreuk van de Zonsverduistering — “Umbra Solis” — uit het gloeiende boek. Spreek hem uit bij het grote raam van de bibliotheek en de zon dooft, zodat de sterren zich overdag tonen. (Tik de spreuk aan om hem uit te spreken.)', en: 'The Spell of the Solar Eclipse — “Umbra Solis” — from the glowing book. Speak it at the great library window and the sun goes dark, so the stars show themselves by day. (Tap the spell to cast it.)' } },
+             look: { nl: 'De Spreuk van de Zonsverduistering — “Umbra Solis” — uit het koperen zonnestelsel in de bibliotheek. Spreek hem uit bij het grote raam van de bibliotheek en de zon dooft, zodat de sterren zich overdag tonen. (Tik de spreuk aan om hem uit te spreken.)', en: 'The Spell of the Solar Eclipse — “Umbra Solis” — from the brass solar system in the library. Speak it at the great library window and the sun goes dark, so the stars show themselves by day. (Tap the spell to cast it.)' } },
     hammer: { name: { nl: 'Smidshamer', en: 'Blacksmith’s Hammer' }, icon: '🔨', img: 'assets/art/item-hammer.png',
-             look: { nl: 'Een zware smidshamer uit de sokkel van het ridderbeeld. Hiermee kun je bij de smidse het zwaard van de held smeden.', en: 'A heavy blacksmith’s hammer from the plinth of the knight statue. With it you can forge the hero’s sword at the smithy.' } },
+             look: { nl: 'Een zware smidshamer uit de sokkel van het smidsbeeld in de slottuin. Hiermee kun je bij de smidse het zwaard van de held smeden.', en: 'A heavy blacksmith’s hammer from the plinth of the smith statue in the castle garden. With it you can forge the hero’s sword at the smithy.' } },
     swordBroken: { name: { nl: 'Gebroken Zwaard', en: 'Broken Sword' }, icon: '🗡️', img: 'assets/art/item-sword-broken.png',
              look: { nl: 'Het zwaard van Sir Aldric, doormidden gebroken — het losse stuk zit er nog bij. Bij een heet smidsvuur en met een hamer zou je het weer heel kunnen smeden.', en: 'Sir Aldric’s sword, snapped in two — the broken-off piece is still with it. At a hot forge fire and with a hammer you could make it whole again.' } },
-    flower: { name: { nl: 'Bloem', en: 'Flower' }, icon: '🌸', img: 'assets/art/item-flower.png',
-             look: { nl: 'Een mooie bloem uit de slottuin — een lief klein cadeautje voor iemand bijzonders.', en: 'A pretty flower from the castle garden — a sweet little gift for someone special.' } },
     rope: { name: { nl: 'Touw', en: 'Rope' }, icon: '🪢', img: 'assets/art/item-rope.png',
              look: { nl: 'Een stevig opgerold touw van de schildknaap. Lang genoeg om iets uit een diepe put omhoog te vissen.', en: 'A sturdy coil of rope from the squire. Long enough to fish something up from a deep well.' } },
     necklace: { name: { nl: 'Ketting van de Prinses', en: 'The Princess’s Necklace' }, icon: '📿', img: 'assets/art/item-necklace.png', sparkle: true, border: 'gold',
              look: { nl: 'Een fijne gouden ketting met een blauwe edelsteen, opgevist uit de oude put. Hij hoort bij de prinses — het was van haar moeder.', en: 'A fine gold necklace with a blue gem, fished from the old well. It belongs to the princess — it was her mother’s.' } },
     key: { name: { nl: 'Sleutel van de Geheime Poort', en: 'Secret Gate Key' }, icon: '🗝️', img: 'assets/art/item-key.png', sparkle: true,
-             look: { nl: 'Een zware, oude sleutel die je van de prinses kreeg. Hij past op het slot onder de leeuwenkop van de fontein — de geheime poort.', en: 'A heavy old key the princess gave you. It fits the lock beneath the fountain’s lion head — the secret gate.' } },
+             look: { nl: 'Een zware, oude sleutel die je van de prinses kreeg. Hij past op het verborgen slot in de muur naast de leeuwenfontein — de geheime poort.', en: 'A heavy old key the princess gave you. It fits the hidden lock in the wall beside the lion fountain — the secret gate.' } },
     cellkey: { name: { nl: 'Gouden Celsleutel', en: 'Golden Cell Key' }, icon: '🗝️', img: 'assets/art/item-cellkey.png', sparkle: true, border: 'gold',
              look: { nl: 'De gouden sleutel van de wachter — muisstil van de bos bevrijd. Hij past op het glinsterende sleutelslot van de celdeur.', en: 'The guard’s golden key — freed from the ring without a sound. It fits the glittering keyhole of the cell door.' } },
     charcoal: { name: { nl: 'Houtskool', en: 'Charcoal' }, icon: '⬛', img: 'assets/art/item-coal.png',
              look: { nl: 'Een handvol zwarte houtskool uit de vuurkorf naast het smidsbeeld in de slottuin. Precies wat een smid nodig heeft om zijn vuur weer aan te wakkeren.', en: 'A handful of black charcoal from the fire basket beside the smith statue in the castle garden. Just what a smith needs to fire up his forge again.' } },
-    bignut: { name: { nl: 'Wondernoot', en: 'Wonder-Nut' }, icon: '🌰', img: 'assets/art/item-bignut.png', sparkle: true,
+    bignut: { name: { nl: 'Wondernoot', en: 'Wonder-Nut' }, icon: '🌰', img: 'assets/art/item-bignut.webp', sparkle: true,
              look: { nl: 'Een grote glanzende noot van je vader. Er zit al een piepklein groen scheutje in — hier wil een plant uit groeien! Hij heeft alleen water nodig... en misschien een dansje.', en: 'A big glossy nut from your father. A tiny green sprout already peeks out — a plant wants to grow from this! It only needs water... and perhaps a little dance.' } },
-    nut: { name: { nl: 'Pindanoot', en: 'Peanut' }, icon: '🥜', img: 'assets/art/item-nut.png',
-             look: { nl: 'Een pindanoot, half uit zijn schil gebroken — hij lag bij het aambeeld van de smidse. Vogels — papagaaien zeker — zijn er dol op.', en: 'A peanut, half broken out of its shell — it lay by the smithy anvil. Birds — parrots especially — love these.' } },
+    nut: { name: { nl: 'Pinda', en: 'Peanut' }, icon: '🥜', img: 'assets/art/item-nut.png',
+             look: { nl: 'Een pinda, half uit de dop — hij lag bij het aambeeld van de smidse. Vogels — papagaaien zeker — zijn er dol op.', en: 'A peanut, half broken out of its shell — it lay by the smithy anvil. Birds — parrots especially — love these.' } },
     trinket: { name: { nl: 'Bronzen Munt', en: 'Bronze Coin' }, icon: '🪙', img: 'assets/art/item-trinket.png', sparkle: true,
              look: { nl: 'Een glanzende bronzen munt die je uit de leeuwenfontein opviste. Hij blinkt schitterend in het licht — precies het soort glimmend ding waar een raaf geen weerstand aan kan bieden.', en: 'A gleaming bronze coin you fished from the lion fountain. It shines brilliantly in the light — exactly the kind of bright thing a raven cannot resist.' } },
-    mushroom: { name: { nl: 'Magische Paddenstoel', en: 'Magic Mushroom' }, icon: '🍄', img: 'assets/art/item-mushroom.png', sparkle: true,
-             look: { nl: 'Een trosje magisch gloeiende paddenstoelen met blauw-paarse hoedjes, geplukt bij de put. Ze tintelen van de magie — vast ergens goed voor.', en: 'A cluster of magically glowing mushrooms with blue-purple caps, picked by the well. They tingle with magic — surely useful for something.' } },
+    mushroom: { name: { nl: 'Gloeizwammen', en: 'Glow-caps' }, icon: '🍄', img: 'assets/art/item-mushroom.webp', sparkle: true,
+             look: { nl: 'Een trosje gloeizwammen: paddenstoelen met zacht oplichtende blauw-paarse hoedjes, geplukt bij de put. Wie hun rook opsnuift, wordt heel erg slaperig.', en: 'A little bunch of glow-caps: mushrooms with softly glowing blue-purple tops, picked by the well. Anyone who sniffs their smoke gets very, very sleepy.' } },
     sword: { name: { nl: 'Zwaard van Sir Aldric', en: 'Sir Aldric’s Sword' }, icon: '⚔️', img: 'assets/art/item-sword.png', sparkle: true, border: 'gold',
              look: { nl: 'Het zwaard van Sir Aldric, dat je zelf bij de smidse weer heel hebt gesmeed. Het lemmet glanst als nieuw — een waardig wapen voor een held.', en: 'Sir Aldric’s sword, which you forged whole again yourself at the smithy. The blade gleams like new — a weapon worthy of a hero.' } },
-    coin: { name: { nl: 'Zilveren Munt', en: 'Silver Coin' }, icon: '🪙', img: 'assets/art/item-coin.png',
-            look: { nl: 'Een oude zilveren munt die je uit de drooggevallen fontein opraapte. Hij blinkt nog mooi — precies het soort glimmend ding waar een ekster of een raaf niet van af kan blijven.', en: 'An old silver coin you picked from the dried-up fountain. It still gleams nicely — just the kind of bright thing a magpie or raven can’t resist.' } },
-    coinGold: { name: { nl: 'Gouden Munt', en: 'Gold Coin' }, icon: '🪙', img: 'assets/art/item-coin-gold.png',
-            look: { nl: 'Een glanzende gouden munt van burgemeester Bram. Hij blinkt schitterend in het licht — die slimme raaf in de vallei kan er vast geen weerstand aan bieden.', en: 'A shiny gold coin from Mayor Bram. It gleams brilliantly — that clever raven in the valley surely can’t resist it.' } },
-    note: { name: { nl: 'Verfrommeld Briefje', en: 'Crumpled Note' }, icon: '📜', img: 'assets/art/item-note.png',
-            look: { nl: '“...het rad is niet zomaar verdwenen. Volg de lichten in de vallei.”', en: '“...the wheel did not simply vanish. Follow the lights in the valley.”' } },
-    vialInk:  { name: { nl: 'Leeg Flesje (voor inkt)', en: 'Empty Vial (for ink)' }, icon: '🧪', img: 'assets/art/item-vial-ink.png',
-             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier maak je inkt in van de zwarte bessen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to make ink from the black berries.' } },
-    vialTear: { name: { nl: 'Leeg Flesje (voor de traan)', en: 'Empty Vial (for the tear)' }, icon: '🧪', img: 'assets/art/item-vial-tear.png',
-             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je straks de traan van het meisje bij de kraam opvangen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch the tear of the girl at the stall later.' } },
-    vialWine: { name: { nl: 'Leeg Flesje (voor wijn)', en: 'Empty Vial (for wine)' }, icon: '🧪', img: 'assets/art/item-vial-wine-empty.png',
-             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hier kun je wijn uit de oude wijnton in tappen.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to draw wine from the old wine barrel.' } },
-    vialFly:  { name: { nl: 'Leeg Flesje (voor vuurvliegjes)', en: 'Empty Vial (for fireflies)' }, icon: '🧪', img: 'assets/art/item-vial-fly.png',
-             look: { nl: 'Een leeg glazen flesje met kurk, uit de kast in de molen. Hierin kun je vuurvliegjes vangen — gebruik het op de dansende bloemen in de vallei.', en: 'An empty corked glass vial from the cupboard in the mill. Use it to catch fireflies — use it on the dancing flowers in the valley.' } },
-    wine:  { name: { nl: 'Flesje Wijn', en: 'Vial of Wine' }, icon: '🍷', img: 'assets/art/item-vial-wine.png',
-             look: { nl: 'Een flesje diep bordeauxrode wijn, getapt uit de oude wijnton in de molen. Misschien lust burgemeester Bram er wel een slokje van...', en: 'A vial of deep Bordeaux-red wine, drawn from the old wine barrel in the mill. Mayor Bram might fancy a sip of this...' } },
-    book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
-             look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
-    grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
-             look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
     spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { const newSpells = (state.flags.gotEclipseSpell ? 1 : 0) + (state.flags.gotInvisSpell ? 1 : 0); return newSpells > (state.flags.bookNewSpellsSeen || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
-             zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.jpg' : 'assets/art/spell-dance.jpg', zoomImgFlag: 'spellWritten',
+             zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.webp' : 'assets/art/spell-dance.webp', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
-               ? { nl: 'Het toverboek. Op de eerste bladzijde staat de dans-spreuk die je schreef. (tik aan om te bekijken)', en: 'The spellbook. On the first page stands the dance-spell you wrote. (tap to view)' }
+               ? { nl: 'Je toverboek, met de bladzijden uit Deel 1 en elke nieuwe spreuk die je hier leert. (tik aan om te bladeren)', en: 'Your spellbook, with the pages from Part 1 and every new spell you learn here. (tap to leaf through it)' }
                : { nl: 'Het oude toverboek — de bladzijden zijn nog helemaal leeg. Je moet de spreuken er nog zelf in schrijven, met een magische veer gedoopt in bessensap. (maak inkt van zwarte bessen, doop de ravenveer erin en combineer die met dit boek)', en: 'The old spellbook — its pages are still completely blank. You must still write the spells in yourself, with a magic feather dipped in berry juice. (make ink from black berries, dip the raven feather in it and combine it with this book)' } },
-    feather: { name: { nl: 'Magische Ravenveer', en: 'Magic Raven Feather' }, icon: '🪶', img: 'assets/art/item-feather.png',
-             look: { nl: 'Een glanzende, blauwzwarte veer die de raaf achterliet. Hij gloeit zachtjes van magie. Met inkt zou je er prachtig mee kunnen schrijven.', en: 'A glossy blue-black feather the raven left behind. It glows faintly with magic. With ink you could write beautifully with it.' } },
-    berries: { name: { nl: 'Zwarte Bessen', en: 'Black Berries' }, icon: '🫐',
-             look: { nl: 'Een handvol diepzwarte bessen, geplukt bij de molen. Geplet geven ze vast een donker, inktachtig sap.', en: 'A handful of deep-black berries, picked by the mill. Crushed, they’d surely give a dark, ink-like juice.' } },
-    ink: { name: { nl: 'Flesje Inkt', en: 'Vial of Ink' }, icon: '🖋️', img: 'assets/art/item-ink.png',
-             look: { nl: 'Het glazen flesje, nu gevuld met diepzwarte bessen-inkt. Perfect om een veer in te dopen.', en: 'The glass vial, now filled with deep-black berry ink. Perfect for dipping a feather.' } },
-    inkFeather: { name: { nl: 'Inktveer', en: 'Ink-dipped Feather' }, icon: '🪄', img: 'assets/art/item-inkfeather.png',
-             look: { nl: 'De magische ravenveer, gedoopt in de bessen-inkt — nog steeds een veer, maar met een glanzende zwarte inktpunt. Klaar om een spreuk in het lege toverboek te schrijven.', en: 'The magic raven feather, dipped in berry ink — still a feather, but with a glossy black ink tip. Ready to write a spell in the empty spellbook.' } },
     spell: { name: { nl: 'Dans-spreuk', en: 'Dance Spell' }, icon: '✦', img: 'assets/art/item-spell.png', border: 'blue',
-             look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee kun je dingen laten dansen — gebruik de spreukknop naast je tas.', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance — use the spell button next to your bag.' } },
+             look: { nl: 'De spreuk die je zelf in het toverboek schreef, gloeit zacht blauw na. Hiermee laat je dingen dansen. (Tik de spreuk aan om hem uit te spreken.)', en: 'The spell you wrote yourself in the spellbook glows softly blue. With it you can make things dance. (Tap the spell to cast it.)' } },
     dragonspell: { name: { nl: 'Drakenspreuk', en: 'Dragon Spell' }, icon: '🐉', img: 'assets/art/item-dragonspell.png', border: 'blue',
-             look: { nl: 'De drakenspreuk “Draconis Umbra” die zich in je toverboek schreef. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten vluchten. (wordt vervolgd)', en: 'The dragon spell “Draconis Umbra” that wrote itself into your spellbook. Speak it and a huge dragon shadow rises — enough to make the bravest guard flee. (to be continued)' } },
-    ring: { name: { nl: 'Drakenring', en: 'Dragon Ring' }, icon: '💍', img: 'assets/art/item-ring.png', border: 'blue', sparkle: true,
-             look: { nl: 'Een prachtige gouden ring met een gloeiende blauwe steen, die de heks achterliet. Sinds je hem omschoof tintelt de drakenmagie door je heen — de drakenspreuk staat nu in je toverboek.', en: 'A beautiful golden ring set with a glowing blue gem, left behind by the witch. Since you slipped it on, dragon magic tingles through you — the dragon spell is now in your spellbook.' } },
-    poem: { name: { nl: 'Het Gedicht', en: 'The Poem' }, icon: '📜', img: 'assets/art/item-poem.png', zoomImg: 'assets/art/gedicht-kraammeisje.jpg', viewOnceFlag: 'poemSeen',
-             look: { nl: 'Het gloeiende briefje uit de brievenbus bij de molen, zonder afzender:\n\n“Klein licht in de mist, zo ver van huis,\nde maan huilt zilver op het ruisende water.\nWie een traan om een ander durft te laten,\nopent de poort die niemand anders vond.”\n\nDit zou je eens moeten voorlezen aan iemand met verdriet...', en: 'The glowing note from the mailbox by the mill, with no sender:\n\n“Small light in the mist, so far from home,\nthe moon weeps silver on the whispering water.\nWhoever dares to shed a tear for another,\nopens the gate that no one else could find.”\n\nYou should read this aloud to someone who carries sorrow...' } },
-    map: { name: { nl: 'Geheime Kaart', en: 'Secret Map' }, icon: '🗺️', img: 'assets/art/item-map.png', zoomImg: 'assets/art/map-valley.png', fileFlag: 'mapFiled',
-             look: { nl: 'De geheime kaart van burgemeester Bram. Een pad slingert het dorp uit, langs het bos, naar de mistige vallei met de runenstenen — met een rood kruis dat de plek markeert. (tik aan om te bekijken; daarna gaat hij als eerste bladzijde in je toverboek)', en: 'Mayor Bram’s secret map. A path winds out of the village, past the wood, to the misty valley with the rune-stones — with a red cross marking the spot. (tap to view; then it goes as the first page into your spellbook)' } },
-    millwheel: { name: { nl: 'Het Molenrad', en: 'The Mill Wheel' }, icon: '☸️', img: 'assets/art/cog-iron.png',
-             look: { nl: 'Het zware ijzeren molenrad, gevonden in de kar van de handelsman. Hiermee kan de molen weer draaien — terug ermee naar de molen!', en: 'The heavy iron mill wheel, taken from the merchant’s cart. With this the mill can turn again — back to the mill with it!' } },
-    cheese: { name: { nl: 'Stuk Kaas', en: 'Piece of Cheese' }, icon: '🧀', img: 'assets/art/item-cheese.png',
-             look: { nl: 'Een heerlijk geel stuk boerenkaas, geruild voor een handvol graan op het plein.', en: 'A lovely yellow wedge of farmhouse cheese, traded for a handful of grain on the square.' } },
-    tear: { name: { nl: 'Traan in een Flesje', en: 'Tear in a Vial' }, icon: '💧', img: 'assets/art/item-tear.png',
-             look: { nl: 'Een glazen flesje met één heldere, glinsterende traan erin. Eén van de drie ingrediënten voor de ketel in de runencirkel.', en: 'A glass vial holding a single clear, glistening tear. One of the three ingredients for the cauldron in the rune circle.' } },
-    fireflight: { name: { nl: 'Flesje Vuurvliegjes', en: 'Vial of Fireflies' }, icon: '✨', img: 'assets/art/item-fireflight.png',
-             look: { nl: 'Een flesje met levende vuurvliegjes erin — groene en blauwe vonkjes die rondzweven en zacht oplichten. Eén van de drie ingrediënten voor de ketel.', en: 'A vial of living fireflies — green and blue sparks drifting and softly glowing inside. One of the three ingredients for the cauldron.' } },
-    recipe: { name: { nl: 'Het Recept', en: 'The Recipe' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/recipe.jpg', fileFlag: 'gotRecipe',
-             look: { nl: 'Het vergeelde recept dat onder de losse steen bij de molen lag. Drie ingrediënten voor de ketel: een drakenschub, een traan van een onschuldige, en het licht van een vuurvliegje. (tik aan om te bekijken; daarna gaat het als bladzijde in je toverboek)', en: 'The yellowed recipe that lay under the loose stone by the mill. Three ingredients for the cauldron: a dragon scale, a tear of an innocent, and the light of a firefly. (tap to view; then it goes as a page into your spellbook)' } },
-    dragonscale: { name: { nl: 'Drakenschub', en: 'Dragon Scale' }, icon: '🐲', img: 'assets/art/item-dragonscale.png',
-             look: { nl: 'Een harde, glanzende schub, warm als sintels. Wie weet welk wezen hem verloor... Het laatste ingrediënt voor de ketel.', en: 'A hard, gleaming scale, warm as embers. Who knows what creature lost it... The last ingredient for the cauldron.' } }
+             look: { nl: 'De drakenspreuk “Draconis Umbra” die zich in je toverboek schreef. Spreek hem uit en er rijst een enorme drakenschaduw op — genoeg om de dapperste wachter te laten schrikken.', en: 'The dragon spell “Draconis Umbra” that wrote itself into your spellbook. Speak it and a huge dragon shadow rises — enough to startle the bravest guard.' } },
   },
 
   /* Combinaties. result = nieuw voorwerp; of setFlag (+ keep) voor een handeling
      die de voorwerpen niet verbruikt (bv. met de inktveer in het boek schrijven). */
-  recipes: [
-    { a: 'berries', b: 'vialInk', result: 'ink',
-      text: { nl: 'Je plet de zwarte bessen in het lege flesje. Het sap kleurt diep gitzwart — echte inkt!', en: 'You crush the black berries into the empty vial. The juice turns deep jet-black — real ink!' } },
-    { a: 'feather', b: 'ink', result: 'inkFeather',
-      text: { nl: 'Je doopt de magische ravenveer in de inkt. De punt glanst zwart en lijkt bijna te trillen van leven — klaar om te schrijven.', en: 'You dip the magic raven feather into the ink. Its tip glistens black and seems almost to quiver with life — ready to write.' } },
-    { a: 'ring', b: 'spellbook', setFlag: ['dragonSpellLearned', 'ringWorn'], keep: true, result: 'dragonspell', doneFlag: 'dragonSpellLearned',
-      text: { nl: 'Je schuift de drakenring om je vinger. Hij gloeit fel op en de diepblauwe magie stroomt door je hand in je toverboek — razendsnel schrijft de DRAKENSPREUK, “Draconis Umbra”, zich met oplichtende letters op een nieuwe bladzijde. Nu kun je hem uitspreken bij de poortwacht! (de spreuk staat rechts in je tas)', en: 'You slip the dragon ring onto your finger. It flares brightly and the deep-blue magic flows through your hand into your spellbook — in a flash the DRAGON SPELL, “Draconis Umbra”, writes itself in glowing letters on a fresh page. Now you can speak it at the gate guard! (the spell is on the right in your bag)' },
-      doneText: { nl: 'De drakenring zit al om je vinger en de drakenspreuk staat in je boek.', en: 'The dragon ring is already on your finger and the dragon spell is in your book.' } },
-    { a: 'inkFeather', b: 'spellbook', setFlag: 'spellWritten', keep: true, consume: 'inkFeather', doneFlag: 'spellWritten',
-      result: 'spell',                                 // de geschreven spreuk komt in je tas (blauwe rand)
-      requiresScene: 'millInside',
-      cutscene: 'assets/video/spell-cinematic.mp4',   // speelt de eerste-spreuk-video af
-      needSceneText: { nl: 'Om met de veer netjes in het boek te schrijven heb je een stevige tafel nodig — die staat bínnen in de molen.', en: 'To write neatly in the book with the feather you need a sturdy table — there’s one inside the mill.' },
-      text: { nl: 'Je legt het toverboek open op de molenaarstafel en schrijft met de inktveer. Als bij toverslag glijdt de pen vanzelf over het papier en schrijft een spreuk: “Laat wat stil staat vrolijk dansen.” Het toverboek gloeit warm op — de veer heeft zijn werk gedaan.', en: 'You lay the spellbook open on the miller’s table and write with the ink-feather. As if by magic the pen glides on its own and writes a spell: “Make what stands still dance.” The spellbook glows warm — the feather has done its work.' },
-      doneText: { nl: 'De spreuk staat al in het toverboek.', en: 'The spell is already written in the spellbook.' } }
-  ],
+  recipes: [],
 
   questRules: [
     { when: { has: 'cellkey', flag: 'guardTurned', notFlag: 'fatherFreed' }, quest: 'q_cellopen' },  // wachter afgeleid -> open de celdeur
@@ -304,16 +227,16 @@ const GAME = {
        --------------------------------------------------------------- */
     courtyard: {
       name: { nl: 'De Binnenplaats', en: 'The Courtyard' },
-      bg: 'assets/art/scene-courtyard.jpg',
+      bg: 'assets/art/scene-courtyard.webp',
       bgVariants: [
         // eerste passende wint — het zwaard-op-de-standaard en de raaf-in-de-emmer zijn onafhankelijke toestanden, dus alle combinaties:
-        { img: 'assets/art/scene-courtyard-raven-sword.jpg',     flags: ['ravenInBucket', 'squireGaveRope'],  notFlags: ['gotNecklace'] },              // raaf in de emmer + zwaard ingeleverd -> tentoongesteld
-        { img: 'assets/art/scene-courtyard-raven-sword.jpg',     flags: ['ravenInBucket', 'swordForged'],     notFlags: ['gotNecklace', 'gotSword'] },   // raaf in de emmer + gesmeed zwaard wacht bij de tent (nog niet gepakt!)
-        { img: 'assets/art/scene-courtyard-raven-swordgone.jpg', flags: ['ravenInBucket', 'squireGaveSword'], notFlags: ['gotNecklace'] },              // raaf in de emmer + zwaard in je tas -> lege standaard
-        { img: 'assets/art/scene-courtyard-raven.jpg',           flags: ['ravenInBucket'],                    notFlags: ['gotNecklace'] },              // raaf in de emmer, zwaard nog onaangeroerd
-        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['squireGaveRope'] },                                                           // zwaard ingeleverd bij de schildknaap -> tentoongesteld
-        { img: 'assets/art/scene-courtyard-sword.jpg',           flags: ['swordForged'],                      notFlags: ['gotSword'] },                 // net gesmeed: het zwaard glanst bij de tent tot je het pakt
-        { img: 'assets/art/scene-courtyard-swordgone.jpg',       flags: ['squireGaveSword'] }                                                           // gebroken zwaard gekregen/onderweg -> standaard leeg
+        { img: 'assets/art/scene-courtyard-raven-sword.webp',     flags: ['ravenInBucket', 'squireGaveRope'],  notFlags: ['gotNecklace'] },              // raaf in de emmer + zwaard ingeleverd -> tentoongesteld
+        { img: 'assets/art/scene-courtyard-raven-sword.webp',     flags: ['ravenInBucket', 'swordForged'],     notFlags: ['gotNecklace', 'gotSword'] },   // raaf in de emmer + gesmeed zwaard wacht bij de tent (nog niet gepakt!)
+        { img: 'assets/art/scene-courtyard-raven-swordgone.webp', flags: ['ravenInBucket', 'squireGaveSword'], notFlags: ['gotNecklace'] },              // raaf in de emmer + zwaard in je tas -> lege standaard
+        { img: 'assets/art/scene-courtyard-raven.webp',           flags: ['ravenInBucket'],                    notFlags: ['gotNecklace'] },              // raaf in de emmer, zwaard nog onaangeroerd
+        { img: 'assets/art/scene-courtyard-sword.webp',           flags: ['squireGaveRope'] },                                                           // zwaard ingeleverd bij de schildknaap -> tentoongesteld
+        { img: 'assets/art/scene-courtyard-sword.webp',           flags: ['swordForged'],                      notFlags: ['gotSword'] },                 // net gesmeed: het zwaard glanst bij de tent tot je het pakt
+        { img: 'assets/art/scene-courtyard-swordgone.webp',       flags: ['squireGaveSword'] }                                                           // gebroken zwaard gekregen/onderweg -> standaard leeg
       ],
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
@@ -341,7 +264,7 @@ const GAME = {
         forgeFlame: { flag: 'ovenStoked', x: 37, y: 199, h: 9, fade: 0.6 }
       },
       worldItems: [
-        { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.5)' },         // pindanoot bij het aambeeld/ijzer — op de grond flink donker (het icoon in de tas blijft licht)
+        { item: 'nut', hotspot: 'nut', x: 116, y: 252, scale: 0.66, filter: 'brightness(0.5)' },         // pinda bij het aambeeld/ijzer — op de grond flink donker (het icoon in de tas blijft licht)
         { item: 'mushroom', hotspot: 'mushroom', x: 230, y: 222, scale: 0.82, glowCol: '150,110,240' }   // blauw-paarse paddenstoelen bij de put — nog iets hoger + iets meer naar rechts
       ],
       npcs: [
@@ -362,7 +285,7 @@ const GAME = {
             : state.flags.swordForged
             ? { nl: 'De schildknaap wijst trots naar de markttent. “Het zwaard van Sir Aldric — weer heel! Pak het gerust, het is van jou.”', en: 'The squire points proudly at the market tent. “Sir Aldric’s sword — whole again! Take it, it’s yours.”' }
             : state.flags.squireGaveSword
-            ? { nl: 'De schildknaap wijst naar de smidse. “Smeed het zwaard van de held: gooi eerst houtskool in de oven zodat het vuur hoog oplaait, leg dán het gebroken zwaard op het ijzer, en sla het met de hamer weer heel. De hamer ligt verborgen in de sokkel van zijn standbeeld, houtskool vind je in de vuurkorf ernaast.”', en: 'The squire points at the smithy. “Forge the hero’s sword: first throw charcoal in the oven so the fire roars up, then lay the broken sword on the iron, and strike it whole with the hammer. The hammer lies hidden in the plinth of his statue; you will find charcoal in the fire basket beside it.”' }
+            ? { nl: 'De schildknaap wijst naar de smidse. “Smeed het zwaard van de held: gooi eerst houtskool in de oven zodat het vuur hoog oplaait, leg dán het gebroken zwaard op het ijzer, en sla het met de hamer weer heel. De hamer zit verborgen in de sokkel van het smidsbeeld in de slottuin; houtskool vind je in de vuurkorf ernaast.”', en: 'The squire points at the smithy. “Forge the hero’s sword: first throw charcoal in the oven so the fire roars up, then lay the broken sword on the iron, and strike it whole with the hammer. The hammer is hidden in the plinth of the smith statue in the garden; you will find charcoal in the fire basket beside it.”' }
             : { nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de koude smidse. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij overhandigt je de twee stukken van het gebroken zwaard. “Smeed het bij de smidse weer heel — jij bent er klaar voor. Als het zwaard klaar is, krijg je van mij een touw.”', en: 'A young squire in a blue tabard keeps watch by the cold smithy. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword broke in two and the whole castle fell silent with grief.” He hands you the two pieces of the broken sword. “Forge it whole at the smithy — you’re ready for it. Once the sword is done, I’ll give you a rope.”' },
           givesWhen: [
             { setFlag: ['metSquire', 'squireGaveSword'], item: 'swordBroken',
@@ -404,12 +327,12 @@ const GAME = {
             needText: { nl: 'Het windwerk heeft eerst een touw nodig om de emmer te kunnen laten zakken. Haal het touw bij de schildknaap.', en: 'The winch first needs a rope before it can lower the bucket. Get the rope from the squire.' },
             depth: 8,
             title: { nl: 'Laat de Raaf Zakken', en: 'Lower the Raven' },
-            hint: { nl: 'Klik ⟳ Laten zakken precies als de emmer in het midden hangt — alles kleurt dan GROEN. Rood = wachten! Hoe dieper, hoe wilder het slingeren.', en: 'Press ⟳ Lower exactly when the bucket hangs in the middle — everything turns GREEN. Red = wait! The deeper you go, the wilder the swing.' },
+            hint: { nl: 'Tik op ⟳ Laten zakken precies als de emmer in het midden hangt — alles kleurt dan GROEN. Rood = wachten! Hoe dieper, hoe wilder het slingeren.', en: 'Press ⟳ Lower exactly when the bucket hangs in the middle — everything turns GREEN. Red = wait! The deeper you go, the wilder the swing.' },
             setFlag: 'gotNecklace',
             consume: 'rope',
             give: 'necklace',
             solvedText: { nl: 'PLONS — de emmer raakt zachtjes het water! De raaf duikt met zijn snavel tussen de rimpels en grist de glinsterende ketting van de bodem. Je draait de hendel terug omhoog; krakend komt de emmer boven, met de raaf erin, trots, een fijne gouden ketting met blauwe edelsteen in zijn snavel! Hij laat hem in je hand vallen, kraait tevreden en vliegt met een laatste “kraa!” weg over de kasteelmuur. Zo’n sieraad hoort vast bij iemand van het hof... de prinses misschien?', en: 'SPLASH — the bucket gently touches the water! The raven dips his beak between the ripples and snatches the glittering necklace from the bottom. You crank the handle back up; creaking, the bucket rises, the raven inside, proud, a fine gold necklace with a blue gem in his beak! He drops it into your hand, caws contentedly and, with a last “caw!”, flies off over the castle wall. A jewel like this surely belongs to someone at court... the princess, perhaps?' },
-            resetText: { nl: 'ZOEF! Het touw slipt — de emmer schiet weer omhoog. Klik alleen als alles GROEN kleurt.', en: 'WHIZZ! The rope slips — the bucket shoots back up. Only click when everything turns GREEN.' }
+            resetText: { nl: 'ZOEF! Het touw slipt — de emmer schiet weer omhoog. Tik alleen als alles GROEN kleurt.', en: 'WHIZZ! The rope slips — the bucket shoots back up. Only tap when everything turns GREEN.' }
           }
         },
         {
@@ -434,7 +357,7 @@ const GAME = {
           name: { nl: 'De Kasteeldeur', en: 'The Castle Door' },
           rect: { x: 408, y: 40, w: 76, h: 110 },
           walkTo: { x: 436, y: 248 },
-          look: { nl: 'De zware eikenhouten kasteeldeur zit op een fors, eeuwenoud slot. Hierachter, ergens diep in de burcht, wordt Finns vader vastgehouden... maar de deur geeft geen krimp. De sleutel ervan is hier nergens te vinden. (wordt vervolgd in een volgend hoofdstuk)', en: 'The heavy oak castle door is held by a big, ancient lock. Beyond it, somewhere deep in the keep, Finn’s father is held captive... but the door will not budge. Its key is nowhere to be found here. (to be continued in a later chapter)' }
+          look: { nl: 'De zware eikenhouten kasteeldeur zit op een fors, eeuwenoud slot. Hierachter, ergens diep in de burcht, wordt Finns vader vastgehouden... maar de deur geeft geen krimp. De sleutel ervan is hier nergens te vinden. Misschien is er een andere weg naar binnen...', en: 'The heavy oak castle door is held by a big, ancient lock. Beyond it, somewhere deep in the keep, Finn’s father is held captive... but the door will not budge. Its key is nowhere to be found here. Perhaps there is another way in...' }
         },
         {
           id: 'forge',
@@ -444,14 +367,14 @@ const GAME = {
           look: (state) => (state.flags.swordForged || state.flags.gotSword)
             ? { nl: 'De smidse van het kasteel. De oven gloeit warm na — hier smeedde je het zwaard van Sir Aldric weer heel.', en: 'The castle smithy. The oven still glows warm — here you forged Sir Aldric’s sword whole again.' }
             : state.flags.ovenStoked
-            ? { nl: 'De oven loeit wit-heet van de houtskool, met het aambeeld en het ijzer ervoor. Klik met de hamer (of met het gebroken zwaard) op het vuur om het zwaard te smeden.', en: 'The oven roars white-hot with charcoal, the anvil and iron before it. Click the fire with the hammer (or the broken sword) to forge the sword.' }
+            ? { nl: 'De oven loeit wit-heet van de houtskool, met het aambeeld en het ijzer ervoor. Gebruik de hamer (of het gebroken zwaard) op het vuur om het zwaard te smeden.', en: 'The oven roars white-hot with charcoal, the anvil and iron before it. Tap the fire with the hammer (or the broken sword) to forge the sword.' }
             : { nl: 'Een koude smidse onder een afdakje, met een aambeeld en een dode oven. Gooi er houtskool in om het smidsvuur aan te wakkeren.', en: 'A cold smithy under a lean-to, with an anvil and a dead oven. Throw in charcoal to kindle the forge fire.' },
           use: {
             charcoal: {
               consume: 'charcoal',
               setFlag: 'ovenStoked',
               burst: { x: 40, y: 188, col: '255,150,40', n: 34, up: 26, life: 1.4 },   // het smidsvuur laait fel op: warme vonkenregen
-              text: { nl: 'Je gooit de houtskool op de sintels en blaast aan. WHOESH! Het smidsvuur laait fel op, wit-heet, en een regen van oranje vonken spat omhoog. Nu kun je het zwaard smeden — klik met de hamer op het vuur.', en: 'You throw the charcoal onto the embers and fan it. WHOOSH! The forge fire flares up fierce and white-hot, and a shower of orange sparks bursts upward. Now you can forge the sword — click the fire with the hammer.' }
+              text: { nl: 'Je gooit de houtskool op de sintels en blaast aan. WHOESH! Het smidsvuur laait fel op, wit-heet, en een regen van oranje vonken spat omhoog. Nu kun je het zwaard smeden — gebruik de hamer op het vuur.', en: 'You throw the charcoal onto the embers and fan it. WHOOSH! The forge fire flares up fierce and white-hot, and a shower of orange sparks bursts upward. Now you can forge the sword — tap the fire with the hammer.' }
             },
             // Smeden in één klik: hamer óf gebroken zwaard op het ijzer/vuur (oven moet heet zijn én je hebt allebei nodig)
             hammer: {
@@ -480,26 +403,26 @@ const GAME = {
         },
         {
           id: 'nut',
-          name: { nl: 'Een Pindanoot', en: 'A Peanut' },
+          name: { nl: 'Een Pinda', en: 'A Peanut' },
           rect: { x: 96, y: 234, w: 44, h: 40 },
           walkTo: { x: 116, y: 256 },
           hideFlag: 'taken_courtyard_nut',
           gives: {
             item: 'nut',
-            giveText: { nl: 'Bij het aambeeld van de smidse ligt een pindanoot, half uit zijn schil. Je raapt hem op — vast lekker voor een vogel.', en: 'By the smithy anvil lies a peanut, half out of its shell. You pick it up — surely a treat for a bird.' },
-            emptyText: { nl: 'De noot zit al in je tas.', en: 'The nut is already in your bag.' }
+            giveText: { nl: 'Bij het aambeeld van de smidse ligt een pinda, half uit de dop. Je raapt hem op — vast lekker voor een vogel.', en: 'By the smithy anvil lies a peanut, half out of its shell. You pick it up — surely a treat for a bird.' },
+            emptyText: { nl: 'De pinda zit al in je tas.', en: 'The nut is already in your bag.' }
           }
         },
         {
           id: 'mushroom',
-          name: { nl: 'Magische Paddenstoelen', en: 'Magic Mushrooms' },
+          name: { nl: 'Gloeizwammen', en: 'Glow-caps' },
           rect: { x: 210, y: 204, w: 46, h: 40 },
           walkTo: { x: 232, y: 288 },
           hideFlag: 'taken_courtyard_mushroom',
           gives: {
             item: 'mushroom',
-            giveText: { nl: 'Tegen de voet van de put groeit een trosje magisch gloeiende paddenstoelen met blauw-paarse hoedjes. Je plukt ze voorzichtig — ze tintelen van de magie.', en: 'Against the foot of the well grows a cluster of magically glowing mushrooms with blue-purple caps. You pick them carefully — they tingle with magic.' },
-            emptyText: { nl: 'De paddenstoelen bij de put heb je al geplukt.', en: 'You’ve already picked the mushrooms by the well.' }
+            giveText: { nl: 'Tegen de voet van de put groeit een trosje gloeizwammen: paddenstoelen met zacht oplichtende blauw-paarse hoedjes. Je plukt ze voorzichtig. Men zegt dat je van hun rook heel slaperig wordt...', en: 'Against the foot of the well grows a little bunch of glow-caps: mushrooms with softly glowing blue-purple tops. You pick them carefully. They say their smoke makes you very sleepy...' },
+            emptyText: { nl: 'De gloeizwammen bij de put heb je al geplukt.', en: 'You’ve already picked the glow-caps by the well.' }
           }
         },
         {
@@ -519,16 +442,16 @@ const GAME = {
        --------------------------------------------------------------- */
     garden: {
       name: { nl: 'De Slottuin', en: 'The Castle Garden' },
-      bg: 'assets/art/scene-garden.jpg',
+      bg: 'assets/art/scene-garden.webp',
       bgVariants: [
-        { img: 'assets/art/scene-garden-open.jpg',   flag: 'secretGateOpen' },      // tuin3: geheime poort open (donkere doorgang in de linkermuur)
-        { img: 'assets/art/scene-garden-hammer.jpg', flag: 'statuePuzzleSolved' }    // tuin2: hamer uit het ridderbeeld gehaald
+        { img: 'assets/art/scene-garden-open.webp',   flag: 'secretGateOpen' },      // tuin3: geheime poort open (donkere doorgang in de linkermuur)
+        { img: 'assets/art/scene-garden-hammer.webp', flag: 'statuePuzzleSolved' }    // tuin2: hamer uit het smidsbeeld gehaald
       ],
       charFilter: 'saturate(1.06) brightness(1.05) sepia(0.06) contrast(1.03)',   // helder zonnig tuinlicht; lichte warmte zodat de figuren in de omgeving opgaan
       heroShade: 0.98,
       entryText: {
-        nl: 'De ommuurde slottuin staat vol rozen en klimop. In het midden waakt een ridderbeeld; links klatert een leeuwenfontein, rechts staat een bankje onder een rozenboog. En daar — tussen de bloemen — wandelt de prinses.',
-        en: 'The walled castle garden is full of roses and ivy. A knight statue watches at its centre; a lion fountain trickles to the left, a bench rests under a rose arbour to the right. And there — among the flowers — walks the princess.'
+        nl: 'De ommuurde slottuin staat vol rozen en klimop. In het midden staat een bronzen smidsbeeld bij zijn aambeeld; links klatert een leeuwenfontein, rechts staat een bankje onder een rozenboog. En daar — tussen de bloemen — wandelt de prinses.',
+        en: 'The walled castle garden is full of roses and ivy. A bronze smith statue stands at its centre; a lion fountain trickles to the left, a bench rests under a rose arbour to the right. And there — among the flowers — walks the princess.'
       },
       playerStart: { x: 284, y: 300 },                       // midden onderin de tuin
       spawnFrom: { courtyard: { x: 284, y: 300 } },
@@ -578,7 +501,7 @@ const GAME = {
                 text: { nl: 'Haar glimlach verflauwt. “Eerlijk gezegd... niet helemaal. Ik ben iets dierbaars kwijt — de gouden ketting van mijn moeder. Hij gleed van mijn hals, diep de oude put op de binnenplaats in. Ik zou er álles voor geven om hem terug te zien.”', en: 'Her smile fades. “Honestly... not quite. I’ve lost something dear — my mother’s gold necklace. It slipped from my neck, deep down the old well in the courtyard. I’d give anything to see it again.”' } },
               { label: { nl: 'Mijn vader', en: 'My father' },
                 text: (state) => state.flags.fountainSolved
-                  ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “Het verborgen slot achter de leeuwenfontein is nu onthuld — de sleutel die ik je gaf past erop. Ga erdoorheen, Finn, en wees voorzichtig.”', en: 'You speak softly of your captive father. She squeezes your hand. “The hidden lock behind the lion fountain is revealed now — the key I gave you fits it. Go through it, Finn, and be careful.”' }
+                  ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “Het verborgen slot naast de leeuwenfontein is nu onthuld — de sleutel die ik je gaf past erop. Ga erdoorheen, Finn, en wees voorzichtig.”', en: 'You speak softly of your captive father. She squeezes your hand. “The hidden lock beside the lion fountain is revealed now — the key I gave you fits it. Go through it, Finn, and be careful.”' }
                   : state.flags.gaveNecklace
                   ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “Ik gaf je de sleutel — los nu de schuifpuzzel bij de leeuwenfontein op. Dan verschijnt het verborgen slot in de muur. Wees voorzichtig, Finn.”', en: 'You speak softly of your captive father. She squeezes your hand. “I gave you the key — now solve the sliding puzzle at the lion fountain. The hidden lock will appear in the wall. Be careful, Finn.”' }
                   : { nl: 'Je vertelt zacht dat je vader ergens diep in het kasteel gevangen wordt gehouden. Ze knijpt even in je hand en aarzelt. “Wees voorzichtig, Finn. Er ís misschien een verborgen weg naar binnen... maar zo’n geheim kan ik alleen toevertrouwen aan iemand die ik écht ken.” Ze kijkt je peinzend aan.', en: 'You tell her softly that your father is held captive deep in the castle. She squeezes your hand and hesitates. “Be careful, Finn. There may be a hidden way in... but such a secret I can only entrust to someone I truly know.” She gives you a thoughtful look.' } },
@@ -588,7 +511,7 @@ const GAME = {
           },
           look: (state) => state.flags.gaveNecklace
             ? (state.flags.fountainSolved
-                ? { nl: 'De prinses straalt met de ketting van haar moeder om haar hals. “Het verborgen slot achter de leeuwenfontein is onthuld, Finn — jouw sleutel past erop. Wees voorzichtig daarachter, en kom alsjeblieft weer terug.”', en: 'The princess beams, her mother’s necklace around her neck. “The hidden lock behind the lion fountain is revealed now, Finn — your key fits it. Be careful beyond it, and please come back to me.”' }
+                ? { nl: 'De prinses straalt met de ketting van haar moeder om haar hals. “Het verborgen slot naast de leeuwenfontein is onthuld, Finn — jouw sleutel past erop. Wees voorzichtig daarachter, en kom alsjeblieft weer terug.”', en: 'The princess beams, her mother’s necklace around her neck. “The hidden lock beside the lion fountain is revealed now, Finn — your key fits it. Be careful beyond it, and please come back to me.”' }
                 : { nl: 'De prinses draagt de ketting van haar moeder weer en straalt. “Dankzij jou, Finn. Los de schuifpuzzel bij de leeuwenfontein op, dan verschijnt het verborgen slot in de muur — daar past de sleutel die ik je gaf. En kom alsjeblieft weer terug.”', en: 'The princess wears her mother’s necklace again and beams. “Thanks to you, Finn. Solve the sliding puzzle at the lion fountain and the hidden lock will appear in the wall — the key I gave you fits it. And please, come back to me.”' })
             : state.flags.metPrincess
             ? { nl: 'De prinses zucht. “Die ketting was alles wat ik nog van mijn moeder had — hij viel diep in de oude put op de binnenplaats. Kon iemand hem er maar uithalen...”', en: 'The princess sighs. “That necklace was all I had left of my mother — it fell deep down the old well in the courtyard. If only someone could fish it out...”' }
@@ -598,7 +521,7 @@ const GAME = {
               consume: 'necklace',
               give: 'key',
               setFlag: 'gaveNecklace',
-              text: { nl: 'Je houdt de prinses de gouden ketting voor. Haar hand vliegt naar haar mond. “Mijn moeders ketting — je hebt hem gevonden!” Met tranen in haar ogen doet ze hem om. “Hoe kan ik je ooit bedanken... Hier.” Ze drukt je een oude sleutel in de hand. “Die past op het slot achter de leeuwenfontein — de geheime poort. Bijna niemand weet ervan.” Dan verduistert haar blik. “Maar wees op je hoede, Finn: door die gang kom je uit in de oude bibliotheek, en daar huist een BOZE TOVENAAR. Hij fluistert ’s nachts met de sterren en broedt op duistere plannen — men zegt dat hij de macht over heel Eldoria wil grijpen. Laat hij je vooral niet betrappen. Wees dapper.”', en: 'You hold out the gold necklace to the princess. Her hand flies to her mouth. “My mother’s necklace — you found it!” Tears in her eyes, she fastens it on. “How can I ever thank you... Here.” She presses an old key into your hand. “It fits the lock behind the lion fountain — the secret gate. Almost no one knows of it.” Then her gaze darkens. “But be on your guard, Finn: that passage opens into the old library, and an EVIL WIZARD dwells there. He whispers to the stars at night and broods on dark schemes — they say he means to seize power over all of Eldoria. Whatever you do, don’t let him catch you. Be brave.”' }
+              text: { nl: 'Je houdt de prinses de gouden ketting voor. “Mijn moeders ketting — je hebt hem gevonden!” Met tranen in haar ogen doet ze hem om en drukt je een oude sleutel in de hand. “Die past op het verborgen slot naast de leeuwenfontein: de geheime poort. Bijna niemand weet ervan.” Dan kijkt ze ernstig. “Pas op, Finn. Die gang komt uit in de oude bibliotheek, en daar woont een boze tovenaar. Hij wil de macht over heel Eldoria grijpen. Laat je niet betrappen. Wees dapper.”', en: 'You hold out the gold necklace to the princess. “My mother’s necklace — you found it!” Tears in her eyes, she fastens it on and presses an old key into your hand. “It fits the hidden lock beside the lion fountain: the secret gate. Almost no one knows of it.” Then she looks serious. “Be careful, Finn. That passage leads to the old library, where an evil wizard lives. He wants to seize power over all of Eldoria. Don’t let him catch you. Be brave.”' }
             },
             sword: {
               keep: true,                                  // het gesmede zwaard blijft van Finn
@@ -619,7 +542,7 @@ const GAME = {
             : { nl: 'Een stenen leeuwenkop spuwt water in een schelpvormig bekken. Op de bodem ligt, vertroebeld door het water, een stenen wapen-mozaïek dat in losse stukken is geschoven. Schuif de stukken weer op hun plaats om te zien wat het in beweging zet.', en: 'A stone lion spouts water into a shell-shaped basin. On the floor, blurred by the water, lies a stone crest-mosaic shuffled into loose pieces. Slide them back into place to see what it sets in motion.' },
           slidePuzzle: {
             size: 3,
-            img: 'assets/art/puzzle-fountain.jpg',
+            img: 'assets/art/puzzle-fountain.webp',
             title: { nl: 'Het Wapen in de Fontein', en: 'The Crest in the Fountain' },
             setFlag: 'fountainSolved',
             burst: { x: 60, y: 150 },
@@ -669,14 +592,14 @@ const GAME = {
           rect: { x: 232, y: 90, w: 96, h: 150 },
           walkTo: { x: 286, y: 296 },
           look: (state) => state.flags.statuePuzzleSolved
-            ? { nl: 'Het vakje onder in de sokkel staat open en leeg — de zware smidshamer van de oude held zit nu in je tas. Tijd om het zwaard te smeden bij de smidse.', en: 'The niche in the base of the plinth stands open and empty — the old hero’s heavy hammer is in your bag now. Time to forge the sword at the smithy.' }
+            ? { nl: 'Het vakje onder in de sokkel staat open en leeg — de zware smidshamer zit nu in je tas. Tijd om het zwaard te smeden bij de smidse.', en: 'The niche in the base of the plinth stands open and empty — the heavy blacksmith’s hammer is in your bag now. Time to forge the sword at the smithy.' }
             : state.flags.gotSmithPhrase
-            ? { nl: 'Het bronzen beeld van de smid bij zijn aambeeld. In de sokkel zijn woorden gebeiteld — klik de geheime woorden van de smid aan in de juiste volgorde.', en: 'The bronze statue of the smith at his anvil. Words are carved into the plinth — click the smith’s secret words in the right order.' }
-            : { nl: 'Een bronzen beeld van een smid bij zijn aambeeld. In de sokkel zijn allerlei woorden gebeiteld. Je moet de juiste geheime woorden aanklikken — maar welke, en in welke volgorde? Wie zou dat weten?', en: 'A bronze statue of a smith at his anvil. All sorts of words are carved into the plinth. You must click the right secret words — but which ones, and in what order? Who might know?' },
+            ? { nl: 'Het bronzen beeld van de smid bij zijn aambeeld. In de sokkel zijn woorden gebeiteld — tik de geheime woorden van de smid aan in de juiste volgorde.', en: 'The bronze statue of the smith at his anvil. Words are carved into the plinth — tap the smith’s secret words in the right order.' }
+            : { nl: 'Een bronzen beeld van een smid bij zijn aambeeld. In de sokkel zijn allerlei woorden gebeiteld. Je moet de juiste geheime woorden aantikken — maar welke, en in welke volgorde? Wie zou dat weten?', en: 'A bronze statue of a smith at his anvil. All sorts of words are carved into the plinth. You must tap the right secret words — but which ones, and in what order? Who might know?' },
           symbolPuzzle: {
-            img: 'assets/art/puzzle-words.jpg',
+            img: 'assets/art/puzzle-words.webp',
             title: { nl: 'De Geheime Woorden van de Smid', en: 'The Smith’s Secret Words' },
-            hint: { nl: 'Klik de geheime spreuk van de smid woord voor woord aan, in de juiste volgorde. Veel woorden zijn afleiders. Weet je de spreuk niet? Vraag het de papagaai in de tuin.', en: 'Click the smith’s secret saying word by word, in the right order. Many words are decoys. Don’t know the saying? Ask the parrot in the garden.' },
+            hint: { nl: 'Tik de geheime spreuk van de smid woord voor woord aan, in de juiste volgorde. De woorden zijn Engels en veel ervan zijn afleiders. Weet je de spreuk niet? Vraag het de papagaai in de tuin.', en: 'Tap the smith’s secret saying word by word, in the right order. Many words are decoys. Don’t know the saying? Ask the parrot in the garden.' },
             zones: [
               { key: 'rust',   left: 1,  top: 3,  width: 23, height: 22 },
               { key: 'fire',   left: 26, top: 3,  width: 23, height: 22 },
@@ -705,7 +628,7 @@ const GAME = {
             sequence: ['only', 'fire', 'forges', 'true', 'steel'],
             setFlag: 'statuePuzzleSolved',
             give: 'hammer',
-            solvedText: { nl: 'De woorden lichten één voor één op — ONLY... FIRE... FORGES... TRUE... STEEL! Met een steenachtig gerommel schuift een vakje in de sokkel open. Daarin ligt de zware smidshamer van de oude held! Je neemt hem mee. Hiermee kun je bij de smidse zijn zwaard weer smeden.', en: 'The words light up one by one — ONLY... FIRE... FORGES... TRUE... STEEL! With a stony rumble a niche slides open in the plinth. Inside lies the old hero’s heavy blacksmith’s hammer! You take it. With this you can forge his sword again at the smithy.' },
+            solvedText: { nl: 'De woorden lichten één voor één op — ONLY... FIRE... FORGES... TRUE... STEEL! (Alleen vuur smeedt echt staal.) Met een steenachtig gerommel schuift een vakje in de sokkel open. Daarin ligt een zware smidshamer! Je neemt hem mee. Hiermee kun je bij de smidse het zwaard van Sir Aldric weer smeden.', en: 'The words light up one by one — ONLY... FIRE... FORGES... TRUE... STEEL! With a stony rumble a niche slides open in the plinth. Inside lies a heavy blacksmith’s hammer! You take it. With this you can forge Sir Aldric’s sword again at the smithy.' },
             resetText: { nl: 'De woorden doven. Verkeerde volgorde — begin opnieuw. (Vraag de papagaai naar de spreuk.)', en: 'The words go dark. Wrong order — start over. (Ask the parrot for the saying.)' },
             doneText: { nl: 'Het vakje is open en leeg; de hamer zit in je tas.', en: 'The niche is open and empty; the hammer is in your bag.' }
           }
@@ -723,11 +646,11 @@ const GAME = {
                 text: { nl: '“Krrak! Ik ben de oudste papagaai van Eldoria. Ik zit hier al langer dan de koning regeert — en ik vergeet níets!”', en: '“Squawk! I’m the oldest parrot in Eldoria. I’ve perched here longer than the king has reigned — and I forget nothing!”' } },
               { label: { nl: 'Heb je nieuws voor me?', en: 'Any news for me?' },
                 setFlag: 'parrotToldEntrance',
-                text: { nl: '“Krrak! Nieuws? Hihí... Ik klap uit de school: áchter de leeuwenfontein in de tuin zit een geheime ingang, diep het kasteel in! Niemand weet ervan — behalve ik. Maar er zit vast een goed slot op, krrak.”', en: '“Squawk! News? Hehe... Let me spill a secret: behind the lion fountain in the garden there’s a hidden entrance, deep into the castle! No one knows of it — except me. But it surely has a good lock on it, squawk.”' } },
+                text: { nl: '“Krrak! Nieuws? Hihí... Ik klap uit de school: náást de leeuwenfontein in de tuin zit een geheime ingang in de muur, diep het kasteel in! Niemand weet ervan — behalve ik. Maar er zit vast een goed slot op, krrak.”', en: '“Squawk! News? Hehe... Let me spill a secret: beside the lion fountain in the garden there’s a hidden entrance in the wall, deep into the castle! No one knows of it — except me. But it surely has a good lock on it, squawk.”' } },
               { label: { nl: 'Het geheim van de smid?', en: 'The smith’s secret?' },
                 text: (state) => state.flags.gotSmithPhrase
-                  ? { nl: '“Krrak! De spreuk van de smid: ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!”', en: '“Squawk! The smith’s saying: ONLY... FIRE... FORGES... TRUE... STEEL! In that order!”' }
-                  : { nl: '“Krrak! Een hongerige vogel praat niet. Geef me een pindanoot — er ligt er een bij het aambeeld op het plein — en ik fluister de geheime spreuk van de smid.”', en: '“Squawk! A hungry bird won’t talk. Give me a peanut — there’s one by the anvil in the courtyard — and I’ll whisper the smith’s secret saying.”' } },
+                  ? { nl: '“Krrak! De spreuk van de smid: ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!” (Engels voor: alleen vuur smeedt echt staal.)', en: '“Squawk! The smith’s saying: ONLY... FIRE... FORGES... TRUE... STEEL! In that order!”' }
+                  : { nl: '“Krrak! Een hongerige vogel praat niet. Geef me een pinda — er ligt er een bij het aambeeld op het plein — en ik fluister de geheime spreuk van de smid.”', en: '“Squawk! A hungry bird won’t talk. Give me a peanut — there’s one by the anvil in the courtyard — and I’ll whisper the smith’s secret saying.”' } },
               { label: { nl: 'Dag papagaai', en: 'Bye, parrot' },
                 text: { nl: '“Krrak! Tot kijk!” Hij schudt vrolijk zijn veren.', en: '“Squawk! See you!” He ruffles his feathers happily.' } }
             ]
@@ -737,7 +660,7 @@ const GAME = {
             nut: {
               consume: 'nut',
               setFlag: 'gotSmithPhrase',
-              text: { nl: 'Je geeft de papagaai de pindanoot. Hij kraakt de schil behendig open, smult van de pinda, en kwettert dan de geheime spreuk van de smid: “Krrak! ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!” Je prent de vijf woorden in je geheugen — klik ze in díe volgorde aan bij het smidsbeeld. (Klik op de papagaai om de spreuk nog eens te horen.)', en: 'You give the parrot the peanut. He cracks the shell open deftly, gobbles up the nut, and then chatters the smith’s secret saying: “Squawk! ONLY... FIRE... FORGES... TRUE... STEEL! In that order!” You commit the five words to memory — click them in that order at the smith statue. (Click the parrot to hear the saying again.)' }
+              text: { nl: 'Je geeft de papagaai de pinda. Hij kraakt de schil behendig open, smult van de pinda, en kwettert dan de geheime spreuk van de smid: “Krrak! ONLY... FIRE... FORGES... TRUE... STEEL! In díe volgorde!” Dat is Engels en betekent: “alleen vuur smeedt echt staal”. Tik de vijf woorden in díe volgorde aan bij het smidsbeeld. (Tik op de papagaai om de spreuk nog eens te horen.)', en: 'You give the parrot the peanut. He cracks the shell open deftly, gobbles up the nut, and then chatters the smith’s secret saying: “Squawk! ONLY... FIRE... FORGES... TRUE... STEEL! In that order!” You commit the five words to memory — tap them in that order at the smith statue. (Tap the parrot to hear the saying again.)' }
             }
           }
         },
@@ -795,13 +718,13 @@ const GAME = {
 
     library: {
       name: { nl: 'De Kasteelbibliotheek', en: 'The Castle Library' },
-      bg: 'assets/art/scene-library.jpg',
+      bg: 'assets/art/scene-library.webp',
       bgVariants: [
         // de verduistering (tijdelijk, her-castbaar) wint altijd van het daglicht:
-        { img: 'assets/art/scene-library-night-dooropen.jpg',   flags: ['altarSolved', 'eclipseActive'] },  // eclips actief + geheime deur open (na de schijven-puzzel)
-        { img: 'assets/art/scene-library-night-doorclosed.jpg', flag: 'eclipseActive' },                    // eclips actief, geheime deur nog dicht
-        { img: 'assets/art/scene-library-open.jpg',        flag: 'libRelit' },                         // daglicht teruggekeerd: open geheime deur, overdag
-        { img: 'assets/art/scene-library-nacht-deur.jpg',  flag: 'altarSolved' }                       // vangnet: deur net open, daglicht nog niet terug
+        { img: 'assets/art/scene-library-night-dooropen.webp',   flags: ['altarSolved', 'eclipseActive'] },  // eclips actief + geheime deur open (na de schijven-puzzel)
+        { img: 'assets/art/scene-library-night-doorclosed.webp', flag: 'eclipseActive' },                    // eclips actief, geheime deur nog dicht
+        { img: 'assets/art/scene-library-open.webp',        flag: 'libRelit' },                         // daglicht teruggekeerd: open geheime deur, overdag
+        { img: 'assets/art/scene-library-nacht-deur.webp',  flag: 'altarSolved' }                       // vangnet: deur net open, daglicht nog niet terug
       ],
       charFilter: 'saturate(1.02) brightness(0.88) sepia(0.14) contrast(1.04)',   // warm kaarslicht, wat donkerder zodat de figuren in de schemerige zaal opgaan
       heroShade: 0.66,
@@ -825,7 +748,7 @@ const GAME = {
       fx: {
         bookSparkle: { x: 278, y: 150, r: 24, doneFlag: 'altarSolved' },   // het boek geeft licht: zachte gloed + sparkles, tot het zegel is opgelost
         mageGlow: { x: 153, y: 138, r: 10, a: 0.42, sparkle: true, hideFlag: 'wizardTripping' },   // paars-blauwe glinster op de bol van de tovenaarsstaf (dooft tijdens de trance)
-        candleBowl: { x: 94, y: 262, w: 46, h: 66, img: 'assets/art/altar-censer.png', smokeFlag: 'wizardTripping' }   // klein altaar met bronzen schaal + kaarsen links van de tovenaar; lichte rook altijd, zwaar zodra de paddenstoelen erin gaan
+        candleBowl: { x: 94, y: 262, w: 46, h: 66, img: 'assets/art/altar-censer.webp', smokeFlag: 'wizardTripping' }   // klein altaar met bronzen schaal + kaarsen links van de tovenaar; lichte rook altijd, zwaar zodra de paddenstoelen erin gaan
       },
       npcs: [
         { id: 'librarian', sprite: 'librarian', blinkSprite: 'librarian-sleep', idleBreathe: true, x: 192, y: 256, scale: 0.85, aweSwayMul: 3.2, flip: false, filter: 'brightness(0.84) saturate(1.14)', aweSprite: 'librarian-sleep', aweFlag: 'wizardTripping', tripFx: true },   // de boze tovenaar (mad-wizard) — iets kleiner + iets naar achter (hoger, kleiner)   // de boze tovenaar (mad-wizard), kijkt naar RECHTS; knippert af en toe met de ogen; na de paddenstoelen valt hij in trance/slaap (ogen dicht) + dromerig waggelen
@@ -864,8 +787,8 @@ const GAME = {
             : state.flags.gotEclipseSpell
             ? { nl: '\u201CKrra! Je hebt de spreuk! Tik hem aan in je tas en spreek hem uit \u2014 dan dooft de zon en kun je het gloeiende boek eindelijk lezen.\u201D', en: '\u201CCaw! You have the spell! Tap it in your bag and speak it \u2014 the sun will darken and you can finally read the glowing book.\u201D' }
             : state.flags.wizardTripping
-            ? { nl: '\u201CKrra! Moet je hem zien zweven... Sn\u00E9l \u2014 kijk naar het ZONNESTELSEL op de sokkel rechts! Draai de hemelschijf tot zon, maan en ster op \u00E9\u00E9n lijn staan \u2014 d\u00E1\u00E1r zit de zonsverduistering-spreuk in.\u201D', en: '\u201CCaw! Look at him float... Quick \u2014 look at the SOLAR SYSTEM on the pedestal to the right! Turn the celestial disc until sun, moon and star line up \u2014 that is where the eclipse spell hides.\u201D' }
-            : { nl: 'De raaf zit parmantig op de vensterbank. \u201CKrra! Die oude tovenaar wijkt geen duimbreed van zijn instrumenten... Maar ik weet w\u00E1t hij niet kan weerstaan: paddenstoelen! Van die glimmende, bij de oude put op de binnenplaats. Leg ze in de schaal met kaarsen n\u00e1\u00e1st hem \u2014 de rook doet de rest!\u201D', en: 'The raven perches proudly on the windowsill. \u201CCaw! That old wizard will not budge an inch from his instruments... But I know what he cannot resist: mushrooms! The shiny kind, by the old well in the courtyard. Lay them in the bowl of candles beside him \u2014 the smoke does the rest!\u201D' }
+            ? { nl: '\u201CKrra! Moet je hem zien knikkebollen... Sn\u00E9l \u2014 kijk naar het ZONNESTELSEL op de sokkel rechts! Draai de hemelschijf tot zon, maan en ster op \u00E9\u00E9n lijn staan \u2014 d\u00E1\u00E1r zit de zonsverduistering-spreuk in.\u201D', en: '\u201CCaw! Look at him snooze... Quick \u2014 look at the SOLAR SYSTEM on the pedestal to the right! Turn the celestial disc until sun, moon and star line up \u2014 that is where the eclipse spell hides.\u201D' }
+            : { nl: 'De raaf zit parmantig op de vensterbank. \u201CKrra! Die oude tovenaar wijkt geen duimbreed van zijn instrumenten... Maar ik weet hoe je hem in slaap krijgt: gloeizwammen! Die groeien bij de oude put op de binnenplaats. Leg ze in de schaal met kaarsen n\u00e1\u00e1st hem \u2014 van de rook wordt hij doodmoe!\u201D', en: 'The raven perches proudly on the windowsill. \u201CCaw! That old wizard will not budge an inch from his instruments... But I know how to send him to sleep: glow-caps! They grow by the old well in the courtyard. Lay them in the bowl of candles beside him \u2014 the smoke will make him terribly sleepy!\u201D' }
         },
         {
           id: 'shelves',
@@ -880,13 +803,13 @@ const GAME = {
           rect: { x: 86, y: 196, w: 52, h: 66 },
           walkTo: { x: 150, y: 262 },
           look: (state) => state.flags.wizardTripping
-            ? { nl: 'Op het altaar smeulen de paddenstoelen tussen de kaarsen; een dikke, zoetige rook kringelt omhoog. De tovenaar staat er middenin dromerig te wankelen.', en: 'On the altar the mushrooms smoulder among the candles; thick sweet smoke curls up. The wizard totters dreamily in the midst of it.' }
-            : { nl: 'Op een klein stenen altaar rust een bronzen offerschaal, omringd door drie flakkerende kaarsen. In de schaal liggen wat verdroogde kruiden en harskorrels die zachtjes smeulen — er hangt een vreemde, zware geur omheen, en een ijl rookslierten kringelt op. Wat je hier ook op gooit, de kaarsen doen het smeulen... iets bedwelmends misschien?', en: 'On a small stone altar rests a bronze offering bowl, ringed by three flickering candles. In the bowl lie some dried herbs and resin grains, softly smouldering — a strange, heavy smell hangs about it and a thin wisp of smoke curls up. Whatever you toss on here, the candles make it smoulder... something intoxicating, perhaps?' },
+            ? { nl: 'Op het altaar smeulen de gloeizwammen tussen de kaarsen; een zachte, slaperige rook kringelt omhoog. De tovenaar staat ernaast te knikkebollen en te gapen.', en: 'On the altar the glow-caps smoulder among the candles; soft, sleepy smoke curls up. The wizard stands beside it, nodding off and yawning.' }
+            : { nl: 'Op een klein stenen altaar rust een bronzen schaal, omringd door drie flakkerende kaarsen. In de schaal smeulen wat gedroogde kruiden en een ijle rooksliert kringelt op. Wat je hierin legt, gaat zachtjes smeulen... misschien iets waar je slaperig van wordt?', en: 'On a small stone altar rests a bronze bowl, ringed by three flickering candles. Some dried herbs smoulder in it and a thin wisp of smoke curls up. Whatever you lay in here will gently smoulder... perhaps something that makes you sleepy?' },
           use: {
             mushroom: {
               consume: 'mushroom',
               setFlag: 'wizardTripping',
-              text: { nl: 'Je legt de glimmende paddenstoelen voorzichtig in de bronzen schaal. De kaarsvlammen likken eraan en ze beginnen te smeulen — een dikke, zoetige rook kringelt omhoog, recht in het gezicht van de tovenaar. Hij snuift, zijn ogen worden glazig... “Ooooh... de sterren dánsen...” mompelt hij, en hij zakt dromerig weg. Het gloeiende boek is nu onbewaakt!', en: 'You gently lay the shiny mushrooms in the bronze bowl. The candle flames lick at them and they start to smoulder — thick sweet smoke curls up, right into the wizard’s face. He sniffs, his eyes glaze over... “Ooooh... the stars are DANCING...” he mumbles, drifting away in a dream. The glowing book is unguarded now!' }
+              text: { nl: 'Je legt de gloeizwammen voorzichtig in de bronzen schaal. De kaarsvlammen likken eraan en een zachte, zoetige rook kringelt omhoog, recht onder de neus van de tovenaar. Hij gaapt... en gaapt nog eens. “Ooooh... wat ben ik ineens moe... nog vijf minuutjes...” mompelt hij, en hij dommelt staand in. Het gloeiende boek is nu onbewaakt!', en: 'You gently lay the glow-caps in the bronze bowl. The candle flames lick at them and soft, sweet smoke curls up, right under the wizard’s nose. He yawns... and yawns again. “Ooooh... I’m suddenly so sleepy... five more minutes...” he mumbles, and dozes off standing up. The glowing book is unguarded now!' }
             }
           }
         },
@@ -897,11 +820,11 @@ const GAME = {
           rect: { x: 174, y: 140, w: 54, h: 122 },
           walkTo: { x: 244, y: 268 },
           look: (state) => state.flags.wizardTripping
-            ? { nl: 'De oude tovenaar zweeft bijna. Hij staart met grote ogen naar het plafond en giechelt: \u201CDe sterren... de sterren d\u00E1nsen! Ik zie de hemelwielen draaien...\u201D Het gloeiende boek ziet hij allang niet meer.', en: 'The old wizard is practically floating. He stares wide-eyed at the ceiling and giggles: \u201CThe stars... the stars are DANCING! I can see the heavens turning...\u201D He has long forgotten the glowing book.' }
-            : { nl: 'De boze tovenaar kijkt op van het gloeiende boek en schatert het uit: \u201CHahá! Een JOCHIE? Kom jíj mij bestelen, ukkie? Ik grijp binnenkort de macht over heel Eldoria \u2014 en jij denkt dat je mijn sterrenspreuken kunt aanraken? Wegwezen, snotaap!\u201D Hij lacht kakelend en buigt zich weer over het boek. Maar zijn neus snuffelt dromerig... alsof hij ergens naar hunkert. (De raaf op de vensterbank grinnikt: \u201CKrra... paddenstoelen, in de schaal met kaarsen!\u201D)', en: 'The evil wizard looks up from the glowing book and bursts out laughing: \u201CHaha! A BOY? You, rob ME, little runt? Soon I shall seize power over all Eldoria \u2014 and you think you can touch my star spells? Get lost, brat!\u201D He cackles and bends back over the book. But his nose sniffs dreamily... as if he craves something. (The raven on the sill snickers: \u201CCaw... mushrooms, in the bowl of candles!\u201D)' },
+            ? { nl: 'De oude tovenaar staat te knikkebollen en wiebelt slaperig heen en weer. \u201CZzz... wat een mooie sterretjes... zzz...\u201D mompelt hij met zijn ogen dicht. Het gloeiende boek ziet hij allang niet meer.', en: 'The old wizard is nodding off, swaying sleepily from side to side. \u201CZzz... such pretty little stars... zzz...\u201D he mumbles, eyes closed. He has long forgotten the glowing book.' }
+            : { nl: 'De boze tovenaar kijkt op van het gloeiende boek en schatert het uit: \u201CHahá! Een JOCHIE? Kom jíj mij bestelen, ukkie? Ik grijp binnenkort de macht over heel Eldoria \u2014 en jij denkt dat je mijn sterrenspreuken kunt aanraken? Wegwezen, kleine nieuwsgierneus!\u201D Hij lacht kakelend en buigt zich weer over het boek. Maar stiekem gaapt hij \u2014 die tovenaar kan wel een dutje gebruiken. (De raaf op de vensterbank grinnikt: \u201CKrra... gloeizwammen, in de schaal met kaarsen!\u201D)', en: 'The evil wizard looks up from the glowing book and bursts out laughing: \u201CHaha! A BOY? You, rob ME, little one? Soon I shall seize power over all Eldoria \u2014 and you think you can touch my star spells? Off you go, little busybody!\u201D He cackles and bends back over the book. But he sneaks a yawn \u2014 this wizard could use a nap. (The raven on the sill snickers: \u201CCaw... glow-caps, in the bowl of candles!\u201D)' },
           use: {
             mushroom: {
-              needText: { nl: '\u201cAfblijven, jochie!\u201d De tovenaar slaat je hand weg \u2014 zomaar iets aanpakken doet hij niet. Maar kijk, naast hem staat een schaal met kaarsen... leg de paddenstoelen d\u00e1\u00e1rin, dan doet de rook het werk.', en: '\u201cHands off, boy!\u201d The wizard swats your hand away \u2014 he won\u2019t take anything from you. But look, beside him stands a bowl of candles... place the mushrooms in THERE, and the smoke will do the work.' }
+              needText: { nl: '\u201cAfblijven, jochie!\u201d De tovenaar slaat je hand weg \u2014 zomaar iets aanpakken doet hij niet. Maar kijk, naast hem staat een schaal met kaarsen... leg de gloeizwammen d\u00e1\u00e1rin, dan doet de rook het werk.', en: '\u201cHands off, boy!\u201d The wizard swats your hand away \u2014 he won\u2019t take anything from you. But look, beside him stands a bowl of candles... place the glow-caps in THERE, and the smoke will do the work.' }
             }
           }
         },
@@ -913,7 +836,7 @@ const GAME = {
           look: (state) => state.flags.altarSolved
             ? { nl: 'Het grote boek rust. De onzichtbaarheidsspreuk staat veilig in jouw toverboek en de geheime deur staat open.', en: 'The great book rests. The invisibility spell sits safely in your spellbook and the secret door stands open.' }
             : state.flags.sawSigns
-            ? { nl: 'De onzichtbaarheidsspreuk staat in je toverboek. En die tekening achterin: het sterren-altaar met zon, maan en ster BÓVENAAN — draai de schijven precies zo en trek aan de hendel!', en: 'The invisibility spell is in your spellbook. And that drawing at the back: the star altar with sun, moon and star at the TOP — set the discs just so and pull the lever!' }
+            ? { nl: 'De onzichtbaarheidsspreuk staat in je toverboek. De laatste bladzijde wijst naar de telescoop: tijdens de zonsverduistering toont het hart van de hemelschijf drie tekens onder elkaar (\u03a8, \u2643, \u2644). Zet ze in die volgorde bovenaan op het Deurzegel \u2014 buitenste, middelste, binnenste schijf \u2014 en trek aan de hendel!', en: 'The invisibility spell is in your spellbook. The last page points to the telescope: during the eclipse, the heart of the sky-wheel shows three signs one above the other (\u03a8, \u2643, \u2644). Set them in that order at the top of the Door Seal \u2014 outer, middle, inner disc \u2014 and pull the lever!' }
             : (state.flags.gotEclipseSpell && state.flags.eclipseActive)
             ? { nl: 'Nu de zon verduisterd is, gloeien de toverletters helder op — het boek is te LEZEN! Tik het aan en ontvang wat erin geschreven staat.', en: 'Now that the sun is darkened, the magic letters glow bright — the book can be READ! Tap it and receive what is written inside.' }
             : state.flags.gotEclipseSpell
@@ -923,16 +846,16 @@ const GAME = {
             : { nl: 'Een groot boek op de lessenaar gloeit zacht. De tovenaar houdt het scherp in de gaten \u2014 je durft het niet aan te raken.', en: 'A great book on the lectern glows softly. The wizard watches it sharply \u2014 you dare not touch it.' },
           signsBook: {                                     // het boek toont bij verduistering het HEMELZEGEL: de oplossing voor het altaar
             requiresFlag: 'wizardTripping',                 // zodra de tovenaar slaapt kun je het boek inkijken (overdag = de mantel-tekeningen)
-            blockedText: { nl: '\u201cNiemand raakt de sterrenspreuken aan!\u201d snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201cKrra... paddenstoelen, in de schaal met kaarsen!\u201d)', en: '\u201cNo one touches the star spells!\u201d snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201cCaw... mushrooms, in the bowl of candles!\u201d)' },
+            blockedText: { nl: '\u201cNiemand raakt de sterrenspreuken aan!\u201d snauwt de tovenaar. Zolang hij erbij is, kom je niet bij het boek. (De raaf fluistert: \u201cKrra... gloeizwammen, in de schaal met kaarsen!\u201d)', en: '\u201cNo one touches the star spells!\u201d snaps the wizard. While he is watching you cannot reach the book. (The raven whispers: \u201cCaw... glow-caps, in the bowl of candles!\u201d)' },
             eclipseFlag: 'eclipseActive',
             dayText: (state) => state.flags.gotEclipseSpell
               ? { nl: 'De bladzijde toont twee tekeningen van een verdwijnende mantel \u2014 maar de toverwoorden zelf blijven onzichtbaar. Alleen bij het licht van een ZONSVERDUISTERING gloeien ze op... Spreek de zonsverduistering-spreuk uit bij het raam en lees d\u00e1n het boek.', en: 'The page shows two drawings of a vanishing cloak \u2014 but the spell words themselves stay hidden. Only by the light of a SOLAR ECLIPSE do they glow into view... Cast the eclipse spell at the window, then read the book.' }
               : { nl: 'De bladzijde toont twee tekeningen van een verdwijnende mantel \u2014 maar de toverwoorden zelf blijven onzichtbaar. Ze gloeien alleen op bij het licht van een ZONSVERDUISTERING. Om de zon te verduisteren heb je een spreuk nodig \u2014 bekijk het koperen ZONNESTELSEL op de sokkel.', en: 'The page shows two drawings of a vanishing cloak \u2014 but the spell words themselves stay hidden. They only glow by the light of a SOLAR ECLIPSE. To darken the sun you need a spell \u2014 examine the brass SOLAR SYSTEM on the pedestal.' },
             setFlag: ['sawSigns', 'gotInvisSpell'],
             give: 'invisspell',
-            firstText: { nl: 'Bij het spookachtige eclipslicht worden de krabbels leesbaar: \u201cUmbra Invisibilis\u201d! Een zilveren bladzijde schrijft zich over in jouw toverboek \u2014 de SPREUK VAN ONZICHTBAARHEID is van jou! (En op de laatste bladzijde: een tekening van de telescoop en een hemelschijf vol sterrenbeelden \u2014 \u201cals de sterren overdag schijnen, toont het hart van de hemel de volgorde\u201d...)', en: 'In the ghostly eclipse light the scribbles become readable: \u201cUmbra Invisibilis\u201d! A silver page writes itself into your spellbook \u2014 the SPELL OF INVISIBILITY is yours! (And on the last page: a drawing of the telescope and a sky-wheel full of constellations \u2014 \u201cwhen the stars shine by day, the heart of the sky reveals the order\u201d...)' },
-            dayZoomImg: 'assets/art/book-spell.jpg',       // OVERDAG: alleen de mantel-illustraties, nog geen leesbare tekst
-            zoomImg: 'assets/art/book-spell-text.jpg'      // ZONSVERDUISTERING: de blauwe runentekst gloeit op — de spreuk van onzichtbaarheid
+            firstText: { nl: 'Bij het spookachtige eclipslicht worden de krabbels leesbaar: \u201cVelum Invisibilis\u201d! Een zilveren bladzijde schrijft zich over in jouw toverboek \u2014 de SPREUK VAN ONZICHTBAARHEID is van jou! (En op de laatste bladzijde: een tekening van de telescoop en een hemelschijf vol sterrenbeelden \u2014 \u201cals de sterren overdag schijnen, toont het hart van de hemel de volgorde\u201d...)', en: 'In the ghostly eclipse light the scribbles become readable: \u201cVelum Invisibilis\u201d! A silver page writes itself into your spellbook \u2014 the SPELL OF INVISIBILITY is yours! (And on the last page: a drawing of the telescope and a sky-wheel full of constellations \u2014 \u201cwhen the stars shine by day, the heart of the sky reveals the order\u201d...)' },
+            dayZoomImg: 'assets/art/book-spell.webp',       // OVERDAG: alleen de mantel-illustraties, nog geen leesbare tekst
+            zoomImg: 'assets/art/book-spell-text.webp'      // ZONSVERDUISTERING: de blauwe runentekst gloeit op — de spreuk van onzichtbaarheid
           }
         },
         {
@@ -945,7 +868,7 @@ const GAME = {
             : { nl: 'Een prachtig koperen zonnestelsel draait langzaam op de sokkel: een gloeiende zon met ringen van planeten en sterren eromheen. Er zit een draaimechaniek in...', en: 'A beautiful brass solar system slowly turns on the pedestal: a glowing sun with rings of planets and stars around it. There is a turning mechanism inside...' },
           eclipsePuzzle: {
             requiresFlag: 'wizardTripping',
-            blockedText: { nl: '\u201cBlijf van mijn instrumenten af!\u201d snauwt de tovenaar zonder zelfs op te kijken. Zolang hij erbij is, mag je nergens aankomen. (De raaf fluistert: \u201cKrra... paddenstoelen, bij de put!\u201d)', en: '\u201cKeep your hands off my instruments!\u201d snaps the wizard without even looking up. While he is around you may touch nothing. (The raven whispers: \u201cCaw... mushrooms, by the well!\u201d)' },
+            blockedText: { nl: '\u201cBlijf van mijn instrumenten af!\u201d snauwt de tovenaar zonder zelfs op te kijken. Zolang hij erbij is, mag je nergens aankomen. (De raaf fluistert: \u201cKrra... gloeizwammen, bij de put!\u201d)', en: '\u201cKeep your hands off my instruments!\u201d snaps the wizard without even looking up. While he is around you may touch nothing. (The raven whispers: \u201cCaw... glow-caps, by the well!\u201d)' },
             positions: 12,
             moves: [
               [1, 0, 1],                               // BUITENSTE mechaniek: zon +1 én ster +1
@@ -953,16 +876,16 @@ const GAME = {
               [0, 1, 1]                                // BINNENSTE mechaniek: maan +1 én ster +1
             ],
             title: { nl: 'De Hemelschijf', en: 'The Celestial Disc' },
-            hint: { nl: 'Draai de drie ringen \u2014 Zon \u2609, Maan \u263d en Ster \u2726 \u2014 tot alle drie de tekens bovenaan onder de gouden wijzer staan. Maar dit hemelwerk is VERSTRENGELD: elk mechaniek beweegt meerdere hemellichamen tegelijk! Het buitenste draait zon \u00e9n ster, het middelste alle drie, het binnenste maan \u00e9n ster. Vind de juiste combinatie van slagen met de hendels onder de schijf: \u25c0 is achteruit, \u25b6 is vooruit. Een groen vinkje = die ring staat goed!', en: 'Turn the three rings \u2014 Sun \u2609, Moon \u263d and Star \u2726 \u2014 until all three marks sit at the top under the golden pointer. But this celestial clockwork is ENTANGLED: each mechanism moves several bodies at once! The outer turns sun and star, the middle all three, the inner moon and star. Find the right combination of turns with the levers below the disc: \u25c0 is backward, \u25b6 is forward. A green check = that ring is set!' },
+            hint: { nl: 'Zet Zon \u2609, Maan \u263d en Ster \u2726 alle drie bovenaan, onder de gouden wijzer. Let op: elke hendel draait meer ringen tegelijk! Buitenste = zon + ster, middelste = alle drie, binnenste = maan + ster. Groen vinkje = goed.', en: 'Bring Sun \u2609, Moon \u263d and Star \u2726 all to the top, under the golden pointer. Careful: each lever turns more than one ring! Outer = sun + star, middle = all three, inner = moon + star. A green check = that ring is set.' },
             rings: [
               { start: 11 },
               { start: 10 },
               { start: 7 }
             ],
-            tip: { nl: '\ud83d\udca1 Onthoud w\u00e1t elk mechaniek beweegt: BUITENSTE = zon + ster \u00b7 MIDDELSTE = alle drie \u00b7 BINNENSTE = maan + ster. De volgorde maakt niet uit \u2014 het gaat om het juiste A\u00c1NTAL slagen per mechaniek. (Psst... vanaf de beginstand: buitenste 3\u00d7 rechts, middelste 2\u00d7 links, binnenste 4\u00d7 rechts!)', en: '\ud83d\udca1 Remember what each mechanism moves: OUTER = sun + star \u00b7 MIDDLE = all three \u00b7 INNER = moon + star. The order does not matter \u2014 it is about the right NUMBER of turns per mechanism. (Psst... from the starting position: outer 3\u00d7 right, middle 2\u00d7 left, inner 4\u00d7 right!)' },
+            tip: { nl: '\ud83d\udca1 De volgorde maakt niet uit, alleen het AANTAL slagen per hendel. Vanaf de beginstand: buitenste 3\u00d7 \u25b6, middelste 2\u00d7 \u25c0, binnenste 4\u00d7 \u25b6!', en: '\ud83d\udca1 The order does not matter, only the NUMBER of turns per lever. From the starting position: outer 3\u00d7 \u25b6, middle 2\u00d7 \u25c0, inner 4\u00d7 \u25b6!' },
             setFlag: 'gotEclipseSpell',
             give: 'eclipsspell',
-            solvedZoom: 'assets/art/spell-eclipse-page.jpg',
+            solvedZoom: { nl: 'assets/art/spell-eclipse-page.webp', en: 'assets/art/spell-eclipse-page-en.webp' },
             solvedText: { nl: 'De drie ringen klikken op \u00e9\u00e9n lijn \u2014 de maan schuift langzaam v\u00f3\u00f3r de zon en een gloeiende corona vlamt op! Boven het zonnestelsel verschijnen tekens en zilveren letters: \u201cUmbra Solis\u201d \u2014 de ZONSVERDUISTERING-SPREUK schrijft zich in je toverboek! (Tik de spreuk aan in je tas om hem uit te spreken bij het grote raam.)', en: 'The three rings click into one line \u2014 the moon slides slowly across the sun and a glowing corona flares! Above the solar system, signs and silver letters appear: \u201cUmbra Solis\u201d \u2014 the SOLAR ECLIPSE SPELL writes itself into your spellbook! (Tap the spell in your bag to cast it at the great window.)' },
             doneText: { nl: 'Het zonnestelsel rust; de zonsverduistering-spreuk staat al in jouw toverboek.', en: 'The solar system rests; the eclipse spell is already in your spellbook.' }
           }
@@ -972,7 +895,7 @@ const GAME = {
           name: { nl: 'De Telescoop', en: 'The Telescope' },
           rect: { x: 382, y: 94, w: 58, h: 74 },
           walkTo: { x: 404, y: 252 },
-          zoomImg: 'assets/art/telescope-horoscope.jpg',
+          zoomImg: 'assets/art/telescope-horoscope.webp',
           zoomRequiresFlag: 'eclipseActive',
           zoomBlockedText: { nl: 'Je tuurt door de koperen telescoop, maar het felle daglicht verblindt alles \u2014 geen ster te zien. Alleen als de zon zou doven, zouden de sterren zich overdag tonen...', en: 'You peer through the brass telescope, but the bright daylight blinds everything \u2014 not a star in sight. Only if the sun went dark would the stars show themselves by day...' },
           setFlag: 'sawStars',
@@ -987,7 +910,7 @@ const GAME = {
             ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
             : { nl: 'Op het altaar ligt een rond stenen DEURZEGEL: drie draaibare schijven vol sterren-tekens rond een blauwe steen, met een hendel ernaast. Bovenaan is een gouden wijzer gebeiteld \u2014 welke drie tekens moeten daar samen onder staan?', en: 'On the altar lies a round stone DOOR SEAL: three turnable discs full of star-signs around a blue stone, with a lever beside it. A golden pointer is chiselled at the top \u2014 which three signs should sit beneath it together?' },
           discPuzzle: {
-            imgBase:  'assets/art/seal-base.jpg',
+            imgBase:  'assets/art/seal-base.webp',
             title: { nl: 'Het Deurzegel', en: 'The Door Seal' },
             signs: ['\u2609','\u2642','\u03a8','\u263d','\u2726','\u2644','\u263f','\u26b9','\u2643','\u2640','\u2736','\u2646'],
             code:  ['\u03a8','\u2643','\u2644'],
@@ -1010,7 +933,7 @@ const GAME = {
 
     dungeon: {
       name: { nl: 'De Kerker', en: 'The Dungeon' },
-      bg: 'assets/art/scene-dungeon.jpg',
+      bg: 'assets/art/scene-dungeon.webp',
       charFilter: 'saturate(1.0) brightness(0.82) sepia(0.12) contrast(1.06)',   // klam fakkellicht in het donker
       heroShade: 0.7,
       entryText: {
@@ -1034,7 +957,7 @@ const GAME = {
       overlays: [],
       fx: {
         bookSparkle: { x: 216, y: 179, col: '255,208,110', boost: 0.85, noGlow: true, sparkCount: 4, staticSpark: true, doneFlag: 'gotCellKey' },  // de gouden sleutel glinstert (3px hoger, 2px naar links, iets feller) op de wachttafel tot je hem hebt
-        nutPlant:  { x: 91, y: 294, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.png' },   // wondernoot + dansend plantje in het plasje links (2px lager)
+        nutPlant:  { x: 91, y: 294, img: 'assets/art/plant-dance.png', imgNut: 'assets/art/item-bignut.webp' },   // wondernoot + dansend plantje in het plasje links (2px lager)
         waterGlint: { x: 60, y: 285, w: 30 },                            // het plasje glinstert blauw
         lockGlint: { x: 418, y: 165, r: 9, col: '212,224,240', colOut: '200,214,235', twCol: '228,236,250', sparkCol: '245,248,255', requiresFlag: 'gotCellKey', doneFlag: 'fatherFreed' }   // het celslot glinstert ZILVER — kleiner, 2px hoger + 2px naar links
       },
@@ -1089,10 +1012,10 @@ const GAME = {
             : { nl: 'Een kolossale wachter met een hellebaard verspert de weg naar de cel. “Niemand komt bij de gevangene — niemand die ik zíe, tenminste.” Zolang hij je ziet, kom je er nooit langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'A colossal guard with a halberd blocks the way to the cell. “No one reaches the prisoner — no one I can SEE, at least.” While he can see you, you will never get past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
           castWith: {
             item: 'invisspell',
-            cutscene: 'assets/art/cutscene-invisible.jpg',
+            cutscene: 'assets/art/cutscene-invisible.webp',
             setFlag: 'guardPassed',
             needText: { nl: 'Je hebt iets nodig om ongezien langs die wachter te komen...', en: 'You need some way to get past that guard unseen...' },
-            text: { nl: 'Je fluistert de onzichtbaarheidsspreuk — “Nihil Videbis!” — en je lichaam vervaagt tot niet meer dan een rilling in de fakkelgloed. De wachter tuurt dwars door je heen, gromt “...verbeelding” en leunt weer tegen de muur. Nu kun je ongezien langs hem naar de cel sluipen!', en: 'You whisper the invisibility spell — “Nihil Videbis!” — and your body fades to no more than a shimmer in the torchlight. The guard stares straight through you, grunts “...imagining things” and leans back against the wall. Now you can slip past him to the cell, unseen!' }
+            text: { nl: 'Je fluistert de onzichtbaarheidsspreuk — “Velum Invisibilis!” — en je lichaam vervaagt tot niet meer dan een rilling in de fakkelgloed. De wachter tuurt dwars door je heen, gromt “...verbeelding” en leunt weer tegen de muur. Nu kun je ongezien langs hem naar de cel sluipen!', en: 'You whisper the invisibility spell — “Velum Invisibilis!” — and your body fades to no more than a shimmer in the torchlight. The guard stares straight through you, grunts “...imagining things” and leans back against the wall. Now you can slip past him to the cell, unseen!' }
           }
         },
         {
@@ -1101,8 +1024,8 @@ const GAME = {
           rect: { x: 176, y: 150, w: 104, h: 54 },
           walkTo: { x: 230, y: 258 },
           look: (state) => state.flags.gotCellKey
-            ? { nl: 'De tafel is leeg — de ijzeren celsleutel zit veilig in je tas.', en: 'The table is bare — the iron cell key sits safely in your bag.' }
-            : { nl: 'Op de wachttafel, naast de kaars en de fles, glinstert een zware ijzeren sleutel. Dé sleutel van de cel! Maar het hout kraakt bij elk geluidje...', en: 'On the guard’s table, beside the candle and the bottle, gleams a heavy iron key. THE key to the cell! But the wood creaks at every little sound...' },
+            ? { nl: 'De tafel is leeg — de gouden celsleutel zit veilig in je tas.', en: 'The table is bare — the golden cell key sits safely in your bag.' }
+            : { nl: 'Op de wachttafel, naast de kaars en de fles, ligt een sleutelbos met één gouden sleutel ertussen. Dé sleutel van de cel! Maar de sleutels rinkelen bij de minste beweging...', en: 'On the guard’s table, beside the candle and the bottle, lies a key ring with one golden key among the others. THE key to the cell! But the keys jingle at the slightest touch...' },
           keyPuzzle: {
             requiresFlag: 'guardPassed',
             blockedText: { nl: 'De wachter staat er met zijn neus bovenop — zolang hij je kan zien, kun je de sleutelbos onmogelijk ongemerkt pakken. Kon je maar onzichtbaar worden...', en: 'The guard stands right over it — while he can see you, you could never take the key ring unnoticed. If only you could turn invisible...' },

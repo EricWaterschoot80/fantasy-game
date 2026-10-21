@@ -1,78 +1,32 @@
-/* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet. */
+/* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet.
+   Alleen de kleine basis wordt vooraf in de cache gezet; scene-art, puzzels en
+   muziek komen in de cache zodra het spel ze gebruikt (geen 13 MB bij het openen). */
 
-const CACHE = 'maanhoef-v49';
+const CACHE = 'maanhoef-v51';
+const V = '?v=51';
 
 const PRECACHE = [
   './',
   './index.html',
-  './css/style.css',
-  './js/sprites.js',
-  './js/scenes.js',
-  './js/data.js',
-  './js/engine.js',
+  './css/style.css' + V,
+  './js/sprites.js' + V,
+  './js/scenes.js' + V,
+  './js/data.js' + V,
+  './js/engine.js' + V,
   './manifest.webmanifest',
-  './assets/art/scene-farm.png',
-  './assets/art/scene-grove.png',
-  './assets/art/scene-grove-broken.png',
-  './assets/art/scene-stable.png',
-  './assets/art/scene-cave.png',
-  './assets/art/scene-cave-dry.png',
-  './assets/art/item-diamond.png',
-  './assets/art/item-plank.png',
-  './assets/art/scene-stable-open.png',
-  './assets/art/horse-free.png',
-  './assets/art/mouse.png',
-  './assets/art/pup-nokey.png',
-  './assets/art/pup-nokey2.png',
-  './assets/art/mouse2.png',
-  './assets/art/horse-bridled.png',
-  './assets/art/tackbox.png',
-
-  './assets/art/item-cheese.png',
-  './assets/art/item-bridle.png',
-  './assets/art/item-carrot.png',
-  './assets/art/win-ride.png',
-  './assets/art/scene-stable-water.png',
-  './assets/art/pup-sit.png',
-  './assets/art/pup-sit-nokey.png',
-  './assets/art/face-snake.png',
-  './assets/art/face-owl.png',
-  './assets/art/chest-closed.png',
-  './assets/art/chest-open.png',
-  './assets/audio/amber-logic.mp3',
-  './assets/audio/snake-rattle.mp3',
-  './assets/audio/willow-flute.mp3',
-  './assets/audio/horse-whinny.mp3',
-  './assets/audio/snake-grot.m4a',
-  './assets/audio/bucket-empty.m4a',
-  './assets/audio/velvet-compass.mp3',
-
-
-  './assets/art/title.png',
-  './assets/art/pup.png',
-  './assets/art/pup2.png',
-  './assets/art/hero-face.png',
-  './assets/art/owl.png',
-  './assets/art/item-flute.png',
-  './assets/art/item-bone.png',
-  './assets/art/cave-seal.png',
-  './assets/art/item-bucket.png',
-  './assets/art/item-bucket-water.png',
-  './assets/art/hero.png',
-  './assets/art/hero-walk.png',
-  './assets/art/hero-wave.png',
-  './assets/art/hero-walk2.png',
-  './assets/art/hero-walk3.png',
-  './assets/art/hero-flute.png',
-  './assets/art/item-crystal.png',
-  './assets/art/item-key.png',
-  './assets/art/item-comb.png',
-  './assets/art/item-saw.png',
+  './assets/art/title.webp' + V,
+  './assets/art/scene-farm.webp' + V,
+  './assets/art/hero.png' + V,
+  './assets/art/hero-walk.png' + V,
+  './assets/art/hero-walk2.png' + V,
+  './assets/art/hero-walk3.png' + V,
+  './assets/art/hero-wave.png' + V,
+  './assets/art/hero-flute.png' + V,
+  './assets/art/hero-face.png' + V,
   './assets/icons/ui-eye.png',
   './assets/icons/ui-sound-on.png',
   './assets/icons/ui-sound-off.png',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png'
+  './assets/icons/icon-192.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -84,24 +38,31 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.indexOf('maanhoef-') === 0 && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  /* Audio streamt met Range-verzoeken (iOS Safari wil echte 206-antwoorden):
+     laat de browser dat zelf regelen via zijn gewone HTTP-cache. */
+  if (req.headers.has('range') || req.destination === 'audio') return;
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then((response) => {
-        if (response && response.ok && (response.type === 'basic' || response.type === 'cors')) {
+        /* alleen complete (200) antwoorden bewaren — 206/opaque niet */
+        if (response && response.status === 200 && (response.type === 'basic' || response.type === 'cors')) {
           const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => {});
         }
         return response;
       })
       .catch(() =>
-        caches.match(event.request, { ignoreSearch: true }).then((cached) => cached || caches.match('./index.html'))
+        caches.match(req, { ignoreSearch: true })
+          .then((cached) => cached || (req.mode === 'navigate' ? caches.match('./index.html') : null))
+          .then((res) => res || Response.error())
       )
   );
 });

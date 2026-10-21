@@ -1,7 +1,7 @@
 /* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet.
    (Eerder: cache-first met ignoreSearch, waardoor updates niet doorkwamen.) */
 
-const CACHE = 'emberfall-v81';
+const CACHE = 'emberfall-v83';
 
 const PRECACHE = [
   './',
@@ -35,8 +35,12 @@ const PRECACHE = [
   './assets/art/tile-2.png',
   './assets/art/tile-3.png',
   './assets/art/tile-4.png',
-  './assets/art/item-recipe-large.png',
-  './assets/art/win-emberfall.png',
+  './assets/art/item-recipe-large.webp',
+  './assets/art/win-emberfall.webp',
+  './assets/art/title.webp',
+  './assets/art/emblem-puzzle.webp',
+  './assets/art/amulet-seal.webp',
+  './assets/art/robin-fly.png',
   './assets/art/item-vial-empty.png',
   './assets/art/item-vial-water.png',
   './assets/art/item-potion.png',
@@ -46,9 +50,6 @@ const PRECACHE = [
   './assets/art/item-flint.png',
   './assets/art/item-wood.png',
   './assets/art/torch-lit.png',
-  './assets/art/maze-water.png',
-  './assets/art/ov-grove-left.png',
-  './assets/art/ov-grove-right.png',
   './assets/icons/ui-eye.png',
   './assets/icons/ui-sound-on.png',
   './assets/icons/ui-sound-off.png',
@@ -65,13 +66,16 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.indexOf('emberfall-') === 0 && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  /* Muziek (en andere range-verzoeken) niet via de SW: die streamt de browser zelf.
+     Zo wordt de mp3 nooit in de cache gezet (206-antwoorden kunnen dat ook niet). */
+  if (event.request.headers.has('range') || /\.mp3(\?|$)/.test(event.request.url)) return;
 
   /* Netwerk-eerst: altijd de nieuwste versie ophalen, cache bijwerken,
      en alleen bij geen netwerk terugvallen op de cache (offline spelen). */
@@ -87,7 +91,8 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() =>
         caches.match(event.request, { ignoreSearch: true })
-          .then((cached) => cached || caches.match('./index.html'))
+          .then((cached) => cached ||
+            (event.request.mode === 'navigate' ? caches.match('./index.html') : Response.error()))
       )
   );
 });

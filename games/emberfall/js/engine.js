@@ -47,7 +47,9 @@
   /* ---------- Taal ---------- */
   let lang = 'nl';
   try { lang = localStorage.getItem('emberfall_lang') || ((navigator.language || '').toLowerCase().indexOf('nl') === 0 ? 'nl' : 'en'); } catch (e) { /* prima */ }
-  const L = (v) => v == null ? '' : (typeof v === 'string' ? v : (v[lang] || v.nl || ''));
+  /* Tekst kiezen in de huidige taal; een functie (bv. naam die verandert met een flag) krijgt de state. */
+  const L = (v) => v == null ? '' : (typeof v === 'function' ? L(v(state)) : (typeof v === 'string' ? v : (v[lang] || v.nl || '')));
+  const setA11y = (el, v) => { if (el) { const t = L(v); el.setAttribute('aria-label', t); el.title = t; } };
 
   function applyLang() {
     document.documentElement.lang = lang;
@@ -69,6 +71,18 @@
     document.getElementById('rotate-h1').textContent = L(GAME.ui.rotateTitle);
     document.getElementById('rotate-text').textContent = L(GAME.ui.rotateText);
     elMsgMore.textContent = L(GAME.ui.tapContinue);
+    /* Knop-labels (schermlezer + tooltip) in de gekozen taal */
+    const U = GAME.ui;
+    setA11y(elSoundBtn, U.aSound);
+    setA11y(elLangBtn, U.aLang);
+    setA11y(elHintBtn, U.aHint);
+    setA11y(document.getElementById('homeBtn'), U.aHome);
+    if (elInvbar) elInvbar.setAttribute('aria-label', L(U.aInv));
+    document.querySelectorAll('.puz-x').forEach((b) => setA11y(b, U.aClose));
+    setA11y(document.getElementById('maze-up'), U.aUp);
+    setA11y(document.getElementById('maze-down'), U.aDown);
+    setA11y(document.getElementById('maze-left'), U.aLeft);
+    setA11y(document.getElementById('maze-right'), U.aRight);
     updateQuest(true);
     renderInventory();
   }
@@ -81,19 +95,52 @@
      Sprites: GAME.sprites = { key: 'pad.png' }; een NPC verwijst via zijn
        sprite-naam naar zo'n key. */
   const AV = GAME.assetVer ? ('?v=' + GAME.assetVer) : '';
-  const ART = { scenes: {}, sprites: GAME.sprites || {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
-    if (sc.bg) ART.scenes[id] = sc.bg;
-  }
+  const ART = { sprites: GAME.sprites || {} };
   const art = { scenes: {}, sprites: {}, items: {}, overlays: {}, variants: {} };
-  for (const [id, sc] of Object.entries(GAME.scenes)) {
-    (sc.bgVariants || []).forEach((v) => {
-      if (!v.img || art.variants[v.img]) return;
+  /* Scene-art wordt per scene geladen: eerst alleen de startscene (snelle start),
+     de rest op de achtergrond zodra het spel loopt (preloadRest). */
+  const sceneArtLoaded = {};
+  function loadSceneArt(id) {
+    if (sceneArtLoaded[id]) return;
+    sceneArtLoaded[id] = true;
+    const sc = GAME.scenes[id];
+    if (!sc) return;
+    const repaint = () => { if (id === state.currentScene) paintBackground(); };
+    /* eerst het beeld dat nu zichtbaar is (bv. de dichte poort), dan de rest */
+    const list = (sc.bgVariants || []).map((v) => ({ src: v.img, v }));
+    if (sc.bg) list.push({ src: sc.bg, bg: true });
+    const visible = list.findIndex((it) => it.bg ||
+      ((!it.v.flag || state.flags[it.v.flag]) && (!it.v.notFlag || !state.flags[it.v.notFlag])));
+    if (visible > 0) list.unshift(list.splice(visible, 1)[0]);
+    for (const it of list) {
+      if (!it.src || (!it.bg && art.variants[it.src])) continue;
       const im = new Image();
-      im.onload = () => { if (id === state.currentScene) paintBackground(); };
-      im.src = v.img + AV;
-      art.variants[v.img] = im;
-    });
+      im.decoding = 'async';
+      im.onload = repaint;
+      im.src = it.src + AV;
+      if (it.bg) art.scenes[id] = im; else art.variants[it.src] = im;
+    }
+  }
+  let restPreloaded = false;
+  function preloadRest() {
+    if (restPreloaded) return;
+    restPreloaded = true;
+    const ids = Object.keys(GAME.scenes).filter((id) => !sceneArtLoaded[id]);
+    /* één scene per keer, zodat de huidige scene en geluid voorrang houden */
+    const next = () => {
+      const id = ids.shift();
+      if (!id) {
+        /* daarna de puzzelplaatjes, zodat popups meteen klaar zijn */
+        for (const sc of Object.values(GAME.scenes)) for (const hs of sc.hotspots) {
+          const src = (hs.slidePuzzle && hs.slidePuzzle.img) || (hs.jigsaw && hs.jigsaw.img);
+          if (src) { const im = new Image(); im.src = src + AV; }
+        }
+        return;
+      }
+      loadSceneArt(id);
+      setTimeout(next, 700);
+    };
+    next();
   }
   function overlayImg(src) {
     if (!art.overlays[src]) {
@@ -102,12 +149,6 @@
       art.overlays[src] = img;
     }
     return art.overlays[src];
-  }
-  for (const [id, src] of Object.entries(ART.scenes)) {
-    const img = new Image();
-    img.onload = () => { if (id === state.currentScene) paintBackground(); };
-    img.src = src + AV;
-    art.scenes[id] = img;
   }
   for (const [id, src] of Object.entries(ART.sprites)) {
     const img = new Image();
@@ -255,7 +296,7 @@
   /* Achtergrondmuziek: 'Cistern Syntax' in een lus; valt terug op de generatieve
      ambient-synth als het mp3-bestand (nog) ontbreekt. */
   let bgMusic = null;
-  const DEFAULT_MUSIC = 'assets/audio/cistern-syntax.mp3';
+  const DEFAULT_MUSIC = 'assets/audio/cistern-syntax-96k.mp3';   /* 96 kbps-versie (≈4,8 MB i.p.v. 9 MB) */
   function startSynthFallback() {
     const a = ac(); if (!a || music.master) return;
     music.master = a.createGain();
@@ -1840,7 +1881,16 @@
   /* ---------- Narratie: paneel + tekstballonnen ---------- */
   function say(text, anchor, face) {
     if (!text) return;
-    msgQueue.push({ text, anchor: anchor || null, face: face || null });
+    /* Een tekst met regeleinden ('\n') wordt in korte stukjes na elkaar getoond
+       (prettiger lezen voor kinderen). Per taal apart gesplitst. */
+    let parts = [text];
+    if (typeof text === 'object' && typeof text.nl === 'string' && typeof text.en === 'string' &&
+        (text.nl.indexOf('\n') >= 0 || text.en.indexOf('\n') >= 0)) {
+      const nl = text.nl.split('\n'), en = text.en.split('\n');
+      parts = [];
+      for (let i = 0; i < Math.max(nl.length, en.length); i++) parts.push({ nl: nl[i] || '', en: en[i] || '' });
+    }
+    for (const p of parts) msgQueue.push({ text: p, anchor: anchor || null, face: face || null });
     if (!msgOpen()) showNextMsg();
   }
   function msgOpen() { return !elMsg.hidden || !elBubble.hidden; }
@@ -1853,6 +1903,7 @@
       return;
     }
     const m = msgQueue.shift();
+    if (!L(m.text).trim()) { showNextMsg(); return; }   // leeg deel (andere taal had meer stukjes)
     const mobile = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     if (m.anchor && view.scale && !mobile) {
       elBubbleTxt.textContent = L(m.text);
@@ -1929,7 +1980,16 @@
       elInvbar.appendChild(slot);
     }
     lastPopItem = null;
+    fitInventory(slots);
   }
+  /* Mobiel liggend: de inventaris staat verticaal rechts. Passen de vakjes niet
+     in de schermhoogte, dan in twee kolommen (vakjes blijven ≥44px groot). */
+  function fitInventory(slots) {
+    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const n = slots || elInvbar.children.length;
+    elInvbar.classList.toggle('two-col', !!coarse && n * 49 + 16 > window.innerHeight - 20);
+  }
+  window.addEventListener('resize', () => fitInventory());
 
   function onInventoryTap(itemId) {
     if (msgOpen()) showNextMsg();   // sluit lopende tekst én verwerk de tik meteen
@@ -1989,6 +2049,15 @@
   function lookText(hs) {
     const t = typeof hs.look === 'function' ? hs.look(state) : hs.look;
     return t || GAME.strings.nothingThere;
+  }
+
+  /* Tekst als een hotspot nog op slot zit (requiresFlag niet gehaald) en er een blockedText is. */
+  function gateText(hs) {
+    const need = hs.requiresFlag;
+    if (!need || !hs.blockedText) return null;
+    const unmet = Array.isArray(need) ? need.some((f) => !state.flags[f]) : !state.flags[need];
+    if (!unmet) return null;
+    return typeof hs.blockedText === 'function' ? hs.blockedText(state) : hs.blockedText;
   }
 
   function takenFlag(hs) { return 'taken_' + state.currentScene + '_' + hs.id; }
@@ -2125,13 +2194,19 @@
 
   function closePuzzle() { elPuzzle.hidden = true; slide = null; jig = null; const c = document.getElementById('puzzle-card'); if (c) c.classList.remove('jig-wide'); }
 
-  /* ---------- Legpuzzel: sleep ~10 onregelmatige scherven naar het kader (bak rechts) ---------- */
+  /* ---------- Legpuzzel: sleep 10 scherven van de bak (rechts) naar het kader (links) ----------
+     Elke scherf heeft een eigen vakje in de bak (4×3 raster) en ligt daar verkleind,
+     zodat niets overlapt of buiten de kaart valt. Oppakken = op ware grootte. */
   let jig = null;   // { hs, n, frameW, frameH, stageW, stageH, scale, locked[], drag, pieces[] }
   const JIG_FW = 320, JIG_FH = 240;          // kader (4:3), links
-  const JIG_GAP = 18, JIG_TRW = 272;         // bak met scherven, rechts
+  const JIG_GAP = 18;                        // ruimte tussen kader en bak
+  const JIG_COLS = 4, JIG_ROWS = 3;          // vakjes in de bak
+  const JIG_CELL_W = 92, JIG_CELL_H = 84;
+  const JIG_TRW = JIG_COLS * JIG_CELL_W;
   const JIG_STAGE_W = JIG_FW + JIG_GAP + JIG_TRW;
-  const JIG_STAGE_H = 250;
-  const JIG_TIP = { nl: 'Sleep elke scherf naar de juiste plek in het kader.', en: 'Drag each shard into its place in the frame.' };
+  const JIG_STAGE_H = Math.max(JIG_FH, JIG_ROWS * JIG_CELL_H) + 4;
+  const JIG_SNAP = 36;                       // hoe dicht bij de goede plek telt als 'goed' (ruim voor kinderen)
+  const JIG_TIP = { nl: 'Sleep elke scherf naar de goede plek in het kader.', en: 'Drag each shard to its place in the frame.' };
   const JIG_HINT_LABEL = { nl: '💡 Voorbeeld', en: '💡 Preview' };
   const JIG_PERIM = [[0,0],[0.37,0],[0.71,0],[1,0],[1,0.57],[1,1],[0.59,1],[0.25,1],[0,1],[0,0.43]];
   const JIG_CENTER = [0.47,0.49];
@@ -2145,14 +2220,17 @@
   }
   function fitJigsaw() {
     if (!jig || !jig.innerEl) return;
-    /* Reset de breedte vóór het meten, anders meten we de al-geschaalde breedte (krimp-lus). */
-    elPuzGrid.style.width = '';
+    /* Eerst op ware grootte zetten en meten, anders meten we de al-geschaalde maat (krimp-lus). */
+    elPuzGrid.style.width = '100%';
+    elPuzGrid.style.height = jig.stageH + 'px';
     const availW = elPuzGrid.clientWidth || jig.stageW;
-    /* Beschikbare hoogte = viewport minus titel, hint-knop, tip en marges van de kaart. */
+    /* Beschikbare hoogte = viewport minus alles van de kaart behalve het speelveld
+       (titel, tip, randen) en de marges van de overlay. */
+    const card = document.getElementById('puzzle-card');
+    const chrome = card ? Math.max(0, card.scrollHeight - elPuzGrid.offsetHeight) : 120;   // scrollHeight: ook als de kaart al begrensd is
     const vh = window.innerHeight || 480;
-    const availH = Math.max(120, vh - 172);
-    /* Schaal op zowel breedte als hoogte zodat de puzzel altijd past (ook liggend mobiel). */
-    const sc = Math.min(1, availW / jig.stageW, availH / jig.stageH);
+    const availH = Math.max(110, vh - chrome - 26);
+    const sc = Math.min(1.3, availW / jig.stageW, availH / jig.stageH);
     jig.scale = sc;
     jig.innerEl.style.transform = 'scale(' + sc + ')';
     jig.innerEl.style.transformOrigin = 'top left';
@@ -2169,8 +2247,16 @@
     const card = document.getElementById('puzzle-card'); if (card) card.classList.add('jig-wide');
     buildJigsaw();
     elPuzzle.hidden = false;
+    fitJigsaw();
     requestAnimationFrame(fitJigsaw);
     sfx('tap');
+  }
+  /* Scherf terug in zijn eigen vakje in de bak (verkleind, licht gedraaid). */
+  function jigToTray(el) {
+    const t = el._tray;
+    el.style.left = t.x + 'px'; el.style.top = t.y + 'px';
+    el.style.transform = 'rotate(' + t.rot + 'deg) scale(' + t.s + ')';
+    el.style.zIndex = 2;
   }
   function buildJigsaw() {
     const j = jig, cfg = j.hs.jigsaw;
@@ -2185,40 +2271,58 @@
     inner.style.width = SW + 'px'; inner.style.height = SH + 'px';
     elPuzGrid.appendChild(inner);
     j.innerEl = inner;
-    // Kader links, met verborgen voorbeeld-laag (alleen bij Hint)
+    // Kader links (verticaal gecentreerd), met verborgen voorbeeld-laag (alleen bij Hint)
+    const frameY = Math.round((SH - FH) / 2);
+    j.frameY = frameY;
     const frame = document.createElement('div');
     frame.className = 'jig-frame';
-    frame.style.width = FW + 'px'; frame.style.height = FH + 'px';
+    frame.style.width = FW + 'px'; frame.style.height = FH + 'px'; frame.style.top = frameY + 'px';
     const ghost = document.createElement('div');
     ghost.className = 'jig-ghost';
     ghost.style.backgroundImage = img; ghost.style.backgroundSize = '100% 100%';
     frame.appendChild(ghost);
     j.frameEl = frame; j.ghostEl = ghost;
     inner.appendChild(frame);
-    // Scherven jumbled in de bak rechts van het kader
+    // Bak rechts: zacht vlak met één vakje per scherf
+    const trayX = FW + JIG_GAP;
+    const trayY = Math.round((SH - JIG_ROWS * JIG_CELL_H) / 2);
+    const tray = document.createElement('div');
+    tray.className = 'jig-tray';
+    tray.style.left = (trayX - 6) + 'px'; tray.style.top = (trayY - 2) + 'px';
+    tray.style.width = (JIG_TRW + 8) + 'px'; tray.style.height = (JIG_ROWS * JIG_CELL_H + 4) + 'px';
+    inner.appendChild(tray);
+    // Vakjes: rij voor rij; de laatste (onvolledige) rij wordt gecentreerd
+    const cells = [];
+    for (let k = 0; k < n; k++) {
+      const row = (k / JIG_COLS) | 0;
+      const inRow = Math.min(JIG_COLS, n - row * JIG_COLS);
+      const col = k % JIG_COLS + (JIG_COLS - inRow) / 2;
+      cells.push({ x: trayX + (col + 0.5) * JIG_CELL_W, y: trayY + (row + 0.5) * JIG_CELL_H });
+    }
     const order = Array.from({ length: n }, (_, k) => k);
     for (let k = n - 1; k > 0; k--) { const m = (Math.random() * (k + 1)) | 0; const t = order[k]; order[k] = order[m]; order[m] = t; }
-    const cols = 2, rows = Math.ceil(n / cols);
-    const trayX = FW + JIG_GAP, trayW = SW - trayX;
     j.pieces = [];
     order.forEach((sh, slot) => {
       const tri = JIG_SHARDS[sh].map(([fx, fy]) => [fx * FW, fy * FH]);
-      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+      const xs = tri.map(p => p[0]), ys = tri.map(p => p[1]);
+      const bx0 = Math.min(...xs), bx1 = Math.max(...xs), by0 = Math.min(...ys), by1 = Math.max(...ys);
+      const ocx = (bx0 + bx1) / 2, ocy = (by0 + by1) / 2;          // midden van de scherf
       const el = document.createElement('div');
       el.className = 'jig-shard';
       el.style.width = FW + 'px'; el.style.height = FH + 'px';
       el.style.backgroundImage = img;
       el.style.backgroundSize = FW + 'px ' + FH + 'px';
       el.style.clipPath = 'polygon(' + tri.map(p => p[0].toFixed(1) + 'px ' + p[1].toFixed(1) + 'px').join(',') + ')';
-      el.style.transformOrigin = cx.toFixed(1) + 'px ' + cy.toFixed(1) + 'px';
-      const col = slot % cols, row = (slot / cols) | 0;
-      const sx = trayX + (col + 0.5) * (trayW / cols), sy = (row + 0.5) * (SH / rows);
-      const tx = sx - cx + ((sh * 53) % 18) - 9, ty = sy - cy + ((sh * 31) % 14) - 7;
-      const rot = ((sh * 47) % 27) - 13;
-      el._tray = { x: tx, y: ty, rot };
+      el.style.transformOrigin = ocx.toFixed(1) + 'px ' + ocy.toFixed(1) + 'px';
+      const rot = ((sh * 47) % 17) - 8;                              // licht scheef: voelt als losse scherf
+      const s = Math.min(1, (JIG_CELL_W - 10) / (bx1 - bx0), (JIG_CELL_H - 10) / (by1 - by0)) * 0.98;
+      const c = cells[slot];
+      el._tray = { x: c.x - ocx, y: c.y - ocy, rot, s };
       el._shard = sh;
-      el.style.left = tx + 'px'; el.style.top = ty + 'px';
-      el.style.transform = 'rotate(' + rot + 'deg)';
+      el._oc = { x: ocx, y: ocy };
+      el.dataset.cx = ((tri[0][0] + tri[1][0] + tri[2][0]) / 3).toFixed(1);   // zwaartepunt (voor tests)
+      el.dataset.cy = ((tri[0][1] + tri[1][1] + tri[2][1]) / 3).toFixed(1);
+      jigToTray(el);
       el.addEventListener('pointerdown', (e) => jigDown(e, el));
       inner.appendChild(el);
       j.pieces.push(el);
@@ -2232,14 +2336,19 @@
       y: (e.clientY - rect.top) / rect.height * jig.stageH
     };
   }
+  /* Positie (left/top) zodat het midden van de scherf onder de vinger ligt. */
+  function jigPlace(el, p) {
+    el.style.left = (p.x - el._oc.x) + 'px';
+    el.style.top = (p.y - el._oc.y) + 'px';
+  }
   function jigDown(e, el) {
-    const j = jig; if (!j || j.locked[el._shard]) return;
+    const j = jig; if (!j || j.locked[el._shard] || j.drag) return;
     e.preventDefault();
-    const p = jigLocalXY(e);
-    j.drag = { el, grabX: p.x - parseFloat(el.style.left), grabY: p.y - parseFloat(el.style.top) };
+    j.drag = { el };
     el.classList.add('jig-drag');
-    el.style.transform = 'rotate(0deg)';     // recht tijdens slepen
+    el.style.transform = 'none';             // op ware grootte en recht tijdens slepen
     el.style.zIndex = 60;
+    jigPlace(el, jigLocalXY(e));
     try { el.setPointerCapture(e.pointerId); } catch (_) {}
     el.addEventListener('pointermove', jigMove);
     el.addEventListener('pointerup', jigUp);
@@ -2247,9 +2356,7 @@
   }
   function jigMove(e) {
     const d = jig && jig.drag; if (!d) return;
-    const p = jigLocalXY(e);
-    d.el.style.left = (p.x - d.grabX) + 'px';
-    d.el.style.top = (p.y - d.grabY) + 'px';
+    jigPlace(d.el, jigLocalXY(e));
   }
   function jigUp(e) {
     const j = jig, d = j && j.drag; if (!d) return;
@@ -2259,15 +2366,14 @@
     el.removeEventListener('pointercancel', jigUp);
     j.drag = null;
     el.classList.remove('jig-drag');
-    const lx = parseFloat(el.style.left), ly = parseFloat(el.style.top);
-    if (Math.abs(lx) < 30 && Math.abs(ly) < 30) {          // dicht bij thuis (offset 0) -> vastklikken
-      el.style.left = '0px'; el.style.top = '0px'; el.style.transform = 'rotate(0deg)'; el.style.zIndex = 1;
+    const lx = parseFloat(el.style.left), ly = parseFloat(el.style.top) - j.frameY;
+    if (Math.abs(lx) < JIG_SNAP && Math.abs(ly) < JIG_SNAP) {     // dicht bij de goede plek -> vastklikken
+      el.style.left = '0px'; el.style.top = j.frameY + 'px'; el.style.transform = 'none'; el.style.zIndex = 1;
       el.classList.add('jig-locked');
-      j.locked[el._shard] = true; sfx('tap');
+      j.locked[el._shard] = true; sfx('pickup');
       if (j.locked.every(Boolean)) solveJigsaw();
     } else {
-      el.style.left = el._tray.x + 'px'; el.style.top = el._tray.y + 'px';
-      el.style.transform = 'rotate(' + el._tray.rot + 'deg)'; el.style.zIndex = '';
+      jigToTray(el);
     }
   }
   function solveJigsaw() {
@@ -2377,15 +2483,17 @@
   const elRiddleAns   = document.getElementById('riddle-answers');
   const elRiddleClose = document.getElementById('riddle-close');
 
-  /* Meertraps-proef: alle raadsels goed; één fout = opnieuw beginnen. */
+  /* Meertraps-proef: alle raadsels goed. Fout = hetzelfde raadsel nog eens proberen.
+     De voortgang blijft bewaard als je de popup sluit. */
+  const elRiddleIntro = document.getElementById('riddle-intro');
   function openRiddle(hs) {
     const r = hs.riddle;
     elRiddleTitle.textContent = L(r.title);
     const rf = document.getElementById('riddle-face');
     const face = hsFace(hs);
     if (rf) { if (face) { rf.src = face; rf.hidden = false; } else rf.hidden = true; }
-    if (r.intro) say(r.intro, hsSpeaker(hs), hsFace(hs));
-    showRiddleQuestion(hs, 0);
+    const idx = Math.min(state.flags['riddle_' + hs.id] || 0, r.questions.length - 1);
+    showRiddleQuestion(hs, idx);
     elRiddle.hidden = false;
     sfx('tap');
   }
@@ -2393,7 +2501,14 @@
   function showRiddleQuestion(hs, idx) {
     const r = hs.riddle;
     const item = r.questions[idx];
+    state.flags['riddle_' + hs.id] = idx;
+    /* intro staat in de kaart zelf (niet meer half verborgen achter de overlay) */
+    if (elRiddleIntro) {
+      elRiddleIntro.textContent = idx === 0 && r.intro ? L(r.intro) : '';
+      elRiddleIntro.hidden = !(idx === 0 && r.intro);
+    }
     elRiddleQ.textContent = L(item.q);
+    elRiddleQ.classList.remove('wrong');
     elRiddleAns.innerHTML = '';
     const shuffled = item.answers.slice().sort(() => Math.random() - 0.5);
     for (const ans of shuffled) {
@@ -2414,9 +2529,11 @@
           }
         } else {
           sfx('error');
+          if (elRiddleIntro) elRiddleIntro.hidden = true;
           elRiddleQ.textContent = L(r.wrongText);
+          elRiddleQ.classList.add('wrong');
           elRiddleAns.innerHTML = '';
-          setTimeout(() => showRiddleQuestion(hs, 0), 1500);
+          setTimeout(() => { if (!elRiddle.hidden) showRiddleQuestion(hs, idx); }, 1600);
         }
       });
       elRiddleAns.appendChild(btn);
@@ -2773,6 +2890,8 @@
     if (sel) {
       state.selectedItem = null;
       renderInventory();
+      const gate = gateText(hs);
+      if (gate) { sfx('error'); say(gate, hsSpeaker(hs), hsFace(hs)); return; }
       const action = hs.use && hs.use[sel];
       if (action) {
         if (action.needItem && !state.inventory.includes(action.needItem)) {
@@ -2893,6 +3012,8 @@
       if (hs.gives.win) { pendingWin = true; sfx('win'); }
       return;
     }
+    const gate = gateText(hs);
+    if (gate) { sfx('error'); say(gate, hsSpeaker(hs), hsFace(hs)); return; }
     say(lookText(hs), hsSpeaker(hs), hsFace(hs));
   }
 
@@ -2955,6 +3076,7 @@
 
   function travelTo(sceneId, travelText) {
     if (travelText) say(travelText);
+    loadSceneArt(sceneId);
     sfx('travel');
     fade.mode = 'out';
     fade.t0 = performance.now();
@@ -3145,6 +3267,7 @@
     state.flags['visited_' + state.currentScene] = true;
     updateQuest();
     say(GAME.scenes[state.currentScene].entryText);
+    setTimeout(preloadRest, 1500);   // overige scenes stilletjes op de achtergrond
   });
 
   elReplayBtn.addEventListener('click', resetGame);
@@ -3155,6 +3278,16 @@
     elHomeBtn.addEventListener('click', (e) => {
       if (started && !window.confirm(L(GAME.ui.homeConfirm))) e.preventDefault();
     });
+  }
+
+  /* Zolang er een popup open is, verbergen we de taalknop (die lag er anders bovenop). */
+  const POPUP_IDS = ['puzzle-screen', 'riddle-screen', 'rune-screen', 'maze-screen', 'zoom-screen', 'win-screen', 'death-screen'];
+  function syncPopupClass() {
+    const open = POPUP_IDS.some((id) => { const e = document.getElementById(id); return e && !e.hidden; });
+    document.body.classList.toggle('popup-open', open);
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(syncPopupClass).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
   }
 
   /* ---------- Test-API ---------- */
@@ -3188,6 +3321,7 @@
   resize();
   initLeaves();
   initNpcs();
+  loadSceneArt(state.currentScene);   // alleen de startscene meteen laden
   paintBackground();
   renderInventory();
   applyLang();
