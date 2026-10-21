@@ -40,6 +40,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  if (new URL(req.url).origin !== self.location.origin) return;   // analytics & other hosts: leave to the network
   const url = new URL(req.url);
   if (isMedia(url) || req.headers.has('range')) return;   // video/muziek: gewoon het netwerk, niet cachen
   event.respondWith(

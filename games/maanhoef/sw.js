@@ -2,7 +2,7 @@
    Alleen de kleine basis wordt vooraf in de cache gezet; scene-art, puzzels en
    muziek komen in de cache zodra het spel ze gebruikt (geen 13 MB bij het openen). */
 
-const CACHE = 'maanhoef-v52';
+const CACHE = 'maanhoef-v53';
 const V = '?v=52';
 
 const PRECACHE = [
@@ -47,6 +47,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  if (new URL(req.url).origin !== self.location.origin) return;   // analytics & other hosts: leave to the network
   /* Audio streamt met Range-verzoeken (iOS Safari wil echte 206-antwoorden):
      laat de browser dat zelf regelen via zijn gewone HTTP-cache. */
   if (req.headers.has('range') || req.destination === 'audio') return;

@@ -4,7 +4,7 @@
    offline beschikbaar wilt hebben (optioneel — niet-vermelde bestanden worden bij
    eerste gebruik alsnog gecachet). */
 
-const CACHE = 'ravenholt2-v205';
+const CACHE = 'ravenholt2-v206';
 
 const PRECACHE = [
   './',
@@ -39,6 +39,7 @@ const NO_CACHE = /\.(mp3|mp4|m4a|webm|ogg)(\?|$)/i;
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  if (new URL(event.request.url).origin !== self.location.origin) return;   // analytics & other hosts: leave to the network
   if (NO_CACHE.test(event.request.url) || event.request.headers.has('range')) return;
   event.respondWith(
     fetch(event.request)

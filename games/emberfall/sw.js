@@ -1,7 +1,7 @@
 /* Service worker — netwerk-eerst voor verse updates, cache als offline-vangnet.
    (Eerder: cache-first met ignoreSearch, waardoor updates niet doorkwamen.) */
 
-const CACHE = 'emberfall-v84';
+const CACHE = 'emberfall-v85';
 
 const PRECACHE = [
   './',
@@ -73,6 +73,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  if (new URL(event.request.url).origin !== self.location.origin) return;   // analytics & other hosts: leave to the network
   /* Muziek (en andere range-verzoeken) niet via de SW: die streamt de browser zelf.
      Zo wordt de mp3 nooit in de cache gezet (206-antwoorden kunnen dat ook niet). */
   if (event.request.headers.has('range') || /\.mp3(\?|$)/.test(event.request.url)) return;
