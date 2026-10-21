@@ -10,13 +10,14 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '51',
+  assetVer: '52',
 
   sprites: {
     hero:      'assets/art/hero.png',
     heroWalk:  'assets/art/hero-walk.png',
     heroWalk2: 'assets/art/hero-walk2.png',
     heroWalk3: 'assets/art/hero-walk3.png',
+    heroWalkSheet: 'assets/art/hero-walk-sheet.png',   /* 8-frame zijwaartse loopcyclus (35×62 per cel, kijkt naar rechts) */
     heroWave:  'assets/art/hero-wave.png',
     heroFlute: 'assets/art/hero-flute.png',
     heroFace:  'assets/art/hero-face.png',

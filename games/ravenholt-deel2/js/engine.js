@@ -48,6 +48,16 @@
   const MIN_SLOTS = 12;
   const WALK_SPEED = 80;
   const ARRIVE_DIST = 4;
+  /* Vloeiend lopen: korte aanloop, zacht afremmen vlak voor het doel, en een kruissnelheid
+     die net iets hoger ligt zodat de totale looptijd ongeveer gelijk blijft. */
+  const WALK_CRUISE = 1.05;       // kruissnelheid t.o.v. WALK_SPEED (compenseert aanloop + uitloop)
+  const WALK_ACCEL_T = 0.15;      // s: van 30% naar volle snelheid
+  const WALK_EASE_DIST = 10;      // game-px: afremmen over de laatste ~10 px vóór het doel
+  /* Voetstappen op AFSTAND: in de loopsheet schuift de staande voet gemiddeld ~16.7 bron-px
+     per frame naar achteren (gemeten over de 16 frames van hero-walk-sheet.webp). Omgerekend
+     naar de getekende maat (incl. diepteschaal) is dat de afstand per frame. */
+  const HERO_STRIDE_SRC = 16.7;
+  const HERO_REST_FRAMES = [1, 4, 6, 8, 10, 13, 15];   // voeten onder het lijf (doorzwaai) -> rustig overgaan naar staan
 
   /* ---------- Taal ---------- */
   let lang = 'nl';
@@ -214,7 +224,10 @@
     x: start0.x, y: start0.y,
     target: null, pending: null,
     dir: 'down', flip: false,
-    phase: 0, stepAcc: 0
+    phase: 0, stepAcc: 0,
+    vk: 0,            // aanloop 0..1 (snelheidsopbouw)
+    walkFrame: 0,     // loopsheet-frame (float), loopt mee met de afgelegde afstand
+    moving: false, settling: false
   };
 
   /* Trouwe hond die je volgt zodra hij gered is (over alle velden) */
@@ -429,6 +442,10 @@
 
   /* ---------- Render-buffers (2× supersampled voor scherpere, gedetailleerde art) ---------- */
   const SS = 3;                       // supersample-factor: interne buffers op 3× detail (scherpere, gedetailleerde art)
+  /* Sub-pixel: posities op 1/SS game-px afronden = precies op een pixel van de 3× buffer.
+     Zo beweegt een figuur in stapjes van 1/3 game-px (fijner dan een schermpixel) i.p.v.
+     hele game-pixels, terwijl de nearest-neighbour-sprite scherp en flikkervrij blijft. */
+  const snapPx = (v) => Math.round(v * SS) / SS;
   const bgCanvas = document.createElement('canvas');
   bgCanvas.width = SCENE_W * SS; bgCanvas.height = SCENE_H * SS;
   const bgCtx = bgCanvas.getContext('2d');
@@ -770,12 +787,31 @@
     return npc ? FACE_BY_SPRITE[npc.sprite] || null : null;
   }
 
-  /* ---------- Game-lus ---------- */
+  /* ---------- Game-lus ----------
+     Eén requestAnimationFrame-lus (synchroon met het scherm i.p.v. een 30 fps-timer die
+     tegen de 60 Hz verversing in liep en beelden dubbel/overgeslagen liet zien).
+     Op 120/144 Hz-schermen tekenen we om de beurt een frame (gelijkmatig ~60/72 fps)
+     om batterij te sparen. Precies één update + één draw per getekend frame. */
   let lastT = performance.now();
-  function loop() {
+  let loopStarted = false;
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    /* dt uit de vsync-tijdstempel (gelijkmatig); 'now' voor de spel-timers blijft performance.now(). */
+    const t = (typeof ts === 'number' && ts > 0) ? ts : performance.now();
+    if (t - lastT < 12) return;                      // >~80 Hz: dit frame overslaan
+    loop(t);
+  }
+  function startLoop() {
+    if (loopStarted) return;                         // nooit twee lussen tegelijk
+    loopStarted = true;
+    lastT = performance.now();
+    requestAnimationFrame(frame);
+  }
+  function loop(frameT) {
     const now = performance.now();
-    const dt = Math.min((now - lastT) / 1000, 0.12);
-    lastT = now;
+    const t = frameT || now;
+    const dt = Math.max(0, Math.min((t - lastT) / 1000, 0.12));
+    lastT = t;
     try {
       update(dt, now);
       draw(now);
@@ -820,10 +856,50 @@
     return { vx, vy };
   }
 
+  /* Afstand per loopsheet-frame bij de huidige (diepte)schaal: de staande voet blijft zo
+     op de grond 'staan' terwijl Finn verschuift (geen glijdende voeten). */
+  function heroStridePerFrame(ds) {
+    const sheet = art.sprites.heroWalkSheet, hero = art.sprites.hero;
+    const D = GAME.spriteDetail || 1;
+    const fh = ready(sheet) ? sheet.naturalHeight : 168;
+    const dh = (ready(hero) ? hero.naturalHeight : 168) / D * ds;
+    return Math.max(1.5, (GAME.heroWalkStride || HERO_STRIDE_SRC) * dh / fh);
+  }
+  /* Boekhouding na een stukje lopen: loopfase, kijkrichting, stofwolkjes en het loopframe. */
+  function walkBookkeep(dx, dy, moved, setDir) {
+    player.phase += moved * 0.14;
+    if (setDir) {
+      if (Math.abs(dx) > 2) player.flip = dx < 0;
+      player.dir = Math.abs(dx) > Math.abs(dy)
+        ? (dx > 0 ? 'right' : 'left')
+        : (dy > 0 ? 'down' : 'up');
+    }
+    player.walkFrame += moved / heroStridePerFrame(depthScaleAt(player.y));
+    player.stepAcc += moved;
+    if (player.stepAcc > 13) {
+      player.stepAcc = 0;
+      dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
+      sfx('step');
+    }
+  }
+  /* Snelheidsfactor door de aanloop (0.3 -> 1 in WALK_ACCEL_T s, zacht ingezet). */
+  function walkRamp(dt) {
+    player.vk = Math.min(1, (player.vk || 0) + dt / WALK_ACCEL_T);
+    const k = player.vk;
+    return 0.3 + 0.7 * k * (2 - k);        // ease-out
+  }
+  /* Resterende padlengte tot het eindpunt (voor het afremmen). */
+  function remainingPathLen() {
+    const pts = (player.path && player.path.length) ? player.path : (player.target ? [player.target] : []);
+    let len = 0, x = player.x, y = player.y;
+    for (const q of pts) { len += Math.hypot(q.x - x, q.y - y); x = q.x; y = q.y; if (len > WALK_EASE_DIST) break; }
+    return len;
+  }
+
   function movePlayer(dx, dy, dist, dt) {
     /* In de diepte (kleinere schaal) loopt de held iets langzamer — perspectief. */
     const sf = Math.max(0.55, Math.min(1.15, depthScaleAt(player.y)));
-    const step = Math.min(WALK_SPEED * sf * dt, dist);
+    const step = Math.min(WALK_SPEED * WALK_CRUISE * sf * dt * walkRamp(dt), dist);
     let nx = player.x + (dx / dist) * step;
     let ny = player.y + (dy / dist) * step;
     if (!inWalkable(nx, ny)) {
@@ -831,18 +907,9 @@
       else if (inWalkable(player.x, ny)) nx = player.x;
       else return false;
     }
+    const moved = Math.hypot(nx - player.x, ny - player.y);
     player.x = nx; player.y = ny;
-    player.phase += step * 0.14;
-    if (Math.abs(dx) > 2) player.flip = dx < 0;
-    player.dir = Math.abs(dx) > Math.abs(dy)
-      ? (dx > 0 ? 'right' : 'left')
-      : (dy > 0 ? 'down' : 'up');
-    player.stepAcc += step;
-    if (player.stepAcc > 13) {
-      player.stepAcc = 0;
-      dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
-      sfx('step');
-    }
+    walkBookkeep(dx, dy, moved, true);
     return true;
   }
 
@@ -863,50 +930,93 @@
       }
     }
 
-    /* Speler */
+    /* Speler: loopt met een korte aanloop en remt zacht af vlak voor het eindpunt.
+       Waypoints worden exact bereikt (geen sprong van ARRIVE_DIST px meer); wat er van de
+       stap over is gaat meteen door naar het volgende waypoint, dus geen haperingen. */
     if (player.target) {
       if (player._pathFor !== player.target) {
         player._pathFor = player.target;
         player.path = findPath(player.x, player.y, player.target.x, player.target.y) || [player.target];
       }
-      const wp = (player.path && player.path[0]) || player.target;
-      const dx = wp.x - player.x;
-      const dy = wp.y - player.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist <= ARRIVE_DIST) {
-        player.x = wp.x;
-        player.y = wp.y;
-        if (player.path && player.path.length) player.path.shift();
-        if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
-      } else {
-        const sf = Math.max(0.55, Math.min(1.15, depthScaleAt(player.y)));   // langzamer in de diepte
-        const step = Math.min(WALK_SPEED * sf * dt, dist);
+      const sf = Math.max(0.55, Math.min(1.15, depthScaleAt(player.y)));   // langzamer in de diepte
+      let budget = WALK_SPEED * WALK_CRUISE * sf * dt * walkRamp(dt);
+      const rem = remainingPathLen();
+      if (rem < WALK_EASE_DIST) budget *= Math.max(0.3, Math.sqrt(rem / WALK_EASE_DIST));
+      let guard = 6;
+      while (player.target && budget > 1e-6 && guard-- > 0) {
+        const wp = (player.path && player.path[0]) || player.target;
+        const dx = wp.x - player.x;
+        const dy = wp.y - player.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist <= budget) {
+          /* waypoint bereikt binnen deze stap */
+          if (dist > 0) walkBookkeep(dx, dy, dist, dist > ARRIVE_DIST);
+          player.x = wp.x;
+          player.y = wp.y;
+          budget -= dist;
+          if (player.path && player.path.length) player.path.shift();
+          if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
+          continue;
+        }
+        const step = budget;
+        budget = 0;
         let nx = player.x + (dx / dist) * step;
         let ny = player.y + (dy / dist) * step;
         if (!inWalkable(nx, ny)) {
           if (inWalkable(nx, player.y)) ny = player.y;
           else if (inWalkable(player.x, ny)) nx = player.x;
+          else if (dist <= ARRIVE_DIST) {             // vlakbij maar geblokkeerd: zoals vroeger op het punt zetten
+            player.x = wp.x; player.y = wp.y;
+            if (player.path && player.path.length) player.path.shift();
+            if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
+            break;
+          }
           else { player.target = null; player.path = null; arrive(); return; }
         }
         /* klem tegen een obstakel: probeer het volgende waypoint, anders stop */
-        if (Math.abs(nx - player.x) < 0.05 && Math.abs(ny - player.y) < 0.05) {
+        const eps = Math.max(0.002, step * 0.019);
+        if (Math.abs(nx - player.x) < eps && Math.abs(ny - player.y) < eps) {
           if (player.path && player.path.length > 1) { player.path.shift(); }
+          else if (dist <= ARRIVE_DIST) { player.x = wp.x; player.y = wp.y; player.path = null; arrive(); }
           else { player.target = null; player.path = null; arrive(); return; }
+          break;
         }
+        const moved = Math.hypot(nx - player.x, ny - player.y);
         player.x = nx; player.y = ny;
-        player.phase += step * 0.14;
-        if (Math.abs(dx) > 2) player.flip = dx < 0;
-        player.dir = Math.abs(dx) > Math.abs(dy)
-          ? (dx > 0 ? 'right' : 'left')
-          : (dy > 0 ? 'down' : 'up');
-        player.stepAcc += step;
-        if (player.stepAcc > 13) {
-          player.stepAcc = 0;
-          dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
-          sfx('step');
-        }
+        walkBookkeep(dx, dy, moved, dist > ARRIVE_DIST);
       }
     }
+    /* Stoppen: niet midden in een pas bevriezen maar de benen nog even laten doorzwaaien
+       tot een rustig frame (voeten onder het lijf), daarna pas de sta-pose. */
+    const movingNow = !!player.target || player.kbMoving;
+    if (movingNow) { player.settling = false; }
+    else {
+      if (player.moving && player.dir !== 'down') {
+        const NF = GAME.heroWalkFrames || 8;
+        const fr = ((Math.floor(player.walkFrame) % NF) + NF) % NF;
+        player.settling = HERO_REST_FRAMES.indexOf(fr) < 0;
+        player.settleLeft = 3;
+      }
+      if (player.settling === 'hold') {                 // rust-frame nog heel even tonen, dan staan
+        player.settleT -= dt;
+        if (player.settleT <= 0) player.settling = false;
+      } else if (player.settling) {
+        const before = Math.floor(player.walkFrame);
+        player.walkFrame += dt / 0.085;                  // ~12 fps doorzwaaien
+        const NF = GAME.heroWalkFrames || 8;
+        const after = Math.floor(player.walkFrame);
+        if (after !== before) {
+          player.settleLeft--;
+          const fr = ((after % NF) + NF) % NF;
+          if (HERO_REST_FRAMES.indexOf(fr) >= 0 || player.settleLeft <= 0) {
+            player.walkFrame = after;
+            player.settling = 'hold'; player.settleT = 0.07;
+          }
+        }
+      }
+      player.vk = 0;                                   // volgende keer weer met een aanloop beginnen
+    }
+    player.moving = movingNow;
 
     /* NPC's: zwerven en patrouilleren */
     for (const npc of (scene.npcs || [])) {
@@ -936,13 +1046,17 @@
         if (rt.target) {
           const dx = rt.target.x - rt.x, dy = rt.target.y - rt.y;
           const dist = Math.hypot(dx, dy);
-          if (dist < 2) {
+          if (dist < 0.6) {
             rt.target = null;
             rt.phase = 0;
+            rt.vk = 0;
             rt.pauseUntil = now + npc.wander.pauseMin +
               Math.random() * (npc.wander.pauseMax - npc.wander.pauseMin);
           } else {
-            const step = Math.min(npc.wander.speed * dt, dist);
+            /* zachte aanloop en uitloop (geen abrupt start/stop) */
+            rt.vk = Math.min(1, (rt.vk || 0) + dt / 0.2);
+            const ease = (0.3 + 0.7 * rt.vk * (2 - rt.vk)) * Math.max(0.3, Math.min(1, Math.sqrt(dist / 8)));
+            const step = Math.min(npc.wander.speed * 1.05 * ease * dt, dist);
             rt.x += (dx / dist) * step;
             rt.y += (dy / dist) * step;
             rt.phase += step * 0.18;
@@ -1040,7 +1154,7 @@
     }
     const fxd = scene.fx || {};
     const darkU = !!(fxd.darkness && !state.flags[fxd.darkness.until]);
-    if (fxd.embers && !darkU && Math.random() < 0.25) {
+    if (fxd.embers && !darkU && Math.random() < 0.25 * dt * 30) {   // kans per frame geijkt op 30 fps
       const src = fxd.embers[(Math.random() * fxd.embers.length) | 0];
       embers.push({ x: src.x + Math.random() * 8 - 4, y: src.y, life: 1.4, ph: Math.random() * 6 });
     }
@@ -1062,7 +1176,8 @@
       s.life -= dt;
       s.x += s.vx * dt; s.y += s.vy * dt;
       if (s.grav) s.vy += s.grav * dt;
-      s.vx *= 0.96; if (!s.grav) s.vy *= 0.96;
+      const drag = Math.pow(0.96, dt * 30);            // demping per frame geijkt op 30 fps
+      s.vx *= drag; if (!s.grav) s.vy *= drag;
       if (s.life <= 0) sparks.splice(i, 1);
     }
   }
@@ -1161,7 +1276,7 @@
       if (el >= 1) { castGlow = null; }
       else {
         const a = Math.sin(el * Math.PI) * 0.7;
-        const gx = Math.round(player.x), gy = Math.round(player.y - 30);
+        const gx = snapPx(player.x), gy = snapPx(player.y - 30);
         const r = 20 + 6 * Math.sin(now / 110);
         const g = fctx.createRadialGradient(gx, gy, 1, gx, gy, r);
         g.addColorStop(0, `rgba(190,215,255,${a})`);
@@ -2339,17 +2454,18 @@
   function shadow(x, y, w) {
     fctx.fillStyle = 'rgba(30,16,8,0.32)';
     fctx.beginPath();
-    fctx.ellipse(Math.round(x), Math.round(y) + 1, w / 2, 2.6, 0, 0, Math.PI * 2);
+    fctx.ellipse(snapPx(x), snapPx(y) + 1, w / 2, 2.6, 0, 0, Math.PI * 2);
     fctx.fill();
   }
 
-  /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
+  /* Pixel-vast tekenen: posities, maten en bob worden op een pixel van de 3× buffer gerond
+     (1/SS game-px) — scherp en flikkervrij, maar zonder grove sprongen van hele game-pixels. */
   function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0, scale = 1, alpha = 1, noShadow = false } = {}) {
     const D = GAME.spriteDetail || 1;   // sprites op 2x opgeslagen -> op halve maat tekenen = fijnere details
-    const w = Math.max(1, Math.round(img.naturalWidth * scale / D));
-    const h = Math.max(1, Math.round(img.naturalHeight * scale / D));
-    const px = Math.round(x), py = Math.round(y + bob);
-    const dh = Math.round(h * squashY);
+    const w = Math.max(1, snapPx(img.naturalWidth * scale / D));
+    const h = Math.max(1, snapPx(img.naturalHeight * scale / D));
+    const px = snapPx(x), py = snapPx(y + bob);
+    const dh = snapPx(h * squashY);
     if (!noShadow) shadow(x, y, w * 0.8);
     fctx.save();
     fctx.imageSmoothingEnabled = false;
@@ -2357,7 +2473,7 @@
     fctx.translate(px, py);
     if (rot) fctx.rotate(rot);
     if (flip) fctx.scale(-1, 1);
-    drawImgTinted(img, 0, 0, img.naturalWidth, img.naturalHeight, Math.round(-w / 2), -dh, w, dh);
+    drawImgTinted(img, 0, 0, img.naturalWidth, img.naturalHeight, snapPx(-w / 2), -dh, w, dh);
     fctx.restore();
   }
 
@@ -2459,7 +2575,7 @@
     g.addColorStop(0, `rgba(255,196,96,${0.34 * fl})`);
     g.addColorStop(1, 'rgba(255,150,60,0)');
     fctx.fillStyle = g; fctx.fillRect(hx - r, hy - r, r * 2, r * 2);
-    const ix = Math.round(hx), iy = Math.round(hy);
+    const ix = snapPx(hx), iy = snapPx(hy);
     fctx.fillStyle = '#5a3a22'; fctx.fillRect(ix - 1, iy, 2, 13);          // steel
     const ff = (Math.sin(now / 70) * 40) | 0;
     fctx.fillStyle = `rgba(255,${165 + ff},60,0.95)`; fctx.fillRect(ix - 1, iy - 6, 2, 6);  // vlam
@@ -2575,15 +2691,16 @@
     const hero = art.sprites.hero;
     const walking = !!player.target || player.kbMoving;
     if (ready(hero)) {
-      if (walking) {
+      if (walking || player.settling) {
         /* Schuin naar voren lopen (richting de speler): aparte 3/4-sprite met een verende
            stap, i.p.v. de zijaanzicht-loopsheet. Spiegelt mee met de horizontale richting. */
         const diag = art.sprites.heroWalkDiag;
-        if (player.dir === 'down' && ready(diag)) {
+        if (walking && player.dir === 'down' && ready(diag)) {
           const ds = depthScaleAt(player.y);
           const sp = player.phase * 0.9;
-          const hop = -Math.round(Math.abs(Math.sin(sp * Math.PI * 0.5)) * 2 * ds);   // verende pas
-          const rock = Math.sin(sp * Math.PI * 0.5) * 0.03;
+          /* Rustige, verende pas: kleine zachte wip (sub-pixel) en nauwelijks kanteling. */
+          const hop = -Math.abs(Math.sin(sp * Math.PI * 0.5)) * 0.8 * ds;
+          const rock = Math.sin(sp * Math.PI * 0.5) * 0.012;
           drawArtSprite(diag, player.x, player.y, { flip: player.flip, bob: hop, rot: rock, scale: ds });
           return;
         }
@@ -2592,26 +2709,26 @@
         if (ready(sheet)) {
           const D = GAME.spriteDetail || 1;
           const NF = (GAME.heroWalkFrames || 8), fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
-          /* Frame-timing op TIJD (niet op afgelegde afstand): zo blijft de loop altijd
-             vloeiend doorlopen — ook als Finn langzaam loopt of afremt bij een waypoint
-             (geen plots "stilstaan" meer). ~11 fps over de 20 frames. */
-          const t = now / 108;                        // iets langzamere beencyclus (lager tempo dan de loopsnelheid)
-          const fr = Math.floor(t) % NF;
+          /* Frame op AFGELEGDE AFSTAND (player.walkFrame, zie walkBookkeep): de staande voet
+             blijft op de grond staan, ook bij aanloop, afremmen en in de diepte. Bij stoppen
+             zwaait het been nog even door tot een rustig frame (player.settling). */
+          const fr = ((Math.floor(player.walkFrame) % NF) + NF) % NF;
           /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
              de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven.
              ds = perspectief-diepteschaal (kleiner naar achteren); /D compenseert de 2x sprites. */
           const ds = depthScaleAt(player.y);
-          const dh = Math.round((ready(hero) ? hero.naturalHeight : 56) / D * ds);
-          const dw = Math.round(fw * dh / fh);
-          const foot = Math.round(dh * 2 * D / fh);   // compenseer de lucht onder de voeten
+          const dh = snapPx((ready(hero) ? hero.naturalHeight : 56) / D * ds);
+          const dw = snapPx(fw * dh / fh);
+          const foot = snapPx(dh * 2 * D / fh);       // compenseer de lucht onder de voeten
           /* De /lopen-animatie heeft zelf al de natuurlijke beweging (lichaam, benen, arm/staf),
              dus de engine voegt GEEN extra wip/zwaai toe (anders gaat het dubbel wiebelen). */
           shadow(player.x, player.y, dw * 0.8);
           fctx.save();
           fctx.imageSmoothingEnabled = false;
-          fctx.translate(Math.round(player.x), Math.round(player.y));
+          fctx.translate(snapPx(player.x), snapPx(player.y));   // sub-pixel (1/3 game-px) i.p.v. hele game-pixels
           if (player.flip) fctx.scale(-1, 1);
-          drawImgTinted(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
+          drawImgTinted(sheet, fr * fw, 0, fw, fh, snapPx(-dw / 2), snapPx(-dh + foot), dw, dh);
+          player._drawn = { x: snapPx(player.x), y: snapPx(player.y), fr };
           fctx.restore();
           return;
         }
@@ -7106,6 +7223,8 @@
   window.__game = {
     getState: () => state,
     getPlayer: () => ({ x: player.x, y: player.y, walking: !!player.target }),
+    getWalk: () => ({ x: player.x, y: player.y, walkFrame: player.walkFrame, settling: player.settling,
+      drawn: player._drawn || null, scale: view.scale, dir: player.dir }),
     getNpc: (id) => npcRt[id] ? { x: npcRt[id].x, y: npcRt[id].y } : null,
     start: () => { if (!started) elStartBtn.click(); },
     tap: (hotspotId) => {
@@ -7147,5 +7266,5 @@
   applyLang();
   /* Geluid-icoon meteen op de juiste stand zetten (in de preview start het uit). */
   { const _si = document.getElementById('soundIcon'); if (_si) _si.src = soundOn ? 'assets/icons/ui-sound-on.png' : 'assets/icons/ui-sound-off.png'; }
-  setInterval(loop, 1000 / 30);
+  startLoop();
 })();

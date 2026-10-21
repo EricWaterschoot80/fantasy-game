@@ -38,8 +38,17 @@
   const elRetryBtn  = document.getElementById('retryBtn');
 
   const MIN_SLOTS = 6;
-  const WALK_SPEED = 95;
+  const WALK_SPEED = 100;   // kruissnelheid; iets hoger dan vroeger (95) zodat optrekken/afremmen
+                            // samen ongeveer dezelfde totale looptijd geven
   const ARRIVE_DIST = 4;
+  const ACCEL_T = 0.15;     // s: optrekken van stilstand naar kruissnelheid
+  const DECEL_D = 10;       // scene-px: zacht afremmen op de laatste ~10 px voor het doel
+  /* Loopcyclus-sheet (8 frames, 35×62): gemeten voet-verplaatsing per volledige cyclus
+     (2 passen, teen-tot-teen bij dubbele steun: ~22 + ~21.5 px). Het frame volgt de
+     AFGELEGDE AFSTAND, zodat de neergezette voet niet over de grond glijdt. */
+  const WALK_CYCLE_SRC = 43;
+  const WALK_NF = 8;
+  const PASSING_FRAMES = [2, 6];   // benen naast elkaar: hieruit/hiernaar naar stilstaan
 
   /* ---------- Taal ---------- */
   let lang = 'nl';
@@ -186,7 +195,11 @@
     x: start0.x, y: start0.y,
     target: null, pending: null,
     dir: 'down', flip: false,
-    phase: 0, stepAcc: 0
+    phase: 0, stepAcc: 0,
+    vf: 0,            // 0..1: optrek-factor (tijd sinds start van het lopen / ACCEL_T)
+    walkDist: 0,      // afgelegde afstand in de loopcyclus (bepaalt het beenframe)
+    settle: null,     // { f, to, t } — na stoppen rustig naar 'benen samen' en dan stilstaan
+    wasWalking: false
   };
 
   /* Trouwe hond die je volgt zodra hij gered is (over alle velden) */
@@ -389,10 +402,23 @@
   bgCanvas.width = SCENE_W; bgCanvas.height = SCENE_H;
   const bgCtx = bgCanvas.getContext('2d');
 
+  /* Het beeld wordt opgebouwd op een geheel veelvoud (RES×) van de scene-resolutie. Alle
+     tekencode blijft in scene-pixels werken (fctx heeft een RES-schaal-transform); pixelart
+     ziet er met nearest-neighbour precies hetzelfde uit, maar bewegende figuren kunnen nu op
+     1/RES scene-px (≈ 1 schermpixel) staan in plaats van te verspringen per hele scene-pixel. */
+  let RES = 1;
   const frameCanvas = document.createElement('canvas');
   frameCanvas.width = SCENE_W; frameCanvas.height = SCENE_H;
   const fctx = frameCanvas.getContext('2d');
   fctx.imageSmoothingEnabled = false;
+  function setFrameRes(r) {
+    if (r === RES && frameCanvas.width === SCENE_W * r) return;
+    RES = r;
+    frameCanvas.width = SCENE_W * r; frameCanvas.height = SCENE_H * r;
+    fctx.imageSmoothingEnabled = false;
+  }
+  /* rond af op het fijnste raster dat het frame-canvas kan tonen */
+  const snapPx = (v) => Math.round(v * RES) / RES;
 
   function paintBackground() {
     bgCtx.clearRect(0, 0, SCENE_W, SCENE_H);
@@ -421,6 +447,9 @@
     canvas.width  = Math.round(window.innerWidth * dpr);
     canvas.height = Math.round(window.innerHeight * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    /* frame-resolutie ≈ apparaat-pixels per scene-pixel (max 3× voor snelheid op telefoons) */
+    const devScale = Math.min(window.innerWidth / SCENE_W, window.innerHeight / SCENE_H) * dpr;
+    setFrameRes(Math.max(1, Math.min(3, Math.ceil(devScale - 0.05))));
   }
   window.addEventListener('resize', () => { resize(); initLeaves(); });
 
@@ -628,9 +657,10 @@
 
   /* ---------- Game-lus ---------- */
   let lastT = performance.now();
-  function loop() {
-    const now = performance.now();
-    const dt = Math.min((now - lastT) / 1000, 0.12);
+  function loop(ts) {
+    /* rAF-tijdstempel = moment van het beeld → gelijkmatige stappen per getekend frame */
+    const now = (typeof ts === 'number' && ts > 0) ? ts : performance.now();
+    const dt = Math.max(0, Math.min((now - lastT) / 1000, 0.12));
     lastT = now;
     update(dt, now);
     draw(now);
@@ -658,8 +688,29 @@
     return { vx, vy };
   }
 
+  /* Optrekken: begint op 20% en loopt in ACCEL_T s soepel (smoothstep) op naar 100%. */
+  function accelFactor() {
+    const v = Math.max(0, Math.min(1, player.vf));
+    return 0.2 + 0.8 * v * v * (3 - 2 * v);
+  }
+  /* Na elke echte verplaatsing: loopcyclus, stofwolkjes en stapgeluid. */
+  function afterPlayerStep(moved, dx, dy) {
+    player.phase += moved * 0.14;
+    player.walkDist += moved;
+    if (Math.abs(dx) > 2) player.flip = dx < 0;
+    player.dir = Math.abs(dx) > Math.abs(dy)
+      ? (dx > 0 ? 'right' : 'left')
+      : (dy > 0 ? 'down' : 'up');
+    player.stepAcc += moved;
+    if (player.stepAcc > 13) {
+      player.stepAcc = 0;
+      dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
+      sfx('step');
+    }
+  }
+
   function movePlayer(dx, dy, dist, dt) {
-    const step = Math.min(WALK_SPEED * dt, dist);
+    const step = Math.min(WALK_SPEED * dt * accelFactor(), dist);
     let nx = player.x + (dx / dist) * step;
     let ny = player.y + (dy / dist) * step;
     if (!inWalkable(nx, ny)) {
@@ -667,23 +718,34 @@
       else if (inWalkable(player.x, ny)) nx = player.x;
       else return false;
     }
+    const moved = Math.hypot(nx - player.x, ny - player.y);
     player.x = nx; player.y = ny;
-    player.phase += step * 0.14;
-    if (Math.abs(dx) > 2) player.flip = dx < 0;
-    player.dir = Math.abs(dx) > Math.abs(dy)
-      ? (dx > 0 ? 'right' : 'left')
-      : (dy > 0 ? 'down' : 'up');
-    player.stepAcc += step;
-    if (player.stepAcc > 13) {
-      player.stepAcc = 0;
-      dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
-      sfx('step');
-    }
+    afterPlayerStep(moved, dx, dy);
     return true;
+  }
+
+  /* Start van het lopen: begin in de 'benen samen'-pose (of waar het uitlopen was gebleven),
+     halverwege het frame, zodat de eerste pas meteen natuurlijk inzet. */
+  function beginWalkAnim() {
+    const sheet = art.sprites.heroWalkSheet, hero = art.sprites.hero;
+    const fl = ready(sheet) ? walkFrameLen(sheet, hero) : (WALK_CYCLE_SRC / WALK_NF);
+    const f0 = player.settle ? player.settle.f : PASSING_FRAMES[0];
+    player.walkDist = (f0 + 0.5) * fl;
+    player.settle = null;
+    player.vf = 0;
+  }
+
+  /* Resterende route-lengte (voor het zachte afremmen vlak voor het doel). */
+  function remainingPath() {
+    const pts = (player.path && player.path.length) ? player.path : [player.target];
+    let px = player.x, py = player.y, d = 0;
+    for (const q of pts) { d += Math.hypot(q.x - px, q.y - py); px = q.x; py = q.y; }
+    return d;
   }
 
   function update(dt, now) {
     const scene = GAME.scenes[state.currentScene];
+    const walkingBefore = !!player.target || player.kbMoving;
 
     /* Toetsenbord heeft voorrang op tik-doelen */
     player.kbMoving = false;
@@ -694,6 +756,8 @@
         player.target = null;
         player.pending = null;
         player.kbMoving = true;
+        if (!walkingBefore) beginWalkAnim();
+        player.vf = Math.min(1, player.vf + dt / ACCEL_T);
         const len = Math.hypot(vx, vy);
         movePlayer(vx * 50, vy * 50, len * 50, dt);
         /* Naar een andere ruimte ga je alléén door op de pijl te KLIKKEN — met het toetsenbord
@@ -701,50 +765,62 @@
       }
     }
 
-    /* Speler */
+    /* Speler: optrekken, kruisen, zacht afremmen; restafstand loopt door naar het volgende
+       waypoint (geen sprongetjes bij bochten of aankomst). */
     if (player.target) {
       /* bereken (en cache) een route die om water/obstakels heen loopt */
       if (player._pathFor !== player.target) {
         player._pathFor = player.target;
         player.path = findPath(player.x, player.y, player.target.x, player.target.y) || [player.target];
       }
-      const wp = (player.path && player.path[0]) || player.target;
-      const dx = wp.x - player.x;
-      const dy = wp.y - player.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist <= ARRIVE_DIST) {
-        player.x = wp.x;
-        player.y = wp.y;
-        if (player.path && player.path.length) player.path.shift();
-        if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
-      } else {
-        const step = Math.min(WALK_SPEED * dt, dist);
+      if (!player.wasWalking) beginWalkAnim();
+      player.vf = Math.min(1, player.vf + dt / ACCEL_T);
+      const rem = remainingPath();
+      const brake = rem < DECEL_D ? Math.max(0.3, Math.sqrt(rem / DECEL_D)) : 1;
+      let budget = WALK_SPEED * dt * accelFactor() * brake;
+      for (let guard = 0; guard < 8 && budget > 1e-6 && player.target; guard++) {
+        const wp = (player.path && player.path[0]) || player.target;
+        const dx = wp.x - player.x;
+        const dy = wp.y - player.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 1e-3) {
+          player.x = wp.x; player.y = wp.y;
+          if (player.path && player.path.length) player.path.shift();
+          if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
+          continue;
+        }
+        const step = Math.min(budget, dist);
         let nx = player.x + (dx / dist) * step;
         let ny = player.y + (dy / dist) * step;
+        let slid = false;
         if (!inWalkable(nx, ny)) {
+          slid = true;
           if (inWalkable(nx, player.y)) ny = player.y;
           else if (inWalkable(player.x, ny)) nx = player.x;
-          else { player.target = null; player.path = null; arrive(); return; }
+          else { player.target = null; player.path = null; arrive(); break; }
         }
+        const moved = Math.hypot(nx - player.x, ny - player.y);
         /* klem tegen een obstakel: probeer het volgende waypoint, anders stop */
-        if (Math.abs(nx - player.x) < 0.05 && Math.abs(ny - player.y) < 0.05) {
-          if (player.path && player.path.length > 1) { player.path.shift(); }
-          else { player.target = null; player.path = null; arrive(); return; }
+        if (slid && moved < 0.05) {
+          if (player.path && player.path.length > 1) { player.path.shift(); continue; }
+          player.target = null; player.path = null; arrive(); break;
         }
         player.x = nx; player.y = ny;
-        player.phase += step * 0.14;
-        if (Math.abs(dx) > 2) player.flip = dx < 0;
-        player.dir = Math.abs(dx) > Math.abs(dy)
-          ? (dx > 0 ? 'right' : 'left')
-          : (dy > 0 ? 'down' : 'up');
-        player.stepAcc += step;
-        if (player.stepAcc > 13) {
-          player.stepAcc = 0;
-          dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
-          sfx('step');
+        budget -= step;
+        afterPlayerStep(moved, dx, dy);
+        if (!slid && step >= dist) {
+          player.x = wp.x; player.y = wp.y;
+          if (player.path && player.path.length) player.path.shift();
+          if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
         }
       }
     }
+    const walkingNow = !!player.target || player.kbMoving;
+    if (!walkingNow) {
+      player.vf = 0;
+      if (player.wasWalking) startSettle();
+    }
+    player.wasWalking = walkingNow;
 
     /* NPC's: zwerven en patrouilleren */
     for (const npc of (scene.npcs || [])) {
@@ -782,10 +858,14 @@
           if (dist < 2) {
             rt.target = null;
             rt.phase = 0;
+            rt.vf = 0;
             rt.pauseUntil = now + npc.wander.pauseMin +
               Math.random() * (npc.wander.pauseMax - npc.wander.pauseMin);
           } else {
-            const step = Math.min(npc.wander.speed * dt, dist);
+            /* optrekken + afremmen bij zwervende dieren */
+            rt.vf = Math.min(1, (rt.vf || 0) + dt / 0.15);
+            const ease = (0.2 + 0.8 * rt.vf) * Math.max(0.3, Math.min(1, Math.sqrt(dist / 8)));
+            const step = Math.min(npc.wander.speed * ease * dt, dist);
             rt.x += (dx / dist) * step;
             rt.y += (dy / dist) * step;
             rt.phase += step * 0.18;
@@ -814,8 +894,12 @@
       const stepToward = (tx, ty, speed, stop) => {
         const dx = tx - follower.x, dy = ty - follower.y;
         const d = Math.hypot(dx, dy);
-        if (d <= (stop || 0) + 0.5) return false;
-        const step = Math.min(speed * dt, d - (stop || 0));
+        if (d <= (stop || 0) + 0.5) { follower.spd = 0; return false; }
+        /* zacht optrekken (~0.15 s) en afremmen op de laatste px: geen schokkerige snelheidswissels */
+        follower.spd = (follower.spd || 0) + (speed - (follower.spd || 0)) * Math.min(1, dt / 0.15);
+        const left = d - (stop || 0);
+        const ease = Math.max(0.3, Math.min(1, Math.sqrt(left / 8)));
+        const step = Math.min(Math.max(follower.spd, speed * 0.2) * ease * dt, left);
         let nx = follower.x + dx / d * step, ny = follower.y + dy / d * step;
         if (!inWalkable(nx, ny)) { if (inWalkable(nx, follower.y)) ny = follower.y; else if (inWalkable(follower.x, ny)) nx = follower.x; else return false; }
         follower.x = nx; follower.y = ny; follower.phase += step * 0.16;
@@ -939,6 +1023,8 @@
 
   /* ---------- Tekenen ---------- */
   function draw(now) {
+    fctx.setTransform(RES, 0, 0, RES, 0, 0);
+    fctx.imageSmoothingEnabled = false;
     fctx.clearRect(0, 0, SCENE_W, SCENE_H);
     fctx.drawImage(bgCanvas, 0, 0);
 
@@ -1438,14 +1524,15 @@
   function shadow(x, y, w) {
     fctx.fillStyle = 'rgba(30,16,8,0.32)';
     fctx.beginPath();
-    fctx.ellipse(Math.round(x), Math.round(y) + 1, w / 2, 2.6, 0, 0, Math.PI * 2);
+    fctx.ellipse(snapPx(x), snapPx(y) + 1, w / 2, 2.6, 0, 0, Math.PI * 2);
     fctx.fill();
   }
 
-  /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
+  /* Pixel-vast tekenen: posities en bob worden gerond (op het 1/RES-raster) tegen flikkeren,
+     zodat bewegende figuren in fijne, gelijke stapjes glijden. */
   function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0, scale = 1 } = {}) {
     const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
-    const px = Math.round(x), py = Math.round(y + bob);
+    const px = snapPx(x), py = snapPx(y + bob);
     shadow(x, y, w * 0.8);
     fctx.save();
     fctx.imageSmoothingEnabled = false;
@@ -1537,7 +1624,7 @@
     if (now >= b.next) {
       b.until = now + 130; b.next = now + 2400 + Math.random() * 3400;
       try {
-        const d = fctx.getImageData(Math.round(x - halfW), Math.round(y - 2), halfW * 2 + 1, 2).data;
+        const d = fctx.getImageData(Math.round(x - halfW) * RES, Math.round(y - 2) * RES, (halfW * 2 + 1) * RES, 2 * RES).data;   // device-px (RES×)
         const rs = [], gs = [], bs = [];
         for (let i = 0; i < d.length; i += 4) { if (d[i + 3] > 140) { rs.push(d[i]); gs.push(d[i + 1]); bs.push(d[i + 2]); } }
         if (rs.length) {
@@ -1559,7 +1646,7 @@
     if (!b) b = blinkT[id] = { col: null };
     if (!b.col) {
       try {
-        const d = fctx.getImageData(Math.round(x - halfW), Math.round(y - 2), halfW * 2 + 1, 2).data;
+        const d = fctx.getImageData(Math.round(x - halfW) * RES, Math.round(y - 2) * RES, (halfW * 2 + 1) * RES, 2 * RES).data;   // device-px (RES×)
         const rs = [], gs = [], bs = [];
         for (let i = 0; i < d.length; i += 4) { if (d[i + 3] > 140) { rs.push(d[i]); gs.push(d[i + 1]); bs.push(d[i + 2]); } }
         if (rs.length) { const med = a => { a.sort((p, q) => p - q); return a[a.length >> 1]; }; b.col = { r: med(rs), g: med(gs), b: med(bs) }; }
@@ -1569,6 +1656,40 @@
     const c = b.col, x0 = Math.round(x - halfW), bw = halfW * 2;
     fctx.fillStyle = `rgb(${c.r},${c.g},${c.b})`;
     fctx.fillRect(x0, Math.round(y) - 1, bw, 3);
+  }
+
+  /* Loopcyclus-sheet: afstand per frame op getekende grootte (sheet wordt op idle-hoogte getekend). */
+  function walkFrameLen(sheet, hero) {
+    const fh = sheet.naturalHeight || 62;
+    const dh = (hero && hero.naturalHeight) || fh;
+    return (WALK_CYCLE_SRC * dh / fh) / WALK_NF;
+  }
+  function drawHeroSheetFrame(sheet, hero, fr) {
+    const fw = sheet.naturalWidth / WALK_NF, fh = sheet.naturalHeight;
+    const dh = hero.naturalHeight, dw = Math.round(fw * dh / fh);
+    /* schaduw even breed als bij stilstaan → geen verspringende schaduw bij start/stop */
+    shadow(player.x, player.y, hero.naturalWidth * 0.8);
+    fctx.save();
+    fctx.imageSmoothingEnabled = false;
+    fctx.translate(snapPx(player.x), snapPx(player.y));
+    if (player.flip) fctx.scale(-1, 1);
+    /* +2: lijnt hoofd/romp uit met de stilstaande hero.png (die staat iets meer naar voren) */
+    fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2) + 2, -dh, dw, dh);
+    fctx.restore();
+  }
+  /* Bij stoppen: kortste weg (vooruit of 1 terug) naar een 'benen samen'-frame. */
+  function startSettle() {
+    const sheet = art.sprites.heroWalkSheet, hero = art.sprites.hero;
+    if (!ready(sheet) || !ready(hero)) { player.settle = null; return; }
+    const f = Math.floor(player.walkDist / walkFrameLen(sheet, hero)) % WALK_NF;
+    if (PASSING_FRAMES.includes(f)) { player.settle = null; return; }
+    let best = null;
+    for (const to of PASSING_FRAMES) {
+      const fwd = (to - f + WALK_NF) % WALK_NF, back = (f - to + WALK_NF) % WALK_NF;
+      if (back === 1 && (!best || 1 < best.n)) best = { to, dir: -1, n: 1 };
+      if (!best || fwd < best.n) best = { to, dir: 1, n: fwd };
+    }
+    player.settle = { f, to: best.to, dir: best.dir, t: performance.now() };
   }
 
   function drawPlayer(now) {
@@ -1609,8 +1730,29 @@
       }
     }
     if (ready(hero)) {
+      const sheet = art.sprites.heroWalkSheet;
+      if (walking && ready(sheet)) {
+        /* 8-frame loopcyclus; het frame volgt de afgelegde afstand (voet-plant), geen nep-hop */
+        const fl = walkFrameLen(sheet, hero);
+        drawHeroSheetFrame(sheet, hero, Math.floor(player.walkDist / fl) % WALK_NF);
+        return;
+      }
+      if (!walking && player.settle && ready(sheet)) {
+        /* net gestopt: in een paar korte tikken naar 'benen samen', dan pas de stilstand-pose */
+        const st = player.settle;
+        while (now - st.t >= 70 && st.f !== st.to) {
+          st.t += 70;
+          st.f = (st.f + (st.dir > 0 ? 1 : WALK_NF - 1)) % WALK_NF;
+        }
+        if (st.f !== st.to || now - st.t < 70) {
+          drawHeroSheetFrame(sheet, hero, st.f);
+          return;
+        }
+        player.settle = null;
+      }
       if (walking) {
-        /* loopcyclus: 3 stap-frames (wijde pas → benen samen → andere pas → samen) voor een
+        /* terugval als de sheet (nog) niet geladen is —
+           loopcyclus: 3 stap-frames (wijde pas → benen samen → andere pas → samen) voor een
            vloeiende animatie; valt terug op 2 of 1 frame als er minder beschikbaar zijn. */
         const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2, w3 = art.sprites.heroWalk3;
         const stride = Math.sin(player.phase * 0.55);
@@ -3327,5 +3469,11 @@
   paintBackground();
   renderInventory();
   applyLang();
-  setInterval(loop, 1000 / 30);
+  /* Eén update + tekenbeurt per scherm-verversing (requestAnimationFrame) i.p.v. een vaste
+     30 fps-timer die niet met het scherm in de pas liep (oorzaak van haperend lopen). */
+  function frameTick(ts) {
+    requestAnimationFrame(frameTick);   // eerst inplannen: een fout in één frame stopt de lus niet
+    loop(ts);
+  }
+  requestAnimationFrame(frameTick);
 })();

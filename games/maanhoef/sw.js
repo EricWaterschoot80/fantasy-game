@@ -2,8 +2,8 @@
    Alleen de kleine basis wordt vooraf in de cache gezet; scene-art, puzzels en
    muziek komen in de cache zodra het spel ze gebruikt (geen 13 MB bij het openen). */
 
-const CACHE = 'maanhoef-v51';
-const V = '?v=51';
+const CACHE = 'maanhoef-v52';
+const V = '?v=52';
 
 const PRECACHE = [
   './',
@@ -20,6 +20,7 @@ const PRECACHE = [
   './assets/art/hero-walk.png' + V,
   './assets/art/hero-walk2.png' + V,
   './assets/art/hero-walk3.png' + V,
+  './assets/art/hero-walk-sheet.png' + V,
   './assets/art/hero-wave.png' + V,
   './assets/art/hero-flute.png' + V,
   './assets/art/hero-face.png' + V,

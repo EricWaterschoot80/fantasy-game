@@ -43,6 +43,14 @@
   const MIN_SLOTS = 6;
   const WALK_SPEED = 95;
   const ARRIVE_DIST = 4;
+  /* Vloeiend lopen: korte aanloop, zacht afremmen vlak voor het doel, en de loopcyclus
+     gekoppeld aan de afgelegde afstand (voet blijft op de grond staan i.p.v. glijden). */
+  const ACCEL_T = 0.15;          // s tot volle snelheid
+  const ACCEL_FROM = 0.35;       // start-snelheid (deel van WALK_SPEED)
+  const EASE_DIST = 10;          // px: afremmen over de laatste ~10 px vóór het doel
+  const EASE_MIN = 0.3;          // laagste snelheid tijdens het afremmen
+  const HERO_STRIDE = 32;        // px per volledige 8-frame loopcyclus (gemeten in hero-walk-sheet op getekende grootte)
+  const HERO_SETTLE = [1, 2, 5, 6];   // frames met de benen bij elkaar: daar vanuit naar de rust-pose
 
   /* ---------- Taal ---------- */
   let lang = 'nl';
@@ -175,7 +183,8 @@
     x: start0.x, y: start0.y,
     target: null, pending: null,
     dir: 'down', flip: false,
-    phase: 0, stepAcc: 0
+    phase: 0, stepAcc: 0,
+    walkDist: 0, moveT: 0, settle: 0, wasWalking: false
   };
 
   /* Trouwe hond die je volgt zodra hij gered is (over alle velden) */
@@ -377,9 +386,12 @@
   }
 
   const view = { scale: 1, ox: 0, oy: 0 };
+  let screenDpr = 1;
+  const heroDrawn = { sx: null, sy: null };   // laatst getekende voetpunt van de held (css px, voor tests)
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    screenDpr = dpr;
     canvas.width  = Math.round(window.innerWidth * dpr);
     canvas.height = Math.round(window.innerHeight * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -598,15 +610,55 @@
     return npc ? FACE_BY_SPRITE[npc.sprite] || null : null;
   }
 
-  /* ---------- Game-lus ---------- */
-  let lastT = performance.now();
-  function loop() {
-    const now = performance.now();
-    const dt = Math.min((now - lastT) / 1000, 0.12);
+  /* ---------- Game-lus ----------
+     Eén requestAnimationFrame-keten (schermverversing, meestal 60 fps) met de frame-tijdstempel
+     als klok: elke getekende frame krijgt precies één update, dus geen dubbele of overgeslagen stappen. */
+  let lastT = -1;
+  let loopRunning = false;
+  function loop(ts) {
+    requestAnimationFrame(loop);
+    const now = ts;
+    const dt = lastT < 0 ? 0 : Math.min(Math.max(0, now - lastT) / 1000, 0.12);
     lastT = now;
     update(dt, now);
     draw(now);
     if (elMaze && !elMaze.hidden) drawMaze(now);
+  }
+  function startLoop() {
+    if (loopRunning) return;
+    loopRunning = true;
+    requestAnimationFrame(loop);
+  }
+
+  /* Snelheidsfactor: korte aanloop vanaf ~1/3 snelheid naar vol in ACCEL_T. */
+  function walkRamp() {
+    return Math.min(1, ACCEL_FROM + (1 - ACCEL_FROM) * (player.moveT / ACCEL_T));
+  }
+  /* Resterende looplengte langs het pad (voor het afremmen vlak voor het doel). */
+  function pathRemaining() {
+    const pts = (player.path && player.path.length) ? player.path : (player.target ? [player.target] : []);
+    let d = 0, px = player.x, py = player.y;
+    for (const q of pts) { d += Math.hypot(q.x - px, q.y - py); px = q.x; py = q.y; }
+    return d;
+  }
+  /* Loopframe uit de afgelegde afstand: 8 frames per HERO_STRIDE px. */
+  function heroWalkFrame() {
+    return Math.floor(player.walkDist / (HERO_STRIDE / 8)) % 8;
+  }
+  /* Gezette stap: richting, flip, stofwolkjes en stap-geluid (gedeeld door muis en toetsen). */
+  function afterStep(dx, dy, moved) {
+    player.walkDist += moved;
+    player.phase += moved * 0.14;
+    if (Math.abs(dx) > 2) player.flip = dx < 0;
+    player.dir = Math.abs(dx) > Math.abs(dy)
+      ? (dx > 0 ? 'right' : 'left')
+      : (dy > 0 ? 'down' : 'up');
+    player.stepAcc += moved;
+    if (player.stepAcc > 13) {
+      player.stepAcc = 0;
+      dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
+      sfx('step');
+    }
   }
 
   /* ---------- Toetsenbord (WASD / pijltjes, fysieke key-codes) ---------- */
@@ -631,7 +683,7 @@
   }
 
   function movePlayer(dx, dy, dist, dt) {
-    const step = Math.min(WALK_SPEED * dt, dist);
+    const step = Math.min(WALK_SPEED * walkRamp() * dt, dist);
     let nx = player.x + (dx / dist) * step;
     let ny = player.y + (dy / dist) * step;
     if (!inWalkable(nx, ny)) {
@@ -639,18 +691,9 @@
       else if (inWalkable(player.x, ny)) nx = player.x;
       else return false;
     }
+    const moved = Math.hypot(nx - player.x, ny - player.y);
     player.x = nx; player.y = ny;
-    player.phase += step * 0.14;
-    if (Math.abs(dx) > 2) player.flip = dx < 0;
-    player.dir = Math.abs(dx) > Math.abs(dy)
-      ? (dx > 0 ? 'right' : 'left')
-      : (dy > 0 ? 'down' : 'up');
-    player.stepAcc += step;
-    if (player.stepAcc > 13) {
-      player.stepAcc = 0;
-      dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
-      sfx('step');
-    }
+    afterStep(dx, dy, moved);
     return true;
   }
 
@@ -666,28 +709,40 @@
         player.target = null;
         player.pending = null;
         player.kbMoving = true;
+        player.moveT += dt;
         const len = Math.hypot(vx, vy);
         movePlayer(vx * 50, vy * 50, len * 50, dt);
       }
     }
 
-    /* Speler */
+    /* Speler: loopt met een vast stapbudget per frame langs het pad. Tussen-waypoints worden
+       zonder sprong afgerond (het restbudget loopt meteen door naar het volgende punt), en
+       vlak voor het doel remt de held zacht af tot hij precies op het doel staat. */
     if (player.target) {
       if (player._pathFor !== player.target) {
         player._pathFor = player.target;
         player.path = findPath(player.x, player.y, player.target.x, player.target.y) || [player.target];
       }
-      const wp = (player.path && player.path[0]) || player.target;
-      const dx = wp.x - player.x;
-      const dy = wp.y - player.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist <= ARRIVE_DIST) {
-        player.x = wp.x;
-        player.y = wp.y;
-        if (player.path && player.path.length) player.path.shift();
-        if (!player.path || player.path.length === 0) { player.path = null; arrive(); }
-      } else {
-        const step = Math.min(WALK_SPEED * dt, dist);
+      player.moveT += dt;
+      const ease = Math.max(EASE_MIN, Math.min(1, Math.sqrt(pathRemaining() / EASE_DIST)));
+      let budget = WALK_SPEED * dt * walkRamp() * ease;
+      let guard = 0;
+      while (player.target && guard++ < 6) {
+        const wp = (player.path && player.path[0]) || player.target;
+        const dx = wp.x - player.x;
+        const dy = wp.y - player.y;
+        const dist = Math.hypot(dx, dy);
+        const lastWp = !player.path || player.path.length <= 1;
+        if (!lastWp && dist <= ARRIVE_DIST) { player.path.shift(); continue; }
+        if (lastWp && dist <= 0.5) {
+          player.x = wp.x;
+          player.y = wp.y;
+          player.path = null;
+          arrive();
+          break;
+        }
+        if (budget <= 1e-4) break;
+        const step = Math.min(budget, dist);
         let nx = player.x + (dx / dist) * step;
         let ny = player.y + (dy / dist) * step;
         if (!inWalkable(nx, ny)) {
@@ -696,24 +751,31 @@
           else { player.target = null; player.path = null; arrive(); return; }
         }
         /* klem tegen een obstakel: probeer het volgende waypoint, anders stop */
-        if (Math.abs(nx - player.x) < 0.05 && Math.abs(ny - player.y) < 0.05) {
-          if (player.path && player.path.length > 1) { player.path.shift(); }
+        if (step > 0.2 && Math.abs(nx - player.x) < 0.05 && Math.abs(ny - player.y) < 0.05) {
+          if (player.path && player.path.length > 1) { player.path.shift(); budget = 0; continue; }
           else { player.target = null; player.path = null; arrive(); return; }
         }
+        const moved = Math.hypot(nx - player.x, ny - player.y);
         player.x = nx; player.y = ny;
-        player.phase += step * 0.14;
-        if (Math.abs(dx) > 2) player.flip = dx < 0;
-        player.dir = Math.abs(dx) > Math.abs(dy)
-          ? (dx > 0 ? 'right' : 'left')
-          : (dy > 0 ? 'down' : 'up');
-        player.stepAcc += step;
-        if (player.stepAcc > 13) {
-          player.stepAcc = 0;
-          dust.push({ x: player.x + (Math.random() * 8 - 4), y: player.y - 1, life: 0.45 });
-          sfx('step');
-        }
+        afterStep(dx, dy, moved);
+        budget -= step;
       }
     }
+
+    /* Stilstaan: snelheid terug naar de aanloop, en de benen even laten uitlopen naar een
+       pose met de voeten bij elkaar (max ~2 frames) voordat de rust-pose verschijnt. */
+    const walkingNow = !!player.target || player.kbMoving;
+    if (walkingNow) {
+      player.settle = 0;
+    } else {
+      player.moveT = 0;
+      if (player.wasWalking) player.settle = 0.2;
+      if (player.settle > 0) {
+        if (HERO_SETTLE.includes(heroWalkFrame())) player.settle = 0;
+        else { player.walkDist += WALK_SPEED * dt; player.settle -= dt; }
+      }
+    }
+    player.wasWalking = walkingNow;
 
     /* NPC's: zwerven en patrouilleren */
     for (const npc of (scene.npcs || [])) {
@@ -908,6 +970,15 @@
 
   /* ---------- Tekenen ---------- */
   function draw(now) {
+    /* Scherm voorbereiden (de scene wordt in lagen op het scherm gezet, zie flushFrame) */
+    const w = window.innerWidth, h = window.innerHeight;
+    ctx.fillStyle = '#1a1410';
+    ctx.fillRect(0, 0, w, h);
+    const scale = Math.min(w / SCENE_W, h / SCENE_H);
+    view.scale = scale;
+    view.ox = (w - SCENE_W * scale) / 2;
+    view.oy = (h - SCENE_H * scale) / 2;
+
     fctx.setTransform(1, 0, 0, 1, 0, 0);
     fctx.imageSmoothingEnabled = false;
     fctx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
@@ -940,12 +1011,25 @@
       const rt = npcRt[npc.id] || npc;
       ents.push({ y: rt.y, draw: () => drawNpc(npc, now) });
     }
-    ents.push({ y: player.y, draw: () => drawPlayer(now) });
-    /* In de donkere tempel draagt de held de fakkel die zij maakte (licht + sfeer) */
-    if (state.currentScene === 'temple' && state.inventory.includes('torch')) {
-      ents.push({ y: player.y + 0.5, draw: () => drawHeldTorch(now) });
+    const heldTorch = state.currentScene === 'temple' && state.inventory.includes('torch');
+    if (ready(art.sprites.hero)) {
+      /* De held (en de hond) worden direct op het scherm-canvas getekend, op hele device-pixels
+         i.p.v. hele scene-pixels: zo schuiven ze vloeiend. De laag eronder (incl. schaduw) gaat
+         eerst naar het scherm; alles wat later in de diepte-volgorde komt erna, dus voorgrond-
+         overlays en effecten blijven gewoon vóór de held. */
+      const hp = heroPose(now);
+      ents.push({ y: player.y, pre: () => shadow(player.x + hp.dx, player.y, hp.shadowW * 0.8, true),
+        screen: () => drawPlayerScreen(now, hp, heldTorch) });
+    } else {
+      ents.push({ y: player.y, draw: () => drawPlayer(now) });
+      /* In de donkere tempel draagt de held de fakkel die zij maakte (licht + sfeer) */
+      if (heldTorch) ents.push({ y: player.y + 0.5, draw: () => drawHeldTorch(now) });
     }
-    if (follower.active) ents.push({ y: follower.y, draw: () => drawFollower(now) });
+    if (follower.active) {
+      const fp = followerPose(now);
+      if (fp) ents.push({ y: follower.y, pre: () => shadow(follower.x + fp.dx, follower.y, fp.img.naturalWidth * 0.8, true),
+        screen: () => drawFollowerScreen(now, fp) });
+    }
     if (scene.overlays) {
       for (const o of scene.overlays) {
         ents.push({ y: o.base, draw: () => {
@@ -956,7 +1040,10 @@
       }
     }
     ents.sort((a, b) => a.y - b.y);
-    for (const e of ents) e.draw();
+    for (const e of ents) {
+      if (e.screen) { e.pre(); flushFrame(); e.screen(); }
+      else e.draw();
+    }
 
     /* Doorzichtige pulserende pijlen bij uitgangen — bovenop alles */
     for (const hs of scene.hotspots) {
@@ -1117,17 +1204,17 @@
       fctx.fillRect(0, 0, SCENE_W, SCENE_H);
     }
 
-    const w = window.innerWidth, h = window.innerHeight;
-    ctx.fillStyle = '#1a1410';
-    ctx.fillRect(0, 0, w, h);
-    const scale = Math.min(w / SCENE_W, h / SCENE_H);
-    view.scale = scale;
-    view.ox = (w - SCENE_W * scale) / 2;
-    view.oy = (h - SCENE_H * scale) / 2;
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(frameCanvas, view.ox, view.oy, SCENE_W * scale, SCENE_H * scale);
-
+    flushFrame();
     drawHints(now, scale);
+  }
+
+  /* Zet de huidige scene-laag op het scherm en begin een nieuwe, lege laag erboven. */
+  function flushFrame() {
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(frameCanvas, view.ox, view.oy, SCENE_W * view.scale, SCENE_H * view.scale);
+    fctx.setTransform(1, 0, 0, 1, 0, 0);
+    fctx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
+    fctx.setTransform(SS, 0, 0, SS, 0, 0);
   }
 
   /* Sfeer-effecten bovenop de AI-art */
@@ -1512,17 +1599,21 @@
 
   const SPRITE_SCALE = 2;
 
-  function shadow(x, y, w) {
+  /* Rond af op een halve scene-pixel: dat is één echte pixel in de 2× buffer, dus de art blijft
+     scherp (elke bron-pixel blijft 2×2) terwijl figuren twee keer zo fijn bewegen. */
+  const snap = (v) => Math.round(v * SS) / SS;
+
+  function shadow(x, y, w, exact) {
     fctx.fillStyle = 'rgba(30,16,8,0.32)';
     fctx.beginPath();
-    fctx.ellipse(Math.round(x), Math.round(y) + 1, w / 2, 2.6, 0, 0, Math.PI * 2);
+    fctx.ellipse(exact ? x : snap(x), (exact ? y : snap(y)) + 1, w / 2, 2.6, 0, 0, Math.PI * 2);
     fctx.fill();
   }
 
   /* Pixel-vast tekenen: posities en bob worden gerond tegen flikkeren. */
   function drawArtSprite(img, x, y, { flip = false, bob = 0, squashY = 1, rot = 0 } = {}) {
     const w = img.naturalWidth, h = img.naturalHeight;
-    const px = Math.round(x), py = Math.round(y + bob);
+    const px = snap(x), py = snap(y + bob);
     shadow(x, y, w * 0.8);
     fctx.save();
     fctx.imageSmoothingEnabled = false;
@@ -1579,7 +1670,7 @@
   /* Af en toe knipperen: een kort, klein ooglid in de eigen huid-/kapkleur over de oog-lijn.
      eyes=2 tekent twee losse oogleden (bv. de held knippert met beide ogen). */
   const blinkT = {};
-  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip) {
+  function eyeBlink(id, cx, footY, img, eyeFrac, halfW, now, eyes, flip, fill) {
     if (!ready(img)) return;
     let b = blinkT[id];
     if (!b) { b = blinkT[id] = { next: now + 1800 + Math.random() * 3000, until: 0 }; }
@@ -1587,7 +1678,8 @@
     if (now >= b.until) return;
     const col = faceColor(img, eyeFrac, halfW);
     if (!col) return;
-    const ey = Math.round(footY - img.naturalHeight + img.naturalHeight * eyeFrac);
+    const F = fill || ((c, x, y, w, h) => { fctx.fillStyle = c; fctx.fillRect(x, y, w, h); });
+    const ey = snap(footY) + Math.round(-img.naturalHeight + img.naturalHeight * eyeFrac);
     const lid = `rgb(${col.r},${col.g},${col.b})`;
     const lash = `rgba(${(col.r * 0.5) | 0},${(col.g * 0.5) | 0},${(col.b * 0.5) | 0},0.8)`;
     if (eyes === 2) {
@@ -1595,14 +1687,14 @@
          spiegelen mee als de held naar links kijkt, zodat beide ogen netjes gedekt zijn. */
       const offs = flip ? [-(halfW + 1), halfW - 2] : [-halfW, halfW + 1];   // naar links kijkend: rechter ooglid 2px naar links
       for (const ox of offs) {
-        const x0 = Math.round(cx + ox) - 1;   // 3px breed, kleiner ooglid
-        fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, 3, 2);
-        fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, 3, 1);
+        const x0 = snap(cx) + Math.round(ox) - 1;   // 3px breed, kleiner ooglid
+        F(lid, x0, ey - 1, 3, 2);
+        F(lash, x0, ey + 1, 3, 1);
       }
     } else {
-      const x0 = Math.round(cx - halfW), bw = Math.round(halfW * 2);
-      fctx.fillStyle = lid;  fctx.fillRect(x0, ey - 1, bw, 2);
-      fctx.fillStyle = lash; fctx.fillRect(x0, ey + 1, bw, 1);
+      const x0 = snap(cx) + Math.round(-halfW), bw = Math.round(halfW * 2);
+      F(lid, x0, ey - 1, bw, 2);
+      F(lash, x0, ey + 1, bw, 1);
     }
   }
 
@@ -1635,61 +1727,139 @@
   }
 
   function drawPlayerSprite(now) {
-    const hero = art.sprites.hero;
+    /* Terugval zonder art: procedurele pixel-held in de scene-buffer. */
     const walking = !!player.target || player.kbMoving;
-    if (ready(hero)) {
-      if (walking) {
-        /* Volledige 8-frame loopcyclus uit de Higgsfield AutoSprite-sheet. */
-        const sheet = art.sprites.heroWalkSheet;
-        if (ready(sheet)) {
-          const NF = 8, fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
-          const fr = Math.floor(player.phase * 0.63) % NF;
-          /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
-             de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven. */
-          const dh = ready(hero) ? hero.naturalHeight : 56;
-          const dw = Math.round(fw * dh / fh);
-          const foot = Math.round(dh * 2 / fh);   // compenseer de lucht onder de voeten
-          shadow(player.x, player.y, dw * 0.8);
-          fctx.save();
-          fctx.imageSmoothingEnabled = false;
-          fctx.translate(Math.round(player.x), Math.round(player.y));
-          if (player.flip) fctx.scale(-1, 1);
-          fctx.drawImage(sheet, fr * fw, 0, fw, fh, Math.round(-dw / 2), -dh + foot, dw, dh);
-          fctx.restore();
-          return;
-        }
-        /* Terugval: soepele 2-frame-pas met verende beweging. */
-        const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2;
-        const sp = player.phase * 0.5;
-        const stride = Math.sin(sp);
-        let img;
-        if (ready(w1) && ready(w2)) img = stride > 0 ? w1 : w2;
-        else if (ready(w1)) img = Math.abs(stride) > 0.35 ? w1 : hero;
-        else img = hero;
-        const step = Math.abs(stride);                  // piekt twee keer per cyclus
-        const hop = -Math.round(step * 3);              // verende pas
-        const lean = stride * 0.07;                     // lichte zwaai heen/weer
-        const sway = Math.round(Math.cos(sp) * 1);      // subtiele zijwaartse wieg
-        drawArtSprite(img, player.x + (player.flip ? -sway : sway), player.y, { flip: player.flip, bob: hop, rot: lean });
-        return;
-      }
-      /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
-      const g = gestureState('hero', now, 1300, 5000, 9000);
-      const wave = art.sprites.heroWave;
-      if (g > 0 && ready(wave)) {
-        const bounce = -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2);
-        drawArtSprite(wave, player.x, player.y, { flip: player.flip, bob: bounce });
-        return;
-      }
-      const breathe = Math.round(Math.sin(now / 800));
-      drawArtSprite(hero, player.x, player.y, { flip: player.flip, bob: breathe });
-      eyeBlink('hero', player.x, player.y + breathe, hero, 0.286, 4, now, 2, player.flip);   // held: beide ogen
-      return;
-    }
     const stride = [0, 1, 0, 2][(player.phase | 0) % 4];
     const grid = playerFrame(player.dir, walking ? stride : 0);
     drawSprite(fctx, grid, (player.x - PLAYER_W * SPRITE_SCALE / 2) | 0,
       (player.y - PLAYER_H * SPRITE_SCALE) | 0, player.dir === 'left', SPRITE_SCALE);
+  }
+
+  /* ---------- Held en hond direct op het scherm ----------
+     Anker (voetpunt) op een hele device-pixel; alle randen in lokale scene-eenheden worden
+     ook op hele device-pixels gelegd. Daardoor blijft de vorm van de pixel-art elke frame
+     exact gelijk (geen trillende pixelkolommen) terwijl de figuur per device-pixel schuift. */
+  function onScreen(x, y, filter, fn) {
+    const k = view.scale * screenDpr;
+    const X = Math.round((view.ox + x * view.scale) * screenDpr);
+    const Y = Math.round((view.oy + y * view.scale) * screenDpr);
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, X, Y);
+    ctx.imageSmoothingEnabled = false;
+    if (filter && filter !== 'none') ctx.filter = filter;
+    fn(k, (v) => Math.round(v * k));
+    ctx.restore();
+    return { X, Y };
+  }
+  function blitS(R, img, src, lx, ly, lw, lh) {
+    const x0 = R(lx), y0 = R(ly);
+    ctx.drawImage(img, src[0], src[1], src[2], src[3], x0, y0, R(lx + lw) - x0, R(ly + lh) - y0);
+  }
+  function rectS(R, c, lx, ly, lw, lh) {
+    const x0 = R(lx), y0 = R(ly);
+    ctx.fillStyle = c;
+    ctx.fillRect(x0, y0, R(lx + lw) - x0, R(ly + lh) - y0);
+  }
+  /* Een pose = welk beeld, welk deel ervan, en waar t.o.v. het voetpunt (scene-eenheden). */
+  function artPose(img, extra) {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    return Object.assign({ img, src: [0, 0, w, h], lx: Math.round(-w / 2), ly: -h, lw: w, lh: h,
+      flip: false, bob: 0, rot: 0, dx: 0, shadowW: w }, extra);
+  }
+  function drawPose(R, p) {
+    ctx.save();
+    ctx.translate(R(p.dx), R(Math.round(p.bob)));
+    if (p.rot) ctx.rotate(p.rot);
+    if (p.flip) ctx.scale(-1, 1);
+    blitS(R, p.img, p.src, p.lx, p.ly, p.lw, p.lh);
+    ctx.restore();
+  }
+
+  function heroPose(now) {
+    const hero = art.sprites.hero;
+    const walking = !!player.target || player.kbMoving || player.settle > 0;
+    if (walking) {
+      /* Volledige 8-frame loopcyclus uit de Higgsfield AutoSprite-sheet; het frame volgt de
+         afgelegde afstand, dus de voet die op de grond staat glijdt niet. Geen extra bob/kanteling:
+         de sheet heeft zijn eigen beweging. */
+      const sheet = art.sprites.heroWalkSheet;
+      if (ready(sheet)) {
+        const NF = 8, fw = sheet.naturalWidth / NF, fh = sheet.naturalHeight;
+        /* Teken op dezelfde hoogte als de idle-held (geen groei) en plant de voeten op
+           de schaduw (de bron-frames hebben ~2px lucht onder de voeten) -> geen zweven. */
+        const dh = hero.naturalHeight;
+        const dw = Math.round(fw * dh / fh);
+        const foot = Math.round(dh * 2 / fh);
+        return { img: sheet, src: [heroWalkFrame() * fw, 0, fw, fh], lx: Math.round(-dw / 2), ly: -dh + foot,
+          lw: dw, lh: dh, flip: player.flip, bob: 0, rot: 0, dx: 0, shadowW: dw };
+      }
+      /* Terugval: soepele 2-frame-pas met verende beweging. */
+      const w1 = art.sprites.heroWalk, w2 = art.sprites.heroWalk2;
+      const sp = player.phase * 0.5;
+      const stride = Math.sin(sp);
+      let img;
+      if (ready(w1) && ready(w2)) img = stride > 0 ? w1 : w2;
+      else if (ready(w1)) img = Math.abs(stride) > 0.35 ? w1 : hero;
+      else img = hero;
+      const sway = Math.round(Math.cos(sp) * 1);
+      return artPose(img, { flip: player.flip, bob: -Math.round(Math.abs(stride) * 3), rot: stride * 0.07,
+        dx: player.flip ? -sway : sway });
+    }
+    /* idle: rustig ademen + zo nu en dan vrolijk zwaaien */
+    const g = gestureState('hero', now, 1300, 5000, 9000);
+    const wave = art.sprites.heroWave;
+    if (g > 0 && ready(wave)) {
+      return artPose(wave, { flip: player.flip, bob: -Math.round(Math.abs(Math.sin((1 - g) * Math.PI * 3)) * 2) });
+    }
+    return artPose(hero, { flip: player.flip, bob: Math.round(Math.sin(now / 800)), blink: true });
+  }
+
+  function drawPlayerScreen(now, hp, heldTorch) {
+    const at = onScreen(player.x, player.y, sceneFilter(), (k, R) => {
+      drawPose(R, hp);
+      if (hp.blink) {
+        eyeBlink('hero', 0, hp.bob, art.sprites.hero, 0.286, 4, now, 2, player.flip,
+          (c, x, y, w, h) => rectS(R, c, x, y, w, h));   // held: beide ogen
+      }
+    });
+    heroDrawn.sx = at.X / screenDpr; heroDrawn.sy = at.Y / screenDpr;
+    /* In de donkere tempel draagt de held de fakkel die zij maakte (licht + sfeer) */
+    if (heldTorch) {
+      onScreen(player.x, player.y, null, (k, R) => {
+        const hx = player.flip ? -9 : 9, hy = -26;
+        const fl = 0.5 + 0.2 * Math.sin(now / 90), r = 38;
+        const g = ctx.createRadialGradient(R(hx), R(hy), 2 * k, R(hx), R(hy), r * k);
+        g.addColorStop(0, `rgba(255,196,96,${0.34 * fl})`);
+        g.addColorStop(1, 'rgba(255,150,60,0)');
+        ctx.fillStyle = g; ctx.fillRect(R(hx - r), R(hy - r), R(2 * r), R(2 * r));
+        rectS(R, '#5a3a22', hx - 1, hy, 2, 13);                                   // steel
+        const ff = (Math.sin(now / 70) * 40) | 0;
+        rectS(R, `rgba(255,${165 + ff},60,0.95)`, hx - 1, hy - 6, 2, 6);          // vlam
+        rectS(R, 'rgba(255,238,160,0.95)', hx, hy - 4, 1, 3);                     // hart
+      });
+    }
+  }
+
+  function followerPose(now) {
+    if (follower.scared) {
+      /* bang: ineengedoken (koude pose) + rillen + uitroepteken */
+      const img = ready(art.sprites.dogCold) ? art.sprites.dogCold : art.sprites.dog;
+      if (!ready(img)) return null;
+      return artPose(img, { flip: follower.flip, dx: Math.round(Math.sin(now / 40)),
+        mark: ((now / 350) | 0) % 2 === 0 });
+    }
+    const moving = !!follower.wTarget || Math.hypot(player.x - follower.x, player.y - follower.y) > 46;
+    const img = ready(art.sprites.dogVest) ? art.sprites.dogVest : art.sprites.dog;
+    if (!ready(img)) return null;
+    return artPose(img, { flip: follower.flip,
+      bob: moving ? -Math.round(Math.abs(Math.sin(follower.phase * 1.1)) * 2) : 0,
+      rot: moving ? 0 : Math.sin(now / 160) * 0.06 });
+  }
+  function drawFollowerScreen(now, fp) {
+    onScreen(follower.x, follower.y, sceneFilter(), (k, R) => {
+      drawPose(R, fp);
+      if (fp.mark) { rectS(R, '#e8d24a', 0, -34, 2, 5); rectS(R, '#e8d24a', 0, -28, 2, 2); }
+    });
   }
 
   function drawNpc(npc, now) {
@@ -1788,34 +1958,6 @@
         /* (de minotaur knippert niet) */
       }
     }
-  }
-
-  function drawFollower(now) {
-    const f = sceneFilter();
-    if (f !== 'none') fctx.filter = f;
-    drawFollowerSprite(now);
-    if (f !== 'none') fctx.filter = 'none';
-  }
-
-  function drawFollowerSprite(now) {
-    const moving = !follower.scared &&
-      (!!follower.wTarget || Math.hypot(player.x - follower.x, player.y - follower.y) > 46);
-    if (follower.scared) {
-      /* bang: ineengedoken (koude pose) + rillen + uitroepteken */
-      const img = ready(art.sprites.dogCold) ? art.sprites.dogCold : art.sprites.dog;
-      const jit = Math.round(Math.sin(now / 40)) ;
-      if (ready(img)) drawArtSprite(img, follower.x + jit, follower.y, { flip: follower.flip });
-      if (((now / 350) | 0) % 2 === 0) {
-        fctx.fillStyle = '#e8d24a';
-        const hx = Math.round(follower.x), hy = Math.round(follower.y - 34);
-        fctx.fillRect(hx, hy, 2, 5); fctx.fillRect(hx, hy + 6, 2, 2);
-      }
-      return;
-    }
-    const img = ready(art.sprites.dogVest) ? art.sprites.dogVest : art.sprites.dog;
-    const hop = moving ? -Math.round(Math.abs(Math.sin(follower.phase * 1.1)) * 2) : 0;
-    const wag = moving ? 0 : Math.sin(now / 160) * 0.06;
-    if (ready(img)) drawArtSprite(img, follower.x, follower.y, { flip: follower.flip, bob: hop, rot: wag });
   }
 
   function drawHints(now, scale) {
@@ -3293,7 +3435,7 @@
   /* ---------- Test-API ---------- */
   window.__game = {
     getState: () => state,
-    getPlayer: () => ({ x: player.x, y: player.y, walking: !!player.target }),
+    getPlayer: () => ({ x: player.x, y: player.y, walking: !!player.target, sx: heroDrawn.sx, sy: heroDrawn.sy }),
     getNpc: (id) => npcRt[id] ? { x: npcRt[id].x, y: npcRt[id].y } : null,
     start: () => { if (!started) elStartBtn.click(); },
     tap: (hotspotId) => {
@@ -3325,5 +3467,5 @@
   paintBackground();
   renderInventory();
   applyLang();
-  setInterval(loop, 1000 / 30);
+  startLoop();
 })();
