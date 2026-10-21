@@ -181,7 +181,7 @@
     /* the signpost into the fog: new levels will appear east of it */
     .label.arrow { background: url(assets/plates/arrow-sign.png) center / 100% 100% no-repeat; box-shadow: none; image-rendering: pixelated;
       align-content: start; justify-items: start; padding: calc(23 * var(--s)) calc(34 * var(--s)) 0 calc(14 * var(--s));
-      font-size: calc(15.5 * var(--s)); line-height: .95; color: #fffdf6; text-align: left; text-shadow: 0 calc(1 * var(--s)) calc(2 * var(--s)) #2a1206;
+      font-size: calc(15 * var(--s)); line-height: 1; white-space: nowrap; color: #fffdf6; text-align: left; text-shadow: 0 calc(1 * var(--s)) calc(2 * var(--s)) #2a1206;
       animation: nudge 2.6s cubic-bezier(.16, 1, .3, 1) infinite; transform-origin: 30% 90%; }
     .label.arrow:hover { animation-play-state: paused; transform: translateX(calc(4 * var(--s))); }
     .label.arrow[aria-pressed="true"] { box-shadow: none; filter: brightness(1.15); }
@@ -771,7 +771,9 @@
     function renderLabels() {
       GAMES.forEach(function (g) {
         if (g.soon) {
-          g.labelEl.innerHTML = '<span class="t">' + g.title[lang].replace(' ', '<br>') + '</span>';
+          /* always two lines on the plank: "More adventures" / "coming" */
+          var words = g.title[lang].split(' '), cut = words.length - 1;
+          g.labelEl.innerHTML = '<span class="t">' + words.slice(0, cut).join(' ') + '<br>' + words.slice(cut).join(' ') + '</span>';
           g.labelEl.setAttribute('aria-label', g.title[lang]);
           return;
         }
