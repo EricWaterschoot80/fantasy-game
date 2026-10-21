@@ -34,7 +34,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=204">
+  <link rel="stylesheet" href="css/style.css?v=205">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -94,8 +94,6 @@
       <button id="soundBtn" class="round-btn sound" title="Geluid" aria-label="Geluid aan of uit"><img id="soundIcon" src="assets/icons/ui-sound-on.png" alt=""></button>
     </div>
 
-    <a id="homeBtn" class="round-btn home" href="../../" title="Home" aria-label="Terug naar de homepagina">⌂</a>
-
     <div id="bubble" class="speech" hidden>
       <button id="bubbleClose" class="bubble-x" aria-label="Sluiten">✕</button>
       <img id="bubbleFace" alt="" hidden>
@@ -120,6 +118,7 @@
     </div>
   </div>
 
+  <a id="homeBtn" class="round-btn home js-home" href="/" title="Terug naar RetroAdventureWorld" aria-label="Terug naar RetroAdventureWorld"><svg class="px-house" viewBox="0 0 12 12" width="24" height="24" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M5 1h2v1H5zM8 1h1v2H8zM4 2h4v1H4zM3 3h6v1H3zM2 4h8v1H2zM1 5h10v1H1zM0 6h12v1H0zM2 7h8v1H2zM2 8h3v3H2zM7 8h3v3H7z"/></svg></a>
   <button id="saveBtn" class="round-btn save" title="Opslaan" aria-label="Spel opslaan" hidden>💾</button>
   <button id="langBtn" class="round-btn lang" title="Taal / Language" aria-label="Wissel taal">EN</button>
   <button id="infoBtn" class="round-btn info" title="Hint" aria-label="Toon een hint" hidden>💡</button>
@@ -133,7 +132,8 @@
   </div>
 
   <div id="title-screen" class="overlay title">
-    <img class="title-bg" src="assets/art/title.webp?v=204" fetchpriority="high" alt="Whispers of Ravenholt" onerror="this.remove()">
+    <a id="titleHomeLink" class="title-home-link js-home" href="/" aria-label="Terug naar RetroAdventureWorld">&larr; RetroAdventureWorld</a>
+    <img class="title-bg" src="assets/art/title.webp?v=205" fetchpriority="high" alt="Whispers of Ravenholt" onerror="this.remove()">
     <div class="title-content">
       <h1 id="title-h1" hidden><span>Whispers of</span><br><span>Ravenholt</span></h1>
       <p id="title-sub" class="subtitle" hidden>Een point-and-click avontuur</p>
@@ -154,11 +154,14 @@
 
   <div id="win-screen" class="overlay" hidden>
     <div class="overlay-card panel">
-      <img class="win-banner" src="assets/art/win-deel2.webp?v=204" loading="lazy" alt="" onerror="this.remove()">
+      <img class="win-banner" src="assets/art/win-deel2.webp?v=205" loading="lazy" alt="" onerror="this.remove()">
       <h1 id="win-h1">Deel 1 uitgespeeld!</h1>
       <p class="intro" id="winText"></p>
-      <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
-      <a id="winNextBtn" class="gold-btn win-next" href="../ravenholt-deel2/">▸ Speel Deel 2</a>
+      <div class="win-btns">
+        <button id="replayBtn" class="gold-btn">Opnieuw spelen</button>
+        <a id="winNextBtn" class="gold-btn win-next" href="../ravenholt-deel2/">▸ Speel Deel 2</a>
+        <a id="winHomeBtn" class="gold-btn win-home js-home" href="/" title="Terug naar RetroAdventureWorld"><svg class="px-house" viewBox="0 0 12 12" width="24" height="24" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M5 1h2v1H5zM8 1h1v2H8zM4 2h4v1H4zM3 3h6v1H3zM2 4h8v1H2zM1 5h10v1H1zM0 6h12v1H0zM2 7h8v1H2zM2 8h3v3H2zM7 8h3v3H7z"/></svg><span id="winHomeLbl">Naar home</span></a>
+      </div>
     </div>
   </div>
 
@@ -266,10 +269,10 @@
     </div>
   </div>
 
-  <script src="js/sprites.min.js?v=204"></script>
-  <script src="js/scenes.min.js?v=204"></script>
-  <script src="js/data.min.js?v=204"></script>
-  <script src="js/engine.min.js?v=204"></script>
+  <script src="js/sprites.min.js?v=205"></script>
+  <script src="js/scenes.min.js?v=205"></script>
+  <script src="js/data.min.js?v=205"></script>
+  <script src="js/engine.min.js?v=205"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '204',
+  assetVer: '205',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -98,7 +98,8 @@ const GAME = {
     leverBtn:   { nl: '⎇ Hendel overhalen', en: '⎇ Pull the lever' },
     closeLbl:   { nl: 'Sluiten', en: 'Close' },
     soundLbl:   { nl: 'Geluid aan of uit', en: 'Sound on or off' },
-    homeLbl:    { nl: 'Terug naar de homepagina', en: 'Back to the homepage' },
+    homeLbl:    { nl: 'Terug naar RetroAdventureWorld', en: 'Back to RetroAdventureWorld' },
+    winHome:    { nl: 'Naar home', en: 'Home' },
     saveLbl:    { nl: 'Spel opslaan', en: 'Save game' },
     hintLbl:    { nl: 'Toon een hint', en: 'Show a hint' },
     langLbl:    { nl: 'Wissel taal', en: 'Switch language' },
@@ -110,7 +111,7 @@ const GAME = {
                   en: 'This adventure plays in landscape. Turn your screen sideways.' },
     tapContinue:{ nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
     selected:   { nl: 'geselecteerd', en: 'selected' },
-    homeConfirm:{ nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
+    homeConfirm:{ nl: 'Terug naar RetroAdventureWorld? Je voortgang wordt bewaard.', en: 'Back to RetroAdventureWorld? Your progress is saved.' },
 
     q_explore:  { nl: 'Verken het dorpsplein van Eldoria', en: 'Explore the village square of Eldoria' },
     q_fountain: { nl: 'Onderzoek waarom de fontein leegloopt', en: 'Investigate why the fountain is running dry' },

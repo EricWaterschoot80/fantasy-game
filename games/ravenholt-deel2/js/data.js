@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '205',
+  assetVer: '206',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -80,7 +80,7 @@ const GAME = {
                   en: 'This adventure plays in landscape. Turn your screen sideways.' },
     tapContinue:{ nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
     selected:   { nl: 'geselecteerd', en: 'selected' },
-    homeConfirm:{ nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
+    homeConfirm:{ nl: 'Terug naar RetroAdventureWorld? Je voortgang wordt bewaard.', en: 'Back to RetroAdventureWorld? Your progress is saved.' },
 
     /* Vaste knoppen/labels in index.html (data-i18n, data-i18n-aria, data-i18n-title) */
     continueBtn:{ nl: 'Verder spelen', en: 'Continue' },
@@ -100,7 +100,8 @@ const GAME = {
     eclInFwd:    { nl: 'Binnenring vooruit', en: 'Inner ring forward' },
     close:      { nl: 'Sluiten', en: 'Close' },
     sound:      { nl: 'Geluid aan of uit', en: 'Sound on or off' },
-    home:       { nl: 'Terug naar de homepagina', en: 'Back to the homepage' },
+    home:       { nl: 'Terug naar RetroAdventureWorld', en: 'Back to RetroAdventureWorld' },
+    winHome:    { nl: 'Naar home', en: 'Home' },
     inventory:  { nl: 'Inventaris', en: 'Inventory' },
     saveGame:   { nl: 'Spel opslaan', en: 'Save game' },
     showTip:    { nl: 'Toon de tip', en: 'Show the hint' },

@@ -59,8 +59,21 @@
   const L = (v) => v == null ? '' : (typeof v === 'function' ? L(v(state)) : (typeof v === 'string' ? v : (v[lang] || v.nl || '')));
   const setA11y = (el, v) => { if (el) { const t = L(v); el.setAttribute('aria-label', t); el.title = t; } };
 
+  /* Terug naar RetroAdventureWorld: de huisjes-knop linksboven, de link op het titelscherm en de
+     knop op het eindscherm gaan naar de homepagina in de taal van het spel (/ of /nl/). */
+  function syncHome() {
+    const url = lang === 'nl' ? '/nl/' : '/';
+    const lbl = L(GAME.ui.aHome);
+    document.querySelectorAll('.js-home').forEach((a) => a.setAttribute('href', url));
+    ['homeBtn', 'titleHomeLink'].forEach((id) => { const a = document.getElementById(id); if (a) a.setAttribute('aria-label', lbl); });
+    ['homeBtn', 'winHomeBtn'].forEach((id) => { const a = document.getElementById(id); if (a) a.title = lbl; });
+    const wl = document.getElementById('winHomeLbl');
+    if (wl) wl.textContent = L(GAME.ui.winHome);
+  }
+
   function applyLang() {
     document.documentElement.lang = lang;
+    syncHome();
     elLangBtn.textContent = lang === 'nl' ? 'EN' : 'NL';
     document.getElementById('title-h1').innerHTML =
       GAME.titleLines[lang].map(s => `<span>${s}</span>`).join('<br>');
@@ -3414,11 +3427,14 @@
 
   elReplayBtn.addEventListener('click', resetGame);
 
-  /* Home-knop: tijdens het spel eerst bevestigen (ja/nee) voor je het spel verlaat. */
+  /* Home-knop (linksboven, op elk scherm). Alleen tijdens het spelen eerst bevestigen (ja/nee);
+     op het titel- en het eindscherm ga je direct terug naar RetroAdventureWorld.
+     Dit spel bewaart geen voortgang, dus de vraag waarschuwt daarvoor. */
   const elHomeBtn = document.getElementById('homeBtn');
   if (elHomeBtn) {
     elHomeBtn.addEventListener('click', (e) => {
-      if (started && !window.confirm(L(GAME.ui.homeConfirm))) e.preventDefault();
+      if (!started || !elTitle.hidden || !elWin.hidden) return;
+      if (!window.confirm(L(GAME.ui.homeConfirm))) { e.preventDefault(); return; }
     });
   }
 

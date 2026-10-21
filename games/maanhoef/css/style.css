@@ -974,3 +974,76 @@ body.popup-open #hintBtn { display: none; }
   .puzzle-card.jig-wide .puz-hint-btn, .puzzle-card.jig-wide .puz-x { top: 8px; }
   .puzzle-card.jig-wide .puz-tip { margin-top: 4px; font-size: 11px; }
 }
+
+/* =====================================================================
+   Terug naar RetroAdventureWorld — op ELK scherm (titel, spel, popups, verloren,
+   gewonnen) dezelfde huisjes-knop linksboven. Ligt boven alle overlays en
+   cinematics, maar onder het account-venster van de site.
+   ===================================================================== */
+#homeBtn.round-btn.home {
+  position: fixed;
+  left: 12px; right: auto;
+  top: calc(var(--safe-top) + 8px); bottom: auto;
+  width: 42px; height: 42px;
+  padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 1;
+  z-index: 95;
+  text-decoration: none;
+}
+#homeBtn .px-house { width: 24px; height: 24px; display: block; }
+#homeBtn:hover { color: #fff; }
+#homeBtn:focus-visible, .title-home-link:focus-visible, .win-home:focus-visible {
+  outline: 2px solid var(--gold-light); outline-offset: 3px;
+}
+@media (pointer: coarse) {
+  #homeBtn.round-btn.home { width: 44px; height: 44px; }
+}
+
+/* Titelscherm: kleine tekstlink zodat nieuwe bezoekers zien waar ze zijn */
+.title-home-link {
+  position: absolute;
+  right: max(14px, env(safe-area-inset-right, 0px));
+  bottom: calc(var(--safe-bottom) + 12px);
+  z-index: 3;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1.2;
+  color: var(--gold-light);
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #1f1410;
+  background: rgba(20, 14, 10, .7);
+  border: 1px solid var(--gold);
+  padding: 7px 12px;
+}
+.title-home-link:hover { color: #fff; background: rgba(20, 14, 10, .88); }
+@media (pointer: coarse) {
+  .title-home-link { min-height: 44px; display: inline-flex; align-items: center; }
+}
+
+/* Eindscherm: knoppen naast elkaar, met een "Naar home"-knop erbij */
+.win-btns {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 10px 14px; margin-top: 10px;
+}
+#win-screen .win-btns > .gold-btn { margin: 0; vertical-align: middle; }
+.win-home { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 15px; }
+.win-home .px-house { width: 24px; height: 24px; display: block; flex: 0 0 auto; }
+
+/* knoppen linksboven één plekje opgeschoven: het huisje staat voorop */
+.round-btn.sound { left: 62px; }
+.round-btn.lang  { left: 112px; }
+#topcenter { max-width: calc(100vw - 360px); }
+@media (pointer: coarse) {
+  .round-btn.sound { left: 64px; }
+  .round-btn.lang  { left: 116px; }
+  #hintBtn { left: 168px; right: auto; }
+  #topcenter { max-width: calc(100vw - 440px); }
+}
+/* titelscherm: geluid staat er nog niet, dus de taalknop schuift naast het huisje */
+body:has(#title-screen:not([hidden])) .round-btn.lang { left: 62px; }
+@media (pointer: coarse) {
+  body:has(#title-screen:not([hidden])) .round-btn.lang { left: 64px; }
+}

@@ -18,7 +18,7 @@ const GAME = {
     en: ['The Amulet', 'of Emberfall']
   },
   startScene: 'courtyard',
-  assetVer: '51',
+  assetVer: '52',
 
   /* Sprite-register: NPC's verwijzen via hun sprite-naam naar deze paden. */
   sprites: {
@@ -76,11 +76,12 @@ const GAME = {
                    en: 'This adventure plays in landscape. Turn your screen sideways.' },
     tapContinue: { nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
     selected:    { nl: 'geselecteerd', en: 'selected' },
-    homeConfirm: { nl: 'Terug naar de homepagina? Je voortgang gaat verloren.', en: 'Back to the homepage? Your progress will be lost.' },
+    homeConfirm: { nl: 'Terug naar RetroAdventureWorld? Je voortgang gaat verloren.', en: 'Back to RetroAdventureWorld? Your progress will be lost.' },
     /* Knop-labels voor schermlezers (applyLang zet ze in de gekozen taal) */
     aSound:      { nl: 'Geluid aan of uit', en: 'Sound on or off' },
     aLang:       { nl: 'Switch to English', en: 'Wissel naar Nederlands' },
-    aHome:       { nl: 'Terug naar de homepagina', en: 'Back to the homepage' },
+    aHome:       { nl: 'Terug naar RetroAdventureWorld', en: 'Back to RetroAdventureWorld' },
+    winHome:     { nl: 'Naar home', en: 'Home' },
     aInv:        { nl: 'Inventaris', en: 'Inventory' },
     aClose:      { nl: 'Sluiten', en: 'Close' },
     aHint:       { nl: 'Laat zien waar je kunt tikken', en: 'Show what you can tap' },

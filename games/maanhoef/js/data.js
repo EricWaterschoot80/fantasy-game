@@ -10,7 +10,7 @@ const GAME = {
   title: { nl: 'Maanhoef', en: 'Moonhoof' },
   titleLines: { nl: ['Maanhoef'], en: ['Moonhoof'] },
   startScene: 'farm',
-  assetVer: '52',
+  assetVer: '53',
 
   sprites: {
     hero:      'assets/art/hero.png',
@@ -61,11 +61,12 @@ const GAME = {
                   en: 'This adventure plays in landscape. Turn your screen sideways.' },
     tapContinue:{ nl: 'tik om verder te gaan ▸', en: 'tap to continue ▸' },
     selected:   { nl: 'geselecteerd', en: 'selected' },
-    homeConfirm:{ nl: 'Terug naar de homepagina? Je voortgang blijft bewaard op dit apparaat.', en: 'Back to the homepage? Your progress is saved on this device.' },
+    homeConfirm:{ nl: 'Terug naar RetroAdventureWorld? Je voortgang blijft bewaard op dit apparaat.', en: 'Back to RetroAdventureWorld? Your progress is saved on this device.' },
     hintBtn:    { nl: 'Toon wat je kunt aantikken', en: 'Show what you can tap' },
     soundBtn:   { nl: 'Geluid aan of uit', en: 'Sound on or off' },
     langBtn:    { nl: 'Switch to English', en: 'Wissel naar Nederlands' },
-    homeBtn:    { nl: 'Terug naar de homepagina', en: 'Back to the homepage' },
+    homeBtn:    { nl: 'Terug naar RetroAdventureWorld', en: 'Back to RetroAdventureWorld' },
+    winHome:    { nl: 'Naar home', en: 'Home' },
     invLabel:   { nl: 'Rugzak', en: 'Backpack' },
     closeBtn:   { nl: 'Sluiten', en: 'Close' },
 
