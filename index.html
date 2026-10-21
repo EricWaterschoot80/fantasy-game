@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#08101b">
   <title>Retro Adventure Games Online: Free Point-and-Click Pixel Adventures | RetroAdventureWorld</title>
-  <meta name="description" content="Play free retro point-and-click adventure games online, no download. 16-bit pixel-art browser games for kids and families, on phone and desktop. Pick a place on the map and play.">
+  <meta name="description" content="Play free retro point-and-click adventure games online, no download. 16-bit pixel-art browser games for kids from 7 and for adults, on phone and desktop. Pick a place on the map and play.">
   <link rel="canonical" href="https://www.retroadventureworld.com/">
   <link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/">
   <link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/nl/">
@@ -51,7 +51,7 @@
           "url": "https://www.retroadventureworld.com/games/maanhoef/",
           "genre": ["Point-and-click adventure", "Pixel art"], "gamePlatform": "Web browser",
           "applicationCategory": "Game", "operatingSystem": "Any (browser)", "inLanguage": ["en", "nl"],
-          "timeRequired": "PT20M",
+          "timeRequired": "PT20M", "typicalAgeRange": "7-", "audience": { "@type": "PeopleAudience", "suggestedMinAge": 7 },
           "description": "A gentle 16-bit point-and-click adventure: help Loïs rescue her horse Moonhoof.",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" } } },
       { "@type": "ListItem", "position": 2, "item": {
@@ -59,7 +59,7 @@
           "url": "https://www.retroadventureworld.com/games/emberfall/",
           "genre": ["Point-and-click adventure", "Pixel art"], "gamePlatform": "Web browser",
           "applicationCategory": "Game", "operatingSystem": "Any (browser)", "inLanguage": ["en", "nl"],
-          "timeRequired": "PT15M",
+          "timeRequired": "PT15M", "typicalAgeRange": "7-", "audience": { "@type": "PeopleAudience", "suggestedMinAge": 7 },
           "description": "A classic 16-bit point-and-click puzzle adventure with an eternal autumn, a stolen amulet and a sleeping minotaur.",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" } } },
       { "@type": "ListItem", "position": 3, "item": {
@@ -67,7 +67,7 @@
           "url": "https://www.retroadventureworld.com/games/ravenholt/",
           "genre": ["Point-and-click adventure", "Pixel art", "Mystery"], "gamePlatform": "Web browser",
           "applicationCategory": "Game", "operatingSystem": "Any (browser)", "inLanguage": ["en", "nl"],
-          "timeRequired": "PT20M",
+          "timeRequired": "PT20M", "typicalAgeRange": "9-", "audience": { "@type": "PeopleAudience", "suggestedMinAge": 9 },
           "description": "A 16-bit point-and-click mystery: young Finn investigates a dried-up village fountain and a silent water mill in the kingdom of Eldoria.",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" } } },
       { "@type": "ListItem", "position": 4, "item": {
@@ -75,7 +75,7 @@
           "url": "https://www.retroadventureworld.com/games/ravenholt-deel2/",
           "genre": ["Point-and-click adventure", "Pixel art", "Mystery"], "gamePlatform": "Web browser",
           "applicationCategory": "Game", "operatingSystem": "Any (browser)", "inLanguage": ["en", "nl"],
-          "timeRequired": "PT20M",
+          "timeRequired": "PT20M", "typicalAgeRange": "9-", "audience": { "@type": "PeopleAudience", "suggestedMinAge": 9 },
           "description": "The sequel: Finn slips into the castle of Eldoria to free his captive father.",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" } } }
     ]
@@ -91,7 +91,9 @@
       { "@type": "Question", "name": "Can I play on my phone?",
         "acceptedAnswer": { "@type": "Answer", "text": "Yes. The games run in the browser on phones, tablets and desktops. On a phone they play best in landscape, and you can add them to your home screen as an app." } },
       { "@type": "Question", "name": "Which game should I start with?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Maanhoef (about 20 minutes) and The Amulet of Emberfall (about 15 minutes) are easy and good for beginners and children. Whispers of Ravenholt is a two-part mystery: play Part 1 first, then Part 2." } },
+        "acceptedAnswer": { "@type": "Answer", "text": "Maanhoef (about 20 minutes) and The Amulet of Emberfall (about 15 minutes) are easy and suit players from about 7. Whispers of Ravenholt is a two-part mystery for ages 9 and up: play Part 1 first, then Part 2." } },
+      { "@type": "Question", "name": "Are the games also for adults?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Children from about 7 can play them, and adults who grew up with classic point-and-click adventures will recognise the style. Younger children can play along with a parent who reads the text aloud." } },
       { "@type": "Question", "name": "What is a point-and-click adventure?",
         "acceptedAnswer": { "@type": "Answer", "text": "A classic style of game where you explore drawn scenes, collect and combine items, talk to characters and solve puzzles to move the story forward. No fast reflexes needed, just curiosity." } },
       { "@type": "Question", "name": "Do I need an account?",
@@ -176,6 +178,30 @@
     .label.arrow[aria-pressed="true"] { box-shadow: none; filter: brightness(1.15); }
     @keyframes nudge { 0%, 55%, 100% { translate: 0 0; } 70% { translate: calc(5 * var(--s)) 0; } 85% { translate: calc(1 * var(--s)) 0; } }
     .beacon.soon { display: none; }
+
+    /* living water: the river flows, the falls fall, the fountain sprays, windows flicker, a raven passes */
+    .water { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: screen; overflow: visible; }
+    .water .flow path { fill: none; stroke: #bfeaff; stroke-width: 1.6; stroke-linecap: square; stroke-dasharray: 3 22; opacity: .5; animation: flow 3.4s linear infinite; }
+    .water .flow .f2 { stroke-dasharray: 5 31; stroke-width: 1.3; animation-duration: 4.6s; opacity: .45; }
+    .water .flow .f3 { stroke-dasharray: 2 17; stroke: #8fd8ff; animation-duration: 5.2s; animation-delay: -2s; opacity: .4; }
+    @keyframes flow { to { stroke-dashoffset: -100; } }
+    .water .falls path { fill: none; stroke: #e9fbff; stroke-width: 1.6; stroke-dasharray: 5 7; opacity: .7; animation: fall .55s linear infinite; }
+    .water .falls .b { stroke: #9fe3ff; stroke-dasharray: 3 9; animation-duration: .8s; opacity: .55; }
+    @keyframes fall { to { stroke-dashoffset: -24; } }
+    .water .foam ellipse { fill: #eafaff; opacity: .35; transform-box: fill-box; transform-origin: center; animation: foam 1.3s ease-in-out infinite; }
+    .water .foam .b { animation-delay: -.6s; }
+    @keyframes foam { 0%, 100% { opacity: .2; transform: scale(.8); } 50% { opacity: .55; transform: scale(1.15); } }
+    .water .spray rect { fill: #dff7ff; transform-box: fill-box; animation: spray 1.4s ease-out infinite; }
+    .water .spray .b { animation-delay: -.45s; } .water .spray .c { animation-delay: -.9s; }
+    @keyframes spray { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 1; } 55% { transform: translate(0, -9px); } 100% { transform: translate(0, 1px); opacity: 0; } }
+    .water .windows rect { fill: #ffc85a; opacity: .35; animation: flicker 2.8s steps(3) infinite; }
+    .water .windows .b { animation-duration: 3.7s; } .water .windows .c { animation-duration: 2.2s; animation-delay: -1s; }
+    @keyframes flicker { 0%, 100% { opacity: .2; } 33% { opacity: .55; } 66% { opacity: .35; } }
+    .raven { position: absolute; left: -6%; top: 9%; width: calc(26 * var(--s)); height: calc(28 * var(--s)); image-rendering: pixelated;
+      background: url(assets/heroes/raven-fly.png) 0 0 / 400% 100% no-repeat; filter: brightness(2.3) saturate(.7); z-index: 2;
+      animation: wings .5s steps(4) infinite, fly-over 26s linear infinite; }
+    @keyframes wings { to { background-position: 133.33% 0; } }
+    @keyframes fly-over { 0% { left: -6%; top: 7%; } 15% { top: 3%; } 30% { left: 104%; top: 5%; } 30.01%, 100% { left: 104%; top: 5%; } }
 
     .hero { position: absolute; left: 0; top: 0; pointer-events: none; transform-origin: 50% 100%; display: block; }
     .hero .spr { display: block; position: relative; background-repeat: no-repeat; background-position: 0 100%; image-rendering: pixelated; }
@@ -411,7 +437,8 @@
     @media (min-width: 761px) { #ra-acc-btn { position: absolute !important; top: 64px !important; right: 16px !important; left: auto !important; bottom: auto !important; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .beacon, .firefly, .glint, .star, .smoke, .fog i, .hero.idle .spr, .label.arrow, .hand { animation: none !important; }
+      .beacon, .firefly, .glint, .star, .smoke, .fog i, .hero.idle .spr, .label.arrow, .hand, .water *, .raven { animation: none !important; }
+      .raven { display: none; }
       .firefly, .glint, .smoke { display: none; }
       .label, .sign, .play { transition: none; }
     }
@@ -429,6 +456,7 @@
       <symbol id="i-hand" viewBox="0 0 8 8"><path fill="currentColor" d="M2 0h2v3h1V2h1v1h1v4H6v1H2V7H1V5H0V4h2z"/></symbol>
       <symbol id="i-left" viewBox="0 0 8 8"><path fill="currentColor" d="M4 0h2v1H5v1H4v1H3v2h1v1h1v1h1v1H4V7H3V6H2V5H1V3h1V2h1V1h1z"/></symbol>
       <symbol id="i-right" viewBox="0 0 8 8"><path fill="currentColor" d="M2 0h2v1h1v1h1v1h1v2H6v1H5v1H4v1H2V7h1V6h1V5h1V3H4V2H3V1H2z"/></symbol>
+      <symbol id="i-age" viewBox="0 0 8 8"><path fill="currentColor" d="M3 0h2v1h1v2H5v1H3V3H2V1h1zM1 5h2v1H1zM5 5h2v1H5zM2 4h4v1h1v3H1V5h1z"/></symbol>
     </defs>
   </svg>
 
@@ -437,7 +465,36 @@
       <div class="stage" id="stage">
         <img class="map" src="assets/plates/map.webp" width="2048" height="1376" fetchpriority="high"
              alt="Pixel-art night map of RetroAdventureWorld: a farm with windmills, an autumn forest with a cave, a blue castle on a hill and a village with a fountain, linked by dirt paths and a river.">
-        <div id="ambient" aria-hidden="true"></div>
+        <svg class="water" viewBox="0 0 1024 688" preserveAspectRatio="none" aria-hidden="true">
+          <g class="flow">
+            <path class="f1" d="M210 328 C225 336 240 345 258 356"/>
+            <path class="f2" d="M262 412 C290 430 320 455 350 470 S400 492 430 497 S500 525 560 532 S640 530 700 520"/>
+            <path class="f3" d="M262 412 C290 430 320 455 350 470 S400 492 430 497 S500 525 560 532 S640 530 700 520" transform="translate(4 10)"/>
+            <path class="f1" d="M690 238 C715 246 740 250 765 244"/>
+            <path class="f2" d="M770 280 C782 305 792 340 792 380 S785 440 760 465 S700 505 640 522"/>
+            <path class="f3" d="M770 280 C782 305 792 340 792 380 S785 440 760 465 S700 505 640 522" transform="translate(-9 2)"/>
+            <path class="f2" d="M470 548 C560 552 650 550 740 548 S840 556 900 566"/>
+            <path class="f3" d="M330 548 C290 556 250 562 210 566 S120 570 60 565"/>
+          </g>
+          <g class="falls">
+            <path d="M260 357V401M264 359V402M268 357V403M272 360V401"/>
+            <path class="b" d="M262 358V402M266 357V403M270 359V402"/>
+            <path d="M768 246V272M772 245V274M776 247V273M780 246V271"/>
+            <path class="b" d="M770 246V273M774 245V274M778 247V272"/>
+          </g>
+          <g class="foam">
+            <ellipse cx="268" cy="406" rx="11" ry="4"/><ellipse class="b" cx="262" cy="410" rx="7" ry="3"/>
+            <ellipse cx="775" cy="276" rx="8" ry="3"/><ellipse class="b" cx="770" cy="279" rx="5" ry="2"/>
+          </g>
+          <g class="spray">
+            <rect x="610" y="366" width="2" height="2"/><rect class="b" x="607" y="367" width="2" height="2"/><rect class="c" x="613" y="367" width="2" height="2"/>
+          </g>
+          <g class="windows">
+            <rect x="561" y="342" width="4" height="4"/><rect class="b" x="611" y="336" width="4" height="4"/><rect class="c" x="662" y="348" width="4" height="4"/>
+            <rect class="b" x="701" y="371" width="4" height="4"/><rect x="723" y="403" width="4" height="4"/><rect class="c" x="131" y="181" width="4" height="4"/>
+          </g>
+        </svg>
+        <div id="ambient" aria-hidden="true"><i class="raven"></i></div>
         <div class="fog" aria-hidden="true"><i></i><i></i><i></i></div>
         <div id="beacons" aria-hidden="true"></div>
         <div id="heroes" aria-hidden="true"></div>
@@ -484,8 +541,8 @@
       <section class="intro" aria-labelledby="intro-h">
         <div>
           <h2 id="intro-h" data-en="Free retro point-and-click adventures" data-nl="Gratis online spelletjes voor kinderen en het hele gezin">Free retro point-and-click adventures</h2>
-          <p class="lead" data-en="RetroAdventureWorld is a small world of 16-bit pixel-art adventure games you play right in your browser. Pick a place on the map, meet its hero and start playing. No download, no sign-up, on phone, tablet or computer."
-             data-nl="RetroAdventureWorld is een kleine wereld vol 16-bit pixel-avonturen die je direct in je browser speelt. Kies een plek op de kaart, ontmoet de held en begin. Zonder downloaden en zonder account, op telefoon, tablet of computer.">RetroAdventureWorld is a small world of 16-bit pixel-art adventure games you play right in your browser. Pick a place on the map, meet its hero and start playing. No download, no sign-up, on phone, tablet or computer.</p>
+          <p class="lead" data-en="RetroAdventureWorld is a small world of 16-bit pixel-art adventure games you play right in your browser. Pick a place on the map, meet its hero and start playing. For children from 7 and for adults who love classic adventures. No download, no sign-up, on phone, tablet or computer."
+             data-nl="RetroAdventureWorld is een kleine wereld vol 16-bit pixel-avonturen die je direct in je browser speelt. Kies een plek op de kaart, ontmoet de held en begin. Voor kinderen vanaf 7 jaar en voor volwassenen die van klassieke avonturen houden. Zonder downloaden en zonder account, op telefoon, tablet of computer.">RetroAdventureWorld is a small world of 16-bit pixel-art adventure games you play right in your browser. Pick a place on the map, meet its hero and start playing. For children from 7 and for adults who love classic adventures. No download, no sign-up, on phone, tablet or computer.</p>
         </div>
         <aside class="glance" aria-labelledby="glance-h">
           <h3 id="glance-h" data-en="At a glance" data-nl="In het kort">At a glance</h3>
@@ -494,6 +551,7 @@
             <dt data-en="Price" data-nl="Prijs">Price</dt><dd data-en="Free" data-nl="Gratis">Free</dd>
             <dt data-en="Play time" data-nl="Speeltijd">Play time</dt><dd data-en="About 15 to 20 minutes per game" data-nl="Ongeveer 15 tot 20 minuten per spel">About 15 to 20 minutes per game</dd>
             <dt data-en="Languages" data-nl="Talen">Languages</dt><dd data-en="English and Dutch" data-nl="Engels en Nederlands">English and Dutch</dd>
+            <dt data-en="Age" data-nl="Leeftijd">Age</dt><dd data-en="Maanhoef and Emberfall from 7, Whispers of Ravenholt from 9. Younger children can play with a parent, and adults enjoy them too." data-nl="Maanhoef en Emberfall vanaf 7, Whispers of Ravenholt vanaf 9. Jongere kinderen spelen mee met een ouder, en ook volwassenen vinden ze leuk.">Maanhoef and Emberfall from 7, Whispers of Ravenholt from 9. Younger children can play with a parent, and adults enjoy them too.</dd>
             <dt data-en="Plays on" data-nl="Speelt op">Plays on</dt><dd data-en="Any modern browser on phone, tablet or desktop" data-nl="Elke moderne browser op telefoon, tablet of computer">Any modern browser on phone, tablet or desktop</dd>
           </dl>
         </aside>
@@ -506,7 +564,7 @@
             <a class="cover" href="games/maanhoef/" tabindex="-1" aria-hidden="true"><img src="assets/covers/maanhoef.webp" width="720" height="405" loading="lazy" alt=""><img class="sprite" src="assets/heroes/maanhoef.png" alt=""></a>
             <div>
               <h3><a href="games/maanhoef/">Maanhoef</a></h3>
-              <p class="facts"><span><svg class="ic"><use href="#i-clock"/></svg>~20 min</span><span><svg class="ic ok"><use href="#i-check"/></svg><span data-en="Easy, great for kids" data-nl="Makkelijk, fijn voor kinderen">Easy, great for kids</span></span><span><svg class="ic globe"><use href="#i-globe"/></svg>NL/EN</span></p>
+              <p class="facts"><span><svg class="ic"><use href="#i-clock"/></svg>~20 min</span><span><svg class="ic ok"><use href="#i-check"/></svg><span data-en="Easy" data-nl="Makkelijk">Easy</span></span><span><svg class="ic"><use href="#i-age"/></svg><span data-en="Age 7+, also for adults" data-nl="Vanaf 7 jaar, ook voor volwassenen">Age 7+, also for adults</span></span><span><svg class="ic globe"><use href="#i-globe"/></svg>NL/EN</span></p>
               <p data-en="Loïs sets out to rescue her horse Moonhoof. The stable key hangs from a skittish dog's collar, a wise owl asks a riddle and a hissing snake blocks the path. A gentle, cosy adventure for beginners and children."
                  data-nl="Loïs gaat haar paard Maanhoef redden. De stalsleutel hangt aan de halsband van een schichtig hondje, een wijze uil stelt een raadsel en een sissende slang verspert het pad. Een zacht, gezellig avontuur voor beginners en kinderen.">Loïs sets out to rescue her horse Moonhoof. The stable key hangs from a skittish dog's collar, a wise owl asks a riddle and a hissing snake blocks the path. A gentle, cosy adventure for beginners and children.</p>
               <div class="quest-actions"><a class="btn-play" href="games/maanhoef/" data-en="Play free" data-nl="Speel gratis">Play free</a><button class="btn-map" type="button" data-show="maanhoef"><svg class="ic"><use href="#i-pin"/></svg><span data-en="Show on map" data-nl="Toon op de kaart">Show on map</span></button></div>
@@ -517,7 +575,7 @@
             <a class="cover" href="games/emberfall/" tabindex="-1" aria-hidden="true"><img src="assets/covers/emberfall.webp" width="720" height="405" loading="lazy" alt=""><img class="sprite" src="assets/heroes/emberfall.png" alt=""></a>
             <div>
               <h3><a href="games/emberfall/" data-en="The Amulet of Emberfall" data-nl="De Amulet van Emberfall">The Amulet of Emberfall</a></h3>
-              <p class="facts"><span><svg class="ic"><use href="#i-clock"/></svg>~15 min</span><span><svg class="ic ok"><use href="#i-check"/></svg><span data-en="Easy" data-nl="Makkelijk">Easy</span></span><span><svg class="ic globe"><use href="#i-globe"/></svg>NL/EN</span></p>
+              <p class="facts"><span><svg class="ic"><use href="#i-clock"/></svg>~15 min</span><span><svg class="ic ok"><use href="#i-check"/></svg><span data-en="Easy" data-nl="Makkelijk">Easy</span></span><span><svg class="ic"><use href="#i-age"/></svg><span data-en="Age 7+, also for adults" data-nl="Vanaf 7 jaar, ook voor volwassenen">Age 7+, also for adults</span></span><span><svg class="ic globe"><use href="#i-globe"/></svg>NL/EN</span></p>
               <p data-en="Eternal autumn, a stolen amulet and a sleeping minotaur. Gather and combine items, brew a sleeping potion and outwit the beast in this classic puzzle adventure."
                  data-nl="Eeuwige herfst, een gestolen amulet en een slapende minotaur. Verzamel en combineer voorwerpen, brouw een slaapdrank en versla het beest met een list in dit klassieke puzzelavontuur.">Eternal autumn, a stolen amulet and a sleeping minotaur. Gather and combine items, brew a sleeping potion and outwit the beast in this classic puzzle adventure.</p>
               <div class="quest-actions"><a class="btn-play" href="games/emberfall/" data-en="Play free" data-nl="Speel gratis">Play free</a><button class="btn-map" type="button" data-show="emberfall"><svg class="ic"><use href="#i-pin"/></svg><span data-en="Show on map" data-nl="Toon op de kaart">Show on map</span></button></div>
@@ -527,7 +585,7 @@
           <li><article class="quest series" aria-labelledby="series-h">
             <header>
               <h3 id="series-h">Whispers of Ravenholt</h3>
-              <p class="facts"><span><svg class="ic"><use href="#i-star"/></svg><span data-en="Mystery in two parts" data-nl="Mysterie in twee delen">Mystery in two parts</span></span><span><svg class="ic"><use href="#i-clock"/></svg><span data-en="~15–20 min each" data-nl="~15–20 min per deel">~15–20 min each</span></span><span><svg class="ic globe"><use href="#i-globe"/></svg>NL/EN</span></p>
+              <p class="facts"><span><svg class="ic"><use href="#i-star"/></svg><span data-en="Mystery in two parts" data-nl="Mysterie in twee delen">Mystery in two parts</span></span><span><svg class="ic"><use href="#i-clock"/></svg><span data-en="~15–20 min each" data-nl="~15–20 min per deel">~15–20 min each</span></span><span><svg class="ic"><use href="#i-age"/></svg><span data-en="Age 9+, also for adults" data-nl="Vanaf 9 jaar, ook voor volwassenen">Age 9+, also for adults</span></span><span><svg class="ic globe"><use href="#i-globe"/></svg>NL/EN</span></p>
               <p data-en="Play as young Finn in the kingdom of Eldoria. A little more challenging than the other games. Start with Part 1; Part 2 picks up where it ends."
                  data-nl="Speel als de jonge Finn in het koninkrijk Eldoria. Iets uitdagender dan de andere spellen. Begin met Deel 1; Deel 2 gaat verder waar het ophoudt.">Play as young Finn in the kingdom of Eldoria. A little more challenging than the other games. Start with Part 1; Part 2 picks up where it ends.</p>
             </header>
@@ -579,7 +637,11 @@
           </details>
           <details>
             <summary data-en="Which game should I start with?" data-nl="Met welk spel begin ik?">Which game should I start with?</summary>
-            <p data-en="Maanhoef (about 20 minutes) and The Amulet of Emberfall (about 15 minutes) are easy and good for beginners and children. Whispers of Ravenholt is a two-part mystery: play Part 1 first, then Part 2." data-nl="Maanhoef (ongeveer 20 minuten) en De Amulet van Emberfall (ongeveer 15 minuten) zijn makkelijk en fijn voor beginners en kinderen. Whispers of Ravenholt is een mysterie in twee delen: speel eerst Deel 1, dan Deel 2.">Maanhoef (about 20 minutes) and The Amulet of Emberfall (about 15 minutes) are easy and good for beginners and children. Whispers of Ravenholt is a two-part mystery: play Part 1 first, then Part 2.</p>
+            <p data-en="Maanhoef (about 20 minutes) and The Amulet of Emberfall (about 15 minutes) are easy and suit players from about 7. Whispers of Ravenholt is a two-part mystery for ages 9 and up: play Part 1 first, then Part 2." data-nl="Maanhoef (ongeveer 20 minuten) en De Amulet van Emberfall (ongeveer 15 minuten) zijn makkelijk en passen vanaf ongeveer 7 jaar. Whispers of Ravenholt is een mysterie in twee delen vanaf 9 jaar: speel eerst Deel 1, dan Deel 2.">Maanhoef (about 20 minutes) and The Amulet of Emberfall (about 15 minutes) are easy and suit players from about 7. Whispers of Ravenholt is a two-part mystery for ages 9 and up: play Part 1 first, then Part 2.</p>
+          </details>
+          <details>
+            <summary data-en="Are the games also for adults?" data-nl="Zijn de spellen ook voor volwassenen?">Are the games also for adults?</summary>
+            <p data-en="Yes. Children from about 7 can play them, and adults who grew up with classic point-and-click adventures will recognise the style. Younger children can play along with a parent who reads the text aloud." data-nl="Ja. Kinderen vanaf ongeveer 7 jaar kunnen ze spelen, en volwassenen die zijn opgegroeid met klassieke point-and-click avonturen herkennen de stijl meteen. Jongere kinderen kunnen meespelen met een ouder die de tekst voorleest.">Yes. Children from about 7 can play them, and adults who grew up with classic point-and-click adventures will recognise the style. Younger children can play along with a parent who reads the text aloud.</p>
           </details>
           <details>
             <summary data-en="What is a point-and-click adventure?" data-nl="Wat is een point-and-click avontuur?">What is a point-and-click adventure?</summary>
@@ -630,28 +692,28 @@
     var GAMES = [
       { id: 'maanhoef', hero: 'lois', href: 'games/maanhoef/', portrait: 'assets/heroes/portrait-maanhoef.png',
         beacon: [127, 143], label: [60, 229, 154, 58],
-        route: [[300, 281], [252, 266], [205, 250], [168, 234], [150, 222]],
+        route: [[300, 281], [252, 266], [205, 250], [168, 234], [150, 222]], age: 7,
         title: { en: 'Maanhoef', nl: 'Maanhoef' },
         sub: { en: 'Help Loïs rescue her horse Moonhoof.', nl: 'Help Loïs haar paard Maanhoef te redden.' },
         time: '~20 min', kind: { en: 'Easy', nl: 'Makkelijk' }, ok: true,
         next: { en: 'Gentle and cosy, a great first adventure', nl: 'Zacht en gezellig, fijn als eerste avontuur' } },
       { id: 'emberfall', hero: 'ember', href: 'games/emberfall/', portrait: 'assets/heroes/portrait-emberfall.png',
         beacon: [372, 108], label: [282, 179, 174, 50],
-        route: [[393, 268], [386, 236], [380, 200], [374, 168], [372, 152]],
+        route: [[393, 268], [386, 236], [380, 200], [374, 168], [372, 152]], age: 7,
         title: { en: 'The Amulet of Emberfall', nl: 'De Amulet van Emberfall' },
         sub: { en: 'Eternal autumn, a stolen amulet and a sleeping minotaur.', nl: 'Eeuwige herfst, een gestolen amulet en een slapende minotaur.' },
         time: '~15 min', kind: { en: 'Easy', nl: 'Makkelijk' }, ok: true,
         next: { en: 'A classic puzzle adventure', nl: 'Een klassiek puzzelavontuur' } },
       { id: 'ravenholt-2', hero: 'finn', href: 'games/ravenholt-deel2/', portrait: 'assets/heroes/portrait-finn.png',
         beacon: [636, 57], label: [552, 158, 154, 50], compact: true,
-        route: [[434, 334], [428, 306], [468, 290], [526, 262], [574, 230], [598, 196], [610, 162], [624, 136]],
+        route: [[434, 334], [428, 306], [468, 290], [526, 262], [574, 230], [598, 196], [610, 162], [624, 136]], age: 9,
         title: { en: 'Whispers of Ravenholt — Part 2', nl: 'Whispers of Ravenholt — Deel 2' },
         sub: { en: 'Free your father from the castle of Eldoria.', nl: 'Bevrijd je vader uit het kasteel van Eldoria.' },
         time: '~20 min', kind: { en: 'Mystery', nl: 'Mysterie' },
         next: { en: '←\u00a0Play Part 1 first', nl: '←\u00a0Speel eerst Deel 1' }, nextTo: 'ravenholt-1' },
       { id: 'ravenholt-1', hero: 'finn', href: 'games/ravenholt/', portrait: 'assets/heroes/portrait-finn.png',
         beacon: [611, 293], label: [521, 402, 186, 66],
-        route: [[434, 334], [438, 368], [458, 398], [500, 414], [552, 404], [590, 388], [604, 372]],
+        route: [[434, 334], [438, 368], [458, 398], [500, 414], [552, 404], [590, 388], [604, 372]], age: 9,
         title: { en: 'Whispers of Ravenholt — Part 1', nl: 'Whispers of Ravenholt — Deel 1' },
         sub: { en: 'A mystery in the village of Eldoria.', nl: 'Een mysterie in het dorp Eldoria.' },
         time: '~20 min', kind: { en: 'Mystery', nl: 'Mysterie' },
@@ -708,12 +770,13 @@
         var h = '<span class="t">' + t + '</span>';
         if (!g.compact) {
           var meta = '<span>' + svg('clock') + g.time + '</span><span>' + svg(g.ok ? 'check' : 'star', g.ok ? 'ok' : '') + g.kind[lang] + '</span>';
-          if (g.id === 'maanhoef') h += '<span class="meta">' + meta + '</span><span class="meta"><span>' + svg('globe') + 'NL/EN</span></span>';
-          else if (g.id === 'ravenholt-1') h += '<span class="meta">' + meta + '<span>' + svg('globe') + 'NL/EN</span></span>';
-          else h += '<span class="meta">' + meta + '</span>';
+          var age = '<span>' + svg('age') + g.age + '+</span>';
+          if (g.id === 'maanhoef') h += '<span class="meta">' + meta + '</span><span class="meta">' + age + '<span>' + svg('globe') + 'NL/EN</span></span>';
+          else if (g.id === 'ravenholt-1') h += '<span class="meta">' + meta + age + '<span>' + svg('globe') + 'NL/EN</span></span>';
+          else h += '<span class="meta">' + meta + age + '</span>';
         }
         g.labelEl.innerHTML = h;
-        g.labelEl.setAttribute('aria-label', g.title[lang] + ', ' + g.time + ', ' + g.kind[lang]);
+        g.labelEl.setAttribute('aria-label', g.title[lang] + ', ' + g.time + ', ' + g.kind[lang] + ', ' + (lang === 'nl' ? 'vanaf ' + g.age + ' jaar' : 'age ' + g.age + '+'));
       });
     }
 
@@ -862,12 +925,12 @@
       if (animate) typeInto(dlg.sub, g.sub[lang]); else dlg.sub.textContent = g.sub[lang];
       dlg.meta.innerHTML = g.soon ? '<span>' + svg('star') + g.kind[lang] + '</span>' :
         '<span>' + svg('clock') + g.time + '</span><span class="dot">·</span><span>' + svg(g.ok ? 'check' : 'star') + g.kind[lang] +
-        '</span><span class="dot">·</span><span>' + svg('globe', 'globe') + 'NL/EN</span>';
+        '</span><span class="dot">·</span><span>' + svg('age') + g.age + '+</span><span class="dot">·</span><span>' + svg('globe', 'globe') + 'NL/EN</span>';
       dlg.play.href = g.href;
       dlg.play.textContent = g.soon ? (lang === 'nl' ? 'De spellen' : 'All games') : (lang === 'nl' ? 'Speel gratis' : 'Play free');
       dlg.play.setAttribute('aria-label', g.soon ? (lang === 'nl' ? 'Bekijk alle spellen' : 'See all games') : (lang === 'nl' ? 'Speel gratis: ' : 'Play free: ') + g.title[lang]);
       dlg.next.textContent = g.next ? g.next[lang] : '';
-      dlgStatus.textContent = g.title[lang] + '. ' + g.sub[lang] + (g.time ? ' ' + g.time + ', ' + g.kind[lang] + '.' : '');
+      dlgStatus.textContent = g.title[lang] + '. ' + g.sub[lang] + (g.time ? ' ' + g.time + ', ' + g.kind[lang] + ', ' + (lang === 'nl' ? 'vanaf ' + g.age + ' jaar' : 'age ' + g.age + '+') + '.' : '');
     }
     var dlgStatus = document.getElementById('dlgStatus');
     dlg.next.addEventListener('click', function () { var g = byId[current]; if (g.nextTo) choose(g.nextTo, true); });

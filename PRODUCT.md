@@ -25,6 +25,7 @@ Static site on Vercel (deploys from git main, no build step). Games live in /gam
 ## Capabilities and Constraints
 
 - Games on the site: Maanhoef (easy, ~20 min), The Amulet of Emberfall (easy, ~15 min), Whispers of Ravenholt Part 1 and Part 2 (mystery, a bit more challenging, ~15–20 min each).
+- Age guidance (decided 2026-10-21 at the creator's request, from a reading-level review of each game): Maanhoef 7+, The Amulet of Emberfall 7+, Whispers of Ravenholt Part 1 and 2 9+. Younger children can play with a parent reading along; the games are also meant for adults (shown as a minimum age, never as "for kids only").
 - Whispers of Ravenholt Part 1 → Part 2 is one continuous story and should be presented as a series ("start with Part 1").
 - Bilingual via data-en / data-nl attributes and a client-side toggle; English is the default HTML language.
 - Existing SEO: WebSite, ItemList (VideoGame) and FAQPage JSON-LD; a /point-and-click-adventure-games/ landing page.

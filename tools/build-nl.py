@@ -30,8 +30,8 @@ swap('<html lang="en" data-page-lang="en">', '<html lang="nl" data-page-lang="nl
 # ---- head ----
 swap('<title>Retro Adventure Games Online: Free Point-and-Click Pixel Adventures | RetroAdventureWorld</title>',
      '<title>Gratis spelletjes voor kinderen: pixel-avonturen online | RetroAdventureWorld</title>')
-swap('content="Play free retro point-and-click adventure games online, no download. 16-bit pixel-art browser games for kids and families, on phone and desktop. Pick a place on the map and play."',
-     'content="Speel gratis point-and-click avonturen in 16-bit pixel-art, direct in je browser. Geen download, geen account, geen reclame. Voor kinderen en het hele gezin, op telefoon, tablet en computer."')
+swap('content="Play free retro point-and-click adventure games online, no download. 16-bit pixel-art browser games for kids from 7 and for adults, on phone and desktop. Pick a place on the map and play."',
+     'content="Speel gratis point-and-click avonturen in 16-bit pixel-art, direct in je browser. Geen download, geen account, geen reclame. Voor kinderen vanaf 7 jaar en volwassenen, op telefoon, tablet en computer."')
 swap('<link rel="canonical" href="https://www.retroadventureworld.com/">',
      '<link rel="canonical" href="https://www.retroadventureworld.com/nl/">')
 swap('<meta property="og:title" content="Retro Adventure Games Online: Free Point-and-Click Pixel Adventures">',

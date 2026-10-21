@@ -6,13 +6,14 @@ The homepage is a pixel-art world map: each place on the map is one adventure, a
 
 ## Games
 
-- [Maanhoef](https://www.retroadventureworld.com/games/maanhoef/): Loïs sets out to rescue her horse Moonhoof. Easy, about 20 minutes, good for beginners and children.
-- [The Amulet of Emberfall](https://www.retroadventureworld.com/games/emberfall/): eternal autumn, a stolen amulet and a sleeping minotaur. Easy puzzle adventure, about 15 minutes.
-- [Whispers of Ravenholt — Part 1](https://www.retroadventureworld.com/games/ravenholt/): young Finn investigates a dried-up village fountain and a silent water mill in the kingdom of Eldoria. Mystery, about 15 to 20 minutes, a little more challenging.
-- [Whispers of Ravenholt — Part 2](https://www.retroadventureworld.com/games/ravenholt-deel2/): the sequel; Finn slips into the castle of Eldoria to free his captive father. Play Part 1 first.
+- [Maanhoef](https://www.retroadventureworld.com/games/maanhoef/): Loïs sets out to rescue her horse Moonhoof. Easy, about 20 minutes, age 7+.
+- [The Amulet of Emberfall](https://www.retroadventureworld.com/games/emberfall/): eternal autumn, a stolen amulet and a sleeping minotaur. Easy puzzle adventure, about 15 minutes, age 7+.
+- [Whispers of Ravenholt — Part 1](https://www.retroadventureworld.com/games/ravenholt/): young Finn investigates a dried-up village fountain and a silent water mill in the kingdom of Eldoria. Mystery, about 15 to 20 minutes, a little more challenging, age 9+.
+- [Whispers of Ravenholt — Part 2](https://www.retroadventureworld.com/games/ravenholt-deel2/): the sequel; Finn slips into the castle of Eldoria to free his captive father. Play Part 1 first. Age 9+.
 
 ## Facts
 
+- Ages: Maanhoef and Emberfall 7+, Whispers of Ravenholt 9+; younger children with a parent reading along; also made for adults
 - Price: free
 - Platform: web browser (phone, tablet, desktop); can be added to the home screen as an app
 - Languages: English and Dutch

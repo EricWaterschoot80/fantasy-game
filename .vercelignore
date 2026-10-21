@@ -1,0 +1,4 @@
+# Source art and work files stay in git but are not deployed
+games/*/assets/raw/
+tools/
+.impeccable/
