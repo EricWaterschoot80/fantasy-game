@@ -402,11 +402,28 @@
   let screenDpr = 1;
   const heroDrawn = { sx: null, sy: null };   // laatst getekende voetpunt van de held (css px, voor tests)
 
+  /* The canvas' own CSS box is the truth. window.innerWidth/innerHeight lag behind while a phone
+     rotates or the browser bar slides in/out, which stretched or cropped the scene. */
+  let viewW = window.innerWidth, viewH = window.innerHeight;
+  function measureView() {
+    const r = canvas.getBoundingClientRect();
+    viewW = Math.round(r.width) || window.innerWidth;
+    viewH = Math.round(r.height) || window.innerHeight;
+  }
+  /* re-fit a few times after rotating: browsers report the final size late */
+  function settleView() { [0, 120, 350, 700, 1200].forEach((t) => setTimeout(() => window.dispatchEvent(new Event('resize')), t)); }
+  window.addEventListener('orientationchange', settleView);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', () => window.dispatchEvent(new Event('resize')));
+  if (window.ResizeObserver) new ResizeObserver(() => {
+    const r = canvas.getBoundingClientRect();
+    if (Math.abs(r.width - viewW) > 1 || Math.abs(r.height - viewH) > 1) window.dispatchEvent(new Event('resize'));
+  }).observe(canvas);
   function resize() {
+    measureView();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     screenDpr = dpr;
-    canvas.width  = Math.round(window.innerWidth * dpr);
-    canvas.height = Math.round(window.innerHeight * dpr);
+    canvas.width  = Math.round(viewW * dpr);
+    canvas.height = Math.round(viewH * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   window.addEventListener('resize', () => { resize(); initLeaves(); });
@@ -984,7 +1001,9 @@
   /* ---------- Tekenen ---------- */
   function draw(now) {
     /* Scherm voorbereiden (de scene wordt in lagen op het scherm gezet, zie flushFrame) */
-    const w = window.innerWidth, h = window.innerHeight;
+    /* safety net: if the canvas box changed since the last resize (rotation), re-fit now */
+    if (Math.abs(canvas.clientWidth - viewW) > 1 || Math.abs(canvas.clientHeight - viewH) > 1) resize();
+    const w = viewW, h = viewH;
     ctx.fillStyle = '#1a1410';
     ctx.fillRect(0, 0, w, h);
     const scale = Math.min(w / SCENE_W, h / SCENE_H);
