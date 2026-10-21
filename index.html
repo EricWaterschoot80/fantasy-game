@@ -215,7 +215,15 @@
     @keyframes wings { to { background-position: 133.33% 0; } }
     @keyframes fly-over { 0% { left: -6%; top: 7%; } 15% { top: 3%; } 30% { left: 104%; top: 5%; } 30.01%, 100% { left: 104%; top: 5%; } }
 
-    .hero { position: absolute; left: 0; top: 0; pointer-events: none; transform-origin: 50% 100%; display: block; }
+    .hero { position: absolute; left: 0; top: 0; pointer-events: none; transform-origin: 50% 100%; display: block; will-change: transform; }
+    .hero .mark { position: absolute; left: 50%; top: calc(-16 * var(--s)); width: calc(13 * var(--s)); height: calc(10 * var(--s)); translate: -50% 0; opacity: 0;
+      background: var(--gold-hi); clip-path: polygon(0 0, 100% 0, 100% 34%, 75% 34%, 75% 67%, 50% 100%, 25% 67%, 25% 34%, 0 34%);
+      filter: drop-shadow(0 calc(1 * var(--s)) 0 #1a0d05); transition: opacity .3s; animation: mark 1s ease-in-out infinite; }
+    .hero.chosen .mark { opacity: 1; }
+    @keyframes mark { 50% { translate: -50% calc(-2 * var(--s)); } }
+    .arrive { width: calc(10 * var(--s)); height: calc(10 * var(--s)); translate: -50% -50%; border-radius: 50%;
+      box-shadow: 0 0 0 calc(2 * var(--s)) rgba(255, 215, 102, .9); animation: arrive .9s cubic-bezier(.16, 1, .3, 1) forwards; }
+    @keyframes arrive { from { scale: .4; opacity: 1; } to { scale: 4.5; opacity: 0; } }
     .hero .spr { display: block; position: relative; background-repeat: no-repeat; background-position: 0 100%; image-rendering: pixelated; }
     .hero .shd { position: absolute; left: 50%; bottom: calc(-2.5 * var(--s)); width: calc(22 * var(--s)); height: calc(6 * var(--s)); translate: -50% 0;
       background: radial-gradient(closest-side, rgba(4, 10, 6, .55), rgba(4, 10, 6, 0)); }
@@ -449,7 +457,7 @@
     @media (min-width: 761px) { #ra-acc-btn { position: absolute !important; top: 64px !important; right: 16px !important; left: auto !important; bottom: auto !important; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .beacon, .firefly, .glint, .star, .smoke, .fog i, .hero.idle .spr, .label.arrow, .hand, .water *, .raven { animation: none !important; }
+      .beacon, .firefly, .glint, .star, .smoke, .fog i, .hero.idle .spr, .label.arrow, .hand, .water *, .raven, .hero .mark { animation: none !important; }
       .raven { display: none; }
       .firefly, .glint, .smoke { display: none; }
       .label, .sign, .play { transition: none; }
@@ -674,12 +682,12 @@
     /* Real in-game sprites. stride = map px walked per animation frame, so the feet never slide. */
     var HEROES = {
       lois:  { idle: ['assets/heroes/map/lois.png', 13, 26], wave: [['assets/heroes/map/lois-wave0.png', 16, 26], ['assets/heroes/map/lois-wave1.png', 13, 26]],
-               walk: 'assets/heroes/map/lois-walk.png', fw: 16, fh: 26, frames: 8, stride: 5, h: 52, home: [300, 281] },
+               walk: 'assets/heroes/map/lois-walk.png', fw: 16, fh: 26, frames: 8, stride: 4.5, h: 52, home: [300, 281] },
       ember: { idle: ['assets/heroes/map/ember.png', 16, 25], wave: [['assets/heroes/map/ember-wave0.png', 18, 25], ['assets/heroes/map/ember-wave1.png', 16, 25]],
-               walk: 'assets/heroes/map/ember-walk.png', fw: 15, fh: 25, frames: 8, stride: 4.2, h: 50, home: [393, 268] },
+               walk: 'assets/heroes/map/ember-walk.png', fw: 15, fh: 25, frames: 8, stride: 3.6, h: 50, home: [393, 268] },
       finn:  { idle: ['assets/heroes/map/finn.png', 21, 32], wave: [['assets/heroes/map/finn-wave0.png', 23, 32], ['assets/heroes/map/finn-wave1.png', 21, 32]],
                blink: ['assets/heroes/map/finn-blink.png', 21, 32],
-               walk: 'assets/heroes/map/finn-walk.png', fw: 24, fh: 32, frames: 16, stride: 2.6, h: 64, home: [434, 334] }
+               walk: 'assets/heroes/map/finn-walk.png', fw: 24, fh: 32, frames: 16, stride: 6.4, h: 64, home: [434, 334] }
     };
     var GAMES = [
       { id: 'maanhoef', hero: 'lois', href: 'games/maanhoef/', portrait: 'assets/heroes/portrait-maanhoef.png',
@@ -777,7 +785,7 @@
     Object.keys(HEROES).forEach(function (k) {
       var h = HEROES[k];
       h.el = document.createElement('i'); h.el.className = 'hero';
-      h.el.innerHTML = '<b class="shd"></b><b class="spr"></b>'; h.spr = h.el.lastChild;
+      h.el.innerHTML = '<b class="shd"></b><b class="mark"></b><b class="spr"></b>'; h.spr = h.el.lastChild;
       heroesEl.appendChild(h.el); h.pos = h.home.slice(); h.flip = false; h.moving = false;
       pose(h, h.idle); place(h);
     });
@@ -793,8 +801,8 @@
       sp.style.width = 'calc(' + (h.h * h.fw / h.fh) + ' * var(--s))'; sp.style.height = 'calc(' + h.h + ' * var(--s))';
     }
     function place(h) {
-      h.el.style.left = pct(h.pos[0], W); h.el.style.top = pct(h.pos[1], H);
-      h.el.style.transform = 'translate(-50%, -100%)';
+      /* transform only: no layout work per frame, sub-pixel smooth */
+      h.el.style.transform = 'translate3d(calc(' + h.pos[0].toFixed(2) + ' * var(--s)), calc(' + h.pos[1].toFixed(2) + ' * var(--s)), 0) translate(-50%, -100%)';
       h.spr.style.transform = h.flip ? 'scaleX(-1)' : '';
       h.el.style.zIndex = Math.round(h.pos[1]);
     }
@@ -821,26 +829,40 @@
       for (var i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
       var total = cum[cum.length - 1];
       if (total < 1) { arrive(h); return; }
-      speed = speed || 115;
-      var dur = total / speed * 1000 + 320, start = null, j = 0;
+      /* motion profile: quick smooth start (0.22 s), steady cruise, soft braking over the last 18 map px */
+      var cruise = (speed || 105), ACC = 0.22, BRAKE = Math.min(18, total / 2), dist = 0, vel = 0, t0 = null, last = null, j = 0, lastStep = -1;
       h.moving = true; walkPose(h);
-      if (!quiet) dust(h.pos);
+      if (!quiet) dust(h.pos, 3);
       function step(ts) {
         if (token !== h.token) return;
-        if (start === null) start = ts;
-        var p = Math.min(1, (ts - start) / dur), e = 0.5 - Math.cos(Math.PI * p) / 2, dist = e * total;
+        if (t0 === null) { t0 = ts; last = ts; }
+        var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+        var up = Math.min(1, (ts - t0) / 1000 / ACC), rest = total - dist;
+        var target = cruise * (up * up * (3 - 2 * up)) * (rest < BRAKE ? Math.max(0.18, Math.sqrt(rest / BRAKE)) : 1);
+        vel += (target - vel) * Math.min(1, dt * 14);
+        dist = Math.min(total, dist + Math.max(vel, 6) * dt);
         while (j < cum.length - 2 && cum[j + 1] < dist) j++;
         var seg = cum[j + 1] - cum[j], t = seg ? (dist - cum[j]) / seg : 1, a = pts[j], b = pts[j + 1];
         var nx = a[0] + (b[0] - a[0]) * t, ny = a[1] + (b[1] - a[1]) * t;
-        if (Math.abs(nx - h.pos[0]) > 0.12) h.flip = nx < h.pos[0];
+        if (Math.abs(nx - h.pos[0]) > 0.15) h.flip = nx < h.pos[0];
         h.pos = [nx, ny];
-        var frame = Math.floor(dist / h.stride) % h.frames;
+        /* legs follow the ground: one frame per measured stride, so feet don't slide */
+        var fIdx = Math.floor(dist / h.stride), frame = fIdx % h.frames;
         h.spr.style.backgroundPosition = (frame / (h.frames - 1) * 100) + '% 100%';
+        /* a small puff at each foot contact (twice per cycle) */
+        var contact = Math.floor(fIdx / (h.frames / 2));
+        if (!quiet && contact !== lastStep) { if (lastStep >= 0) dust([nx + (h.flip ? 3 : -3), ny], 1); lastStep = contact; }
         place(h); if (!quiet) follow(h);
-        if (p < 1) requestAnimationFrame(step);
-        else { pose(h, h.idle); arrive(h); }
+        if (dist < total) requestAnimationFrame(step);
+        else { pose(h, h.idle); if (!quiet) dust(h.pos, 2); arrive(h); }
       }
       requestAnimationFrame(step);
+    }
+    function flash(g) {
+      if (reduce) return;
+      var f = document.createElement('i'); f.className = 'amb arrive';
+      f.style.left = pct(g.beacon[0], W); f.style.top = pct(g.beacon[1], H);
+      amb.appendChild(f); setTimeout(function () { f.remove(); }, 1000);
     }
     function wave(h) {
       if (reduce || !h.wave) return;
@@ -851,10 +873,11 @@
         pose(h, h.wave[n % 2]); n++; setTimeout(tick, 230);
       })();
     }
-    function dust(p) {
-      for (var i = 0; i < 3; i++) {
+    function dust(p, n) {
+      n = n || 3;
+      for (var i = 0; i < n; i++) {
         var d = document.createElement('i'); d.className = 'amb dust';
-        d.style.left = pct(p[0] + (i - 1) * 4, W); d.style.top = pct(p[1] - 1, H); d.style.animationDelay = (i * 60) + 'ms';
+        d.style.left = pct(p[0] + (i - (n - 1) / 2) * 4, W); d.style.top = pct(p[1] - 1, H); d.style.animationDelay = (i * 60) + 'ms';
         amb.appendChild(d); setTimeout(function (el) { return function () { el.remove(); }; }(d), 900);
       }
     }
@@ -889,7 +912,10 @@
     var userPanned = 0;
     function follow(h) {
       if (Date.now() - userPanned < 1500) return;
-      centerOn(h.pos, false);
+      var sw = stage.clientWidth, sh = stage.clientHeight;
+      var x = h.pos[0] / W * sw - scroller.clientWidth / 2, y = h.pos[1] / H * sh - scroller.clientHeight * 0.42;
+      scroller.scrollLeft += (x - scroller.scrollLeft) * 0.12;
+      scroller.scrollTop += (y - scroller.scrollTop) * 0.12;
     }
     function centerOn(p, smooth) {
       var sw = stage.clientWidth, sh = stage.clientHeight;
@@ -952,12 +978,14 @@
       renderDialog(animate);
       if (!animate) return;
       if (g.soon) {
+        Object.keys(HEROES).forEach(function (k) { HEROES[k].el.classList.remove('chosen'); });
         if (prev && prev.hero) { var sh = HEROES[prev.hero]; sh.onDone = null; walk(sh, pathBetween(sh, null)); sh.route = null; }
         userPanned = 0; centerOn(g.beacon, true); return;
       }
       var h = HEROES[g.hero];
       if (prev && prev.hero && prev.hero !== g.hero) { var ph = HEROES[prev.hero]; ph.onDone = null; walk(ph, pathBetween(ph, null)); ph.route = null; }
-      h.onDone = done || function () { wave(h); }; walk(h, pathBetween(h, g.route), speed); h.route = g.route;
+      Object.keys(HEROES).forEach(function (k) { HEROES[k].el.classList.toggle('chosen', HEROES[k] === h); });
+      h.onDone = done || function () { wave(h); flash(g); }; walk(h, pathBetween(h, g.route), speed); h.route = g.route;
       userPanned = 0;
     }
 
@@ -995,7 +1023,7 @@
     }
 
     applyLang();
-    choose('ravenholt-1', false);
+    choose('ravenholt-1', false); HEROES.finn.el.classList.add('chosen');
     /* ?place=<id> opens the map with that place chosen and its hero already there (shareable link) */
     var qPlace = new URLSearchParams(location.search).get('place');
     if (qPlace && byId[qPlace] && qPlace !== 'ravenholt-1') {
