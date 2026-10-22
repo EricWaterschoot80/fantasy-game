@@ -5,7 +5,7 @@
    - Video en muziek (mp4/mp3, vaak range-verzoeken) gaan rechtstreeks naar het netwerk en
      worden NIET gecachet — dat scheelt tientallen MB opslag op de telefoon. */
 
-const V = '206';
+const V = '207';
 const CACHE = 'ravenholt-v' + V;
 
 const PRECACHE = [

@@ -86,6 +86,10 @@
   }
 
   window.rawConsent = { open: open, get: get };
+  /* Game events (start, step reached, completed, hint used). Sends nothing without consent. */
+  window.rawTrack = function (name, params) {
+    if (loaded && window.gtag) window.gtag('event', name, params || {});
+  };
   var c = get();
   if (c === 'granted') loadGA();
   else if (c !== 'denied') {

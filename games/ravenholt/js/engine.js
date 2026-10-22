@@ -2901,7 +2901,19 @@
       updateQuest(true);
     }, HINT_AUTO_MS);
   }
+  /* ---------- Meten: start, bereikte stap, uitgespeeld, hint (alleen na cookie-toestemming) ---------- */
+  const TRACK_GAME = 'ravenholt';
+  const trackedSteps = {};
+  function track(name, params) {
+    try { if (window.rawTrack) window.rawTrack(name, Object.assign({ game: TRACK_GAME }, params || {})); } catch (e) {}
+  }
+  function trackStep() {
+    const k = started ? questKey() : null;
+    if (k && !trackedSteps[k]) { trackedSteps[k] = true; track('quest_step', { step: k }); }
+  }
+
   function updateQuest(force) {
+    trackStep();
     updateSpellBtn();
     const lines = hintLines();
     const has = lines.length > 0;
@@ -2922,6 +2934,7 @@
   }
   if (elInfoBtn) elInfoBtn.addEventListener('click', () => {
     infoOpen = !infoOpen;
+    if (infoOpen) track('hint_used', { kind: 'tip', step: questKey() || '' });
     elInfoBtn.classList.toggle('on', infoOpen);
     if (soundOn) sfx('tap');
     if (infoOpen) clearHintTimer();                 // zelf geopend → geen auto-tip meer nodig
@@ -5158,6 +5171,7 @@
 
   if (elHintBtn) elHintBtn.addEventListener('click', () => {
     sfx('tap');
+    if (started) track('hint_used', { kind: 'eye', step: questKey() || '' });
     hintUntil = performance.now() + 1800;
   });
 
@@ -5307,6 +5321,7 @@
 
   /* ---------- Winst & herstart ---------- */
   function showWin() {
+    track('game_complete');
     state.flags.gameComplete = true;        // markeer als uitgespeeld (zichtbaar in je account-overzicht)
     try { saveGame(true); } catch (e) {}    // voortgang + completion bewaren (ook naar de cloud als je bent ingelogd)
     elWinText.textContent = L(GAME.winText);
@@ -5448,6 +5463,7 @@
     elContinueBtn.addEventListener('click', () => {
       ac(); startMusic(); sfx('tap');
       if (resumeSavedGame()) {
+        track('game_continue');
         elTitle.hidden = true;
         if (elSaveBtn) elSaveBtn.hidden = false;
       }
@@ -5466,6 +5482,7 @@
     say(GAME.scenes[state.currentScene].entryText);
   }
   elStartBtn.addEventListener('click', () => {
+    track('game_start');
     ac();
     loadDeferred();                                 // de rest van de platen op de achtergrond laden (tijdens de openingsfilm)
     startMusic();

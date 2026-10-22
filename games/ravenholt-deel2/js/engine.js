@@ -3463,7 +3463,19 @@
     fctx.globalAlpha = 1;
   }
 
+  /* ---------- Meten: start, bereikte stap, uitgespeeld, hint (alleen na cookie-toestemming) ---------- */
+  const TRACK_GAME = 'ravenholt-deel2';
+  const trackedSteps = {};
+  function track(name, params) {
+    try { if (window.rawTrack) window.rawTrack(name, Object.assign({ game: TRACK_GAME }, params || {})); } catch (e) {}
+  }
+  function trackStep() {
+    const k = started ? questKey() : null;
+    if (k && !trackedSteps[k]) { trackedSteps[k] = true; track('quest_step', { step: k }); }
+  }
+
   function updateQuest(force) {
+    trackStep();
     updateSpellBtn();
     const key = started ? questKey() : null;
     if (elInfoBtn) elInfoBtn.hidden = !key;        // (i)-knop alleen tonen als er een tip is
@@ -3478,6 +3490,7 @@
   }
   if (elInfoBtn) elInfoBtn.addEventListener('click', () => {
     infoOpen = !infoOpen;
+    if (infoOpen) track('hint_used', { kind: 'tip', step: questKey() || '' });
     elInfoBtn.classList.toggle('on', infoOpen);
     if (soundOn) sfx('tap');
     updateQuest(true);
@@ -6971,6 +6984,7 @@
 
   if (elHintBtn) elHintBtn.addEventListener('click', () => {
     sfx('tap');
+    if (started) track('hint_used', { kind: 'eye', step: questKey() || '' });
     hintUntil = performance.now() + 1800;
   });
 
@@ -7123,6 +7137,7 @@
 
   /* ---------- Winst & herstart ---------- */
   function showWin() {
+    track('game_complete');
     state.flags.gameComplete = true;        // markeer als uitgespeeld (zichtbaar in je account-overzicht)
     try { saveGame(true); } catch (e) {}    // voortgang + completion bewaren (ook naar de cloud als je bent ingelogd)
     elWinText.textContent = L(GAME.winText);
@@ -7215,6 +7230,7 @@
     elContinueBtn.addEventListener('click', () => {
       ac(); startMusic(); sfx('tap');
       if (resumeSavedGame()) {
+        track('game_continue');
         elTitle.hidden = true;
         if (elSaveBtn) elSaveBtn.hidden = false;
       }
@@ -7233,6 +7249,7 @@
     say(GAME.scenes[state.currentScene].entryText);
   }
   elStartBtn.addEventListener('click', () => {
+    track('game_start');
     ac();
     startMusic();
     sfx('tap');

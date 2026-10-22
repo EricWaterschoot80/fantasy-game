@@ -2040,7 +2040,19 @@
     }
     return null;
   }
+  /* ---------- Meten: start, bereikte stap, uitgespeeld, hint (alleen na cookie-toestemming) ---------- */
+  const TRACK_GAME = 'emberfall';
+  const trackedSteps = {};
+  function track(name, params) {
+    try { if (window.rawTrack) window.rawTrack(name, Object.assign({ game: TRACK_GAME }, params || {})); } catch (e) {}
+  }
+  function trackStep() {
+    const k = started ? questKey() : null;
+    if (k && !trackedSteps[k]) { trackedSteps[k] = true; track('quest_step', { step: k }); }
+  }
+
   function updateQuest(force) {
+    trackStep();
     const key = started ? questKey() : null;
     if (!key) { elQuest.hidden = true; return; }
     const t = L(GAME.ui[key]);
@@ -3383,6 +3395,7 @@
 
   if (elHintBtn) elHintBtn.addEventListener('click', () => {
     sfx('tap');
+    if (started) track('hint_used', { kind: 'eye', step: questKey() || '' });
     hintUntil = performance.now() + 1800;
   });
 
@@ -3398,6 +3411,7 @@
 
   /* ---------- Winst & herstart ---------- */
   function showWin() {
+    track('game_complete');
     elWinText.textContent = L(GAME.winText);
     elWin.hidden = false;
     elQuest.hidden = true;
@@ -3433,6 +3447,7 @@
   }
 
   elStartBtn.addEventListener('click', () => {
+    track('game_start');
     ac();
     startMusic();
     sfx('tap');
