@@ -93,6 +93,8 @@ swap('aria-label="Places on the map"', 'aria-label="Plekken op de kaart"')
 swap('<a class="sign lang" id="lang" href="/nl/" hreflang="nl" lang="nl" aria-label="Nederlands"><span>NL / <b>EN</b></span></a>',
      '<a class="sign lang" id="lang" href="/" hreflang="en" lang="en" aria-label="English"><span><b>NL</b> / EN</span></a>')
 
+s = s.replace('<li><a href="/privacy/" data-en="Privacy" data-nl="Privacy">Privacy</a></li>', '<li><a href="/nl/privacy/">Privacy</a></li>')
+
 # ---- paths: the page lives in /nl/, so make project paths root-absolute ----
 s = re.sub(r'''(["'(])(assets|games|shared)/''', r'\1/\2/', s)
 

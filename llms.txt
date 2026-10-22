@@ -18,6 +18,7 @@ The homepage is a pixel-art world map: each place on the map is one adventure, a
 - Platform: web browser (phone, tablet, desktop); can be added to the home screen as an app
 - Languages: English and Dutch
 - Account: optional, only for saving Whispers of Ravenholt progress in the cloud; no ads, no in-app purchases, no chat
+- Privacy: anonymous Google Analytics only after consent; see https://www.retroadventureworld.com/privacy/
 
 ## More
 

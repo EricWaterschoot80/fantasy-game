@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-CGDJ4FQ8JQ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-CGDJ4FQ8JQ');
-  </script>
+  <!-- Analytics only after consent (see /shared/consent.js and /privacy/) -->
+  <script src="/shared/consent.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#08101b">
@@ -287,6 +280,7 @@
       <ul class="safe">
         <li><svg class="ic"><use href="#i-check"/></svg><span>No adverts and no in-app purchases.</span></li>
         <li><svg class="ic"><use href="#i-check"/></svg><span>No chat and no contact with other players.</span></li>
+        <li><svg class="ic"><use href="#i-check"/></svg><span>No tracking unless you say yes: anonymous Google Analytics only runs after you accept the cookie question. See our <a href="/privacy/">privacy page</a>.</span></li>
         <li><svg class="ic"><use href="#i-check"/></svg><span>No download and no account needed. In Whispers of Ravenholt, an optional free account only stores game progress in the cloud.</span></li>
       </ul>
     </section>
@@ -315,6 +309,8 @@
         <li><a href="/nl/" hreflang="nl" lang="nl">Nederlands</a></li>
         <li><a href="/point-and-click-adventure-games/">All adventures</a></li>
         <li><a href="/#faq">FAQ</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+        <li><a href="#" onclick="window.rawConsent&&window.rawConsent.open();return false">Cookie settings</a></li>
       </ul>
     </nav>
   </footer>

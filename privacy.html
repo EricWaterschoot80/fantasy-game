@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#08101b">
+  <title>Privacy and cookies | RetroAdventureWorld</title>
+  <meta name="description" content="How RetroAdventureWorld handles your data: no ads, no selling of data, Google Analytics only after consent.">
+  <link rel="canonical" href="https://www.retroadventureworld.com/privacy/">
+  <link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/privacy/">
+  <link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/nl/privacy/">
+  <link rel="alternate" hreflang="x-default" href="https://www.retroadventureworld.com/privacy/">
+  <link rel="icon" type="image/png" sizes="192x192" href="/games/emberfall/assets/icons/icon-192.png">
+  <script src="/shared/consent.js" defer></script>
+  <style>
+    @font-face { font-family: 'Jersey 15'; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/jersey-15-latin.woff2) format('woff2'); }
+    @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/assets/fonts/nunito-latin.woff2) format('woff2'); }
+    :root { --night: #08101b; --navy: #0b1622; --gold: #f5b241; --gold-hi: #ffd766; --outline: #1a0d05; --ink: #f2f0ea;
+      --display: 'Jersey 15', 'Trebuchet MS', sans-serif; --read: 'Nunito', 'Trebuchet MS', system-ui, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { background: var(--night); color-scheme: dark; }
+    body { background: var(--night); color: var(--ink); font: 400 18px / 1.6 var(--read); }
+    ::selection { background: var(--gold); color: var(--outline); }
+    :focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
+    a { color: var(--gold-hi); text-underline-offset: .2em; text-decoration-thickness: 2px; }
+    .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; }
+    .logo-board { display: grid; place-items: center; width: min(300px, 60vw); aspect-ratio: 5 / 1; background: url(/assets/plates/logo-board.png) center / 100% 100% no-repeat; image-rendering: pixelated; text-decoration: none; }
+    .logo-board span { font: 400 clamp(20px, 4vw, 33px) / 1 var(--display); color: #f6bf3a; text-shadow: 2px 0 0 #3b1a0b, -2px 0 0 #3b1a0b, 0 2px 0 #3b1a0b, 0 -2px 0 #3b1a0b, 0 4px 0 #1b0d09; }
+    .sign { display: inline-grid; place-items: center; min-width: 110px; height: 46px; padding: 6px 14px 0; text-decoration: none;
+      background: url(/assets/plates/board-games.png) center / 100% 100% no-repeat; image-rendering: pixelated; font: 400 19px / 1 var(--display); color: #fffdf6; text-shadow: 0 1px 2px #2a1206; }
+    main { max-width: 760px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 32px) 0; }
+    h1 { font: 400 clamp(40px, 6vw, 60px) / .95 var(--display); color: var(--gold-hi); text-shadow: 0 3px 0 #3b1a0b; }
+    .meta { color: #93a1ad; font-size: 15px; margin-top: 10px; }
+    .short { margin-top: 26px; background: var(--navy); padding: 20px 22px; box-shadow: inset 0 0 0 2px var(--outline), inset 0 0 0 4px #d9a23c, inset 0 0 0 5px var(--outline); }
+    .short ul { list-style: none; display: grid; gap: 6px; }
+    .short li::before { content: '✓ '; color: #7fd16a; }
+    h2 { font: 400 clamp(28px, 3.6vw, 36px) / 1.05 var(--display); color: var(--gold-hi); text-shadow: 0 2px 0 #3b1a0b; margin: 44px 0 10px; }
+    p, li { color: #d3dae0; max-width: 66ch; }
+    p + p, p + ul, ul + p { margin-top: 10px; }
+    main ul.list { padding-left: 1.2em; display: grid; gap: 6px; }
+    table { border-collapse: collapse; margin-top: 10px; font-size: 16px; width: 100%; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #1d2b3a; vertical-align: top; }
+    th { font-family: var(--display); font-weight: 400; font-size: 19px; color: #fff; }
+    .btn { display: inline-block; margin-top: 12px; min-height: 44px; padding: 10px 16px; background: #f6ae33; color: #2b1606; font-weight: 700; border: 0; cursor: pointer; font-family: var(--read); font-size: 16px;
+      box-shadow: inset 0 0 0 2px #7a4210, inset 0 -4px 0 #d48a1f; }
+    footer { max-width: 760px; margin: 70px auto 0; padding: 26px clamp(16px, 4vw, 32px) 40px; border-top: 2px solid #1d2b3a; font-size: 15px; color: #93a1ad; display: flex; gap: 10px 26px; flex-wrap: wrap; }
+    footer a { color: #dfe4e8; }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <a class="logo-board" href="/" aria-label="RetroAdventureWorld"><span>RetroAdventureWorld</span></a>
+    <a class="sign" href="/nl/privacy/" hreflang="nl" lang="nl">Nederlands</a>
+  </header>
+  <main>
+    <h1>Privacy and cookies</h1>
+    <p class="meta">Last updated: 22 October 2026</p>
+
+    <section class="short" aria-label="In short">
+      <ul>
+        <li>No adverts, and we never sell data.</li>
+        <li>You can play everything without an account and without filling anything in.</li>
+        <li>Google Analytics only measures after you say "Yes" first.</li>
+        <li>You can change your choice at any time.</li>
+      </ul>
+      <button class="btn" type="button" onclick="window.rawConsent&&window.rawConsent.open()">Change cookie settings</button>
+    </section>
+
+    <h2>Who we are</h2>
+    <p>RetroAdventureWorld (www.retroadventureworld.com) is a small website with free point-and-click games, made by Eric Waterschoot. He is responsible for the processing of the data described below.</p>
+
+    <h2>What we keep on your own device</h2>
+    <p>To make the games work we keep a few things in your own browser's storage (localStorage): your language, your progress in a game and your cookie choice. This stays on your device and is not sent to us. You can clear it by deleting the site data in your browser.</p>
+
+    <h2>Statistics (Google Analytics), only with consent</h2>
+    <p>If you tap "Yes, OK", we load Google Analytics 4 from Google Ireland Ltd. It shows us anonymously which pages and games are visited, on what kind of device, and roughly from which country. That tells us which games to improve next.</p>
+    <ul class="list">
+      <li>Without your "Yes", Google Analytics is not loaded and nothing is sent to Google.</li>
+      <li>Google signals and ad personalisation are switched off.</li>
+      <li>Google Analytics then sets the cookies <code>_ga</code> and <code>_ga_CGDJ4FQ8JQ</code> (kept for up to 2 years).</li>
+      <li>Legal basis: your consent. You withdraw it via "Cookie settings" at the bottom of each page; the cookies are then removed.</li>
+    </ul>
+
+    <h2>Account (optional, Whispers of Ravenholt only)</h2>
+    <p>In Whispers of Ravenholt you can choose a free account so your progress continues on another device. We then store your email address, an encrypted password and your game progress with our database provider Supabase. We only use your email address to sign you in and send no newsletters or adverts.</p>
+    <p>Children under 16 should preferably create an account together with a parent. An account is never needed to play.</p>
+
+    <h2>Hosting</h2>
+    <p>The website runs on Vercel. Like any web server, Vercel processes technical data such as your IP address to show the pages and keep the site secure. Fonts and images come from our own server; no other external services are loaded.</p>
+
+    <h2>Overview</h2>
+    <table>
+      <tr><th>What</th><th>Why</th><th>When</th></tr>
+      <tr><td>Language, progress, cookie choice</td><td>Make the games work</td><td>Always, on your device only</td></tr>
+      <tr><td>Google Analytics</td><td>Anonymous statistics</td><td>Only after "Yes"</td></tr>
+      <tr><td>Email and game progress</td><td>Sign-in and cloud saves</td><td>Only if you create an account</td></tr>
+    </table>
+
+    <h2>Your rights</h2>
+    <p>You may see, correct or delete your data, and you can object. You can also have your account deleted. A contact form for privacy questions will be added to this page soon. If you disagree with how we handle your data, you can complain to your data protection authority (in the Netherlands: the Autoriteit Persoonsgegevens).</p>
+  </main>
+  <footer>
+    <a href="/">Back to the map</a>
+    <a href="/point-and-click-games-for-kids/">Parents' guide</a>
+    <a href="#" onclick="window.rawConsent&&window.rawConsent.open();return false">Cookie settings</a>
+  </footer>
+</body>
+</html>

@@ -54,4 +54,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://www.retroadventureworld.com/privacy/</loc>
+    <lastmod>2026-10-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/nl/privacy/"/>
+  </url>
+  <url>
+    <loc>https://www.retroadventureworld.com/nl/privacy/</loc>
+    <lastmod>2026-10-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.retroadventureworld.com/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="nl" href="https://www.retroadventureworld.com/nl/privacy/"/>
+  </url>
 </urlset>
