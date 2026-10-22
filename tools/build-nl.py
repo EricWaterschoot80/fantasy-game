@@ -51,6 +51,7 @@ s = s.replace('https://www.retroadventureworld.com/assets/og-image.jpg', 'https:
 swap('"url": "https://www.retroadventureworld.com/",\n    "description": "A world map of free retro point-and-click pixel-art adventure games you can play online in your browser, in English and Dutch.",',
      '"url": "https://www.retroadventureworld.com/nl/",\n    "description": "Een wereldkaart vol gratis retro point-and-click pixel-avonturen die je online in je browser speelt, in het Nederlands en Engels.",')
 swap('"name": "Free retro point-and-click adventure games",', '"name": "Gratis retro point-and-click spelletjes",')
+swap('"@type": "VideoGame", "name": "Moonhoof", "alternateName": "Maanhoef",', '"@type": "VideoGame", "name": "Maanhoef", "alternateName": "Moonhoof",')
 swap('"A gentle 16-bit point-and-click adventure: help Loïs rescue her horse Moonhoof."',
      '"Een zacht 16-bit point-and-click avontuur: help Loïs haar paard Maanhoef te redden."')
 swap('"name": "The Amulet of Emberfall",', '"name": "De Amulet van Emberfall",')

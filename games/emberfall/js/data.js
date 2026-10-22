@@ -66,7 +66,7 @@ const GAME = {
     startBtn:    { nl: 'Begin het avontuur', en: 'Begin the adventure' },
     winTitle:    { nl: 'Emberfall is Gered', en: 'Emberfall is Saved' },
     replayBtn:   { nl: 'Opnieuw spelen', en: 'Play again' },
-    playOther:   { nl: '▸ Speel nu Maanhoef', en: '▸ Now play Maanhoef' },
+    playOther:   { nl: '▸ Speel nu Maanhoef', en: '▸ Now play Moonhoof' },
     deathTitle:  { nl: 'Oei, te dichtbij!', en: 'Whoa, too close!' },
     deathText:   { nl: 'De minotaur snuift en stampt met zijn hoef. Met bonzend hart krabbel je terug naar de deur. Zoek een slimmere manier!',
                    en: 'The minotaur snorts and stamps his hoof. Heart pounding, you scramble back to the door. Find a sneakier way!' },

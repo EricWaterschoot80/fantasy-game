@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the crawlable landing page for each game (EN, primary market).
 
-One page per game at a clean URL (/maanhoef/, /amulet-of-emberfall/, ...).
+One page per game at a clean URL (/moonhoof/, /amulet-of-emberfall/, ...).
 It is the page Google indexes for the game: story, facts, real screenshots,
 a Play button to the game itself (/games/<slug>/, which is noindex) and
 spoiler-safe progressive hints. Hints follow the solution routes that the
@@ -19,9 +19,9 @@ UPDATED = "2026-10-22"
 
 GAMES = [
     {
-        "slug": "maanhoef", "file": "maanhoef", "title": "Maanhoef",
-        "seo_title": "Maanhoef: Free Point-and-Click Horse Adventure Game",
-        "desc": "Play Maanhoef free in your browser: a gentle 16-bit point-and-click adventure. Help Loïs rescue her horse Moonhoof. Story, screenshots and spoiler-free hints.",
+        "slug": "moonhoof", "file": "moonhoof", "title": "Moonhoof", "alt_name": "Maanhoef",
+        "seo_title": "Moonhoof: Free Point-and-Click Horse Adventure Game",
+        "desc": "Play Moonhoof free in your browser: a gentle 16-bit point-and-click adventure where Loïs rescues her horse. Story, screenshots and spoiler-free hints.",
         "play": "/games/maanhoef/", "shots": "maanhoef",
         "shot_names": [("farm", "Loïs on the farm path, with the barn, the vegetable garden and the owl on its post"),
                        ("grove", "The forest grove with the broken bridge"),
@@ -29,11 +29,11 @@ GAMES = [
                        ("stable", "The old stable where Moonhoof is locked in")],
         "intro": [
             "Moonhoof, Loïs's dearest horse, is locked in the old stable, and the key hangs on the collar of a shy little dog. To get it back you explore a farm, a forest and a cave, trade the right things with the right animals and solve a few small puzzles.",
-            "Maanhoef is the gentlest game on RetroAdventureWorld: a short, warm point-and-click adventure in 16-bit pixel art for children from about seven and for anyone who likes cosy puzzle games. You meet a wise owl with riddles, a hissing snake, a hungry mouse and the dog with the key. Nothing happens on a timer, so you can take all the time you need.",
+            "Moonhoof is the gentlest game on RetroAdventureWorld: a short, warm point-and-click adventure in 16-bit pixel art for children from about seven and for anyone who likes cosy puzzle games. You meet a wise owl with riddles, a hissing snake, a hungry mouse and the dog with the key. Nothing happens on a timer, so you can take all the time you need.",
         ],
         "facts": [("Genre", "Point-and-click adventure, cosy puzzle"), ("Play time", "About 20 minutes"),
                   ("Difficulty", "Easy"), ("Age", "7+ (younger with a parent reading along); also for adults"),
-                  ("Languages", "English and Dutch"), ("Plays on", "Phone (landscape), tablet and desktop, in the browser"),
+                  ("Languages", "English and Dutch (Dutch title: Maanhoef)"), ("Plays on", "Phone (landscape), tablet and desktop, in the browser"),
                   ("Saving", "Progress is saved automatically on your device"), ("Price", "Free, no ads, no account needed")],
         "how": "Tap or click to walk and to look at things. Pick up items, then select an item in your bag and tap where you want to use it. The banner at the top always shows your current goal, and the eye button highlights everything you can tap.",
         "age": 7, "minutes": 20, "genre": ["Point-and-click adventure", "Puzzle", "Pixel art"],
@@ -109,7 +109,7 @@ GAMES = [
                 "Press the tiles in the order of the dots, then rebuild the broken seal.",
                 "Press the floor tiles 3-1-4-2, then drag the shards into the frame to complete the seal and take the amulet."]),
         ],
-        "related": ["maanhoef", "whispers-of-ravenholt"],
+        "related": ["moonhoof", "whispers-of-ravenholt"],
     },
     {
         "slug": "whispers-of-ravenholt", "file": "whispers-of-ravenholt", "title": "Whispers of Ravenholt — Part 1",
@@ -205,7 +205,7 @@ GAMES = [
                 "One key on the ring is the right one, and your father has a gift for you.",
                 "Cast the invisibility spell, take the golden key from the ring by the number of dots (one, two, three), talk to your father for the wonder-nut, drop the nut in the puddle, cast the dance spell to distract the guard, and give your father the key."]),
         ],
-        "related": ["whispers-of-ravenholt", "maanhoef"],
+        "related": ["whispers-of-ravenholt", "moonhoof"],
     },
 ]
 BY = {g["slug"]: g for g in GAMES}
@@ -283,6 +283,7 @@ def page(g):
     rel = [BY[s] for s in g["related"]]
     ld_game = {
         "@context": "https://schema.org", "@type": "VideoGame", "name": g["title"], "url": url,
+        **({"alternateName": g["alt_name"]} if g.get("alt_name") else {}),
         "description": g["desc"], "genre": g["genre"], "gamePlatform": ["Web browser"], "applicationCategory": "Game",
         "operatingSystem": "Any (web browser)", "playMode": "SinglePlayer", "inLanguage": ["en", "nl"],
         "image": [SITE + s for s, _ in shots], "timeRequired": f"PT{g['minutes']}M",

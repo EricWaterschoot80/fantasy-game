@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = "https://www.retroadventureworld.com"
-LANDING = {"maanhoef": "maanhoef", "amulet-of-emberfall": "emberfall",
+LANDING = {"moonhoof": "maanhoef", "amulet-of-emberfall": "emberfall",
            "whispers-of-ravenholt": "ravenholt", "whispers-of-ravenholt-part-2": "ravenholt-deel2"}
 errors = []
 

@@ -60,5 +60,17 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/maanhoef",
+      "destination": "/moonhoof/",
+      "permanent": true
+    },
+    {
+      "source": "/maanhoef/",
+      "destination": "/moonhoof/",
+      "permanent": true
+    }
   ]
 }
