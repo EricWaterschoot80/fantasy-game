@@ -2,3 +2,17 @@
 games/*/assets/raw/
 tools/
 .impeccable/
+# Internal docs and tooling are not part of the website
+*.md
+**/*.md
+obfuscate.sh
+_starter/
+# Readable game sources: the pages load the minified builds (js/*.min.js)
+games/ravenholt/js/sprites.js
+games/ravenholt/js/scenes.js
+games/ravenholt/js/data.js
+games/ravenholt/js/engine.js
+games/ravenholt-deel2/js/sprites.js
+games/ravenholt-deel2/js/scenes.js
+games/ravenholt-deel2/js/data.js
+games/ravenholt-deel2/js/engine.js
