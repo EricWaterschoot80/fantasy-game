@@ -94,11 +94,11 @@ const GAME = {
     q_runes:     { nl: 'Tik de runenstenen in de juiste volgorde aan', en: 'Tap the rune stones in the right order' },
     q_chest:     { nl: 'Open de stenen kist in het bos', en: 'Open the stone chest in the grove' },
     q_fill:      { nl: 'Vul het flesje bij de oude fontein', en: 'Fill the vial at the old fountain' },
-    q_berries:   { nl: 'Pluk rode bessen tussen de struiken', en: 'Pick red berries from the bushes' },
+    q_berries:   { nl: 'Pluk rode bessen bij de struiken op de binnenplaats', en: 'Pick red berries from the bushes in the courtyard' },
     q_flower:    { nl: 'Pluk de slaapbloem bij de runenstenen in het bos', en: 'Pick the slumber flower by the rune stones in the grove' },
     q_combine:   { nl: 'Combineer de bessen met het water in je tas', en: 'Combine the berries with the water in your bag' },
     q_brew:      { nl: 'Roer de slaapbloem door het bessenbrouwsel', en: 'Stir the slumber flower into the berry brew' },
-    q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal', en: 'Pour the sleeping draught into the stone bowl' },
+    q_pour:      { nl: 'Giet de slaapdrank in de stenen schaal in de tempel', en: 'Pour the sleeping draught into the stone bowl in the temple' },
     q_torch:     { nl: 'Het is aardedonker — verzamel een vuursteen (binnenplaats) en droog hout (bos)', en: 'It’s pitch dark — gather a flint (courtyard) and dry wood (grove)' },
     q_makeTorch: { nl: 'Combineer de vuursteen en het hout in je tas tot een fakkel', en: 'Combine the flint and the wood in your bag into a torch' },
     q_lightTorch:{ nl: 'Steek met je fakkel de muurfakkel bij de deur aan — dan ontvlammen alle toortsen', en: 'Light the wall torch by the door with your torch — all the torches will catch' },
@@ -107,13 +107,13 @@ const GAME = {
     q_riddle:    { nl: 'Het hondje heeft het koud — de ziener weet vast raad', en: 'The puppy is freezing — the seer may know what to do' },
     q_vest:      { nl: 'Geef het hondje zijn warme vestje', en: 'Give the puppy its warm vest' },
     q_powder:    { nl: 'Strooi het magische poeder op het mossige stenen tablet in het bos', en: 'Sprinkle the magic powder on the mossy stone tablet in the grove' },
-    q_amulet:    { nl: 'Pak de amulet van het altaar', en: 'Take the amulet from the altar' }
+    q_amulet:    { nl: 'Tik op het altaar en leg het gebroken zegel weer heel', en: 'Tap the altar and piece the broken seal back together' }
   },
 
   /* Questhint-regels — eerste match wint; quest:null verbergt de hint.
      De engine leest dit generiek (zie condMet/questKey). */
   questRules: [
-    { when: { flag: 'taken_temple_shrine' },                        quest: null },
+    { when: { flag: 'wardLifted' },                                 quest: null },
     { when: { flag: 'minotaurAsleep', notFlag: 'amuletRisen' },     quest: 'q_ward' },
     { when: { flag: 'minotaurAsleep' },                             quest: 'q_amulet' },
     { when: { flag: 'visited_temple', notFlag: 'torchLit', has: 'torch' },           quest: 'q_lightTorch' },
@@ -139,7 +139,7 @@ const GAME = {
   items: {
     berries:   { name: { nl: 'Rode Bessen', en: 'Red Berries' },     icon: '🍒', img: 'assets/art/item-berries.png' },
     flower:    { name: { nl: 'Slaapbloem', en: 'Slumber Flower' },   icon: '🌸', img: 'assets/art/item-flower.png' },
-    recipeCard:{ name: { nl: 'Oud Receptenblad', en: 'Old Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/item-recipe-large.webp' },
+    recipeCard:{ name: { nl: 'Vergeeld Receptenblaadje', en: 'Yellowed Recipe Note' }, icon: '📜', img: 'assets/art/item-recipe.png', zoomImg: 'assets/art/item-recipe-large.webp' },
     vialEmpty: { name: { nl: 'Leeg Flesje', en: 'Empty Vial' },      icon: '🍶', img: 'assets/art/item-vial-empty.png' },
     vialWater: { name: { nl: 'Flesje Water', en: 'Vial of Water' },  icon: '💧', img: 'assets/art/item-vial-water.png' },
     berryBrew: { name: { nl: 'Bessenbrouwsel', en: 'Berry Brew' },   icon: '🥤', img: 'assets/art/item-berry-brew.png' },
@@ -148,11 +148,11 @@ const GAME = {
     vest:      { name: { nl: 'Rood Vestje', en: 'Red Vest' }, icon: '🧥', img: 'assets/art/item-vest.png' },
     powder:    { name: { nl: 'Magisch Poeder', en: 'Magic Powder' }, icon: '✨', img: 'assets/art/item-powder.png' },
     flint:     { name: { nl: 'Vuursteen', en: 'Flint' }, icon: '🪨', img: 'assets/art/item-flint.png',
-                 noUseText: { nl: 'Hier heb ik geen vuur nodig.', en: 'I don’t need fire here.' } },
+                 noUseText: { nl: 'Hier heb je geen vuur nodig.', en: 'You don’t need fire here.' } },
     wood:      { name: { nl: 'Stuk Hout', en: 'Piece of Wood' }, icon: '🪵', img: 'assets/art/item-wood.png',
-                 noUseText: { nl: 'Hier heb ik geen vuur nodig.', en: 'I don’t need fire here.' } },
+                 noUseText: { nl: 'Hier heb je geen vuur nodig.', en: 'You don’t need fire here.' } },
     torch:     { name: { nl: 'Brandende Fakkel', en: 'Lit Torch' }, icon: '🔥', img: 'assets/art/torch-lit.png',
-                 noUseText: { nl: 'Hier hoef ik niets aan te steken.', en: 'Nothing to light here.' } }
+                 noUseText: { nl: 'Hier valt niets aan te steken.', en: 'Nothing to light here.' } }
   },
 
   recipes: [
@@ -173,8 +173,8 @@ const GAME = {
     {
       a: 'flint', b: 'wood', result: 'torch',
       text: {
-        nl: 'Je wikkelt droog mos om het hout en slaat vonken met de vuursteen — het hout vat vlam. Je hebt een Brandende Fakkel.',
-        en: 'You wrap dry moss around the wood and strike sparks with the flint — the wood catches. You now hold a Lit Torch.'
+        nl: 'Je slaat vonken met de vuursteen boven het droge hout — het hout vat vlam. Je hebt een Brandende Fakkel.',
+        en: 'You strike sparks with the flint over the dry wood — it catches. You now hold a Lit Torch.'
       }
     }
   ],
@@ -229,8 +229,8 @@ const GAME = {
           rect: { x: 162, y: 84, w: 106, h: 76 },
           walkTo: { x: 233, y: 202 },
           look: {
-            nl: 'Een oude fontein vol helder water. Op de rand staan woorden gekrast:\n“Wat het boze beest kalmeert, groeit rood tussen de stenen.”',
-            en: 'An old fountain full of clear water. Words are carved on its rim:\n“What calms the angry beast grows red among the stones.”'
+            nl: 'Een oude fontein vol helder water. Op de rand staan woorden gekrast:\n“Wat het boze beest doet slapen: rood uit de struiken en een bloem bij de stenen.”',
+            en: 'An old fountain full of clear water. Words are carved on its rim:\n“What puts the angry beast to sleep: red from the bushes and a flower by the stones.”'
           },
           use: {
             vialEmpty: {
@@ -471,8 +471,8 @@ const GAME = {
                 en: 'Woof woof! The puppy wags wildly in its red vest.\nIt runs to the Leaf stone and barks at it happily. Is it trying to tell you something?'
               }
             : {
-                nl: 'Het hondje zit te rillen tussen de runenstenen en jankt zachtjes. Het heeft het ijskoud... Wie zou het warm kunnen krijgen?',
-                en: 'The puppy sits shivering among the rune stones, whimpering softly. It’s freezing cold... Who could warm it up?'
+                nl: 'Het hondje zit te rillen voor de stenen kist en jankt zachtjes. Het heeft het ijskoud... Wie zou het warm kunnen krijgen?',
+                en: 'The puppy sits shivering in front of the stone chest, whimpering softly. It’s freezing cold... Who could warm it up?'
               },
           use: {
             vest: {
@@ -629,8 +629,8 @@ const GAME = {
         { x: 28, y: 200, w: 132, h: 72 }
       ],
       darkWalkText: {
-        nl: 'Het is veel te donker om verder de tempel in te lopen. Ik kan beter eerst de toortsen ontsteken.',
-        en: 'It’s far too dark to walk deeper into the temple. I’d better light the torches first.'
+        nl: 'Het is veel te donker om verder de tempel in te lopen. Steek eerst de muurfakkel bij de deur aan.',
+        en: 'It’s far too dark to walk deeper into the temple. Light the wall torch by the door first.'
       },
       obstacles: [
         /* De middelste/rechter "zuilstomp"-blokken stonden op OPEN vloer vlak naast de minotaur
@@ -720,9 +720,11 @@ const GAME = {
             : state.inventory.includes('torch')
               ? { nl: 'De muurfakkel naast de deur is bijna uit. Houd je brandende fakkel erbij, dan springt het vuur over op alle toortsen.\n(Kies je fakkel in je tas en tik dan op de muurfakkel.)',
                   en: 'The wall torch beside the door has almost gone out. Hold your lit torch to it, and the fire will jump to every torch.\n(Pick your torch in your bag, then tap the wall torch.)' }
-              : { nl: 'Naast de deur is één muurfakkel bijna uit. Met een eigen brandende fakkel kan ik de hele tempel verlichten.',
-                  en: 'Beside the door, one wall torch has almost gone out. With a lit torch of my own, I could light up the whole temple.' },
+              : { nl: 'Naast de deur is één muurfakkel bijna uit. Met een eigen brandende fakkel kun je de hele tempel verlichten.',
+                  en: 'Beside the door, one wall torch has almost gone out. With a lit torch of your own, you could light up the whole temple.' },
           use: {
+            flint: { text: { nl: 'Maak eerst een fakkel: combineer de vuursteen en het hout in je tas.', en: 'Make a torch first: combine the flint and the wood in your bag.' } },
+            wood:  { text: { nl: 'Maak eerst een fakkel: combineer de vuursteen en het hout in je tas.', en: 'Make a torch first: combine the flint and the wood in your bag.' } },
             torch: {
               consume: 'torch',
               setFlag: 'torchLit',

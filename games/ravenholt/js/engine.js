@@ -3662,7 +3662,17 @@
   const elChessHint  = document.getElementById('chess-hint');
   const elChessClose = document.getElementById('chess-close');
   const CHESS_GLYPH = { wK: '♔', wR: '♖', bK: '♚', bP: '♟' };
-  const CHESS_PROMPT = { nl: 'Wit (jij) aan zet — zet de zwarte koning mat in 3 zetten met je twee torens (ladder naar de bovenrand).', en: 'White (you) to move — mate the black king in 3 moves with your two rooks (ladder to the top edge).' };
+  const CHESS_PROMPT = { nl: 'Wit (jij) aan zet — zet de zwarte koning mat in 3 zetten met je twee torens (ladder naar de bovenrand). Torens schuiven recht, zo ver als je wilt.', en: 'White (you) to move — mate the black king in 3 moves with your two rooks (ladder to the top edge). Rooks slide in straight lines, as far as you like.' };
+  /* Oplopende hulp na mislukte pogingen: eerst een duwtje, daarna de hele oplossing. */
+  const CHESS_TIPS = [
+    { nl: 'Tip: begin met de toren rechts (h3) — schuif hem recht omhoog naar de rij van de koning.', en: 'Tip: start with the right rook (h3) — slide it straight up to the king’s row.' },
+    { nl: 'Tip: zet 1 = rechtertoren naar h6, zet 2 = linkertoren naar a7, zet 3 = rechtertoren naar h8.', en: 'Tip: move 1 = right rook to h6, move 2 = left rook to a7, move 3 = right rook to h8.' }
+  ];
+  let chessFails = 0;
+  function chessPrompt() {
+    const tip = chessFails >= 4 ? CHESS_TIPS[1] : chessFails >= 2 ? CHESS_TIPS[0] : null;
+    return L(CHESS_PROMPT) + (tip ? ' ' + L(tip) : '');
+  }
   let chessHs = null, chessSel = null, chessPos = null, chessLock = false, chessStep = 0, chessLast = null, chessMateSq = null;
   /* Beginstelling (rijen r0=boven..r7=onder, kolommen c0=a..c7=h):
      zwarte koning e6, witte torens a5 (afsnijder) en h3 (geeft schaak), witte koning e1. */
@@ -3727,12 +3737,13 @@
   function openChess(hs) {
     chessHs = hs; chessSel = null; chessLock = false; chessStep = 0; chessPos = chessStart();
     chessLast = null; chessMateSq = null;
-    elChessHint.textContent = L(CHESS_PROMPT);
+    elChessHint.textContent = chessPrompt();
     renderChess();
     elChess.hidden = false;
     sfx('tap');
   }
   function chessReset(msg) {
+    chessFails++;
     sfx('error');
     elChessHint.textContent = L(msg);
     chessSel = null; chessLock = true;
@@ -3740,7 +3751,7 @@
     setTimeout(() => {
       chessPos = chessStart(); chessStep = 0; chessSel = null; chessLock = false; chessLast = null; chessMateSq = null;
       renderChess();
-      elChessHint.textContent = L(CHESS_PROMPT);
+      elChessHint.textContent = chessPrompt();
     }, 1700);
   }
   function chessClick(r, c) {
@@ -4504,6 +4515,7 @@
     }
     if (hs.chess) {
       if (state.flags[hs.chess.setFlag]) { say(hs.chess.doneText || lookText(hs), hsSpeaker(hs)); return; }
+      if (!state.flags.chessIntroSeen) { state.flags.chessIntroSeen = true; say(lookText(hs), hsSpeaker(hs), hsFace(hs)); return; }  // eerst de afspraak horen, dan pas het bord
       openChess(hs);
       return;
     }
@@ -4657,7 +4669,7 @@
       }
       if (hs.requiresFlag && !state.flags[hs.requiresFlag]) {
         sfx('error');
-        say(hs.blockedText || GAME.strings.noEffect);
+        say((typeof hs.blockedText === 'function' ? hs.blockedText(state) : hs.blockedText) || GAME.strings.noEffect);
         return;
       }
       if (!repeat) state.flags[takenFlag(hs)] = true;
@@ -5193,15 +5205,6 @@
     sfx('tap');
   }
   /* Met de blauwe steen op de staf en het glinsterende boek: de drakenspreuk schrijft zichzelf. */
-  function writeDragonSpell() {
-    if (state.flags.dragonSpellLearned) { openBook(); return; }
-    state.flags.dragonSpellLearned = true;
-    addItem('dragonspell');
-    sfx('combine');
-    castGlow = { t0: performance.now() };   // de staf flitst blauw op
-    say({ nl: 'Je slaat je glinsterende toverboek open. De diepblauwe magie uit de drakensteen op je staf vloeit in de bladzijden, en met sierlijke, oplichtende letters schrijft de DRAKENSPREUK zich vanzelf: “Draconis Umbra”. Nu kun je hem uitspreken bij de poortwacht! (de spreuk staat rechts in je tas)', en: 'You open your glittering spellbook. The deep-blue magic from the dragon-stone on your staff flows into the pages, and in elegant, glowing letters the DRAGON SPELL writes itself: “Draconis Umbra”. Now you can speak it at the gate guard! (the spell is on the right in your bag)' });
-    updateQuest();
-  }
   /* Toverboek: blader door de spreuken die je al kent. */
   function openBook() {
     if (!elZoom || !elZoomImg) return;

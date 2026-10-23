@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt — Deel 2', en: 'Whispers of Ravenholt — Part 2' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt', '· Deel 2 ·'], en: ['Whispers of', 'Ravenholt', '· Part 2 ·'] },
   startScene: 'courtyard',
-  assetVer: '209',
+  assetVer: '210',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -71,7 +71,7 @@ const GAME = {
     startBtn:   { nl: 'Begin het mysterie', en: 'Begin the mystery' },
     winTitle:   { nl: 'Deel 2 uitgespeeld!', en: 'Part 2 complete!' },
     replayBtn:  { nl: 'Opnieuw spelen', en: 'Play again' },
-    playOther:  { nl: '▸ Speel een ander avontuur', en: '▸ Play another adventure' },
+    playOther:  { nl: '▸ Speel nu Maanhoef', en: '▸ Now play Moonhoof' },
     deathTitle: { nl: 'Verloren in de mist...', en: 'Lost in the fog...' },
     deathText:  { nl: 'Dat liep niet goed af. Probeer het opnieuw.', en: 'That went badly. Try again.' },
     retryBtn:   { nl: 'Probeer opnieuw', en: 'Try again' },
@@ -119,11 +119,12 @@ const GAME = {
     q_typephrase:{ nl: 'De papagaai verklapte de spreuk van de smid: ONLY · FIRE · FORGES · TRUE · STEEL (Engels voor “alleen vuur smeedt echt staal”). Tik die woorden in díe volgorde aan bij het smidsbeeld in de tuin om de hamer te krijgen', en: 'The parrot revealed the smith’s saying: ONLY · FIRE · FORGES · TRUE · STEEL. Tap those words in that order at the smith statue in the garden to get the hammer' },
     q_getcoal:  { nl: 'Schep houtskool uit de rechter vuurkorf naast het smidsbeeld in de slottuin om het smidsvuur mee aan te wakkeren', en: 'Scoop charcoal from the right fire basket beside the smith statue in the garden to kindle the forge fire' },
     q_forge:    { nl: 'Smeed bij de smidse: gooi eerst de houtskool in de oven (het vuur laait fel op), leg dán het gebroken zwaard op het ijzer, en sla het ten slotte met de hamer weer heel', en: 'Forge at the smithy: first throw the charcoal into the oven (the fire flares up), then lay the broken sword on the iron, and finally strike it whole with the hammer' },
+    q_strike:   { nl: 'Het vuur loeit wit-heet! Gebruik nu de hamer op de smidse om het zwaard weer heel te smeden', en: 'The fire roars white-hot! Now use the hammer on the forge to make the sword whole again' },
     q_takesword:{ nl: 'Het zwaard is weer heel! Het ligt te glanzen bij de markttent rechts — pak het op', en: 'The sword is whole again! It gleams by the market tent on the right — go and take it' },
     q_getrope:  { nl: 'Het zwaard is gesmeed! Praat met de schildknaap — nu geeft hij je het touw dat je bij de put nodig hebt', en: 'The sword is forged! Talk to the squire — now he’ll give you the rope you need at the well' },
     q_getcoin:  { nl: 'Voor de put heb je hulp van de raaf nodig. Vis eerst de glinsterende bronzen munt uit de leeuwenfontein in de tuin (tik op het bekken, niet op de leeuwenkop)', en: 'For the well you need the raven’s help. First fish the gleaming bronze coin from the lion fountain in the garden (tap the basin, not the lion’s head)' },
     q_giveraven:{ nl: 'Geef de bronzen munt aan de glanzende raaf op de put — hij springt er dan mee de emmer in, de diepte in', en: 'Give the bronze coin to the glossy raven on the well — he’ll hop into the bucket with it and dive down' },
-    q_haulwell: { nl: 'De raaf zit met de ketting in de emmer onderin de put. Gebruik het touw (van de schildknaap) op het windwerk om de emmer omhoog te hijsen', en: 'The raven sits with the necklace in the bucket deep in the well. Use the rope (from the squire) on the winch to haul the bucket up' },
+    q_haulwell: { nl: 'De raaf zit in de put-emmer, klaar om af te dalen naar de ketting. Gebruik het touw (van de schildknaap) op het windwerk en laat de emmer zakken — tik alleen als alles groen is', en: 'The raven sits in the well bucket, ready to go down for the necklace. Use the rope (from the squire) on the winch and lower the bucket — tap only when everything is green' },
     q_givenecklace:{ nl: 'Je viste de ketting van de prinses op — breng hem naar de prinses in de slottuin', en: 'You fished up the princess’s necklace — bring it to the princess in the garden' },
     q_fountainpuzzle:{ nl: 'Je kreeg een sleutel van de prinses — los de schuifpuzzel bij de leeuwenfontein op om het slot te onthullen', en: 'The princess gave you a key — solve the sliding puzzle at the lion fountain to reveal the lock' },
     q_usekey:   { nl: 'Gebruik de sleutel op het sleutelgat in de muur naast de leeuwenfontein om de geheime poort te openen', en: 'Use the key on the keyhole in the wall beside the lion fountain to open the secret gate' },
@@ -132,6 +133,7 @@ const GAME = {
     q_castEclipse:{ nl: 'Je hebt de Zonsverduistering-spreuk! Tik hem aan in je tas en spreek hem uit bij het grote raam van de bibliotheek', en: 'You have the Solar Eclipse spell! Tap it in your bag and speak it at the great library window' },
     q_readbook: { nl: 'De zon is verduisterd — het gloeiende boek is nu te LEZEN! Tik het aan en ontvang de SPREUK VAN ONZICHTBAARHEID', en: 'The sun is eclipsed — the glowing book can be READ now! Tap it and receive the SPELL OF INVISIBILITY' },
     q_altar:    { nl: 'De onzichtbaarheidsspreuk is binnen! Open nu de geheime deur: kijk tijdens de ZONSVERDUISTERING door de telescoop naar de hemelschijf van de Raaf, en draai de schijven van het DEURZEGEL tot die drie tekens bovenaan staan (1 = buitenste, 2 = middelste, 3 = binnenste). Trek dan aan de hendel', en: 'The invisibility spell is yours! Now open the secret door: during the ECLIPSE, look through the telescope at the Raven’s sky-wheel, then turn the DOOR SEAL discs until those three signs sit at the top (1 = outer, 2 = middle, 3 = inner). Then pull the lever' },
+    q_reinvis:  { nl: 'Je bent weer zichtbaar! Tik de onzichtbaarheidsspreuk aan om opnieuw langs de wachter te sluipen', en: 'You’re visible again! Tap the invisibility spell to slip past the guard again' },
     q_dungeon:  { nl: 'De geheime deur staat open! Daal de trap af naar de kerker. Een wachter verspert de weg naar de gevangene — tik de onzichtbaarheidsspreuk aan om ongezien langs hem te sluipen', en: 'The secret door is open! Descend the stair to the dungeon. A guard blocks the way to the prisoner — tap the invisibility spell to slip past him unseen' },
     q_key:      { nl: 'Je bent onzichtbaar langs de wachter! Pak nu MUISSTIL de gouden sleutel van de wachttafel: schuif de stippen-sleutels één voor één opzij (•, ••, •••) en pauzeer zodat de geluidsmeter niet volloopt', en: 'You slipped past the guard unseen! Now take the golden key from the guard’s table SILENTLY: slide the dotted keys aside one by one (•, ••, •••) and pause so the noise meter doesn’t fill up' },
     q_distract: { nl: 'Je hebt de gouden sleutel! Maar de wachter staart recht naar de cel... Vraag je VADER om raad', en: 'You have the golden key! But the guard stares straight at the cell... Ask your FATHER for advice' },
@@ -187,6 +189,7 @@ const GAME = {
   recipes: [],
 
   questRules: [
+    { when: { flag: 'altarSolved', notFlag: ['guardPassed', 'fatherFreed'], has: 'cellkey' }, quest: 'q_reinvis' }, // terug in de kerker: weer zichtbaar
     { when: { has: 'cellkey', flag: 'guardTurned', notFlag: 'fatherFreed' }, quest: 'q_cellopen' },  // wachter afgeleid -> open de celdeur
     { when: { flag: 'nutInPuddle', notFlag: 'guardTurned' },             quest: 'q_dance' },         // noot in het plasje -> dans-spreuk!
     { when: { flag: 'gotNut', notFlag: 'nutInPuddle' },                  quest: 'q_throwNut' },      // wondernoot gekregen -> in het plasje gooien
@@ -207,9 +210,9 @@ const GAME = {
     { when: { flag: 'gotSword', notFlag: 'squireGaveRope' },             quest: 'q_getrope' },       // zwaard gepakt -> haal het touw bij de schildknaap
     { when: { flag: 'gotSword', notFlag: 'gotNecklace' },                quest: 'q_getcoin' },       // touw binnen -> vis de munt uit de fontein
     { when: { flag: 'swordForged', notFlag: 'gotSword' },                quest: 'q_takesword' },     // gesmeed -> pak het zwaard bij de markttent
-    { when: { flag: 'swordInForge', notFlag: 'gotSword' },               quest: 'q_forge' },         // zwaard ligt in de oven -> sla het met de hamer
+    { when: { has: ['swordBroken', 'hammer'], flag: 'ovenStoked', notFlag: 'gotSword' }, quest: 'q_strike' }, // oven heet -> sla het zwaard met de hamer
     { when: { has: ['swordBroken', 'hammer', 'charcoal'], notFlag: 'gotSword' }, quest: 'q_forge' }, // alles aanwezig -> smeed (kool, zwaard, hamer)
-    { when: { has: ['swordBroken', 'hammer'], notFlag: 'gotSword' },     quest: 'q_getcoal' },       // mist houtskool
+    { when: { has: ['swordBroken', 'hammer'], notFlag: ['gotSword', 'ovenStoked'] }, quest: 'q_getcoal' }, // mist houtskool
     { when: { flag: 'gotSmithPhrase', notFlag: 'statuePuzzleSolved' },   quest: 'q_typephrase' },    // woorden bekend -> typ ze bij het smidsbeeld
     { when: { has: 'nut', notFlag: 'gotSmithPhrase' },                   quest: 'q_giveparrot' },    // noot -> geef aan de papagaai
     { when: { has: ['swordBroken', 'charcoal'], notFlag: 'gotSword' },   quest: 'q_gethammer' },     // mist hamer (noot->papagaai->woorden->beeld)
@@ -242,8 +245,8 @@ const GAME = {
       charFilter: 'saturate(1.07) brightness(1.01) sepia(0.17) contrast(1.03)',   // warm gouden ochtendlicht zodat de figuren in de binnenplaats opgaan
       heroShade: 0.95,
       entryText: {
-        nl: 'De binnenplaats van het kasteel van Eldoria baadt in het late ochtendlicht. Midden op de keien staat een oude put met een houten dakje. Links gloeit de smidse na en leidt een begroeide boog naar de slottuin; rechts staat een markttent bij de grote kasteeldeur. Op de put zit een glanzende zwarte raaf.',
-        en: 'The courtyard of Eldoria castle bathes in late morning light. In the middle of the cobbles stands an old well with a wooden roof. To the left the forge glows and an ivy-clad arch leads to the castle garden; to the right a market tent stands by the great castle door. A glossy black raven perches on the well.'
+        nl: 'De binnenplaats van het kasteel van Eldoria baadt in het late ochtendlicht. Midden op de keien staat een oude put met een houten dakje. Links staat de koude smidse en leidt een begroeide boog naar de slottuin; rechts staat een markttent bij de grote kasteeldeur. Op de put zit een glanzende zwarte raaf.',
+        en: 'The courtyard of Eldoria castle bathes in late morning light. In the middle of the cobbles stands an old well with a wooden roof. To the left stands the cold forge and an ivy-clad arch leads to the castle garden; to the right a market tent stands by the great castle door. A glossy black raven perches on the well.'
       },
       playerStart: { x: 300, y: 296 },
       spawnFrom: { garden: { x: 178, y: 252 } },          // terug uit de tuin: bij de boog links
@@ -287,7 +290,7 @@ const GAME = {
             ? { nl: 'De schildknaap wijst trots naar de markttent. “Het zwaard van Sir Aldric — weer heel! Pak het gerust, het is van jou.”', en: 'The squire points proudly at the market tent. “Sir Aldric’s sword — whole again! Take it, it’s yours.”' }
             : state.flags.squireGaveSword
             ? { nl: 'De schildknaap wijst naar de smidse. “Smeed het zwaard van de held: gooi eerst houtskool in de oven zodat het vuur hoog oplaait, leg dán het gebroken zwaard op het ijzer, en sla het met de hamer weer heel. De hamer zit verborgen in de sokkel van het smidsbeeld in de slottuin; houtskool vind je in de vuurkorf ernaast.”', en: 'The squire points at the smithy. “Forge the hero’s sword: first throw charcoal in the oven so the fire roars up, then lay the broken sword on the iron, and strike it whole with the hammer. The hammer is hidden in the plinth of the smith statue in the garden; you will find charcoal in the fire basket beside it.”' }
-            : { nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de koude smidse. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij overhandigt je de twee stukken van het gebroken zwaard. “Smeed het bij de smidse weer heel — jij bent er klaar voor. Als het zwaard klaar is, krijg je van mij een touw.”', en: 'A young squire in a blue tabard keeps watch by the cold smithy. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword broke in two and the whole castle fell silent with grief.” He hands you the two pieces of the broken sword. “Forge it whole at the smithy — you’re ready for it. Once the sword is done, I’ll give you a rope.”' },
+            : { nl: 'Een jonge schildknaap in een blauw wapenkleed houdt de wacht bij de markttent. Hij knikt je vriendelijk toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria, de grootvader van de prinses. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij overhandigt je de twee stukken van het gebroken zwaard. “Smeed het bij de smidse weer heel — jij bent er klaar voor. Als het zwaard klaar is, krijg je van mij een touw.”', en: 'A young squire in a blue tabard keeps watch by the market tent. He gives you a friendly nod. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria, the princess’s grandfather. His sword broke in two and the whole castle fell silent with grief.” He hands you the two pieces of the broken sword. “Forge it whole at the smithy — you’re ready for it. Once the sword is done, I’ll give you a rope.”' },
           givesWhen: [
             { setFlag: ['metSquire', 'squireGaveSword'], item: 'swordBroken',
               giveText: { nl: 'De jonge schildknaap knikt je toe. “De koning ontvangt niemand meer, niet sinds de oude held viel — Sir Aldric, de Leeuw van Eldoria. Zijn zwaard brak in tweeën en het hele kasteel verstomde van rouw.” Hij legt meteen het gebroken zwaard — beide stukken — in je handen. “Smeed het weer heel bij de smidse: houtskool in de oven, het zwaard op het ijzer, en dan de hamer. Als het klaar is, krijg je van mij een touw. Veel succes, vriend.”', en: 'The young squire nods at you. “The king sees no one anymore, not since the old hero fell — Sir Aldric, the Lion of Eldoria. His sword broke in two and the whole castle fell silent with grief.” He places the broken sword — both pieces — into your hands at once. “Forge it whole at the smithy: charcoal in the oven, the sword on the iron, then the hammer. Once it’s done, I’ll give you a rope. Good luck, friend.”' } },
@@ -349,7 +352,7 @@ const GAME = {
             trinket: {
               consume: 'trinket',
               setFlag: 'ravenInBucket',
-              text: { nl: 'Je houdt de bronzen munt omhoog. De raaf kan zich niet inhouden — hij grist hem uit je hand, kraait “Kraa!” van plezier en springt met munt en al boven op de put-emmer. Met een vrolijk gekras laat hij zich de donkere schacht in zakken... Nu hoef je de emmer alleen nog op te hijsen. Had je maar een touw!', en: 'You hold up the bronze coin. The raven can’t resist — he snatches it from your hand, caws “Caw!” with delight and hops onto the well bucket, coin and all. With a cheerful cackle he lowers himself down the dark shaft... Now you only need to haul the bucket up. If only you had a rope!' }
+              text: { nl: 'Je houdt de bronzen munt omhoog. De raaf kan zich niet inhouden — hij grist hem uit je hand, kraait “Kraa!” van plezier en springt met munt en al boven op de put-emmer. Met een vrolijk gekras tuurt hij de donkere schacht in... Nu moet je de emmer alleen nog laten zakken. Had je maar een touw!', en: 'You hold up the bronze coin. The raven can’t resist — he snatches it from your hand, caws “Caw!” with delight and hops onto the well bucket, coin and all. With a cheerful cackle he peers down the dark shaft... Now you only need to lower the bucket. If only you had a rope!' }
             }
           }
         },
@@ -380,7 +383,7 @@ const GAME = {
             // Smeden in één klik: hamer óf gebroken zwaard op het ijzer/vuur (oven moet heet zijn én je hebt allebei nodig)
             hammer: {
               needItem: 'swordBroken',
-              needText: { nl: 'Je hebt eerst het gebroken zwaard van Sir Aldric nodig — vraag het de schildknaap bij de smidse.', en: 'You first need Sir Aldric’s broken sword — ask the squire by the smithy.' },
+              needText: { nl: 'Je hebt eerst het gebroken zwaard van Sir Aldric nodig — vraag het de schildknaap bij de markttent rechts.', en: 'You first need Sir Aldric’s broken sword — ask the squire by the market tent on the right.' },
               requiresFlag: 'ovenStoked',
               requiresText: { nl: 'De oven is nog koud. Gooi er eerst houtskool in om het vuur wit-heet op te laten laaien.', en: 'The oven is still cold. First throw in charcoal to make the fire roar white-hot.' },
               consume: ['swordBroken', 'hammer'],
@@ -501,7 +504,9 @@ const GAME = {
               { label: { nl: 'Gaat het wel met je?', en: 'Are you alright?' },
                 text: { nl: 'Haar glimlach verflauwt. “Eerlijk gezegd... niet helemaal. Ik ben iets dierbaars kwijt — de gouden ketting van mijn moeder. Hij gleed van mijn hals, diep de oude put op de binnenplaats in. Ik zou er álles voor geven om hem terug te zien.”', en: 'Her smile fades. “Honestly... not quite. I’ve lost something dear — my mother’s gold necklace. It slipped from my neck, deep down the old well in the courtyard. I’d give anything to see it again.”' } },
               { label: { nl: 'Mijn vader', en: 'My father' },
-                text: (state) => state.flags.fountainSolved
+                text: (state) => state.flags.secretGateOpen
+                  ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “De poort staat open, Finn. Wees voorzichtig daarbinnen — en kom terug.”', en: 'You speak softly of your captive father. She squeezes your hand. “The gate is open, Finn. Be careful in there — and come back.”' }
+                  : state.flags.fountainSolved
                   ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “Het verborgen slot naast de leeuwenfontein is nu onthuld — de sleutel die ik je gaf past erop. Ga erdoorheen, Finn, en wees voorzichtig.”', en: 'You speak softly of your captive father. She squeezes your hand. “The hidden lock beside the lion fountain is revealed now — the key I gave you fits it. Go through it, Finn, and be careful.”' }
                   : state.flags.gaveNecklace
                   ? { nl: 'Je vertelt zacht over je gevangen vader. Ze knijpt in je hand. “Ik gaf je de sleutel — los nu de schuifpuzzel bij de leeuwenfontein op. Dan verschijnt het verborgen slot in de muur. Wees voorzichtig, Finn.”', en: 'You speak softly of your captive father. She squeezes your hand. “I gave you the key — now solve the sliding puzzle at the lion fountain. The hidden lock will appear in the wall. Be careful, Finn.”' }
@@ -511,7 +516,9 @@ const GAME = {
             ]
           },
           look: (state) => state.flags.gaveNecklace
-            ? (state.flags.fountainSolved
+            ? (state.flags.secretGateOpen
+                ? { nl: 'De prinses straalt met de ketting van haar moeder om haar hals. “De poort staat open, Finn. Wees voorzichtig daarbinnen, en kom alsjeblieft weer terug.”', en: 'The princess beams, her mother’s necklace around her neck. “The gate is open, Finn. Be careful in there, and please come back to me.”' }
+                : state.flags.fountainSolved
                 ? { nl: 'De prinses straalt met de ketting van haar moeder om haar hals. “Het verborgen slot naast de leeuwenfontein is onthuld, Finn — jouw sleutel past erop. Wees voorzichtig daarachter, en kom alsjeblieft weer terug.”', en: 'The princess beams, her mother’s necklace around her neck. “The hidden lock beside the lion fountain is revealed now, Finn — your key fits it. Be careful beyond it, and please come back to me.”' }
                 : { nl: 'De prinses draagt de ketting van haar moeder weer en straalt. “Dankzij jou, Finn. Los de schuifpuzzel bij de leeuwenfontein op, dan verschijnt het verborgen slot in de muur — daar past de sleutel die ik je gaf. En kom alsjeblieft weer terug.”', en: 'The princess wears her mother’s necklace again and beams. “Thanks to you, Finn. Solve the sliding puzzle at the lion fountain and the hidden lock will appear in the wall — the key I gave you fits it. And please, come back to me.”' })
             : state.flags.metPrincess
@@ -911,6 +918,8 @@ const GAME = {
             ? { nl: 'Het altaar rust weer. De drie sterren-tekens gloeien zachtjes na in het steen.', en: 'The altar rests again. The three star signs glow faintly in the stone.' }
             : { nl: 'Op het altaar ligt een rond stenen DEURZEGEL: drie draaibare schijven vol sterren-tekens rond een blauwe steen, met een hendel ernaast. Bovenaan is een gouden wijzer gebeiteld \u2014 welke drie tekens moeten daar samen onder staan?', en: 'On the altar lies a round stone DOOR SEAL: three turnable discs full of star-signs around a blue stone, with a lever beside it. A golden pointer is chiselled at the top \u2014 which three signs should sit beneath it together?' },
           discPuzzle: {
+            requiresFlag: 'sawSigns',
+            blockedText: { nl: 'De tekens op het zegel zeggen je nog niets. Kijk eerst door de telescoop en lees het gloeiende boek.', en: 'The signs on the seal mean nothing to you yet. Look through the telescope and read the glowing book first.' },
             imgBase:  'assets/art/seal-base.webp',
             title: { nl: 'Het Deurzegel', en: 'The Door Seal' },
             signs: ['\u2609','\u2642','\u03a8','\u263d','\u2726','\u2644','\u263f','\u26b9','\u2643','\u2640','\u2736','\u2646'],
@@ -1007,7 +1016,7 @@ const GAME = {
           rect: { x: 284, y: 118, w: 88, h: 132 },
           walkTo: { x: 250, y: 262 },
           look: (state) => state.flags.guardTurned
-            ? { nl: 'De wachter staart met zijn rug naar de cel argwanend naar de trap. “Wie daar?!” gromt hij nog eens. Snel — nú de celdeur!', en: 'His back to the cell, the guard peers warily at the stairs. “Who goes there?!” he growls again. Quick — the cell door, NOW!' }
+            ? { nl: 'De wachter staart met zijn rug naar de cel naar het dansende plantje. Snel — nú de celdeur!', en: 'His back to the cell, the guard gapes at the dancing plant. Quick — the cell door, NOW!' }
             : state.flags.guardPassed
             ? { nl: 'De wachter tuurt met gefronste wenkbrauwen de kerker rond — jou ziet hij niet. Maar pas op: HOREN kan hij je nog wél... Maak geen geluid.', en: 'The guard peers around the dungeon with a frown — he cannot see you. But beware: he can still HEAR you... Make no sound.' }
             : { nl: 'Een kolossale wachter met een hellebaard verspert de weg naar de cel. “Niemand komt bij de gevangene — niemand die ik zíe, tenminste.” Zolang hij je ziet, kom je er nooit langs... Kon je maar onzichtbaar worden. (Tik de onzichtbaarheidsspreuk aan in je tas.)', en: 'A colossal guard with a halberd blocks the way to the cell. “No one reaches the prisoner — no one I can SEE, at least.” While he can see you, you will never get past... If only you could turn invisible. (Tap the invisibility spell in your bag.)' },
@@ -1057,7 +1066,9 @@ const GAME = {
           walkTo: { x: 408, y: 268 },
           look: (state) => state.flags.fatherFreed
             ? { nl: 'De celdeur staat open. Je vader houdt je hand stevig vast — jullie zijn weer samen.', en: 'The cell door stands open. Your father holds your hand tight — you are together again.' }
-            : (state.flags.gotNut || state.flags.guardTurned)
+            : state.flags.guardTurned
+            ? { nl: 'Vader grijpt de tralies. “Nu, jongen — de sleutel in het slot!”', en: 'Father grips the bars. “Now, my boy — the key in the lock!”' }
+            : state.flags.gotNut
             ? { nl: 'Vader wacht gespannen achter de tralies. “Leid de wachter af met dat plantje, jongen — en steek dán de gouden sleutel in het slot!”', en: 'Father waits tensely behind the bars. “Distract the guard with that little plant, my boy — and THEN put the golden key in the lock!”' }
             : state.flags.gotCellKey
             ? { nl: 'Vader kijkt naar de gouden sleutel in je onzichtbare hand en glimlacht flauwtjes. “Goed zo, jongen. Nu de wachter nog... hij mag de zwevende sleutel niet zien.”', en: 'Father looks at the golden key in your invisible hand and smiles faintly. “Well done, my boy. Now the guard... he mustn’t see the floating key.”' }

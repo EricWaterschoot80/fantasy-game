@@ -1492,7 +1492,7 @@
         fctx.fillRect(fx.chestOpen.x - 26, fx.chestOpen.y - h / 2 - 26, 52, 52);
       }
     }
-    if (fx.amulet && state.flags.amuletRisen && !state.flags.taken_temple_shrine) {
+    if (fx.amulet && state.flags.amuletRisen && !state.flags.wardLifted) {
       const a = fx.amulet;
       /* schuift omhoog uit het altaar zodra de puzzel is opgelost */
       const rise = amuletRiseT0 ? Math.min(1, (now - amuletRiseT0) / 950) : 1;
@@ -3056,6 +3056,12 @@
     lastPet = now;
     sfx('bark');
     lickAt(follower.x, follower.y - 18);
+    /* Zolang de runen nog niet zijn opgelost, wijst het hondje de eerste rune aan. */
+    if (!state.flags.runesSolved) {
+      say({ nl: 'Woef woef! Het hondje rent naar de steen met het Blad en blaft er blij naar. Zou het iets willen vertellen?',
+            en: 'Woof woof! The puppy runs to the Leaf stone and barks at it happily. Is it trying to tell you something?' }, null, 'assets/art/face-dog.png');
+      return;
+    }
     const msgs = [
       { nl: 'Woef! Het hondje springt blij op en likt je hand!', en: 'Woof! The puppy jumps up happily and licks your hand!' },
       { nl: 'Het hondje draait van blijdschap rond in kringetjes!', en: 'The puppy spins in circles with delight!' },

@@ -3003,7 +3003,8 @@
     /* Klik-geluiden bij dit object (bv. paard hinnikt, slang ratelt) — alleen bij gewone klik. */
     if (!sel) {
       if (hs.clickSound) playFile(hs.clickSound, { vol: hs.clickVol || 0.6, boost: hs.clickBoost || 1 });
-      if (hs.clickVoice && lang === 'nl') playFile(hs.clickVoice, { vol: 1.0, boost: 8 });  // NL-stemclips alleen in het Nederlands
+      const cv = typeof hs.clickVoice === 'function' ? hs.clickVoice(state) : hs.clickVoice;
+      if (cv && lang === 'nl') playFile(cv, { vol: 1.0, boost: 8 });  // NL-stemclips alleen in het Nederlands
     }
 
     /* Aaien: hondje met vest dat je volgt */
@@ -3029,7 +3030,8 @@
       } else {
         sfx('error');
         const it = GAME.items[sel];
-        say((it && it.noUseText) || GAME.strings.noEffect);
+        const nu = it && (typeof it.noUseText === 'function' ? it.noUseText(state) : it.noUseText);
+        say(nu || GAME.strings.noEffect);
       }
       return;
     }
@@ -3254,7 +3256,7 @@
 
   /* ---------- Lopen & tikken ---------- */
   function walkThenInteract(hs) {
-    showLabel(L(hs.name));
+    showLabel(L(typeof hs.name === 'function' ? hs.name(state) : hs.name));
     const wt = hsWalkTo(hs);
     const dist = Math.hypot(player.x - wt.x, player.y - wt.y);
     if (dist <= ARRIVE_DIST + 2) { interactNow(hs); return; }
@@ -3346,7 +3348,7 @@
     const p = screenToScene(e.clientX, e.clientY);
     const hs = hotspotAt(p.x, p.y);
     canvas.style.cursor = hs ? 'pointer' : 'default';
-    if (hs) showLabel(L(hs.name), true);
+    if (hs) showLabel(L(typeof hs.name === 'function' ? hs.name(state) : hs.name), true);
     else if (!labelTimer) elLabel.hidden = true;
   });
 
@@ -3508,7 +3510,7 @@
     save: saveGame,
     hasSave: () => !!readSave(),
     showHints: () => { hintUntil = performance.now() + 2600; },
-    hotspotAt: (x, y) => { const h = hotspotAt(x, y); return h ? { id: h.id, name: L(h.name) } : null; }
+    hotspotAt: (x, y) => { const h = hotspotAt(x, y); return h ? { id: h.id, name: L(typeof h.name === 'function' ? h.name(state) : h.name) } : null; }
   };
 
   /* ---------- Start ---------- */

@@ -14,7 +14,7 @@ const GAME = {
   title:      { nl: 'Fluisteringen van Ravenholt', en: 'Whispers of Ravenholt' },
   titleLines: { nl: ['Fluisteringen', 'van Ravenholt'], en: ['Whispers of', 'Ravenholt'] },
   startScene: 'square',
-  assetVer: '207',
+  assetVer: '208',
 
   /* Finn — vaste figuur: roodharige jongen, blauwe kapmantel, leren tas, houten staf.
      idle = hero, lopen = 4-frame loopsheet (heroWalkSheet), zwaaien = heroWave.
@@ -152,7 +152,7 @@ const GAME = {
     book:  { name: { nl: 'Molenaarsboek', en: 'Miller’s Book' }, icon: '📖', img: 'assets/art/item-book.png',
              look: { nl: 'Het molenaarsboek. Tekeningen van het rad — en een kruisje bij een grot in de vallei, met gekrabbeld: “de blauwe steen drijft het rad weer aan.”', en: 'The miller’s book. Drawings of the wheel — and a cross at a cave in the valley, scrawled: “the blue stone drives the wheel again.”' } },
     grain: { name: { nl: 'Handvol Graan', en: 'Handful of Grain' }, icon: '🌾', img: 'assets/art/item-grain.png',
-             look: { nl: 'Een handvol goudgeel graan uit de zak. Misschien lust een hongerig dier het wel.', en: 'A handful of golden grain from the sack. A hungry animal might like it.' } },
+             look: { nl: 'Een handvol goudgeel graan uit de zak. Het meisje bij de kraam wilde graan om brood te bakken.', en: 'A handful of golden grain from the sack. The girl at the stall wanted grain to bake bread.' } },
     spellbook: { name: { nl: 'Toverboek', en: 'Spellbook' }, icon: '📕', sparkle: (state) => { const pages = (state.flags.mapFiled ? 1 : 0) + (state.flags.spellWritten ? 1 : 0) + (state.flags.gotRecipe ? 1 : 0) + (state.flags.dragonSpellLearned ? 1 : 0); return pages > (state.flags.bookSeenCount || 0); }, img: (state) => state.flags.spellWritten ? 'assets/art/item-spellbook.png' : 'assets/art/item-spellbook-plain.png',
              zoomImg: (state) => state.flags.dragonSpellLearned ? 'assets/art/spell-dragon.jpg' : 'assets/art/spell-dance.jpg', zoomImgFlag: 'spellWritten',
              look: (state) => state.flags.spellWritten
@@ -231,8 +231,8 @@ const GAME = {
   hints: [
     /* einde */
     { when: { flag: 'guardFled' }, nl: 'De wacht is gevlucht! Loop door de open poort het kasteel binnen.', en: 'The guard has fled! Walk through the open gate into the castle.' },
-    { when: { flag: 'dragonSpellLearned', notScene: 'castle' }, nl: 'Ga naar de kasteelpoort en tik daar de drakenspreuk in je tas aan.', en: 'Go to the castle gate and tap the dragon spell in your bag there.' },
-    { when: { flag: 'dragonSpellLearned', scene: 'castle' }, nl: 'Tik de drakenspreuk in je tas aan — de wacht zal schrikken!', en: 'Tap the dragon spell in your bag — the guard is in for a fright!' },
+    { when: { flag: 'dragonSpellLearned', notFlag: 'guardFled', notScene: 'castle' }, nl: 'Ga naar de kasteelpoort en tik daar de drakenspreuk in je tas aan.', en: 'Go to the castle gate and tap the dragon spell in your bag there.' },
+    { when: { flag: 'dragonSpellLearned', notFlag: 'guardFled', scene: 'castle' }, nl: 'Tik de drakenspreuk in je tas aan — de wacht zal schrikken!', en: 'Tap the dragon spell in your bag — the guard is in for a fright!' },
     { when: { flag: 'witchDefeated', notFlag: 'gotRing' }, nl: 'Raap de gloeiende ring op die op de grond ligt, waar de heks stond.', en: 'Pick up the glowing ring lying on the ground where the witch stood.' },
     { when: { flag: 'valleyMagic', notFlag: 'witchDefeated' }, nl: 'Lees elk raadsel goed en tik op de steen met het dier dat erbij past.', en: 'Read each riddle carefully and tap the stone with the animal that fits.' },
     /* de drie ingrediënten (na de kaart) */
@@ -255,7 +255,7 @@ const GAME = {
     { when: { flag: 'wineTapLoose', has: 'vialWine' }, nl: 'Het kraantje van het sapvat zit los. Vul het lege flesje van de burgemeester bij het vat.', en: 'The juice barrel’s tap is loose. Fill the mayor’s empty vial at the barrel.' },
     { when: { has: 'cheese' }, nl: 'Het muisje in de molen is dol op kaas — en het kan het kraantje van het sapvat losknagen.', en: 'The little mouse in the mill loves cheese — and it can gnaw the juice barrel’s tap loose.' },
     { when: { has: ['vialWine', 'grain'], notFlag: 'gotCheese' }, nl: 'Het meisje bij de kraam wil graan voor brood. Ruil je graan voor een stuk kaas.', en: 'The girl at the stall wants grain for bread. Trade your grain for a piece of cheese.' },
-    { when: { has: 'vialWine', notFlag: 'wineTapLoose' }, nl: 'Het kraantje van het sapvat zit vast. Iets kleins kan erbij — wat lust een muisje graag? Schep eerst wat graan in de molen.', en: 'The juice barrel’s tap is stuck. Something small could reach it — what does a mouse like? First scoop some grain in the mill.' },
+    { when: { has: 'vialWine', notFlag: 'wineTapLoose', notHas: ['grain', 'cheese'] }, nl: 'Het kraantje van het sapvat zit vast. Het muisje kan erbij en wil kaas — en het meisje bij de kraam ruilt kaas voor graan uit de molen.', en: 'The juice barrel’s tap is stuck. The mouse can reach it and wants cheese — and the girl at the stall trades cheese for grain from the mill.' },
     /* molen maken */
     { when: { has: 'millwheel' }, nl: 'Breng het molenrad naar de molen en tik het grote tandrad aan. Zet de radjes op maat op hun plek.', en: 'Take the mill wheel to the mill and tap the big gear wheel. Fit the gears in place by size.' },
     { when: { flag: 'merchantDistracted', notFlag: 'taken_castle_cart' }, nl: 'Snel! De handelsman kijkt naar de bloemen. Tik de kar aan en pak het molenrad.', en: 'Quick! The merchant is watching the flowers. Tap the cart and take the mill wheel.' },
@@ -342,7 +342,7 @@ const GAME = {
           noUse: {
             coin: { nl: 'Burgemeester Bram schudt glimlachend zijn hoofd. “Houd dat muntje maar, Finn. Het wáter, daar gaat het om!”', en: 'Mayor Bram smiles and shakes his head. “Keep your coin, Finn. It’s the WATER that matters!”' },
             coinGold: { nl: '“Die munt is voor jóú, Finn. Een eerlijke beloning!”', en: '“That coin is for YOU, Finn. A fair reward!”' },
-            map: { nl: '“Die kaart is nu van jou, Finn. Volg het pad naar de vallei!”', en: '“That map is yours now, Finn. Follow the path to the valley!”' },
+            map: { nl: '“Die kaart is nu van jou, Finn. Volg het pad naar de vallei — het begint achter de kar bij de kasteelpoort!”', en: '“That map is yours now, Finn. Follow the path to the valley — it starts behind the cart at the castle gate!”' },
             grain: { nl: '“Graan? Daar bakt het meisje bij de kraam vast lekker brood van.”', en: '“Grain? The girl at the stall could bake lovely bread with that.”' },
             vialWine: { nl: '“Dat flesje is nog leeg, jongen! Vul het bij het sapvat in de molen.”', en: '“That vial is still empty, lad! Fill it at the juice barrel in the mill.”' },
             '*': { nl: 'Burgemeester Bram bekijkt het verbaasd. “Daar heb ik niets aan, jongen.”', en: 'Mayor Bram looks at it, puzzled. “I’ve no use for that, lad.”' }
@@ -371,7 +371,7 @@ const GAME = {
               give: 'coinGold',
               also: 'map',
               setFlag: ['gotMayorCoin', 'gotMap'],
-              text: { nl: 'Je geeft burgemeester Bram het flesje druivensap. Hij drinkt het in één teug leeg en zucht voldaan: “Wat een traktatie, Finn! Je hebt het water teruggebracht én een oude man verkwikt.” || “Hier — een gouden munt voor jou, én een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos, naar de vallei.” Hij drukt je een gouden munt en een vergeelde kaart in handen.', en: 'You give Mayor Bram the vial of grape juice. He drinks it in one gulp and sighs happily: “What a treat, Finn! You’ve brought the water back AND refreshed an old man.” || “Here — a gold coin for you, AND a secret map your father once entrusted to me. Follow the path beyond the wood, to the valley.” He presses a gold coin and a yellowed map into your hands.' }
+              text: { nl: 'Je geeft burgemeester Bram het flesje druivensap. Hij drinkt het in één teug leeg en zucht voldaan: “Wat een traktatie, Finn! Je hebt het water teruggebracht én een oude man verkwikt.” || “Hier — een gouden munt voor jou, én een geheime kaart die je vader me ooit toevertrouwde. Volg het pad voorbij het bos, naar de vallei — het begint achter de kar bij de kasteelpoort.” Hij drukt je een gouden munt en een vergeelde kaart in handen.', en: 'You give Mayor Bram the vial of grape juice. He drinks it in one gulp and sighs happily: “What a treat, Finn! You’ve brought the water back AND refreshed an old man.” || “Here — a gold coin for you, AND a secret map your father once entrusted to me. Follow the path beyond the wood, to the valley — it starts behind the cart at the castle gate.” He presses a gold coin and a yellowed map into your hands.' }
             }
           },
           setFlag: 'metMayor'
@@ -582,7 +582,9 @@ const GAME = {
           name: { nl: 'Het Waterrad', en: 'The Water Wheel' },
           rect: { x: 326, y: 150, w: 96, h: 96 },
           walkTo: { x: 360, y: 300 },
-          look: {
+          look: (state) => state.flags.millFixed
+            ? { nl: 'Het grote waterrad draait weer en het water stroomt naar het dorp.', en: 'The great water wheel turns again and water flows to the village.' }
+            : {
             nl: 'Het grote waterrad aan de zijkant staat stokstijf stil. Zo komt er geen water naar het dorp. Het mechaniek dat het rad laat draaien zit bínnen in de molen; ga eens kijken achter die deur.',
             en: 'The great water wheel on the side stands dead still. No water reaches the village like this. The mechanism that turns the wheel is inside the mill; take a look behind that door.'
           },
@@ -671,7 +673,9 @@ const GAME = {
           name: { nl: 'De Maalsteen', en: 'The Millstone' },
           rect: { x: 196, y: 150, w: 150, h: 110 },
           walkTo: { x: 270, y: 300 },
-          look: {
+          look: (state) => state.flags.millFixed
+            ? { nl: 'De zware maalsteen draait weer en maalt vers graan.', en: 'The heavy millstone turns again, grinding fresh grain.' }
+            : {
             nl: 'De zware ronde maalsteen en de houten pers erboven. Alles zit onder een laag meel en stof — er is hier al weken niet gemalen. Iets blokkeert het mechaniek.',
             en: 'The heavy round millstone and the wooden press above it. Everything is under a layer of flour and dust — nothing has been milled here for weeks. Something is jamming the mechanism.'
           },
@@ -759,6 +763,7 @@ const GAME = {
         },
         {
           id: 'grain',
+          appearFlag: 'millFixed',               // de zak ligt pas klaar als de molen maalt (anders vangt hij tikken op het tandrad af)
           name: { nl: 'Graanzak', en: 'Grain Sack' },
           rect: { x: 320, y: 224, w: 116, h: 80 },
           walkTo: { x: 360, y: 300 },
@@ -884,7 +889,7 @@ const GAME = {
             requiresFlag: 'dragonSpellLearned',
             setFlag: 'guardFled',
             dragonSequence: true,        // speelt eerst de drakenschaduw-flyby + verbaasde wacht/handelsman af; daarna verschijnt de pijl naar binnen
-            needText: { nl: 'Je voelt dat hier een machtige spreuk nodig is om langs de wacht te komen — maar zo’n spreuk ken je nog niet.', en: 'You sense it would take a mighty spell to get past the guard — but you don’t know one like that yet.' },
+            /* geen needText: zonder drakenspreuk toont de wacht zijn eigen spotlach (look) */
             text: { nl: 'Je heft je staf hoog en roept de DRAKENSPREUK: “Draconis Umbra!” Een reusachtige drakenschaduw scheert brullend over de muur. || De poortwacht wordt lijkbleek, laat zijn hellebaard kletterend vallen en rent er gillend vandoor. Zo dapper was hij dus niet! De weg naar kasteel Eldoria ligt open — loop de poort binnen. (volg de pijl)', en: 'You raise your staff high and call out the DRAGON SPELL: “Draconis Umbra!” A gigantic dragon shadow sweeps roaring over the wall. || The gate guard turns pale as milk, drops his halberd with a clatter and runs off yelping. Not so brave after all! The way to castle Eldoria lies open — walk through the gate. (follow the arrow)' }
           },
           setFlag: 'metGuard'
@@ -896,7 +901,10 @@ const GAME = {
           rect: { x: 20, y: 168, w: 166, h: 120 },
           walkTo: { x: 150, y: 300 },
           requiresFlag: 'merchantDistracted',
-          blockedText: {
+          blockedText: (state) => !state.flags.ravenFed ? {
+            nl: 'Tussen de vaten op de kar ligt iets zwaars van ijzer, maar de handelsman houdt zijn kar scherp in de gaten. Je moet hem eerst afleiden.',
+            en: 'Something heavy and iron lies among the barrels, but the merchant watches his cart closely. You must distract him first.'
+          } : {
             nl: 'De raaf zit boven op de kar en pikt naar één plek tussen de vaten — dáár ligt een zwaar ijzeren MOLENRAD, precies wat de molen nodig heeft! Maar de handelsman houdt zijn kar scherp in de gaten. Je moet hem eerst afleiden.',
             en: 'The raven perches atop the cart, pecking at one spot between the barrels — there lies a heavy iron MILL WHEEL, exactly what the mill needs! But the merchant watches his cart closely. You must distract him first.'
           },
@@ -913,7 +921,9 @@ const GAME = {
           name: { nl: 'Witte Bloemen', en: 'White Flowers' },
           rect: { x: 404, y: 238, w: 76, h: 60 },
           walkTo: { x: 440, y: 300 },
-          look: (state) => state.flags.flowerDancing
+          look: (state) => state.flags.taken_castle_cart
+            ? { nl: 'De bloemen staan weer stil naast de poort.', en: 'The flowers stand still again by the gate.' }
+            : state.flags.flowerDancing
             ? { nl: 'De bloemen zwieren uitbundig heen en weer; de handelsman kan zijn ogen er niet vanaf houden.', en: 'The flowers sway wildly to and fro; the merchant can’t take his eyes off them.' }
             : { nl: 'Een groep bloemen naast de poort, met één grote ertussen. Als die eens zouden gaan dansen...', en: 'A cluster of flowers by the gate, one big one among them. If only they would dance...' },
           castWith: {
@@ -936,7 +946,9 @@ const GAME = {
           rect: { x: 186, y: 212, w: 64, h: 96 },
           walkTo: { x: 206, y: 300 },
           face: 'assets/art/face-merchant.png',
-          look: (state) => state.flags.merchantDistracted
+          look: (state) => state.flags.taken_castle_cart
+            ? { nl: 'De handelsman krabt verbaasd op zijn hoofd. “Dansende bloemen... en nu staan ze weer stil. Heb ik het gedroomd?”', en: 'The merchant scratches his head in confusion. “Dancing flowers... and now they’re still again. Did I dream it?”' }
+            : state.flags.merchantDistracted
             ? { nl: 'De handelsman staart met open mond naar de dansende bloem. “Wat... een dánsende bloem? Ongelooflijk!” Hij let totaal niet meer op zijn kar.', en: 'The merchant gapes at the dancing flower. “What... a DANCING flower? Incredible!” He pays no attention to his cart at all.' }
             : { nl: 'Een gezette handelsman bewaakt zijn volgeladen kar. “Afblijven, jochie — dit is allemaal míjn koopwaar, en niets is te koop!” Hij kijkt schichtig om zich heen.', en: 'A portly merchant guards his loaded cart. “Hands off, lad — this is all MY merchandise, and none of it is for sale!” He glances around shiftily.' },
           setFlag: 'metMerchant'
@@ -1136,7 +1148,7 @@ const GAME = {
           look: (state) => state.flags.gotFireflight
             ? { nl: 'De lavendelbloemen wiegen nog zachtjes na. Je hebt al een flesje vol vuurvliegjes.', en: 'The lavender flowers still sway gently. You’ve already caught a vial of fireflies.' }
             : state.flags.valleyFlowersDancing
-            ? { nl: 'De lavendelbloemen dansen en een wolk groen-blauwe vuurvliegjes danst mee. Tik ze aan om er een paar in een flesje te vangen.', en: 'The lavender flowers are dancing and a cloud of green-blue fireflies dances along. Tap them to catch a few in a vial.' }
+            ? { nl: 'De lavendelbloemen dansen en een wolk groen-blauwe vuurvliegjes danst mee. Kies het lege flesje voor vuurvliegjes in je tas en tik dan de bloemen aan.', en: 'The lavender flowers are dancing and a cloud of green-blue fireflies dances along. Pick the empty firefly vial in your bag, then tap the flowers.' }
             : { nl: 'Lichtgevende lavendelbloemen met zacht blauw licht. Ze staan stil... misschien gaan ze dansen als je je dans-spreuk uitspreekt?', en: 'Glowing lavender flowers with a soft blue light. They stand still... perhaps they would dance if you cast your dance-spell?' },
           use: {
             vialFly: {

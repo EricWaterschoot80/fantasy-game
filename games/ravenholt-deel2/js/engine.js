@@ -3267,7 +3267,9 @@
     if (isDragon && !state.flags.dragonSpellLearned) return false;
     if (!isDragon && !state.flags.spellWritten) return false;
     if (!isDragon && state.currentScene === 'valley' && !state.flags.valleyFlowersDancing) return true;
-    const hs = (scene.hotspots || []).find((h) => h.castWith && (isDragon ? h.castWith.item === 'dragonspell' : h.castWith.item !== 'dragonspell'));
+    /* In de kerker werkt de dans-spreuk alleen op de wondernoot in het plasje. */
+    if (!isDragon && state.currentScene === 'dungeon') return !!state.flags.nutInPuddle && !state.flags.guardTurned;
+    const hs = (scene.hotspots || []).find((h) => h.castWith && (isDragon ? h.castWith.item === 'dragonspell' : (h.castWith.item !== 'dragonspell' && h.castWith.item !== 'invisspell')));
     if (!hs) return false;
     const c = hs.castWith;
     const fls = Array.isArray(c.setFlag) ? c.setFlag : [c.setFlag];
